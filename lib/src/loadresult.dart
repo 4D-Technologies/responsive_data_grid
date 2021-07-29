@@ -2,12 +2,10 @@ part of responsive_data_grid;
 
 class LoadResult<TItem extends Object> {
   final int totalCount;
-  final Iterable<TItem> items;
+  final List<TItem> items;
 
-  LoadResult({
+  const LoadResult({
     required this.totalCount,
     required this.items,
-  }) {
-    assert(TItem != Object);
-  }
+  });
 }
