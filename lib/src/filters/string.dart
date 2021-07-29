@@ -1,8 +1,9 @@
 part of responsive_data_grid;
 
-class DataGridStringColumnFilter<TItem> extends DataGridColumnFilter<TItem> {
+class DataGridStringColumnFilter<TItem extends Object>
+    extends DataGridColumnFilter<TItem> {
   DataGridStringColumnFilter(
-      ColumnDefinition<TItem> definition, DataGridState<TItem> grid)
+      ColumnDefinition<TItem> definition, ResponsiveDataGridState<TItem> grid)
       : super(definition, grid) {
     assert(TItem != dynamic);
   }
@@ -12,7 +13,7 @@ class DataGridStringColumnFilter<TItem> extends DataGridColumnFilter<TItem> {
       DataGridStringColumnFilterState<TItem>();
 }
 
-class DataGridStringColumnFilterState<TItem>
+class DataGridStringColumnFilterState<TItem extends Object>
     extends DataGridColumnFilterState<TItem> {
   late LogicalOperators? op;
   late String searchText;

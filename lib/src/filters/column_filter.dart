@@ -1,13 +1,14 @@
 part of responsive_data_grid;
 
-abstract class DataGridColumnFilter<TItem> extends StatefulWidget {
+abstract class DataGridColumnFilter<TItem extends Object>
+    extends StatefulWidget {
   final ColumnDefinition<TItem> definition;
-  final DataGridState<TItem> grid;
+  final ResponsiveDataGridState<TItem> grid;
 
   DataGridColumnFilter(this.definition, this.grid);
 }
 
-abstract class DataGridColumnFilterState<TItem>
+abstract class DataGridColumnFilterState<TItem extends Object>
     extends State<DataGridColumnFilter<TItem>> {
   void filter(BuildContext context, FilterCriteria criteria) {
     widget.definition.header.filterRules =

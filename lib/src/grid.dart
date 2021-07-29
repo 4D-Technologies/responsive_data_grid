@@ -1,6 +1,6 @@
 part of responsive_data_grid;
 
-class DataGrid<TItem extends dynamic> extends StatefulWidget {
+class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
   final Future<LoadResult<TItem>?> Function(LoadCriteria) loadData;
 
   final void Function(TItem)? itemTapped;
@@ -21,8 +21,8 @@ class DataGrid<TItem extends dynamic> extends StatefulWidget {
   final CrossAxisAlignment headerCrossAxisAlignment;
   final int reactiveSegments;
 
-  DataGrid({
-    GlobalKey<DataGridState<TItem>>? key,
+  ResponsiveDataGrid({
+    GlobalKey<ResponsiveDataGridState<TItem>>? key,
     required this.loadData,
     required this.columns,
     this.itemTapped,
@@ -41,10 +41,11 @@ class DataGrid<TItem extends dynamic> extends StatefulWidget {
   }
 
   @override
-  State<StatefulWidget> createState() => DataGridState<TItem>();
+  State<StatefulWidget> createState() => ResponsiveDataGridState<TItem>();
 }
 
-class DataGridState<TItem extends dynamic> extends State<DataGrid<TItem>> {
+class ResponsiveDataGridState<TItem extends Object>
+    extends State<ResponsiveDataGrid<TItem>> {
   List<FilterCriteria> filterBy = List<FilterCriteria>.empty(growable: true);
   List<OrderCriteria> orderBy = List<OrderCriteria>.empty(growable: true);
 
@@ -57,7 +58,7 @@ class DataGridState<TItem extends dynamic> extends State<DataGrid<TItem>> {
 
   int totalCount = 0;
 
-  DataGridState() {
+  ResponsiveDataGridState() {
     assert(TItem != Object);
   }
 
@@ -119,25 +120,33 @@ class DataGridState<TItem extends dynamic> extends State<DataGrid<TItem>> {
   Widget build(BuildContext context) {
     final theme = mergeTheme(context);
 
+    if (!isInitialized && !isLoading) return Container();
+
     return Theme(
-      data: theme,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          DataGridHeaderRowWidget(this, this.widget.columns),
-          DataGridBodyWidget(this, theme),
-          isInitialized && isLoading
-              ? Container(
-                  height: isInitialized && isLoading ? 50.0 : 0,
-                  color: Colors.transparent,
-                  child: Center(
-                    child: CircularProgressIndicator(),
+        data: theme,
+        child: Container(
+          height: widget.height,
+          child: Column(
+            mainAxisSize:
+                widget.height == null ? MainAxisSize.min : MainAxisSize.max,
+            children: [
+              ResponsiveDataGridHeaderRowWidget(this, this.widget.columns),
+              Visibility(
+                child: ResponsiveDataGridBodyWidget(this, theme),
+                visible: isInitialized,
+              ),
+              Visibility(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [CircularProgressIndicator()],
                   ),
-                )
-              : Container()
-        ],
-      ),
-    );
+                ),
+                visible: isInitialized && isLoading,
+              ),
+            ],
+          ),
+        ));
   }
 
   ThemeData mergeTheme(BuildContext context) => Theme.of(context);

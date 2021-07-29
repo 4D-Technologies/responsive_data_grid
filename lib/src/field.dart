@@ -1,6 +1,6 @@
 part of responsive_data_grid;
 
-class DataGridFieldWidget<TItem extends dynamic> extends StatelessWidget {
+class DataGridFieldWidget<TItem extends Object> extends StatelessWidget {
   final ColumnDefinition<TItem> definition;
   final TItem item;
   DataGridFieldWidget(this.definition, this.item) {
@@ -12,12 +12,8 @@ class DataGridFieldWidget<TItem extends dynamic> extends StatelessWidget {
     final theme = Theme.of(context);
 
     Widget? child;
-    if (definition.customFieldWidget != null &&
-        definition.customFieldWidget!(item) == null) {
-      child = Container();
-    } else if (definition.customFieldWidget != null &&
-        definition.customFieldWidget!(item) != null) {
-      child = definition.customFieldWidget!(item)!;
+    if (definition.customFieldWidget != null) {
+      child = definition.customFieldWidget!(item) ?? Container();
     } else {
       child = Text(
         definition.value!(item)?.toString() ?? '',

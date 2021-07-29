@@ -1,6 +1,6 @@
 part of responsive_data_grid;
 
-class ColumnDefinition<TItem> {
+class ColumnDefinition<TItem extends Object> {
   final String? fieldName;
   final Type? fieldType;
   final Widget? Function(TItem row)? customFieldWidget;
@@ -53,7 +53,7 @@ class ColumnDefinition<TItem> {
           fieldName: this.fieldName, header: header ?? this.header);
 }
 
-class ColumnHeaderDefinition<TItem> {
+class ColumnHeaderDefinition<TItem extends Object> {
   final bool empty;
   final String? text;
   final AlignmentGeometry? alignment;

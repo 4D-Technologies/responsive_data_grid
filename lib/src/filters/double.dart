@@ -1,10 +1,11 @@
 part of responsive_data_grid;
 
-class DataGridDoubleColumnFilter<TItem> extends DataGridColumnFilter<TItem> {
+class DataGridDoubleColumnFilter<TItem extends Object>
+    extends DataGridColumnFilter<TItem> {
   DataGridDoubleColumnFilter(
-      ColumnDefinition<TItem> definition, DataGridState<TItem> grid)
+      ColumnDefinition<TItem> definition, ResponsiveDataGridState<TItem> grid)
       : super(definition, grid) {
-    assert(TItem != dynamic);
+    assert(TItem != Object);
   }
 
   @override
@@ -12,7 +13,7 @@ class DataGridDoubleColumnFilter<TItem> extends DataGridColumnFilter<TItem> {
       DataGridDoubleColumnFilterState<TItem>();
 }
 
-class DataGridDoubleColumnFilterState<TItem>
+class DataGridDoubleColumnFilterState<TItem extends Object>
     extends DataGridColumnFilterState<TItem> {
   @override
   Widget build(BuildContext context) {

@@ -1,7 +1,7 @@
 part of responsive_data_grid;
 
 @immutable
-class FilterRules<TItem> {
+class FilterRules<TItem extends Object> {
   final bool filterable;
   final Map<String, dynamic>? valueMap;
   final DataGridColumnFilter<TItem>? customFilter;

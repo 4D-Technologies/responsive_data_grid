@@ -1,8 +1,8 @@
 part of responsive_data_grid;
 
-class ColumnHeaderWidget<TItem extends dynamic> extends StatefulWidget {
+class ColumnHeaderWidget<TItem extends Object> extends StatefulWidget {
   final ColumnDefinition<TItem> definition;
-  final DataGridState<TItem> grid;
+  final ResponsiveDataGridState<TItem> grid;
 
   ColumnHeaderWidget(this.grid, this.definition) {
     assert(TItem != dynamic);
@@ -12,7 +12,8 @@ class ColumnHeaderWidget<TItem extends dynamic> extends StatefulWidget {
   State<StatefulWidget> createState() => ColumnHeaderState<TItem>();
 }
 
-class ColumnHeaderState<TItem> extends State<ColumnHeaderWidget<TItem>> {
+class ColumnHeaderState<TItem extends Object>
+    extends State<ColumnHeaderWidget<TItem>> {
   AlignmentGeometry? alignment;
   TextAlign? textAlign;
   FilterRules<TItem>? filterRules;

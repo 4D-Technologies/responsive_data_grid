@@ -1,8 +1,8 @@
 part of responsive_data_grid;
 
-class DataGridColumnMenuWidget<TItem extends dynamic> extends StatelessWidget {
+class DataGridColumnMenuWidget<TItem extends Object> extends StatelessWidget {
   final ColumnDefinition<TItem> definition;
-  final DataGridState<TItem> grid;
+  final ResponsiveDataGridState<TItem> grid;
   DataGridColumnMenuWidget(this.definition, this.grid) {
     assert(TItem != dynamic);
   }

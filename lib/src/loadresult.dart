@@ -1,10 +1,13 @@
 part of responsive_data_grid;
 
-class LoadResult<TItem extends dynamic> {
+class LoadResult<TItem extends Object> {
   final int totalCount;
   final Iterable<TItem> items;
 
-  LoadResult(this.totalCount, this.items) {
-    assert(TItem != dynamic);
+  LoadResult({
+    required this.totalCount,
+    required this.items,
+  }) {
+    assert(TItem != Object);
   }
 }

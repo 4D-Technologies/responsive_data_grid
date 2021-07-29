@@ -1,16 +1,18 @@
 part of responsive_data_grid;
 
-class DataGridHeaderRowWidget<TItem extends dynamic> extends StatelessWidget {
-  final DataGridState<TItem> grid;
+class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
+    extends StatelessWidget {
+  final ResponsiveDataGridState<TItem> grid;
   final List<ColumnDefinition<TItem>> columns;
 
-  DataGridHeaderRowWidget(this.grid, this.columns) {
-    assert(TItem != dynamic);
+  ResponsiveDataGridHeaderRowWidget(this.grid, this.columns) {
+    assert(TItem != Object);
   }
 
   @override
   Widget build(BuildContext context) {
-    final grid = context.findAncestorWidgetOfExactType<DataGrid<TItem>>();
+    final grid =
+        context.findAncestorWidgetOfExactType<ResponsiveDataGrid<TItem>>();
 
     return Container(
       color: Theme.of(context).primaryColorDark,

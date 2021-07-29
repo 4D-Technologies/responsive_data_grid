@@ -1,10 +1,11 @@
 part of responsive_data_grid;
 
-class DataGridValuesColumnFilter<TItem> extends DataGridColumnFilter<TItem> {
+class DataGridValuesColumnFilter<TItem extends Object>
+    extends DataGridColumnFilter<TItem> {
   DataGridValuesColumnFilter(
-      ColumnDefinition<TItem> definition, DataGridState<TItem> grid)
+      ColumnDefinition<TItem> definition, ResponsiveDataGridState<TItem> grid)
       : super(definition, grid) {
-    assert(TItem != dynamic);
+    assert(TItem != Object);
   }
 
   @override
@@ -12,7 +13,7 @@ class DataGridValuesColumnFilter<TItem> extends DataGridColumnFilter<TItem> {
       DataGridValuesColumnFilterState<TItem>();
 }
 
-class DataGridValuesColumnFilterState<TItem>
+class DataGridValuesColumnFilterState<TItem extends Object>
     extends DataGridColumnFilterState<TItem> {
   @override
   Widget build(BuildContext context) {

@@ -1,16 +1,18 @@
 part of responsive_data_grid;
 
-class DataGridRowWidget<TItem extends dynamic> extends StatelessWidget {
+class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
   final TItem item;
   final List<ColumnDefinition<TItem>> columns;
 
   DataGridRowWidget(this.item, this.columns) {
-    assert(TItem != dynamic);
+    assert(TItem != Object);
   }
 
   @override
   Widget build(BuildContext context) {
-    final grid = context.findAncestorWidgetOfExactType<DataGrid<TItem>>();
+    final grid =
+        context.findAncestorWidgetOfExactType<ResponsiveDataGrid<TItem>>();
+
     return BootstrapRow(
       crossAxisAlignment: grid!.rowCrossAxisAlignment,
       children: getColumns(context, item),
