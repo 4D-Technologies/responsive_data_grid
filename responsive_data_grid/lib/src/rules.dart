@@ -37,11 +37,11 @@ class OrderRules {
   final bool? showSort;
   final OrderDirections direction;
 
-  OrderRules({this.showSort = false, this.direction = OrderDirections.NotSet});
+  OrderRules({this.showSort = false, this.direction = OrderDirections.notSet});
 
   const OrderRules.notSet()
       : this.showSort = null,
-        this.direction = OrderDirections.NotSet;
+        this.direction = OrderDirections.notSet;
 
   OrderRules copyWith({bool? showSort, OrderDirections? direction}) =>
       OrderRules(

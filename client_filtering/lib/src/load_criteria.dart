@@ -1,6 +1,6 @@
 part of client_filtering;
 
-class LoadCriteria {
+class LoadCriteria with IJsonable {
   final int? skip;
   final int? take;
   final List<FilterCriteria> filterBy;
@@ -44,28 +44,23 @@ class LoadCriteria {
     );
   }
 
-  Map<String, dynamic> toMap() {
+  Map<String, dynamic> toJson() {
     return {
       'skip': skip,
       'take': take,
-      'filterBy': filterBy.map((x) => x.toMap()).toList(),
-      'orderBy': orderBy.map((x) => x.toMap()).toList(),
+      'filterBy': filterBy.map((x) => x.toJson()).toList(),
+      'orderBy': orderBy.map((x) => x.toJson()).toList(),
     };
   }
 
-  factory LoadCriteria.fromMap(Map<String, dynamic> map) {
+  factory LoadCriteria.fromJson(Map<String, dynamic> map) {
     return LoadCriteria(
       skip: map['skip'],
       take: map['take'],
       filterBy: List<FilterCriteria>.from(
-          map['filterBy']?.map((x) => FilterCriteria.fromMap(x))),
+          map['filterBy']?.map((x) => FilterCriteria.fromJson(x))),
       orderBy: List<OrderCriteria>.from(
-          map['orderBy']?.map((x) => OrderCriteria.fromMap(x))),
+          map['orderBy']?.map((x) => OrderCriteria.fromJson(x))),
     );
   }
-
-  String toJson() => json.encode(toMap());
-
-  factory LoadCriteria.fromJson(String source) =>
-      LoadCriteria.fromMap(json.decode(source));
 }

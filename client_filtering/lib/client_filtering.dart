@@ -8,3 +8,4 @@ part './src/enums.dart';
 part './src/filter_criteria.dart';
 part './src/load_criteria.dart';
 part './src/order_criteria.dart';
+part './src/ijsonable.dart';

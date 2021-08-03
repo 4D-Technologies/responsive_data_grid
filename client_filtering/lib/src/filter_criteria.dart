@@ -1,6 +1,6 @@
 part of client_filtering;
 
-class FilterCriteria {
+class FilterCriteria with IJsonable {
   final String fieldName;
   final Logic op;
   final Operators logicalOperator;
@@ -51,7 +51,7 @@ class FilterCriteria {
     return 'FilterCriteria(fieldName: $fieldName, op: $op, logicalOperator: $logicalOperator, value: $value)';
   }
 
-  Map<String, dynamic> toMap() {
+  Map<String, dynamic> toJson() {
     return {
       'fieldName': fieldName,
       'op': op.toString(),
@@ -60,7 +60,7 @@ class FilterCriteria {
     };
   }
 
-  factory FilterCriteria.fromMap(Map<String, dynamic> map) {
+  factory FilterCriteria.fromJson(Map<String, dynamic> map) {
     return FilterCriteria(
       fieldName: map['fieldName'],
       op: Logic.values.firstWhere((v) => v == map['op']),
@@ -69,9 +69,4 @@ class FilterCriteria {
       value: map['value'],
     );
   }
-
-  String toJson() => jsonEncode(toMap());
-
-  factory FilterCriteria.fromJson(String source) =>
-      FilterCriteria.fromMap(json.decode(source));
 }

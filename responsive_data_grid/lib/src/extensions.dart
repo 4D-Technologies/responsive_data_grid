@@ -4,7 +4,7 @@ extension OrderCriteriaExtensions on List<OrderCriteria> {
   String toOdata() {
     if (this.isEmpty) return "";
     return this.map((e) {
-      if (e.direction == OrderDirections.Descending) {
+      if (e.direction == OrderDirections.descending) {
         return "${e.fieldName} desc";
       } else {
         return e.fieldName;

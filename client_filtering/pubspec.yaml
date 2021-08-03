@@ -1,6 +1,6 @@
 name: client_filtering
-description: A new Flutter package project.
-version: 0.0.1
+description: Allows dynamic client filtering through a set of models
+version: 0.0.4
 homepage: https://github.com/Concerti-IO/responsive_data_grid/client_filtering
 repository: https://github.com/Concerti-IO/responsive_data_grid
 

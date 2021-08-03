@@ -34,19 +34,19 @@ class ColumnHeaderState<TItem extends Object>
 
   void toggleOrder() {
     switch (orderRules?.direction) {
-      case OrderDirections.NotSet:
+      case OrderDirections.notSet:
         setState(() => widget.definition.header.orderRules = widget
             .definition.header.orderRules
-            .copyWith(direction: OrderDirections.Ascending));
+            .copyWith(direction: OrderDirections.ascending));
         break;
-      case OrderDirections.Ascending:
+      case OrderDirections.ascending:
         widget.definition.header.orderRules = widget
             .definition.header.orderRules
-            .copyWith(direction: OrderDirections.Descending);
+            .copyWith(direction: OrderDirections.descending);
         break;
       default:
         widget.definition.header.orderRules =
-            OrderRules(direction: OrderDirections.NotSet);
+            OrderRules(direction: OrderDirections.notSet);
         break;
     }
 
@@ -91,14 +91,14 @@ class ColumnHeaderState<TItem extends Object>
 
     if (orderRules != null &&
         ((orderRules!.showSort == null &&
-                grid.widget.sortable != SortableOptions.None) ||
+                grid.widget.sortable != SortableOptions.none) ||
             (orderRules!.showSort ?? false))) {
       IconData icon;
       switch (orderRules!.direction) {
-        case OrderDirections.Ascending:
+        case OrderDirections.ascending:
           icon = Icons.arrow_upward;
           break;
-        case OrderDirections.Descending:
+        case OrderDirections.descending:
           icon = Icons.arrow_downward;
           break;
         default:

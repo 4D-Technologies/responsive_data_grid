@@ -17,5 +17,5 @@ enum Operators {
   notStartsWith,
 }
 
-enum OrderDirections { NotSet, Ascending, Descending }
-enum SortableOptions { None, Single, MultiColumn }
+enum OrderDirections { notSet, ascending, descending }
+enum SortableOptions { none, single, multiColumn }

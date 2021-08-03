@@ -29,7 +29,7 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
     this.pageSize = 50,
     this.height,
     this.columnTheme,
-    this.sortable = SortableOptions.None,
+    this.sortable = SortableOptions.none,
     this.filterable = false,
     this.headerTheme,
     this.noResults,
@@ -160,8 +160,9 @@ class ResponsiveDataGridState<TItem extends Object>
 
   void updateAllRules() {
     columns.where((c) => c.fieldName != null).forEach((c) {
-      if (c.header.orderRules.direction != OrderDirections.NotSet) {
-        orderBy.add(OrderCriteria(c.fieldName!, c.header.orderRules.direction));
+      if (c.header.orderRules.direction != OrderDirections.notSet) {
+        orderBy.add(OrderCriteria(
+            fieldName: c.fieldName!, direction: c.header.orderRules.direction));
       }
 
       if (c.header.filterRules.criteria != null) {
@@ -171,13 +172,13 @@ class ResponsiveDataGridState<TItem extends Object>
   }
 
   void updateOrderByCriteria(ColumnDefinition<TItem> col) {
-    if (widget.sortable != SortableOptions.Single) return;
+    if (widget.sortable != SortableOptions.single) return;
 
     columns
         .where((c) =>
-            c != col && c.header.orderRules.direction != OrderDirections.NotSet)
+            c != col && c.header.orderRules.direction != OrderDirections.notSet)
         .forEach((c) => c.header.orderRules =
-            OrderRules(direction: OrderDirections.NotSet));
+            OrderRules(direction: OrderDirections.notSet));
   }
 
   Future<void> load({bool clear = false}) async {

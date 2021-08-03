@@ -35,7 +35,7 @@ class ColumnDefinition<TItem extends Object> {
     assert(TItem != Object);
 
     if (fieldName == null) {
-      if (this.header.orderRules.direction != OrderDirections.NotSet ||
+      if (this.header.orderRules.direction != OrderDirections.notSet ||
           this.header.orderRules.showSort != null) {
         throw ArgumentError(
             "If Order rules are set, then a field name is required.");
