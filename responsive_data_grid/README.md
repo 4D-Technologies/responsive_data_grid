@@ -2,6 +2,8 @@
 
 A Flutter widget that is inspired by Kendo Data Grid and allows sorting, filtering, and paging with full bootstrap style responsive layout.
 
+For a fully automatic implementation that allows you to tie your responsive data grid to your C# WebAPI REST/GRPC backend with full automatic filtering, sorting, take and skip functionality that generates a full expression tress against your Entity Framework or other Linq based queries, see the dotnet sub folder of the root project and the associated nuget package.
+
 ## Features
 
 1. Paging

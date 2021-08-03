@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30114.105
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientFiltering", "ClientFiltering\ClientFiltering.csproj", "{1AD26AC8-9874-467D-8F63-D6246AC88ED5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientFilteringTests", "ClientFilteringTests\ClientFilteringTests.csproj", "{AAC13D5D-1E04-4C51-925B-3FE10185469C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1AD26AC8-9874-467D-8F63-D6246AC88ED5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1AD26AC8-9874-467D-8F63-D6246AC88ED5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1AD26AC8-9874-467D-8F63-D6246AC88ED5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1AD26AC8-9874-467D-8F63-D6246AC88ED5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AAC13D5D-1E04-4C51-925B-3FE10185469C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AAC13D5D-1E04-4C51-925B-3FE10185469C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AAC13D5D-1E04-4C51-925B-3FE10185469C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AAC13D5D-1E04-4C51-925B-3FE10185469C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

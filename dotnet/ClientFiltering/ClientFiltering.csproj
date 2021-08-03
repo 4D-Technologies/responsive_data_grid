@@ -1,9 +1,24 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <Nullable>enable</Nullable>
     <RootNamespace>ClientFiltering</RootNamespace>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+    <Authors>James Hancock</Authors>
+    <Company>Concerti</Company>
+    <Description>A simple library that implements Client Filtering, Sorting and paging and can apply that filtering, sorting and paging in a single line to any IQueryable.  
+Useful for working with Kendo UI for Web and Responsive_Data_Grid on Flutter without having to resort to using the overly heavy and difficult oData library.</Description>
+    <Copyright>Copyright 2021 Concerti Inc.</Copyright>
+    <PackageProjectUrl> https://github.com/Concerti-IO/responsive_data_grid</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Concerti-IO/responsive_data_grid</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>odata;client filtering;linq</PackageTags>
+    <PackageReleaseNotes>Initial Release</PackageReleaseNotes>
   </PropertyGroup>
-
+  <ItemGroup>
+    <None Include="LICENSE" Pack="true" PackagePath=""/>
+  </ItemGroup>
 </Project>

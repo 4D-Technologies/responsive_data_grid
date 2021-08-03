@@ -2,6 +2,7 @@ name: responsive_data_grid
 description: Responsive Data Grid for Flutter inspired by Kendo UI.
 version: 0.0.3
 homepage: https://github.com/Concerti-IO/responsive_data_grid/responsive_data_grid
+repository: https://github.com/Concerti-IO/responsive_data_grid
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
