@@ -15,14 +15,14 @@ class DataGridStringColumnFilter<TItem extends Object>
 
 class DataGridStringColumnFilterState<TItem extends Object>
     extends DataGridColumnFilterState<TItem> {
-  late LogicalOperators? op;
+  late Operators? op;
   late String searchText;
 
   DataGridStringColumnFilterState();
 
   @override
   void initState() {
-    op = LogicalOperators.startsWith;
+    op = Operators.startsWith;
     searchText =
         widget.definition.header.filterRules.criteria?.value?.toString() ?? '';
     super.initState();
@@ -33,20 +33,32 @@ class DataGridStringColumnFilterState<TItem extends Object>
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        DropdownButtonFormField(
+        DropdownButtonFormField<Operators>(
             items: [
               DropdownMenuItem(
-                  child: Text("Contains"), value: LogicalOperators.contains),
+                  child: Text("Contains"), value: Operators.contains),
               DropdownMenuItem(
-                  child: Text("Starts With"),
-                  value: LogicalOperators.startsWith),
+                  child: Text("Starts With"), value: Operators.startsWith),
               DropdownMenuItem(
-                  child: Text("Ends With"), value: LogicalOperators.endsWidth),
+                  child: Text("Ends With"), value: Operators.endsWidth),
+              DropdownMenuItem(child: Text("Equals"), value: Operators.equals),
               DropdownMenuItem(
-                  child: Text("Equals"), value: LogicalOperators.equals),
+                  child: Text("Does Not Equal"), value: Operators.notEqual),
+              DropdownMenuItem(
+                child: Text("Does Not Contain"),
+                value: Operators.notContains,
+              ),
+              DropdownMenuItem(
+                child: Text("Does Not Start With"),
+                value: Operators.notStartsWith,
+              ),
+              DropdownMenuItem(
+                child: Text("Does Not End With"),
+                value: Operators.notEndsWith,
+              ),
             ],
             value: op,
-            onChanged: (LogicalOperators? value) {
+            onChanged: (Operators? value) {
               this.setState(() {
                 op = value;
               });
@@ -65,7 +77,7 @@ class DataGridStringColumnFilterState<TItem extends Object>
                     FilterCriteria(
                         fieldName: widget.definition.fieldName!,
                         logicalOperator: op!,
-                        op: FilterOperators.And,
+                        op: Logic.And,
                         value: searchText)),
                 icon: Icon(Icons.save),
                 label: Text("Save")))

@@ -20,38 +20,38 @@ extension FilterCriteriaExtensions on List<FilterCriteria> {
     String filter = '';
     this.forEach((e) {
       if (filter.isNotEmpty) {
-        if (e.op == FilterOperators.Or) {
+        if (e.op == Logic.Or) {
           filter += " OR ";
         } else {
           filter += " AND ";
         }
       }
 
-      if (e.logicalOperator == LogicalOperators.endsWidth) {
+      if (e.logicalOperator == Operators.endsWidth) {
         filter += " endsWidth(${escapeFieldName(e.fieldName)}, '${e.value}')";
-      } else if (e.logicalOperator == LogicalOperators.contains) {
+      } else if (e.logicalOperator == Operators.contains) {
         filter += " contains(${escapeFieldName(e.fieldName)}, '${e.value}')";
-      } else if (e.logicalOperator == LogicalOperators.notContains) {
+      } else if (e.logicalOperator == Operators.notContains) {
         filter +=
             " not contains(${escapeFieldName(e.fieldName)}, '${e.value}')";
-      } else if (e.logicalOperator == LogicalOperators.startsWith) {
+      } else if (e.logicalOperator == Operators.startsWith) {
         filter += " startsWith(${escapeFieldName(e.fieldName)}, '${e.value}')";
       } else {
         filter += "${escapeFieldName(e.fieldName)} ";
         switch (e.logicalOperator) {
-          case LogicalOperators.equals:
+          case Operators.equals:
             filter += "eq";
             break;
-          case LogicalOperators.greaterThan:
+          case Operators.greaterThan:
             filter += "gt";
             break;
-          case LogicalOperators.greaterThanOrEqualTo:
+          case Operators.greaterThanOrEqualTo:
             filter += "ge";
             break;
-          case LogicalOperators.lessThan:
+          case Operators.lessThan:
             filter += "lt";
             break;
-          case LogicalOperators.lessThanOrEqualTo:
+          case Operators.lessThanOrEqualTo:
             filter += "le";
             break;
           default:

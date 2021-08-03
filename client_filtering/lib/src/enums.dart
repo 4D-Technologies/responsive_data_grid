@@ -1,8 +1,8 @@
-part of responsive_data_grid;
+part of client_filtering;
 
-enum FilterOperators { And, Or }
+enum Logic { And, Or }
 
-enum LogicalOperators {
+enum Operators {
   equals,
   lessThan,
   greaterThan,
@@ -11,7 +11,10 @@ enum LogicalOperators {
   contains,
   notContains,
   endsWidth,
-  startsWith
+  startsWith,
+  notEqual,
+  notEndsWith,
+  notStartsWith,
 }
 
 enum OrderDirections { NotSet, Ascending, Descending }

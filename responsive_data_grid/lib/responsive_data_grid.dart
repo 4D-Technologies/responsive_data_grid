@@ -1,6 +1,8 @@
 library responsive_data_grid;
 
+import 'package:client_filtering/client_filtering.dart';
 import 'package:bootstrap_grid/bootstrap_grid.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
@@ -25,8 +27,6 @@ part './src/body.dart';
 part './src/field.dart';
 
 part './src/extensions.dart';
-part './src/enums.dart';
-part './src/criteria.dart';
 
 part './src/columns/menu.dart';
 part './src/columns/header.dart';

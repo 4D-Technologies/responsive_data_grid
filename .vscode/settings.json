@@ -1,0 +1,4 @@
+{
+  "csharp.testsCodeLens.enabled": true,
+  "dotnet-test-explorer.testProjectPath": "dotnet/**/*Tests.@(csproj|vbproj|fsproj)"
+}
