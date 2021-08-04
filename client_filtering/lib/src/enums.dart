@@ -1,6 +1,6 @@
 part of client_filtering;
 
-enum Logic { And, Or }
+enum Logic { and, or }
 
 enum Operators {
   equals,

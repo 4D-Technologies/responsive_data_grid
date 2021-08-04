@@ -1,4 +1,4 @@
-## 0.0.6
+## [0.0.7]
 
 - Updated to use client_filtering shared library
 

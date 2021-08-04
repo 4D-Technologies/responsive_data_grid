@@ -145,6 +145,11 @@ namespace ClientFiltering
             {
                 constantValue = Expression.Constant(DateTime.ParseExact(criteria.Value, "o", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.RoundtripKind), property.Type);
             }
+            else if (property.Type.IsEnum)
+            {
+                var enumValue = Enum.Parse(property.Type, criteria.Value);
+                constantValue = Expression.Constant(enumValue, property.Type);
+            }
             else
             {
                 constantValue = Expression.Constant(criteria.Value, property.Type);

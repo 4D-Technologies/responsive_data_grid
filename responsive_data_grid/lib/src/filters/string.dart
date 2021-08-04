@@ -77,7 +77,7 @@ class DataGridStringColumnFilterState<TItem extends Object>
                     FilterCriteria(
                         fieldName: widget.definition.fieldName!,
                         logicalOperator: op!,
-                        op: Logic.And,
+                        op: Logic.and,
                         value: searchText)),
                 icon: Icon(Icons.save),
                 label: Text("Save")))

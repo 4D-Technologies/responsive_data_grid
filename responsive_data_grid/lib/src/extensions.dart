@@ -20,7 +20,7 @@ extension FilterCriteriaExtensions on List<FilterCriteria> {
     String filter = '';
     this.forEach((e) {
       if (filter.isNotEmpty) {
-        if (e.op == Logic.Or) {
+        if (e.op == Logic.or) {
           filter += " OR ";
         } else {
           filter += " AND ";

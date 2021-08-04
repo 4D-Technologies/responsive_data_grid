@@ -34,4 +34,5 @@ part './src/columns/definition.dart';
 
 class LocalizedMessages {
   static var applicationError = "Application Error";
+  static var ok = "OK";
 }

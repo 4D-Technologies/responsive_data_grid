@@ -1,4 +1,5 @@
 using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 using ClientFiltering.Enums;
 
 namespace ClientFiltering.Models
@@ -18,6 +19,7 @@ namespace ClientFiltering.Models
         /// The direction to order it
         /// </summary>
         [DataMember]
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public OrderDirections Direction { get; init; } = OrderDirections.Ascending;
     }
 }

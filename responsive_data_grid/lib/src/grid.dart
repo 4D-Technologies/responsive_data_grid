@@ -103,12 +103,13 @@ class ResponsiveDataGridState<TItem extends Object>
           context: context,
           builder: (context) => AlertDialog(
             title: Text(LocalizedMessages.applicationError),
-            content: Text(e.toString()),
+            content: SelectableText(e.toString()),
             actions: [
               TextButton.icon(
-                  onPressed: () => Navigator.of(context).pop(),
-                  icon: Icon(Icons.check),
-                  label: Text("Ok"))
+                onPressed: () => Navigator.of(context).pop(),
+                icon: Icon(Icons.check),
+                label: Text(LocalizedMessages.ok),
+              )
             ],
           ),
         );

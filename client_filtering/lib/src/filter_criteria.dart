@@ -54,8 +54,8 @@ class FilterCriteria with IJsonable {
   Map<String, dynamic> toJson() {
     return {
       'fieldName': fieldName,
-      'op': op.toString(),
-      'logicalOperator': logicalOperator.toString(),
+      'op': serializeEnumString(op.toString()),
+      'logicalOperator': serializeEnumString(logicalOperator.toString()),
       'value': value,
     };
   }
@@ -63,9 +63,11 @@ class FilterCriteria with IJsonable {
   factory FilterCriteria.fromJson(Map<String, dynamic> map) {
     return FilterCriteria(
       fieldName: map['fieldName'],
-      op: Logic.values.firstWhere((v) => v == map['op']),
-      logicalOperator:
-          Operators.values.firstWhere((v) => v == map['logicalOperator']),
+      op: deseralizeEnumString(map['op'], Logic.values),
+      logicalOperator: deseralizeEnumString(
+        map['logicalOperator'],
+        Operators.values,
+      ),
       value: map['value'],
     );
   }

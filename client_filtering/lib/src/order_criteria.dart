@@ -34,16 +34,14 @@ class OrderCriteria with IJsonable {
   Map<String, dynamic> toJson() {
     return {
       'fieldName': fieldName,
-      'direction': direction.toString(),
+      'direction': serializeEnumString(direction.toString()),
     };
   }
 
   factory OrderCriteria.fromJson(Map<String, dynamic> map) {
     return OrderCriteria(
       fieldName: map['fieldName'],
-      direction: OrderDirections.values.firstWhere(
-        (v) => v == map['direction'],
-      ),
+      direction: deseralizeEnumString(map['direction'], OrderDirections.values),
     );
   }
 }
