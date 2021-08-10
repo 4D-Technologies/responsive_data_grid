@@ -8,9 +8,12 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
   final List<ColumnDefinition<TItem>> columns;
   final int pageSize;
   final double? height;
+  final double? separatorThickness;
 
   final SortableOptions sortable;
   final bool filterable;
+
+  final ScrollPhysics scrollPhysics;
 
   final ThemeData? columnTheme;
   final ThemeData? headerTheme;
@@ -26,9 +29,11 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
     required this.loadData,
     required this.columns,
     this.itemTapped,
+    this.separatorThickness,
     this.pageSize = 50,
     this.height,
     this.columnTheme,
+    this.scrollPhysics = const BouncingScrollPhysics(),
     this.sortable = SortableOptions.none,
     this.filterable = false,
     this.headerTheme,
@@ -123,17 +128,20 @@ class ResponsiveDataGridState<TItem extends Object>
 
     if (!isInitialized && !isLoading) return Container();
 
+    final scrollable =
+        context.findAncestorWidgetOfExactType<Scrollable>() == null ||
+            widget.height != null;
+
     return Theme(
         data: theme,
         child: Container(
           height: widget.height,
           child: Column(
-            mainAxisSize:
-                widget.height == null ? MainAxisSize.min : MainAxisSize.max,
+            mainAxisSize: !scrollable ? MainAxisSize.min : MainAxisSize.max,
             children: [
               ResponsiveDataGridHeaderRowWidget(this, this.widget.columns),
               Visibility(
-                child: ResponsiveDataGridBodyWidget(this, theme),
+                child: ResponsiveDataGridBodyWidget(this, theme, scrollable),
                 visible: isInitialized,
               ),
               Visibility(

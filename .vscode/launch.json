@@ -6,14 +6,12 @@
   "configurations": [
     {
       "name": "example",
-      "cwd": "example",
       "request": "launch",
       "program": "responsive_data_grid/example/lib/main.dart",
       "type": "dart"
     },
     {
       "name": "example (profile mode)",
-      "cwd": "example",
       "request": "launch",
       "type": "dart",
       "program": "responsive_data_grid/example/lib/main.dart",
