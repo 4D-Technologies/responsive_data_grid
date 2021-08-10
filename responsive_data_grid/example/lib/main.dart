@@ -100,6 +100,8 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: ResponsiveDataGrid<ExampleData>(
+        title: "Testing Title",
+        titleIcon: Icon(Icons.help),
         itemTapped: (row) => print(row.name),
         columns: [
           ColumnDefinition(

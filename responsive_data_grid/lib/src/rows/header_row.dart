@@ -15,7 +15,7 @@ class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
         context.findAncestorWidgetOfExactType<ResponsiveDataGrid<TItem>>();
 
     return Container(
-      color: Theme.of(context).primaryColorDark,
+      color: Theme.of(context).accentColor,
       margin: EdgeInsets.only(
         bottom: 5,
       ),
@@ -32,21 +32,23 @@ class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
 
   List<BootstrapCol> getColumnHeaders(BuildContext context) {
     return columns
-        .map((c) => BootstrapCol(
-              child: !c.header.empty
-                  ? ColumnHeaderWidget<TItem>(grid, c)
-                  : Container(),
-              lg: c.largeCols ?? c.mediumCols ?? c.smallCols ?? c.xsCols ?? 12,
-              md: c.mediumCols ?? c.smallCols ?? c.xsCols ?? 12,
-              sm: c.smallCols ?? c.xsCols ?? 12,
-              xl: c.xlCols ??
-                  c.largeCols ??
-                  c.mediumCols ??
-                  c.smallCols ??
-                  c.xsCols ??
-                  12,
-              xs: c.xsCols ?? 12,
-            ))
+        .map(
+          (c) => BootstrapCol(
+            child: !c.header.empty
+                ? ColumnHeaderWidget<TItem>(grid, c)
+                : Container(),
+            lg: c.largeCols ?? c.mediumCols ?? c.smallCols ?? c.xsCols ?? 12,
+            md: c.mediumCols ?? c.smallCols ?? c.xsCols ?? 12,
+            sm: c.smallCols ?? c.xsCols ?? 12,
+            xl: c.xlCols ??
+                c.largeCols ??
+                c.mediumCols ??
+                c.smallCols ??
+                c.xsCols ??
+                12,
+            xs: c.xsCols ?? 12,
+          ),
+        )
         .toList();
   }
 }
