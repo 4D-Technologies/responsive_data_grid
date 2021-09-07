@@ -1,79 +1,66 @@
 part of responsive_data_grid;
 
-class IntFilterRules<TItem extends Object>
-    extends FilterRules<TItem, DataGridIntColumnFilter<TItem>> {
-  final String hintText;
-  final int? minValue;
-  final int? maxValue;
-  IntFilterRules({
-    String? hintText,
-    this.minValue,
-    this.maxValue,
+class TimeOfDayFilterRules<TItem extends Object>
+    extends FilterRules<TItem, DataGridTimeOfDayColumnFilter<TItem>> {
+  TimeOfDayFilterRules({
     bool filterable = false,
     FilterCriteria? criteria,
-  })  : this.hintText = hintText ?? LocalizedMessages.value,
-        super(
+  }) : super(
           criteria: criteria,
           filterable: filterable,
         );
 
   @override
-  DataGridIntColumnFilter<TItem> filter(ColumnDefinition<TItem> definition,
+  DataGridTimeOfDayColumnFilter<TItem> filter(
+          ColumnDefinition<TItem> definition,
           ResponsiveDataGridState<TItem> grid) =>
-      DataGridIntColumnFilter(definition, grid);
+      DataGridTimeOfDayColumnFilter(definition, grid);
 
   @override
-  FilterRules<TItem, DataGridIntColumnFilter<TItem>> updateCriteria(
+  FilterRules<TItem, DataGridTimeOfDayColumnFilter<TItem>> updateCriteria(
           FilterCriteria? criteria) =>
-      IntFilterRules<TItem>(
+      TimeOfDayFilterRules<TItem>(
         criteria: criteria,
         filterable: filterable,
-        hintText: hintText,
-        maxValue: maxValue,
-        minValue: minValue,
       );
 }
 
-class DataGridIntColumnFilter<TItem extends Object>
+class DataGridTimeOfDayColumnFilter<TItem extends Object>
     extends DataGridColumnFilter<TItem> {
-  DataGridIntColumnFilter(
+  DataGridTimeOfDayColumnFilter(
       ColumnDefinition<TItem> definition, ResponsiveDataGridState<TItem> grid)
       : super(definition, grid) {
     assert(TItem != Object);
   }
 
   @override
-  State<StatefulWidget> createState() => DataGridIntColumnFilterState<TItem>();
+  State<StatefulWidget> createState() =>
+      DataGridTimeOfDayColumnFilterState<TItem>();
 }
 
-class DataGridIntColumnFilterState<TItem extends Object>
+class DataGridTimeOfDayColumnFilterState<TItem extends Object>
     extends DataGridColumnFilterState<TItem> {
-  late TextEditingController tecValue1;
-  late TextEditingController tecValue2;
-
-  int? iValue;
-  int? iValue2;
+  TimeOfDay? tStart;
+  TimeOfDay? tEnd;
   Operators? op;
 
-  late IntFilterRules filterRules;
+  late DateTimeFilterRules filterRules;
 
   @override
-  void initState() {
-    super.initState();
-
-    filterRules = widget.definition.header.filterRules as IntFilterRules;
+  initState() {
+    filterRules = widget.definition.header.filterRules as DateTimeFilterRules;
 
     final criteria = filterRules.criteria;
     if (criteria != null) {
-      iValue = criteria.value != null ? int.parse(criteria.value!) : null;
-      tecValue1 = TextEditingController(text: iValue.toString());
-      iValue2 = criteria.value2 != null ? int.parse(criteria.value2!) : null;
-      tecValue2 = TextEditingController(text: iValue2.toString());
+      tStart = criteria.value != null
+          ? TimeOfDay.fromDateTime(DateTime.parse(criteria.value!))
+          : null;
+      tEnd = criteria.value2 != null
+          ? TimeOfDay.fromDateTime(DateTime.parse(criteria.value2!))
+          : null;
       op = criteria.logicalOperator;
-    } else {
-      tecValue1 = TextEditingController();
-      tecValue2 = TextEditingController();
     }
+    super.initState();
   }
 
   @override
@@ -81,20 +68,14 @@ class DataGridIntColumnFilterState<TItem extends Object>
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        DropdownButton<Operators?>(
+        DropdownButtonFormField<Operators>(
             items: [
               DropdownMenuItem(
-                child: Text(LocalizedMessages.any),
-                value: null,
-              ),
+                  child: Text(Operators.greaterThan.description),
+                  value: Operators.greaterThan),
               DropdownMenuItem(
-                child: Text(Operators.greaterThan.description),
-                value: Operators.greaterThan,
-              ),
-              DropdownMenuItem(
-                child: Text(Operators.greaterThanOrEqualTo.description),
-                value: Operators.greaterThanOrEqualTo,
-              ),
+                  child: Text(Operators.greaterThanOrEqualTo.description),
+                  value: Operators.greaterThanOrEqualTo),
               DropdownMenuItem(
                 child: Text(Operators.equals.description),
                 value: Operators.equals,
@@ -104,9 +85,8 @@ class DataGridIntColumnFilterState<TItem extends Object>
                 value: Operators.lessThan,
               ),
               DropdownMenuItem(
-                child: Text(Operators.lessThanOrEqualTo.description),
-                value: Operators.lessThanOrEqualTo,
-              ),
+                  child: Text(Operators.lessThanOrEqualTo.description),
+                  value: Operators.lessThanOrEqualTo),
               DropdownMenuItem(
                 child: Text(Operators.between.description),
                 value: Operators.between,
@@ -133,14 +113,14 @@ class DataGridIntColumnFilterState<TItem extends Object>
                   op == Operators.between ||
                   op == Operators.equals ||
                   op == Operators.notEqual),
-          child: TextField(
+          child: DateTimePicker(
+            type: DateTimePickerType.time,
             decoration: InputDecoration(hintText: op?.description),
-            keyboardType: TextInputType.number,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            controller: tecValue1,
+            initialTime: tStart,
+            firstDate: filterRules.firstDate,
             onChanged: (value) {
               this.setState(() {
-                iValue = int.parse(value);
+                tStart = TimeOfDay.fromDateTime(DateTime.parse(value));
               });
             },
           ),
@@ -150,14 +130,13 @@ class DataGridIntColumnFilterState<TItem extends Object>
               (op == Operators.lessThan ||
                   op == Operators.lessThanOrEqualTo ||
                   op == Operators.between),
-          child: TextField(
+          child: DateTimePicker(
+            type: DateTimePickerType.time,
             decoration: InputDecoration(hintText: op?.description),
-            keyboardType: TextInputType.number,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            controller: tecValue2,
+            initialTime: tEnd,
             onChanged: (value) {
               this.setState(() {
-                iValue2 = int.parse(value);
+                tEnd = TimeOfDay.fromDateTime(DateTime.parse(value));
               });
             },
           ),
@@ -173,8 +152,14 @@ class DataGridIntColumnFilterState<TItem extends Object>
                       fieldName: widget.definition.fieldName,
                       logicalOperator: op!,
                       op: Logic.and,
-                      value: iValue?.toString(),
-                      value2: iValue2?.toString(),
+                      value: tStart == null
+                          ? null
+                          : DateTime(0, 1, 1, tStart!.hour, tStart!.minute)
+                              .toIso8601String(),
+                      value2: tEnd == null
+                          ? null
+                          : DateTime(0, 1, 1, tEnd!.hour, tEnd!.minute)
+                              .toIso8601String(),
                     ),
             ),
             icon: Icon(Icons.save),

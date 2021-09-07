@@ -10,9 +10,9 @@ abstract class DataGridColumnFilter<TItem extends Object>
 
 abstract class DataGridColumnFilterState<TItem extends Object>
     extends State<DataGridColumnFilter<TItem>> {
-  void filter(BuildContext context, FilterCriteria criteria) {
+  void filter(BuildContext context, FilterCriteria? criteria) {
     widget.definition.header.filterRules =
-        widget.definition.header.filterRules.copyWith(criteria: criteria);
+        widget.definition.header.filterRules.updateCriteria(criteria);
 
     widget.grid.updateColumnRules(widget.definition);
     Navigator.of(context).pop();

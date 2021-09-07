@@ -29,6 +29,11 @@ namespace ClientFiltering.Models
         /// </summary>
         [DataMember]
         public string? Value { get; init; }
-
+        /// <summary>
+        /// The second value for doing range operators
+        /// </summary>
+        /// <value></value>
+        [DataMember]
+        public string? Value2 { get; init; }
     }
 }

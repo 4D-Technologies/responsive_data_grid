@@ -10,14 +10,20 @@ class DataGridFieldWidget<TItem extends Object> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final effectiveDataTextStyle = definition.textStyle ??
+        theme.dataTableTheme.dataTextStyle ??
+        theme.textTheme.bodyText2!;
 
     Widget? child;
     if (definition.customFieldWidget != null) {
-      child = definition.customFieldWidget!(item) ?? Container();
+      child = DefaultTextStyle(
+        style: effectiveDataTextStyle,
+        child: definition.customFieldWidget!(item) ?? Container(),
+      );
     } else {
       child = Text(
         definition.value!(item)?.toString() ?? '',
-        style: theme.textTheme.bodyText1,
+        style: effectiveDataTextStyle,
       );
     }
 

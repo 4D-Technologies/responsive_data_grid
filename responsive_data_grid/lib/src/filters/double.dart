@@ -1,5 +1,42 @@
 part of responsive_data_grid;
 
+class DoubleFilterRules<TItem extends Object>
+    extends FilterRules<TItem, DataGridDoubleColumnFilter<TItem>> {
+  final String hintText;
+  final int decimalPlaces;
+  final double? minValue;
+  final double? maxValue;
+  DoubleFilterRules({
+    String? hintText,
+    this.minValue,
+    this.maxValue,
+    this.decimalPlaces = 2,
+    bool filterable = false,
+    FilterCriteria? criteria,
+  })  : this.hintText = hintText ?? LocalizedMessages.value,
+        super(
+          criteria: criteria,
+          filterable: filterable,
+        );
+
+  @override
+  DataGridDoubleColumnFilter<TItem> filter(ColumnDefinition<TItem> definition,
+          ResponsiveDataGridState<TItem> grid) =>
+      DataGridDoubleColumnFilter(definition, grid);
+
+  @override
+  FilterRules<TItem, DataGridDoubleColumnFilter<TItem>> updateCriteria(
+          FilterCriteria? criteria) =>
+      DoubleFilterRules<TItem>(
+        criteria: criteria,
+        decimalPlaces: decimalPlaces,
+        filterable: filterable,
+        hintText: hintText,
+        maxValue: maxValue,
+        minValue: minValue,
+      );
+}
+
 class DataGridDoubleColumnFilter<TItem extends Object>
     extends DataGridColumnFilter<TItem> {
   DataGridDoubleColumnFilter(
@@ -15,8 +52,141 @@ class DataGridDoubleColumnFilter<TItem extends Object>
 
 class DataGridDoubleColumnFilterState<TItem extends Object>
     extends DataGridColumnFilterState<TItem> {
+  late TextEditingController tecValue1;
+  late TextEditingController tecValue2;
+
+  double? dValue;
+  double? dValue2;
+  Operators? op;
+
+  late DoubleFilterRules filterRules;
+
+  @override
+  void initState() {
+    super.initState();
+
+    filterRules = widget.definition.header.filterRules as DoubleFilterRules;
+
+    final criteria = filterRules.criteria;
+    if (criteria != null) {
+      dValue = criteria.value != null ? double.parse(criteria.value!) : null;
+      tecValue1 = TextEditingController(text: dValue.toString());
+      dValue2 = criteria.value2 != null ? double.parse(criteria.value2!) : null;
+      tecValue2 = TextEditingController(text: dValue2.toString());
+      op = criteria.logicalOperator;
+    } else {
+      tecValue1 = TextEditingController();
+      tecValue2 = TextEditingController();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    throw UnimplementedError();
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        DropdownButtonFormField<Operators>(
+            items: [
+              DropdownMenuItem(
+                child: Text(LocalizedMessages.any),
+                value: null,
+              ),
+              DropdownMenuItem(
+                  child: Text(Operators.greaterThan.description),
+                  value: Operators.greaterThan),
+              DropdownMenuItem(
+                  child: Text(Operators.greaterThanOrEqualTo.description),
+                  value: Operators.greaterThanOrEqualTo),
+              DropdownMenuItem(
+                child: Text(Operators.equals.description),
+                value: Operators.equals,
+              ),
+              DropdownMenuItem(
+                child: Text(Operators.lessThan.description),
+                value: Operators.lessThan,
+              ),
+              DropdownMenuItem(
+                  child: Text(Operators.lessThanOrEqualTo.description),
+                  value: Operators.lessThanOrEqualTo),
+              DropdownMenuItem(
+                child: Text(Operators.between.description),
+                value: Operators.between,
+              ),
+              DropdownMenuItem(
+                child: Text(Operators.equals.description),
+                value: Operators.equals,
+              ),
+              DropdownMenuItem(
+                child: Text(Operators.notEqual.description),
+                value: Operators.notEqual,
+              ),
+            ],
+            value: op,
+            onChanged: (Operators? value) {
+              this.setState(() {
+                op = value;
+              });
+            }),
+        Visibility(
+          visible: op != null &&
+              (op == Operators.greaterThan ||
+                  op == Operators.greaterThanOrEqualTo ||
+                  op == Operators.between ||
+                  op == Operators.equals ||
+                  op == Operators.notEqual),
+          child: TextField(
+            decoration: InputDecoration(hintText: op?.description),
+            keyboardType: TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [
+              DecimalTextInputFormatter(decimalRange: filterRules.decimalPlaces)
+            ],
+            controller: tecValue1,
+            onChanged: (value) {
+              this.setState(() {
+                dValue = double.parse(value);
+              });
+            },
+          ),
+        ),
+        Visibility(
+          visible: op != null &&
+              (op == Operators.lessThan ||
+                  op == Operators.lessThanOrEqualTo ||
+                  op == Operators.between),
+          child: TextField(
+            decoration: InputDecoration(hintText: op?.description),
+            keyboardType: TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [
+              DecimalTextInputFormatter(decimalRange: filterRules.decimalPlaces)
+            ],
+            controller: tecValue2,
+            onChanged: (value) {
+              this.setState(() {
+                dValue2 = double.parse(value);
+              });
+            },
+          ),
+        ),
+        Align(
+          alignment: Alignment.bottomRight,
+          child: TextButton.icon(
+            onPressed: () => super.filter(
+              context,
+              op == null
+                  ? null
+                  : FilterCriteria(
+                      fieldName: widget.definition.fieldName,
+                      logicalOperator: op!,
+                      op: Logic.and,
+                      value: dValue?.toString(),
+                      value2: dValue2?.toString(),
+                    ),
+            ),
+            icon: Icon(Icons.save),
+            label: Text(LocalizedMessages.apply),
+          ),
+        )
+      ],
+    );
   }
 }

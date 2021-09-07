@@ -1,35 +1,42 @@
 part of responsive_data_grid;
 
+class NotSetFilterRules
+    extends FilterRules<Object, DataGridColumnFilter<Object>> {
+  const NotSetFilterRules() : super(filterable: false);
+
+  @override
+  DataGridColumnFilter<Object> filter(ColumnDefinition<Object> definition,
+          ResponsiveDataGridState<Object> grid) =>
+      throw UnimplementedError();
+
+  @override
+  FilterRules<Object, DataGridColumnFilter<Object>> updateCriteria(
+          FilterCriteria? criteria) =>
+      throw UnimplementedError();
+}
+
 @immutable
-class FilterRules<TItem extends Object> {
+abstract class FilterRules<TItem extends Object,
+    TColumnFilter extends DataGridColumnFilter<TItem>> {
   final bool filterable;
-  final Map<String, dynamic>? valueMap;
-  final DataGridColumnFilter<TItem>? customFilter;
+
   final FilterCriteria? criteria;
 
-  FilterRules(
-      {this.criteria,
-      this.filterable = false,
-      this.valueMap,
-      this.customFilter});
+  const FilterRules({
+    this.criteria,
+    this.filterable = false,
+  });
 
   const FilterRules.notSet()
       : this.filterable = false,
-        this.criteria = null,
-        this.valueMap = null,
-        this.customFilter = null;
+        this.criteria = null;
 
-  FilterRules<TItem> copyWith({
-    bool? filterable,
-    Map<String, dynamic>? valueMap,
-    DataGridColumnFilter<TItem>? customFilter,
-    FilterCriteria? criteria,
-  }) =>
-      FilterRules(
-          criteria: criteria ?? this.criteria,
-          customFilter: customFilter ?? this.customFilter,
-          filterable: filterable ?? this.filterable,
-          valueMap: valueMap ?? this.valueMap);
+  TColumnFilter filter(
+    ColumnDefinition<TItem> definition,
+    ResponsiveDataGridState<TItem> grid,
+  );
+
+  FilterRules<TItem, TColumnFilter> updateCriteria(FilterCriteria? criteria);
 }
 
 @immutable

@@ -1,5 +1,33 @@
 part of responsive_data_grid;
 
+class StringFilterRules<TItem extends Object>
+    extends FilterRules<TItem, DataGridStringColumnFilter<TItem>> {
+  final String hintText;
+  StringFilterRules({
+    String? hintText,
+    bool filterable = false,
+    FilterCriteria? criteria,
+  })  : this.hintText = hintText ?? LocalizedMessages.value,
+        super(
+          criteria: criteria,
+          filterable: filterable,
+        );
+
+  @override
+  DataGridStringColumnFilter<TItem> filter(ColumnDefinition<TItem> definition,
+          ResponsiveDataGridState<TItem> grid) =>
+      DataGridStringColumnFilter(definition, grid);
+
+  @override
+  FilterRules<TItem, DataGridStringColumnFilter<TItem>> updateCriteria(
+          FilterCriteria? criteria) =>
+      StringFilterRules<TItem>(
+        criteria: criteria,
+        filterable: filterable,
+        hintText: hintText,
+      );
+}
+
 class DataGridStringColumnFilter<TItem extends Object>
     extends DataGridColumnFilter<TItem> {
   DataGridStringColumnFilter(
@@ -15,16 +43,18 @@ class DataGridStringColumnFilter<TItem extends Object>
 
 class DataGridStringColumnFilterState<TItem extends Object>
     extends DataGridColumnFilterState<TItem> {
-  late Operators? op;
-  late String searchText;
+  Operators? op;
+  String? searchText;
 
   DataGridStringColumnFilterState();
 
   @override
   void initState() {
-    op = Operators.startsWith;
-    searchText =
-        widget.definition.header.filterRules.criteria?.value?.toString() ?? '';
+    final criteria = widget.definition.header.filterRules.criteria;
+    if (criteria != null) {
+      op = criteria.logicalOperator;
+      searchText = criteria.value?.toString();
+    }
     super.initState();
   }
 
@@ -36,24 +66,30 @@ class DataGridStringColumnFilterState<TItem extends Object>
         DropdownButtonFormField<Operators>(
             items: [
               DropdownMenuItem(
-                  child: Text("Contains"), value: Operators.contains),
+                  child: Text(Operators.contains.description),
+                  value: Operators.contains),
               DropdownMenuItem(
-                  child: Text("Starts With"), value: Operators.startsWith),
+                  child: Text(Operators.startsWith.description),
+                  value: Operators.startsWith),
               DropdownMenuItem(
-                  child: Text("Ends With"), value: Operators.endsWidth),
-              DropdownMenuItem(child: Text("Equals"), value: Operators.equals),
+                  child: Text(Operators.endsWidth.description),
+                  value: Operators.endsWidth),
               DropdownMenuItem(
-                  child: Text("Does Not Equal"), value: Operators.notEqual),
+                  child: Text(Operators.equals.description),
+                  value: Operators.equals),
               DropdownMenuItem(
-                child: Text("Does Not Contain"),
+                  child: Text(Operators.notEqual.description),
+                  value: Operators.notEqual),
+              DropdownMenuItem(
+                child: Text(Operators.notContains.description),
                 value: Operators.notContains,
               ),
               DropdownMenuItem(
-                child: Text("Does Not Start With"),
+                child: Text(Operators.notStartsWith.description),
                 value: Operators.notStartsWith,
               ),
               DropdownMenuItem(
-                child: Text("Does Not End With"),
+                child: Text(Operators.notEndsWith.description),
                 value: Operators.notEndsWith,
               ),
             ],
@@ -70,17 +106,21 @@ class DataGridStringColumnFilterState<TItem extends Object>
                   searchText = value;
                 })),
         Align(
-            alignment: Alignment.bottomRight,
-            child: TextButton.icon(
-                onPressed: () => super.filter(
-                    context,
-                    FilterCriteria(
-                        fieldName: widget.definition.fieldName!,
+          alignment: Alignment.bottomRight,
+          child: TextButton.icon(
+            onPressed: () => super.filter(
+                context,
+                op == null
+                    ? null
+                    : FilterCriteria(
+                        fieldName: widget.definition.fieldName,
                         logicalOperator: op!,
                         op: Logic.and,
                         value: searchText)),
-                icon: Icon(Icons.save),
-                label: Text("Save")))
+            icon: Icon(Icons.save),
+            label: Text(LocalizedMessages.apply),
+          ),
+        ),
       ],
     );
   }

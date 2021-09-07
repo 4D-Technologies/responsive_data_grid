@@ -31,16 +31,16 @@ class LoadCriteria with IJsonable {
   }
 
   LoadCriteria copyWith({
-    int? skip,
-    int? take,
-    List<FilterCriteria>? filterBy,
-    List<OrderCriteria>? orderBy,
+    int? Function()? skip,
+    int? Function()? take,
+    List<FilterCriteria>? Function()? filterBy,
+    List<OrderCriteria>? Function()? orderBy,
   }) {
     return LoadCriteria(
-      skip: skip ?? this.skip,
-      take: take ?? this.take,
-      filterBy: filterBy ?? this.filterBy,
-      orderBy: orderBy ?? this.orderBy,
+      skip: skip == null ? this.skip : skip(),
+      take: take == null ? this.take : take(),
+      filterBy: filterBy == null ? this.filterBy : filterBy(),
+      orderBy: orderBy == null ? this.orderBy : orderBy(),
     );
   }
 

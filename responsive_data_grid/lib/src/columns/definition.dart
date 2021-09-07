@@ -1,8 +1,7 @@
 part of responsive_data_grid;
 
 class ColumnDefinition<TItem extends Object> {
-  final String? fieldName;
-  final Type? fieldType;
+  final String fieldName;
   final Widget? Function(TItem row)? customFieldWidget;
   final dynamic Function(TItem row)? value;
   final ColumnHeaderDefinition<TItem> header;
@@ -15,10 +14,13 @@ class ColumnDefinition<TItem extends Object> {
   final int? smallCols;
   final int? xsCols;
   final AlignmentGeometry? alignment;
+  final TextStyle? textStyle;
+  final Color? backgroundColor;
+  final Color? foregroundColor;
+  final Color? accentColor;
 
   ColumnDefinition({
-    this.fieldName,
-    this.fieldType,
+    required this.fieldName,
     ColumnHeaderDefinition<TItem>? header,
     this.customFieldWidget,
     this.value,
@@ -30,22 +32,13 @@ class ColumnDefinition<TItem extends Object> {
     this.mediumCols,
     this.smallCols,
     this.xsCols,
+    this.textStyle,
+    this.backgroundColor,
+    this.foregroundColor,
+    this.accentColor,
     this.alignment = Alignment.centerLeft,
   }) : this.header = header ?? ColumnHeaderDefinition(empty: true) {
     assert(TItem != Object);
-
-    if (fieldName == null) {
-      if (this.header.orderRules.direction != OrderDirections.notSet ||
-          this.header.orderRules.showSort != null) {
-        throw ArgumentError(
-            "If Order rules are set, then a field name is required.");
-      }
-
-      if (this.header.filterRules.filterable) {
-        throw ArgumentError(
-            "If filter rules are set, then field name is required.");
-      }
-    }
   }
 
   ColumnDefinition<TItem> copyWith({ColumnHeaderDefinition<TItem>? header}) =>
@@ -58,18 +51,26 @@ class ColumnHeaderDefinition<TItem extends Object> {
   final String? text;
   final AlignmentGeometry? alignment;
   final TextAlign textAlign;
-  FilterRules<TItem> filterRules;
+  FilterRules<TItem, DataGridColumnFilter<TItem>> filterRules;
   OrderRules orderRules;
   final bool? showMenu;
+  final TextStyle? textStyle;
+  final Color? backgroundColor;
+  final Color? foregroundColor;
 
   ColumnHeaderDefinition({
     this.empty = false,
     this.text,
     this.alignment = Alignment.centerLeft,
-    FilterRules<TItem>? filterRules,
+    FilterRules<TItem, DataGridColumnFilter<TItem>>? filterRules,
     OrderRules? orderRules,
     this.showMenu,
     this.textAlign = TextAlign.start,
+    this.backgroundColor,
+    this.foregroundColor,
+    this.textStyle,
   })  : this.orderRules = orderRules ?? const OrderRules.notSet(),
-        this.filterRules = filterRules ?? const FilterRules.notSet();
+        this.filterRules = filterRules ??
+            const NotSetFilterRules()
+                as FilterRules<TItem, DataGridColumnFilter<TItem>>;
 }

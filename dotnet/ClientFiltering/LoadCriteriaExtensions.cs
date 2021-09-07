@@ -81,7 +81,7 @@ namespace ClientFiltering
                 var predicate = predicates.ElementAt(i);
                 if (predicate.Key == Operators.And)
                 {
-                    body = Expression.Add(body, Expression.Invoke(predicate.Value, param));
+                    body = Expression.AndAlso(body, Expression.Invoke(predicate.Value, param));
                 }
                 else
                 {
@@ -107,53 +107,8 @@ namespace ClientFiltering
             Expression expression;
             var memberAccess = Expression.MakeMemberAccess(param, field);
 
-            ConstantExpression constantValue;
+            var constantValue = GetConstantValue(property, criteria.Value);
 
-            if (criteria.Value == null)
-            {
-                constantValue = Expression.Constant(null, property.Type);
-            }
-            else if (property.Type == typeof(bool))
-            {
-                constantValue = Expression.Constant(Convert.ToBoolean(criteria.Value), property.Type);
-            }
-            else if (property.Type == typeof(int))
-            {
-                constantValue = Expression.Constant(Convert.ToInt32(criteria.Value), property.Type);
-            }
-            else if (property.Type == typeof(double))
-            {
-                constantValue = Expression.Constant(Convert.ToDouble(criteria.Value), property.Type);
-            }
-            else if (property.Type == typeof(float))
-            {
-                constantValue = Expression.Constant(Convert.ToSingle(criteria.Value), property.Type);
-            }
-            else if (property.Type == typeof(decimal))
-            {
-                constantValue = Expression.Constant(Convert.ToDecimal(criteria.Value), property.Type);
-            }
-            else if (property.Type == typeof(long))
-            {
-                constantValue = Expression.Constant(Convert.ToInt64(criteria.Value), property.Type);
-            }
-            else if (property.Type == typeof(DateTimeOffset))
-            {
-                constantValue = Expression.Constant(DateTimeOffset.ParseExact(criteria.Value, "o", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.RoundtripKind), property.Type);
-            }
-            else if (property.Type == typeof(DateTime))
-            {
-                constantValue = Expression.Constant(DateTime.ParseExact(criteria.Value, "o", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.RoundtripKind), property.Type);
-            }
-            else if (property.Type.IsEnum)
-            {
-                var enumValue = Enum.Parse(property.Type, criteria.Value);
-                constantValue = Expression.Constant(enumValue, property.Type);
-            }
-            else
-            {
-                constantValue = Expression.Constant(criteria.Value, property.Type);
-            }
 
             switch (criteria.LogicalOperator)
             {
@@ -196,6 +151,12 @@ namespace ClientFiltering
                     if (criteria.LogicalOperator == Logic.NotEndsWith)
                         expression = Expression.Not(expression);
                     break;
+                case Logic.Between:
+                    var constantValue2 = GetConstantValue(property, criteria.Value2);
+                    var expression1 = Expression.LessThanOrEqual(property, constantValue2);
+                    var expression2 = Expression.GreaterThanOrEqual(property, constantValue);
+                    expression = Expression.AndAlso(expression1, expression2);
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(criteria), "The operator is not known.");
             }
@@ -204,5 +165,55 @@ namespace ClientFiltering
 
             return exp;
         }
+
+        private static ConstantExpression GetConstantValue(MemberExpression property, string? value)
+        {
+            if (value == null)
+            {
+                return Expression.Constant(null, property.Type);
+            }
+            else if (property.Type == typeof(bool))
+            {
+                return Expression.Constant(Convert.ToBoolean(value), property.Type);
+            }
+            else if (property.Type == typeof(int))
+            {
+                return Expression.Constant(Convert.ToInt32(value), property.Type);
+            }
+            else if (property.Type == typeof(double))
+            {
+                return Expression.Constant(Convert.ToDouble(value), property.Type);
+            }
+            else if (property.Type == typeof(float))
+            {
+                return Expression.Constant(Convert.ToSingle(value), property.Type);
+            }
+            else if (property.Type == typeof(decimal))
+            {
+                return Expression.Constant(Convert.ToDecimal(value), property.Type);
+            }
+            else if (property.Type == typeof(long))
+            {
+                return Expression.Constant(Convert.ToInt64(value), property.Type);
+            }
+            else if (property.Type == typeof(DateTimeOffset))
+            {
+                return Expression.Constant(DateTimeOffset.ParseExact(value, "o", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.RoundtripKind), property.Type);
+            }
+            else if (property.Type == typeof(DateTime))
+            {
+                return Expression.Constant(DateTime.ParseExact(value, "o", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.RoundtripKind), property.Type);
+            }
+            else if (property.Type.IsEnum)
+            {
+                var enumValue = Enum.Parse(property.Type, value);
+                return Expression.Constant(enumValue, property.Type);
+            }
+            else
+            {
+                return Expression.Constant(value, property.Type);
+            }
+        }
     }
+
 }

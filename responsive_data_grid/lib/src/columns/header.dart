@@ -9,44 +9,53 @@ class ColumnHeaderWidget<TItem extends Object> extends StatefulWidget {
   }
 
   @override
-  State<StatefulWidget> createState() => ColumnHeaderState<TItem>();
+  State<StatefulWidget> createState() => ColumnHeaderState<TItem>(
+        alignment: definition.header.alignment,
+        textAlign: definition.header.textAlign,
+        filterRules: definition.header.filterRules,
+        orderRules: definition.header.orderRules,
+        showMenu: definition.header.showMenu ?? false,
+      );
 }
 
 class ColumnHeaderState<TItem extends Object>
     extends State<ColumnHeaderWidget<TItem>> {
   AlignmentGeometry? alignment;
   TextAlign? textAlign;
-  FilterRules<TItem>? filterRules;
-  OrderRules? orderRules;
-  bool showMenu = false;
+  FilterRules<TItem, DataGridColumnFilter<TItem>> filterRules;
+  OrderRules orderRules;
+  bool showMenu;
 
-  ColumnHeaderState() {
+  ColumnHeaderState({
+    required this.alignment,
+    required this.textAlign,
+    required this.filterRules,
+    required this.orderRules,
+    required this.showMenu,
+  }) {
     assert(TItem != dynamic);
   }
 
-  @override
-  void initState() {
-    super.initState();
-    filterRules = widget.definition.header.filterRules;
-    orderRules = widget.definition.header.orderRules;
-    showMenu = widget.definition.header.showMenu ?? false;
-  }
-
   void toggleOrder() {
-    switch (orderRules?.direction) {
+    switch (orderRules.direction) {
       case OrderDirections.notSet:
         setState(() => widget.definition.header.orderRules = widget
             .definition.header.orderRules
             .copyWith(direction: OrderDirections.ascending));
+
+        orderRules = orderRules.copyWith(direction: OrderDirections.ascending);
         break;
       case OrderDirections.ascending:
         widget.definition.header.orderRules = widget
             .definition.header.orderRules
             .copyWith(direction: OrderDirections.descending);
+
+        orderRules = orderRules.copyWith(direction: OrderDirections.descending);
         break;
       default:
         widget.definition.header.orderRules =
             OrderRules(direction: OrderDirections.notSet);
+        orderRules = orderRules.copyWith(direction: OrderDirections.notSet);
         break;
     }
 
@@ -56,15 +65,18 @@ class ColumnHeaderState<TItem extends Object>
   void toggleMenu(BuildContext context) {
     showDialog<AlertDialog>(
       context: context,
+      barrierDismissible: false,
       builder: (context) {
         return AlertDialog(
-            title: Row(children: [
-              Expanded(child: Text("Filter: ${widget.definition.header.text}")),
-              IconButton(
-                  icon: Icon(Icons.close),
-                  onPressed: () => Navigator.of(context).pop())
-            ]),
-            content: DataGridColumnMenuWidget(widget.definition, widget.grid));
+          title: Row(children: [
+            Expanded(child: Text("Filter: ${widget.definition.header.text}")),
+            IconButton(
+                icon: Icon(Icons.close),
+                onPressed: () => Navigator.of(context).pop())
+          ]),
+          content: widget.definition.header.filterRules
+              .filter(widget.definition, widget.grid),
+        );
       },
     );
   }
@@ -75,6 +87,25 @@ class ColumnHeaderState<TItem extends Object>
     final grid = widget.grid;
     final header = widget.definition.header;
 
+    final ColorScheme colorScheme = theme.colorScheme;
+
+    final foregroundColor = widget.definition.foregroundColor ??
+        theme.dataTableTheme.headingTextStyle?.color ??
+        (colorScheme.brightness == Brightness.dark
+            ? colorScheme.onSurface
+            : colorScheme.onPrimary);
+
+    final accentForegroundColor =
+        widget.definition.accentColor ?? theme.accentColor;
+
+    final iconTheme = theme.iconTheme.copyWith(color: foregroundColor);
+    final accentIconTheme =
+        theme.accentIconTheme.copyWith(color: accentForegroundColor);
+
+    final textStyle = widget.definition.header.textStyle ??
+        theme.dataTableTheme.headingTextStyle ??
+        theme.textTheme.subtitle2!.copyWith(color: foregroundColor);
+
     final items = List<Widget>.empty(growable: true);
 
     if (widget.definition.header.text != null) {
@@ -83,18 +114,17 @@ class ColumnHeaderState<TItem extends Object>
           child: Text(
             widget.definition.header.text!,
             textAlign: textAlign ?? TextAlign.start,
-            style: theme.primaryTextTheme.headline6,
+            style: textStyle,
           ),
         ),
       );
     }
 
-    if (orderRules != null &&
-        ((orderRules!.showSort == null &&
-                grid.widget.sortable != SortableOptions.none) ||
-            (orderRules!.showSort ?? false))) {
+    if ((orderRules.showSort == null &&
+            grid.widget.sortable != SortableOptions.none) ||
+        (orderRules.showSort ?? false)) {
       IconData icon;
-      switch (orderRules!.direction) {
+      switch (orderRules.direction) {
         case OrderDirections.ascending:
           icon = Icons.arrow_upward;
           break;
@@ -108,7 +138,10 @@ class ColumnHeaderState<TItem extends Object>
       items.add(IconButton(
           icon: Icon(
             icon,
-            color: theme.primaryIconTheme.color,
+            color: orderRules.direction != OrderDirections.notSet
+                ? accentIconTheme.color
+                : iconTheme.color,
+            size: iconTheme.size,
           ),
           onPressed: () => toggleOrder()));
     }
@@ -119,12 +152,16 @@ class ColumnHeaderState<TItem extends Object>
       items.add(IconButton(
           icon: Icon(
             Icons.filter_list,
-            color: theme.primaryIconTheme.color,
+            color: header.filterRules.criteria != null
+                ? accentIconTheme.color
+                : iconTheme.color,
+            size: iconTheme.size,
           ),
           onPressed: () => toggleMenu(context)));
     }
 
-    return Align(
+    return Container(
+      color: widget.definition.backgroundColor,
       alignment: header.alignment ?? Alignment.centerLeft,
       child: Row(
         children: items,

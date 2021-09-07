@@ -1,4 +1,6 @@
+import 'package:client_filtering/client_filtering.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:responsive_data_grid/responsive_data_grid.dart';
 
 void main() {
@@ -22,6 +24,9 @@ class MyApp extends StatelessWidget {
         // Notice that the counter didn't reset back to zero; the application
         // is not restarted.
         primarySwatch: Colors.blue,
+        brightness: Brightness.dark,
+        dataTableTheme: Theme.of(context).dataTableTheme.copyWith(
+            headingRowColor: MaterialStateProperty.all(Colors.black54)),
       ),
       home: MyHomePage(title: 'Flutter Demo Home Page'),
     );
@@ -30,41 +35,41 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   final exampleData = List<ExampleData>.from([
-    ExampleData("1", "John Doe", DateTime(1977, 6, 17), true),
-    ExampleData("2", "Jane Doe", DateTime(1977, 6, 17), true),
-    ExampleData("1", "John Doe", DateTime(1977, 6, 17), true),
-    ExampleData("2", "Jane Doe", DateTime(1977, 6, 17), true),
-    ExampleData("1", "John Doe", DateTime(1977, 6, 17), true),
-    ExampleData("2", "Jane Doe", DateTime(1977, 6, 17), true),
-    ExampleData("1", "John Doe", DateTime(1977, 6, 17), true),
-    ExampleData("2", "Jane Doe", DateTime(1977, 6, 17), true),
-    ExampleData("1", "John Doe", DateTime(1977, 6, 17), true),
-    ExampleData("2", "Jane Doe", DateTime(1977, 6, 17), true),
-    ExampleData("1", "John Doe", DateTime(1977, 6, 17), true),
-    ExampleData("2", "Jane Doe", DateTime(1977, 6, 17), true),
-    ExampleData("1", "John Doe", DateTime(1977, 6, 17), true),
-    ExampleData("2", "Jane Doe", DateTime(1977, 6, 17), true),
-    ExampleData("1", "John Doe", DateTime(1977, 6, 17), true),
-    ExampleData("2", "Jane Doe", DateTime(1977, 6, 17), true),
-    ExampleData("1", "John Doe", DateTime(1977, 6, 17), true),
-    ExampleData("2", "Jane Doe", DateTime(1977, 6, 17), true),
-    ExampleData("1", "John Doe", DateTime(1977, 6, 17), true),
-    ExampleData("2", "Jane Doe", DateTime(1977, 6, 17), true),
-    ExampleData("1", "John Doe", DateTime(1977, 6, 17), true),
-    ExampleData("2", "Jane Doe", DateTime(1977, 6, 17), true),
-    ExampleData("1", "John Doe", DateTime(1977, 6, 17), true),
-    ExampleData("2", "Jane Doe", DateTime(1977, 6, 17), true),
-    ExampleData("1", "John Doe", DateTime(1977, 6, 17), true),
-    ExampleData("2", "Jane Doe", DateTime(1977, 6, 17), true),
-    ExampleData("2", "Jane Doe", DateTime(1977, 6, 17), true),
-    ExampleData("1", "John Doe", DateTime(1977, 6, 17), true),
-    ExampleData("2", "Jane Doe", DateTime(1977, 6, 17), true),
-    ExampleData("1", "John Doe", DateTime(1977, 6, 17), true),
-    ExampleData("2", "Jane Doe", DateTime(1977, 6, 17), true),
-    ExampleData("1", "John Doe", DateTime(1977, 6, 17), true),
-    ExampleData("2", "Jane Doe", DateTime(1977, 6, 17), true),
-    ExampleData("1", "John Doe", DateTime(1977, 6, 17), true),
-    ExampleData("2", "Jane Doe", DateTime(1977, 6, 17), true),
+    ExampleData(1, "John Doe", DateTime(1977, 6, 17), true),
+    ExampleData(2, "Jane Doe", DateTime(1977, 6, 17), true),
+    ExampleData(3, "John Doe", DateTime(1977, 6, 17), true),
+    ExampleData(4, "Jane Doe", DateTime(1977, 6, 17), true),
+    ExampleData(5, "John Doe", DateTime(1977, 6, 17), true),
+    ExampleData(6, "Jane Doe", DateTime(1977, 6, 17), true),
+    ExampleData(7, "John Doe", DateTime(1977, 6, 17), true),
+    ExampleData(8, "Jane Doe", DateTime(1977, 6, 17), true),
+    ExampleData(9, "John Doe", DateTime(1977, 6, 17), true),
+    ExampleData(10, "Jane Doe", DateTime(1977, 6, 17), true),
+    ExampleData(11, "John Doe", DateTime(1977, 6, 17), true),
+    ExampleData(12, "Jane Doe", DateTime(1977, 6, 17), true),
+    ExampleData(13, "John Doe", DateTime(1977, 6, 17), true),
+    ExampleData(14, "Jane Doe", DateTime(1977, 6, 17), true),
+    ExampleData(15, "John Doe", DateTime(1977, 6, 17), true),
+    ExampleData(16, "Jane Doe", DateTime(1977, 6, 17), true),
+    ExampleData(17, "John Doe", DateTime(1977, 6, 17), true),
+    ExampleData(18, "Jane Doe", DateTime(1977, 6, 17), true),
+    ExampleData(19, "John Doe", DateTime(1977, 6, 17), true),
+    ExampleData(20, "Jane Doe", DateTime(1977, 6, 17), true),
+    ExampleData(21, "John Doe", DateTime(1977, 6, 17), true),
+    ExampleData(22, "Jane Doe", DateTime(1977, 6, 17), true),
+    ExampleData(23, "John Doe", DateTime(1977, 6, 17), true),
+    ExampleData(24, "Jane Doe", DateTime(1977, 6, 17), true),
+    ExampleData(25, "John Doe", DateTime(1977, 6, 17), true),
+    ExampleData(26, "Jane Doe", DateTime(1977, 6, 17), true),
+    ExampleData(27, "Jane Doe", DateTime(1977, 6, 17), true),
+    ExampleData(28, "John Doe", DateTime(1977, 6, 17), true),
+    ExampleData(29, "Jane Doe", DateTime(1977, 6, 17), true),
+    ExampleData(30, "John Doe", DateTime(1977, 6, 17), true),
+    ExampleData(31, "Jane Doe", DateTime(1977, 6, 17), true),
+    ExampleData(32, "John Doe", DateTime(1977, 6, 17), true),
+    ExampleData(33, "Jane Doe", DateTime(1977, 6, 17), true),
+    ExampleData(34, "John Doe", DateTime(1977, 6, 17), true),
+    ExampleData(35, "Jane Doe", DateTime(1977, 6, 17), true),
   ]);
 
   MyHomePage({Key? key, required this.title}) : super(key: key);
@@ -100,45 +105,86 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: ResponsiveDataGrid<ExampleData>(
-        title: "Testing Title",
-        titleIcon: Icon(Icons.help),
+        title: TitleDefinition(
+          title: "Testing Title",
+          icon: Icon(Icons.help),
+        ),
         itemTapped: (row) => print(row.name),
         columns: [
           ColumnDefinition(
             xsCols: 2,
             fieldName: "id",
-            fieldType: String,
-            header: ColumnHeaderDefinition(text: "Id"),
+            header: ColumnHeaderDefinition(
+              text: "Id",
+              orderRules: OrderRules(showSort: true),
+              filterRules: IntFilterRules(
+                filterable: true,
+              ),
+            ),
             value: (row) => row.id,
           ),
           ColumnDefinition(
             xsCols: 6,
             mediumCols: 4,
             fieldName: "name",
-            fieldType: String,
             header: ColumnHeaderDefinition(
               text: "Name",
               showMenu: true,
-              filterRules: FilterRules(
+              orderRules: OrderRules(showSort: true),
+              filterRules: ValueMapFilterRules(
+                valueMap: {"John": Text("John"), "Doe": Text("Doe")},
                 filterable: true,
               ),
             ),
             value: (row) => row.name,
+          ),
+          ColumnDefinition(
+            xsCols: 4,
+            mediumCols: 3,
+            fieldName: "dob",
+            header: ColumnHeaderDefinition(
+              text: "Date of Birth",
+              showMenu: true,
+              orderRules: OrderRules(showSort: true),
+              filterRules: DateTimeFilterRules(
+                filterType: DateTimeFilterTypes.DateOnly,
+                filterable: true,
+              ),
+            ),
+            value: (row) => DateFormat.yMd().format(row.dob),
+          ),
+          ColumnDefinition(
+            xsCols: 4,
+            mediumCols: 2,
+            fieldName: "accepted",
+            header: ColumnHeaderDefinition(
+              text: "Accepted",
+              showMenu: true,
+              orderRules: OrderRules(showSort: true),
+              filterRules: BoolFilterRules(
+                filterable: true,
+              ),
+            ),
+            value: (row) => row.accepted ? "Yes" : "No",
           )
         ],
-        loadData: (criteria) => Future.value(
-          LoadResult(
-            totalCount: widget.exampleData.length,
-            items: widget.exampleData,
-          ),
-        ),
+        loadData: load,
+      ),
+    );
+  }
+
+  Future<LoadResult<ExampleData>> load(LoadCriteria criteria) {
+    return Future.value(
+      LoadResult(
+        totalCount: widget.exampleData.length,
+        items: widget.exampleData,
       ),
     );
   }
 }
 
 class ExampleData {
-  final String id;
+  final int id;
   final String name;
   final DateTime dob;
   final bool accepted;

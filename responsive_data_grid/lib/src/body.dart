@@ -63,7 +63,11 @@ class ResponsiveDataGridBodyWidget<TItem extends Object>
         grid.load();
         return true;
       },
-      child: scrollable ? Expanded(child: listView) : listView,
+      child: scrollable
+          ? Expanded(
+              child: listView,
+            )
+          : listView,
     );
   }
 }

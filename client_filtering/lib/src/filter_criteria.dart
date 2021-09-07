@@ -5,11 +5,13 @@ class FilterCriteria with IJsonable {
   final Logic op;
   final Operators logicalOperator;
   final String? value;
+  final String? value2;
 
   const FilterCriteria({
     required this.fieldName,
     required this.op,
     required this.value,
+    this.value2,
     required this.logicalOperator,
   });
 
@@ -21,7 +23,8 @@ class FilterCriteria with IJsonable {
         other.fieldName == fieldName &&
         other.op == op &&
         other.logicalOperator == logicalOperator &&
-        other.value == value;
+        other.value == value &&
+        other.value2 == value2;
   }
 
   @override
@@ -29,26 +32,30 @@ class FilterCriteria with IJsonable {
     return fieldName.hashCode ^
         op.hashCode ^
         logicalOperator.hashCode ^
-        value.hashCode;
+        value.hashCode ^
+        value2.hashCode;
   }
 
   FilterCriteria copyWith({
-    String? fieldName,
-    Logic? op,
-    Operators? logicalOperator,
-    dynamic value,
+    String Function()? fieldName,
+    Logic Function()? op,
+    Operators Function()? logicalOperator,
+    String? Function()? value,
+    String? Function()? value2,
   }) {
     return FilterCriteria(
-      fieldName: fieldName ?? this.fieldName,
-      op: op ?? this.op,
-      logicalOperator: logicalOperator ?? this.logicalOperator,
-      value: value ?? this.value,
+      fieldName: fieldName == null ? this.fieldName : fieldName(),
+      op: op == null ? this.op : op(),
+      logicalOperator:
+          logicalOperator == null ? this.logicalOperator : logicalOperator(),
+      value: value == null ? this.value : value(),
+      value2: value2 == null ? this.value2 : value2(),
     );
   }
 
   @override
   String toString() {
-    return 'FilterCriteria(fieldName: $fieldName, op: $op, logicalOperator: $logicalOperator, value: $value)';
+    return 'FilterCriteria(fieldName: $fieldName, op: $op, logicalOperator: $logicalOperator, value: $value), value2: $value2)';
   }
 
   Map<String, dynamic> toJson() {
@@ -56,7 +63,10 @@ class FilterCriteria with IJsonable {
       'fieldName': fieldName,
       'op': serializeEnumString(op.toString()),
       'logicalOperator': serializeEnumString(logicalOperator.toString()),
-      'value': value,
+      'value':
+          value is DateTime ? (value as DateTime).toIso8601String() : value,
+      'value2':
+          value2 is DateTime ? (value2 as DateTime).toIso8601String() : value2,
     };
   }
 
@@ -69,6 +79,7 @@ class FilterCriteria with IJsonable {
         Operators.values,
       ),
       value: map['value'],
+      value2: map['value2'],
     );
   }
 }

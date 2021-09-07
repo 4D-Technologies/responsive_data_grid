@@ -9,6 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  intl: ^0.17.0
+  client_filtering: ^0.0.10
   responsive_data_grid:
     path: ../
 

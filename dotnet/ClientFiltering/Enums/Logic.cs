@@ -29,5 +29,7 @@ namespace ClientFiltering.Enums
         NotStartsWith = 11,
         [EnumMember]
         NotEndsWith = 12,
+        [EnumMember]
+        Between = 13,
     }
 }

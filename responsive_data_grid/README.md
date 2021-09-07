@@ -24,6 +24,7 @@ For a fully automatic implementation that allows you to tie your responsive data
 **TODO**
 
 1. Integration Testing
-2. Complete the filters for various types that are not yet implemented.
-3. More documentation, examples, and getting started with screen shots
-4. Column Freezing
+2. More documentation, examples, and getting started with screen shots
+3. Column Freezing
+4. Grouping with Sumaries and Group Footers
+5. Footer with Overall Summaries

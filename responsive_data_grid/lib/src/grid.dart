@@ -15,19 +15,13 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
 
   final ScrollPhysics scrollPhysics;
 
-  final ThemeData? columnTheme;
-  final ThemeData? headerTheme;
-
   final Widget? noResults;
 
   final CrossAxisAlignment rowCrossAxisAlignment;
   final CrossAxisAlignment headerCrossAxisAlignment;
   final int reactiveSegments;
-  final String? title;
-  final Icon? titleIcon;
-  final AlignmentGeometry titleAlignment;
-  final TextStyle? titleStyle;
-  final EdgeInsets? padding;
+  final TitleDefinition? title;
+  final EdgeInsets padding;
   final double elevation;
 
   ResponsiveDataGrid({
@@ -38,20 +32,15 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
     this.separatorThickness,
     this.pageSize = 50,
     this.height,
-    this.columnTheme,
     this.scrollPhysics = const BouncingScrollPhysics(),
     this.sortable = SortableOptions.none,
     this.filterable = false,
-    this.headerTheme,
     this.noResults,
     this.rowCrossAxisAlignment = CrossAxisAlignment.center,
     this.headerCrossAxisAlignment = CrossAxisAlignment.center,
     this.reactiveSegments = 12,
     this.title,
-    this.padding,
-    this.titleAlignment = Alignment.centerLeft,
-    this.titleStyle,
-    this.titleIcon,
+    this.padding = const EdgeInsets.all(5),
     this.elevation = 0,
   }) : super(key: key) {
     assert(TItem != Object);
@@ -136,77 +125,85 @@ class ResponsiveDataGridState<TItem extends Object>
 
   @override
   Widget build(BuildContext context) {
-    final theme = mergeTheme(context);
+    final theme = Theme.of(context);
+    final gridTheme = theme.copyWith(
+      dataTableTheme: theme.dataTableTheme.copyWith(
+        headingRowColor: theme.dataTableTheme.headingRowColor ??
+            MaterialStateProperty.all(theme.appBarTheme.backgroundColor),
+        headingTextStyle: theme.dataTableTheme.headingTextStyle ??
+            theme.primaryTextTheme.headline5!
+                .apply(color: theme.primaryColorLight),
+      ),
+    );
 
     if (!isInitialized && !isLoading) return Container();
 
-    final scrollable =
-        context.findAncestorWidgetOfExactType<Scrollable>() == null ||
-            widget.height != null;
-
-    return Theme(
-      data: theme,
-      child: Padding(
-        padding: widget.padding ?? EdgeInsets.all(widget.elevation),
-        child: Card(
-          borderOnForeground: false,
-          elevation: widget.elevation,
-          margin: EdgeInsets.all(0),
-          child: Container(
-            height: widget.height,
-            child: Column(
-              mainAxisSize: !scrollable ? MainAxisSize.min : MainAxisSize.max,
-              children: [
-                Visibility(
-                  child: Container(
-                    child: ListTile(
-                      leading: widget.titleIcon == null
-                          ? null
-                          : Theme(
-                              data: theme.copyWith(
-                                  iconTheme: theme.iconTheme.copyWith(
-                                color: theme.primaryTextTheme.headline5!.color,
-                                size: (theme.primaryIconTheme.size ?? 24) + 4,
-                              )),
-                              child: widget.titleIcon!),
-                      title: Text(
-                        widget.title ?? "",
-                        style: widget.titleStyle ??
-                            theme.primaryTextTheme.headline5,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final scrollable =
+            constraints.hasBoundedHeight || widget.height != null;
+        return Theme(
+          data: gridTheme,
+          child: Padding(
+            padding: widget.padding,
+            child: Card(
+              borderOnForeground: false,
+              elevation: widget.elevation,
+              margin: EdgeInsets.all(0),
+              child: Container(
+                height: widget.height,
+                child: Column(
+                  mainAxisSize:
+                      !scrollable ? MainAxisSize.min : MainAxisSize.max,
+                  children: [
+                    Visibility(
+                      child: widget.title == null
+                          ? Container()
+                          : TitleRow(widget.title!),
+                      visible: widget.title != null,
+                    ),
+                    ResponsiveDataGridHeaderRowWidget(
+                        this, this.widget.columns),
+                    Visibility(
+                      child:
+                          ResponsiveDataGridBodyWidget(this, theme, scrollable),
+                      visible: isInitialized,
+                    ),
+                    Visibility(
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [CircularProgressIndicator()],
+                        ),
                       ),
+                      visible: isInitialized && isLoading,
                     ),
-                    alignment: widget.titleAlignment,
-                    padding: EdgeInsets.all(3),
-                    color: widget.titleStyle?.backgroundColor ??
-                        theme.primaryColorDark,
-                  ),
-                  visible: widget.title != null,
+                  ],
                 ),
-                ResponsiveDataGridHeaderRowWidget(this, this.widget.columns),
-                Visibility(
-                  child: ResponsiveDataGridBodyWidget(this, theme, scrollable),
-                  visible: isInitialized,
-                ),
-                Visibility(
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [CircularProgressIndicator()],
-                    ),
-                  ),
-                  visible: isInitialized && isLoading,
-                ),
-              ],
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
-  ThemeData mergeTheme(BuildContext context) => Theme.of(context);
+  ThemeData mergeTheme(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return theme.copyWith(
+        dataTableTheme: theme.dataTableTheme.copyWith(
+      headingRowColor: MaterialStateProperty.all(theme.accentColor),
+      headingTextStyle: theme.textTheme.caption,
+    ));
+  }
 
   void updateColumnRules(ColumnDefinition<TItem> col) {
+    final column = columns.firstWhere((c) => c.fieldName == col.fieldName);
+
+    columns.replaceRange(
+        columns.indexOf(column), columns.indexOf(column) + 1, [col]);
+
     updateOrderByCriteria(col);
 
     updateAllRules();
@@ -214,10 +211,14 @@ class ResponsiveDataGridState<TItem extends Object>
   }
 
   void updateAllRules() {
-    columns.where((c) => c.fieldName != null).forEach((c) {
+    filterBy.clear();
+    orderBy.clear();
+    columns.forEach((c) {
       if (c.header.orderRules.direction != OrderDirections.notSet) {
-        orderBy.add(OrderCriteria(
-            fieldName: c.fieldName!, direction: c.header.orderRules.direction));
+        orderBy.add(
+          OrderCriteria(
+              fieldName: c.fieldName, direction: c.header.orderRules.direction),
+        );
       }
 
       if (c.header.filterRules.criteria != null) {

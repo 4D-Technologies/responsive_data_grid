@@ -1,14 +1,16 @@
 part of responsive_data_grid;
 
-class IntFilterRules<TItem extends Object>
-    extends FilterRules<TItem, DataGridIntColumnFilter<TItem>> {
+class NumFilterRules<TItem extends Object>
+    extends FilterRules<TItem, DataGridNumColumnFilter<TItem>> {
   final String hintText;
-  final int? minValue;
-  final int? maxValue;
-  IntFilterRules({
+  final int decimalPlaces;
+  final num? minValue;
+  final num? maxValue;
+  NumFilterRules({
     String? hintText,
     this.minValue,
     this.maxValue,
+    this.decimalPlaces = 2,
     bool filterable = false,
     FilterCriteria? criteria,
   })  : this.hintText = hintText ?? LocalizedMessages.value,
@@ -18,15 +20,16 @@ class IntFilterRules<TItem extends Object>
         );
 
   @override
-  DataGridIntColumnFilter<TItem> filter(ColumnDefinition<TItem> definition,
+  DataGridNumColumnFilter<TItem> filter(ColumnDefinition<TItem> definition,
           ResponsiveDataGridState<TItem> grid) =>
-      DataGridIntColumnFilter(definition, grid);
+      DataGridNumColumnFilter(definition, grid);
 
   @override
-  FilterRules<TItem, DataGridIntColumnFilter<TItem>> updateCriteria(
+  FilterRules<TItem, DataGridNumColumnFilter<TItem>> updateCriteria(
           FilterCriteria? criteria) =>
-      IntFilterRules<TItem>(
+      NumFilterRules<TItem>(
         criteria: criteria,
+        decimalPlaces: decimalPlaces,
         filterable: filterable,
         hintText: hintText,
         maxValue: maxValue,
@@ -34,41 +37,41 @@ class IntFilterRules<TItem extends Object>
       );
 }
 
-class DataGridIntColumnFilter<TItem extends Object>
+class DataGridNumColumnFilter<TItem extends Object>
     extends DataGridColumnFilter<TItem> {
-  DataGridIntColumnFilter(
+  DataGridNumColumnFilter(
       ColumnDefinition<TItem> definition, ResponsiveDataGridState<TItem> grid)
       : super(definition, grid) {
     assert(TItem != Object);
   }
 
   @override
-  State<StatefulWidget> createState() => DataGridIntColumnFilterState<TItem>();
+  State<StatefulWidget> createState() => DataGridNumColumnFilterState<TItem>();
 }
 
-class DataGridIntColumnFilterState<TItem extends Object>
+class DataGridNumColumnFilterState<TItem extends Object>
     extends DataGridColumnFilterState<TItem> {
   late TextEditingController tecValue1;
   late TextEditingController tecValue2;
 
-  int? iValue;
-  int? iValue2;
+  num? nValue;
+  num? nValue2;
   Operators? op;
 
-  late IntFilterRules filterRules;
+  late NumFilterRules filterRules;
 
   @override
   void initState() {
     super.initState();
 
-    filterRules = widget.definition.header.filterRules as IntFilterRules;
+    filterRules = widget.definition.header.filterRules as NumFilterRules;
 
     final criteria = filterRules.criteria;
     if (criteria != null) {
-      iValue = criteria.value != null ? int.parse(criteria.value!) : null;
-      tecValue1 = TextEditingController(text: iValue.toString());
-      iValue2 = criteria.value2 != null ? int.parse(criteria.value2!) : null;
-      tecValue2 = TextEditingController(text: iValue2.toString());
+      nValue = criteria.value != null ? num.parse(criteria.value!) : null;
+      tecValue1 = TextEditingController(text: nValue.toString());
+      nValue2 = criteria.value2 != null ? num.parse(criteria.value2!) : null;
+      tecValue2 = TextEditingController(text: nValue2.toString());
       op = criteria.logicalOperator;
     } else {
       tecValue1 = TextEditingController();
@@ -81,20 +84,18 @@ class DataGridIntColumnFilterState<TItem extends Object>
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        DropdownButton<Operators?>(
+        DropdownButtonFormField<Operators>(
             items: [
               DropdownMenuItem(
                 child: Text(LocalizedMessages.any),
                 value: null,
               ),
               DropdownMenuItem(
-                child: Text(Operators.greaterThan.description),
-                value: Operators.greaterThan,
-              ),
+                  child: Text(Operators.greaterThan.description),
+                  value: Operators.greaterThan),
               DropdownMenuItem(
-                child: Text(Operators.greaterThanOrEqualTo.description),
-                value: Operators.greaterThanOrEqualTo,
-              ),
+                  child: Text(Operators.greaterThanOrEqualTo.description),
+                  value: Operators.greaterThanOrEqualTo),
               DropdownMenuItem(
                 child: Text(Operators.equals.description),
                 value: Operators.equals,
@@ -104,9 +105,8 @@ class DataGridIntColumnFilterState<TItem extends Object>
                 value: Operators.lessThan,
               ),
               DropdownMenuItem(
-                child: Text(Operators.lessThanOrEqualTo.description),
-                value: Operators.lessThanOrEqualTo,
-              ),
+                  child: Text(Operators.lessThanOrEqualTo.description),
+                  value: Operators.lessThanOrEqualTo),
               DropdownMenuItem(
                 child: Text(Operators.between.description),
                 value: Operators.between,
@@ -135,12 +135,14 @@ class DataGridIntColumnFilterState<TItem extends Object>
                   op == Operators.notEqual),
           child: TextField(
             decoration: InputDecoration(hintText: op?.description),
-            keyboardType: TextInputType.number,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            keyboardType: TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [
+              DecimalTextInputFormatter(decimalRange: filterRules.decimalPlaces)
+            ],
             controller: tecValue1,
             onChanged: (value) {
               this.setState(() {
-                iValue = int.parse(value);
+                nValue = num.parse(value);
               });
             },
           ),
@@ -152,12 +154,14 @@ class DataGridIntColumnFilterState<TItem extends Object>
                   op == Operators.between),
           child: TextField(
             decoration: InputDecoration(hintText: op?.description),
-            keyboardType: TextInputType.number,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            keyboardType: TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [
+              DecimalTextInputFormatter(decimalRange: filterRules.decimalPlaces)
+            ],
             controller: tecValue2,
             onChanged: (value) {
               this.setState(() {
-                iValue2 = int.parse(value);
+                nValue2 = num.parse(value);
               });
             },
           ),
@@ -173,8 +177,8 @@ class DataGridIntColumnFilterState<TItem extends Object>
                       fieldName: widget.definition.fieldName,
                       logicalOperator: op!,
                       op: Logic.and,
-                      value: iValue?.toString(),
-                      value2: iValue2?.toString(),
+                      value: nValue?.toString(),
+                      value2: nValue2?.toString(),
                     ),
             ),
             icon: Icon(Icons.save),

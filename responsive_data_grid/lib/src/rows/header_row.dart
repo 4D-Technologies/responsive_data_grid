@@ -14,17 +14,36 @@ class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
     final grid =
         context.findAncestorWidgetOfExactType<ResponsiveDataGrid<TItem>>();
 
-    return Container(
-      color: Theme.of(context).accentColor,
-      margin: EdgeInsets.only(
-        bottom: 5,
-      ),
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(5, 5, 5, 5),
-        child: BootstrapRow(
-          children: getColumnHeaders(context),
-          crossAxisAlignment: grid!.headerCrossAxisAlignment,
-          totalSegments: grid.reactiveSegments,
+    final theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
+
+    final backgroundColor = theme.dataTableTheme.headingRowColor
+            ?.resolve(MaterialState.values.toSet()) ??
+        (colorScheme.brightness == Brightness.dark
+            ? colorScheme.secondary
+            : colorScheme.secondaryVariant);
+
+    final foregroundColor = theme.dataTableTheme.headingTextStyle?.color ??
+        (colorScheme.brightness == Brightness.dark
+            ? colorScheme.onSurface
+            : colorScheme.onPrimary);
+
+    final iconTheme = theme.iconTheme.copyWith(color: foregroundColor);
+
+    return IconTheme(
+      data: iconTheme,
+      child: Container(
+        color: backgroundColor,
+        margin: EdgeInsets.only(
+          bottom: 5,
+        ),
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(5, 5, 5, 5),
+          child: BootstrapRow(
+            children: getColumnHeaders(context),
+            crossAxisAlignment: grid!.headerCrossAxisAlignment,
+            totalSegments: grid.reactiveSegments,
+          ),
         ),
       ),
     );

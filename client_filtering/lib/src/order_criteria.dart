@@ -22,12 +22,12 @@ class OrderCriteria with IJsonable {
   int get hashCode => fieldName.hashCode ^ direction.hashCode;
 
   OrderCriteria copyWith({
-    String? fieldName,
-    OrderDirections? direction,
+    String Function()? fieldName,
+    OrderDirections Function()? direction,
   }) {
     return OrderCriteria(
-      fieldName: fieldName ?? this.fieldName,
-      direction: direction ?? this.direction,
+      fieldName: fieldName == null ? this.fieldName : fieldName(),
+      direction: direction == null ? this.direction : direction(),
     );
   }
 
