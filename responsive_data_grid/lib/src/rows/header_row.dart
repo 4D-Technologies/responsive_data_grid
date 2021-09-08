@@ -3,7 +3,7 @@ part of responsive_data_grid;
 class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
     extends StatelessWidget {
   final ResponsiveDataGridState<TItem> grid;
-  final List<ColumnDefinition<TItem>> columns;
+  final List<ColumnDefinition<TItem, dynamic>> columns;
 
   ResponsiveDataGridHeaderRowWidget(this.grid, this.columns) {
     assert(TItem != Object);
@@ -34,14 +34,12 @@ class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
       data: iconTheme,
       child: Container(
         color: backgroundColor,
-        margin: EdgeInsets.only(
-          bottom: 5,
-        ),
+        margin: grid!.padding,
         child: Padding(
-          padding: EdgeInsets.fromLTRB(5, 5, 5, 5),
+          padding: grid.contentPadding,
           child: BootstrapRow(
             children: getColumnHeaders(context),
-            crossAxisAlignment: grid!.headerCrossAxisAlignment,
+            crossAxisAlignment: grid.headerCrossAxisAlignment,
             totalSegments: grid.reactiveSegments,
           ),
         ),
@@ -53,9 +51,7 @@ class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
     return columns
         .map(
           (c) => BootstrapCol(
-            child: !c.header.empty
-                ? ColumnHeaderWidget<TItem>(grid, c)
-                : Container(),
+            child: c.getHeader(grid),
             lg: c.largeCols ?? c.mediumCols ?? c.smallCols ?? c.xsCols ?? 12,
             md: c.mediumCols ?? c.smallCols ?? c.xsCols ?? 12,
             sm: c.smallCols ?? c.xsCols ?? 12,

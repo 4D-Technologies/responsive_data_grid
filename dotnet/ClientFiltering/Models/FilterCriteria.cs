@@ -1,12 +1,17 @@
 using System.Runtime.Serialization;
 using ClientFiltering.Enums;
 using System.Text.Json.Serialization;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace ClientFiltering.Models
 {
+
     [DataContract]
     public record FilterCriteria
     {
+        public FilterCriteria() { }
+
         /// <summary>
         /// The field to operate on
         /// </summary>
@@ -25,15 +30,9 @@ namespace ClientFiltering.Models
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public Logic LogicalOperator { get; init; } = Logic.Equals;
         /// <summary>
-        /// The value to use for comparison
+        /// The values to use for comparison
         /// </summary>
         [DataMember]
-        public string? Value { get; init; }
-        /// <summary>
-        /// The second value for doing range operators
-        /// </summary>
-        /// <value></value>
-        [DataMember]
-        public string? Value2 { get; init; }
+        public IEnumerable<string?> Values { get; init; } = Enumerable.Empty<string?>();
     }
 }

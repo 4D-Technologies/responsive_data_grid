@@ -6,13 +6,12 @@ For a fully automatic implementation that allows you to tie your responsive data
 
 ## Features
 
-1. Paging
+1. Paging of data for maximum efficiency (both client side and server side)
 2. Sorting (including multi-column sorting)
 3. Filtering (including mutli-column filtering with friendly interactive filter dialogs)
-4. Paging
-5. Infinite scroll with load on demand
-6. Height, or shrinkwrap mode.
-7. Full responsive design similar to how bootstrap grid layout works allowing for custom layouts of your data grid across mobile, web and desktop.
+4. Infinite scroll with load on demand
+5. Height, or shrinkwrap mode.
+6. Full responsive design similar to how bootstrap grid layout works allowing for custom layouts of your data grid across mobile, web and desktop.
 
 ## Getting Started
 
@@ -28,3 +27,4 @@ For a fully automatic implementation that allows you to tie your responsive data
 3. Column Freezing
 4. Grouping with Sumaries and Group Footers
 5. Footer with Overall Summaries
+6. Pagination

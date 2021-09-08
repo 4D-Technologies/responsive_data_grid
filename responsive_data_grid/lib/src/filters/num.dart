@@ -1,7 +1,7 @@
 part of responsive_data_grid;
 
 class NumFilterRules<TItem extends Object>
-    extends FilterRules<TItem, DataGridNumColumnFilter<TItem>> {
+    extends FilterRules<TItem, DataGridNumColumnFilter<TItem>, num> {
   final String hintText;
   final int decimalPlaces;
   final num? minValue;
@@ -12,7 +12,7 @@ class NumFilterRules<TItem extends Object>
     this.maxValue,
     this.decimalPlaces = 2,
     bool filterable = false,
-    FilterCriteria? criteria,
+    FilterCriteria<num>? criteria,
   })  : this.hintText = hintText ?? LocalizedMessages.value,
         super(
           criteria: criteria,
@@ -20,13 +20,13 @@ class NumFilterRules<TItem extends Object>
         );
 
   @override
-  DataGridNumColumnFilter<TItem> filter(ColumnDefinition<TItem> definition,
+  DataGridNumColumnFilter<TItem> filter(ColumnDefinition<TItem, num> definition,
           ResponsiveDataGridState<TItem> grid) =>
       DataGridNumColumnFilter(definition, grid);
 
   @override
-  FilterRules<TItem, DataGridNumColumnFilter<TItem>> updateCriteria(
-          FilterCriteria? criteria) =>
+  FilterRules<TItem, DataGridNumColumnFilter<TItem>, num> updateCriteria(
+          FilterCriteria<num>? criteria) =>
       NumFilterRules<TItem>(
         criteria: criteria,
         decimalPlaces: decimalPlaces,
@@ -38,9 +38,9 @@ class NumFilterRules<TItem extends Object>
 }
 
 class DataGridNumColumnFilter<TItem extends Object>
-    extends DataGridColumnFilter<TItem> {
-  DataGridNumColumnFilter(
-      ColumnDefinition<TItem> definition, ResponsiveDataGridState<TItem> grid)
+    extends DataGridColumnFilter<TItem, num> {
+  DataGridNumColumnFilter(ColumnDefinition<TItem, num> definition,
+      ResponsiveDataGridState<TItem> grid)
       : super(definition, grid) {
     assert(TItem != Object);
   }
@@ -50,7 +50,7 @@ class DataGridNumColumnFilter<TItem extends Object>
 }
 
 class DataGridNumColumnFilterState<TItem extends Object>
-    extends DataGridColumnFilterState<TItem> {
+    extends DataGridColumnFilterState<TItem, num> {
   late TextEditingController tecValue1;
   late TextEditingController tecValue2;
 
@@ -68,9 +68,9 @@ class DataGridNumColumnFilterState<TItem extends Object>
 
     final criteria = filterRules.criteria;
     if (criteria != null) {
-      nValue = criteria.value != null ? num.parse(criteria.value!) : null;
+      nValue = criteria.values.length > 0 ? criteria.values.first : null;
       tecValue1 = TextEditingController(text: nValue.toString());
-      nValue2 = criteria.value2 != null ? num.parse(criteria.value2!) : null;
+      nValue2 = criteria.values.length > 1 ? criteria.values.last : null;
       tecValue2 = TextEditingController(text: nValue2.toString());
       op = criteria.logicalOperator;
     } else {
@@ -177,8 +177,8 @@ class DataGridNumColumnFilterState<TItem extends Object>
                       fieldName: widget.definition.fieldName,
                       logicalOperator: op!,
                       op: Logic.and,
-                      value: nValue?.toString(),
-                      value2: nValue2?.toString(),
+                      values:
+                          [nValue, nValue2].where((e) => e != null).toList(),
                     ),
             ),
             icon: Icon(Icons.save),

@@ -8,7 +8,7 @@ enum DateTimeFilterTypes {
 }
 
 class DateTimeFilterRules<TItem extends Object>
-    extends FilterRules<TItem, DataGridDateTimeColumnFilter<TItem>> {
+    extends FilterRules<TItem, DataGridDateTimeColumnFilter<TItem>, DateTime> {
   final DateTimeFilterTypes filterType;
   final DateTime firstDate;
   final DateTime lastDate;
@@ -16,7 +16,7 @@ class DateTimeFilterRules<TItem extends Object>
   DateTimeFilterRules({
     required this.filterType,
     bool filterable = false,
-    FilterCriteria? criteria,
+    FilterCriteria<DateTime>? criteria,
     DateTime? firstDate,
     DateTime? lastDate,
   })  : this.firstDate = firstDate ?? DateTime.parse("0001-01-01"),
@@ -27,24 +27,25 @@ class DateTimeFilterRules<TItem extends Object>
         );
 
   @override
-  DataGridDateTimeColumnFilter<TItem> filter(ColumnDefinition<TItem> definition,
+  DataGridDateTimeColumnFilter<TItem> filter(
+          ColumnDefinition<TItem, DateTime> definition,
           ResponsiveDataGridState<TItem> grid) =>
       DataGridDateTimeColumnFilter(definition, grid);
 
   @override
-  FilterRules<TItem, DataGridDateTimeColumnFilter<TItem>> updateCriteria(
-          FilterCriteria? criteria) =>
-      DateTimeFilterRules<TItem>(
-        filterType: filterType,
-        criteria: criteria,
-        filterable: filterable,
-      );
+  FilterRules<TItem, DataGridDateTimeColumnFilter<TItem>, DateTime>
+      updateCriteria(FilterCriteria<DateTime>? criteria) =>
+          DateTimeFilterRules<TItem>(
+            filterType: filterType,
+            criteria: criteria,
+            filterable: filterable,
+          );
 }
 
 class DataGridDateTimeColumnFilter<TItem extends Object>
-    extends DataGridColumnFilter<TItem> {
-  DataGridDateTimeColumnFilter(
-      ColumnDefinition<TItem> definition, ResponsiveDataGridState<TItem> grid)
+    extends DataGridColumnFilter<TItem, DateTime> {
+  DataGridDateTimeColumnFilter(ColumnDefinition<TItem, DateTime> definition,
+      ResponsiveDataGridState<TItem> grid)
       : super(definition, grid) {
     assert(TItem != Object);
   }
@@ -55,7 +56,7 @@ class DataGridDateTimeColumnFilter<TItem extends Object>
 }
 
 class DataGridDateTimeColumnFilterState<TItem extends Object>
-    extends DataGridColumnFilterState<TItem> {
+    extends DataGridColumnFilterState<TItem, DateTime> {
   DateTime? dtStart;
   DateTime? dtEnd;
   Operators? op;
@@ -68,8 +69,8 @@ class DataGridDateTimeColumnFilterState<TItem extends Object>
 
     final criteria = filterRules.criteria;
     if (criteria != null) {
-      dtStart = criteria.value != null ? DateTime.parse(criteria.value!) : null;
-      dtEnd = criteria.value2 != null ? DateTime.parse(criteria.value2!) : null;
+      dtStart = criteria.values.length > 0 ? criteria.values.first : null;
+      dtEnd = criteria.values.length > 1 ? criteria.values.last : null;
       op = criteria.logicalOperator;
     }
     super.initState();
@@ -82,6 +83,10 @@ class DataGridDateTimeColumnFilterState<TItem extends Object>
       children: [
         DropdownButtonFormField<Operators>(
             items: [
+              DropdownMenuItem(
+                child: Text(LocalizedMessages.any),
+                value: null,
+              ),
               DropdownMenuItem(
                   child: Text(Operators.greaterThan.description),
                   value: Operators.greaterThan),
@@ -124,7 +129,9 @@ class DataGridDateTimeColumnFilterState<TItem extends Object>
                   op == Operators.greaterThanOrEqualTo ||
                   op == Operators.between ||
                   op == Operators.equals ||
-                  op == Operators.notEqual),
+                  op == Operators.notEqual ||
+                  op == Operators.lessThan ||
+                  op == Operators.lessThanOrEqualTo),
           child: DateTimePicker(
             type: _mapType(filterRules.filterType),
             decoration: InputDecoration(hintText: op?.description),
@@ -139,10 +146,7 @@ class DataGridDateTimeColumnFilterState<TItem extends Object>
           ),
         ),
         Visibility(
-          visible: op != null &&
-              (op == Operators.lessThan ||
-                  op == Operators.lessThanOrEqualTo ||
-                  op == Operators.between),
+          visible: op != null && (op == Operators.between),
           child: DateTimePicker(
             type: _mapType(filterRules.filterType),
             decoration: InputDecoration(hintText: op?.description),
@@ -167,8 +171,7 @@ class DataGridDateTimeColumnFilterState<TItem extends Object>
                       fieldName: widget.definition.fieldName,
                       logicalOperator: op!,
                       op: Logic.and,
-                      value: dtStart?.toIso8601String(),
-                      value2: dtEnd?.toIso8601String(),
+                      values: [dtStart, dtEnd].where((e) => e != null).toList(),
                     ),
             ),
             icon: Icon(Icons.save),

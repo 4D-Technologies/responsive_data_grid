@@ -1,7 +1,7 @@
 part of responsive_data_grid;
 
 class DoubleFilterRules<TItem extends Object>
-    extends FilterRules<TItem, DataGridDoubleColumnFilter<TItem>> {
+    extends FilterRules<TItem, DataGridDoubleColumnFilter<TItem>, double> {
   final String hintText;
   final int decimalPlaces;
   final double? minValue;
@@ -12,7 +12,7 @@ class DoubleFilterRules<TItem extends Object>
     this.maxValue,
     this.decimalPlaces = 2,
     bool filterable = false,
-    FilterCriteria? criteria,
+    FilterCriteria<double>? criteria,
   })  : this.hintText = hintText ?? LocalizedMessages.value,
         super(
           criteria: criteria,
@@ -20,13 +20,14 @@ class DoubleFilterRules<TItem extends Object>
         );
 
   @override
-  DataGridDoubleColumnFilter<TItem> filter(ColumnDefinition<TItem> definition,
+  DataGridDoubleColumnFilter<TItem> filter(
+          ColumnDefinition<TItem, double> definition,
           ResponsiveDataGridState<TItem> grid) =>
       DataGridDoubleColumnFilter(definition, grid);
 
   @override
-  FilterRules<TItem, DataGridDoubleColumnFilter<TItem>> updateCriteria(
-          FilterCriteria? criteria) =>
+  FilterRules<TItem, DataGridDoubleColumnFilter<TItem>, double> updateCriteria(
+          FilterCriteria<double>? criteria) =>
       DoubleFilterRules<TItem>(
         criteria: criteria,
         decimalPlaces: decimalPlaces,
@@ -38,9 +39,9 @@ class DoubleFilterRules<TItem extends Object>
 }
 
 class DataGridDoubleColumnFilter<TItem extends Object>
-    extends DataGridColumnFilter<TItem> {
-  DataGridDoubleColumnFilter(
-      ColumnDefinition<TItem> definition, ResponsiveDataGridState<TItem> grid)
+    extends DataGridColumnFilter<TItem, double> {
+  DataGridDoubleColumnFilter(ColumnDefinition<TItem, double> definition,
+      ResponsiveDataGridState<TItem> grid)
       : super(definition, grid) {
     assert(TItem != Object);
   }
@@ -51,7 +52,7 @@ class DataGridDoubleColumnFilter<TItem extends Object>
 }
 
 class DataGridDoubleColumnFilterState<TItem extends Object>
-    extends DataGridColumnFilterState<TItem> {
+    extends DataGridColumnFilterState<TItem, double> {
   late TextEditingController tecValue1;
   late TextEditingController tecValue2;
 
@@ -69,9 +70,9 @@ class DataGridDoubleColumnFilterState<TItem extends Object>
 
     final criteria = filterRules.criteria;
     if (criteria != null) {
-      dValue = criteria.value != null ? double.parse(criteria.value!) : null;
+      dValue = criteria.values.length > 0 ? criteria.values.first : null;
       tecValue1 = TextEditingController(text: dValue.toString());
-      dValue2 = criteria.value2 != null ? double.parse(criteria.value2!) : null;
+      dValue2 = criteria.values.length > 1 ? criteria.values.last : null;
       tecValue2 = TextEditingController(text: dValue2.toString());
       op = criteria.logicalOperator;
     } else {
@@ -178,8 +179,8 @@ class DataGridDoubleColumnFilterState<TItem extends Object>
                       fieldName: widget.definition.fieldName,
                       logicalOperator: op!,
                       op: Logic.and,
-                      value: dValue?.toString(),
-                      value2: dValue2?.toString(),
+                      values:
+                          [dValue, dValue2].where((e) => e != null).toList(),
                     ),
             ),
             icon: Icon(Icons.save),

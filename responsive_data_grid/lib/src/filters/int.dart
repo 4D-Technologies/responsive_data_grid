@@ -1,7 +1,7 @@
 part of responsive_data_grid;
 
 class IntFilterRules<TItem extends Object>
-    extends FilterRules<TItem, DataGridIntColumnFilter<TItem>> {
+    extends FilterRules<TItem, DataGridIntColumnFilter<TItem>, int> {
   final String hintText;
   final int? minValue;
   final int? maxValue;
@@ -10,7 +10,7 @@ class IntFilterRules<TItem extends Object>
     this.minValue,
     this.maxValue,
     bool filterable = false,
-    FilterCriteria? criteria,
+    FilterCriteria<int>? criteria,
   })  : this.hintText = hintText ?? LocalizedMessages.value,
         super(
           criteria: criteria,
@@ -18,13 +18,13 @@ class IntFilterRules<TItem extends Object>
         );
 
   @override
-  DataGridIntColumnFilter<TItem> filter(ColumnDefinition<TItem> definition,
+  DataGridIntColumnFilter<TItem> filter(ColumnDefinition<TItem, int> definition,
           ResponsiveDataGridState<TItem> grid) =>
       DataGridIntColumnFilter(definition, grid);
 
   @override
-  FilterRules<TItem, DataGridIntColumnFilter<TItem>> updateCriteria(
-          FilterCriteria? criteria) =>
+  FilterRules<TItem, DataGridIntColumnFilter<TItem>, int> updateCriteria(
+          FilterCriteria<int>? criteria) =>
       IntFilterRules<TItem>(
         criteria: criteria,
         filterable: filterable,
@@ -35,9 +35,9 @@ class IntFilterRules<TItem extends Object>
 }
 
 class DataGridIntColumnFilter<TItem extends Object>
-    extends DataGridColumnFilter<TItem> {
-  DataGridIntColumnFilter(
-      ColumnDefinition<TItem> definition, ResponsiveDataGridState<TItem> grid)
+    extends DataGridColumnFilter<TItem, int> {
+  DataGridIntColumnFilter(ColumnDefinition<TItem, int> definition,
+      ResponsiveDataGridState<TItem> grid)
       : super(definition, grid) {
     assert(TItem != Object);
   }
@@ -47,7 +47,7 @@ class DataGridIntColumnFilter<TItem extends Object>
 }
 
 class DataGridIntColumnFilterState<TItem extends Object>
-    extends DataGridColumnFilterState<TItem> {
+    extends DataGridColumnFilterState<TItem, int> {
   late TextEditingController tecValue1;
   late TextEditingController tecValue2;
 
@@ -65,9 +65,9 @@ class DataGridIntColumnFilterState<TItem extends Object>
 
     final criteria = filterRules.criteria;
     if (criteria != null) {
-      iValue = criteria.value != null ? int.parse(criteria.value!) : null;
+      iValue = criteria.values.length > 0 ? criteria.values.first : null;
       tecValue1 = TextEditingController(text: iValue.toString());
-      iValue2 = criteria.value2 != null ? int.parse(criteria.value2!) : null;
+      iValue2 = criteria.values.length > 1 ? criteria.values.last : null;
       tecValue2 = TextEditingController(text: iValue2.toString());
       op = criteria.logicalOperator;
     } else {
@@ -173,8 +173,8 @@ class DataGridIntColumnFilterState<TItem extends Object>
                       fieldName: widget.definition.fieldName,
                       logicalOperator: op!,
                       op: Logic.and,
-                      value: iValue?.toString(),
-                      value2: iValue2?.toString(),
+                      values:
+                          [iValue, iValue2].where((e) => e != null).toList(),
                     ),
             ),
             icon: Icon(Icons.save),

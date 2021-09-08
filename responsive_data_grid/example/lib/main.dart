@@ -1,4 +1,3 @@
-import 'package:client_filtering/client_filtering.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:responsive_data_grid/responsive_data_grid.dart';
@@ -35,41 +34,41 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   final exampleData = List<ExampleData>.from([
-    ExampleData(1, "John Doe", DateTime(1977, 6, 17), true),
-    ExampleData(2, "Jane Doe", DateTime(1977, 6, 17), true),
-    ExampleData(3, "John Doe", DateTime(1977, 6, 17), true),
-    ExampleData(4, "Jane Doe", DateTime(1977, 6, 17), true),
-    ExampleData(5, "John Doe", DateTime(1977, 6, 17), true),
-    ExampleData(6, "Jane Doe", DateTime(1977, 6, 17), true),
-    ExampleData(7, "John Doe", DateTime(1977, 6, 17), true),
-    ExampleData(8, "Jane Doe", DateTime(1977, 6, 17), true),
-    ExampleData(9, "John Doe", DateTime(1977, 6, 17), true),
-    ExampleData(10, "Jane Doe", DateTime(1977, 6, 17), true),
-    ExampleData(11, "John Doe", DateTime(1977, 6, 17), true),
-    ExampleData(12, "Jane Doe", DateTime(1977, 6, 17), true),
-    ExampleData(13, "John Doe", DateTime(1977, 6, 17), true),
-    ExampleData(14, "Jane Doe", DateTime(1977, 6, 17), true),
-    ExampleData(15, "John Doe", DateTime(1977, 6, 17), true),
-    ExampleData(16, "Jane Doe", DateTime(1977, 6, 17), true),
-    ExampleData(17, "John Doe", DateTime(1977, 6, 17), true),
-    ExampleData(18, "Jane Doe", DateTime(1977, 6, 17), true),
-    ExampleData(19, "John Doe", DateTime(1977, 6, 17), true),
-    ExampleData(20, "Jane Doe", DateTime(1977, 6, 17), true),
-    ExampleData(21, "John Doe", DateTime(1977, 6, 17), true),
-    ExampleData(22, "Jane Doe", DateTime(1977, 6, 17), true),
-    ExampleData(23, "John Doe", DateTime(1977, 6, 17), true),
-    ExampleData(24, "Jane Doe", DateTime(1977, 6, 17), true),
-    ExampleData(25, "John Doe", DateTime(1977, 6, 17), true),
-    ExampleData(26, "Jane Doe", DateTime(1977, 6, 17), true),
-    ExampleData(27, "Jane Doe", DateTime(1977, 6, 17), true),
-    ExampleData(28, "John Doe", DateTime(1977, 6, 17), true),
-    ExampleData(29, "Jane Doe", DateTime(1977, 6, 17), true),
-    ExampleData(30, "John Doe", DateTime(1977, 6, 17), true),
-    ExampleData(31, "Jane Doe", DateTime(1977, 6, 17), true),
-    ExampleData(32, "John Doe", DateTime(1977, 6, 17), true),
-    ExampleData(33, "Jane Doe", DateTime(1977, 6, 17), true),
-    ExampleData(34, "John Doe", DateTime(1977, 6, 17), true),
-    ExampleData(35, "Jane Doe", DateTime(1977, 6, 17), true),
+    ExampleData(1, "John Doe", DateTime(1977, 6, 17), true, ExampleEnum.one),
+    ExampleData(2, "Jane Doe", DateTime(1977, 6, 17), false, ExampleEnum.two),
+    ExampleData(3, "John Doe", DateTime(1977, 6, 17), true, ExampleEnum.three),
+    ExampleData(4, "Jane Doe", DateTime(1977, 6, 17), true, ExampleEnum.one),
+    ExampleData(5, "John Doe", DateTime(1977, 6, 17), true, ExampleEnum.two),
+    ExampleData(6, "Jane Doe", DateTime(1977, 6, 17), true, ExampleEnum.three),
+    ExampleData(7, "John Doe", DateTime(1977, 6, 17), true, ExampleEnum.one),
+    ExampleData(8, "Jane Doe", DateTime(1977, 6, 17), true, ExampleEnum.two),
+    ExampleData(9, "John Doe", DateTime(1977, 6, 17), true, ExampleEnum.three),
+    ExampleData(10, "Jane Doe", DateTime(1977, 6, 17), true, ExampleEnum.one),
+    ExampleData(11, "John Doe", DateTime(1977, 6, 17), true, ExampleEnum.two),
+    ExampleData(12, "Jane Doe", DateTime(1977, 6, 17), true, ExampleEnum.three),
+    ExampleData(13, "John Doe", DateTime(1977, 6, 17), true, ExampleEnum.one),
+    ExampleData(14, "Jane Doe", DateTime(1977, 6, 17), true, ExampleEnum.two),
+    ExampleData(15, "John Doe", DateTime(1977, 6, 17), true, ExampleEnum.three),
+    ExampleData(16, "Jane Doe", DateTime(1977, 6, 17), true, ExampleEnum.one),
+    ExampleData(17, "John Doe", DateTime(1977, 6, 17), true, ExampleEnum.two),
+    ExampleData(18, "Jane Doe", DateTime(1977, 6, 17), true, ExampleEnum.three),
+    ExampleData(19, "John Doe", DateTime(1977, 6, 17), true, ExampleEnum.one),
+    ExampleData(20, "Jane Doe", DateTime(1977, 6, 17), true, ExampleEnum.two),
+    ExampleData(21, "John Doe", DateTime(1977, 6, 17), true, ExampleEnum.three),
+    ExampleData(22, "Jane Doe", DateTime(1977, 6, 17), true, ExampleEnum.one),
+    ExampleData(23, "John Doe", DateTime(1977, 6, 17), true, ExampleEnum.two),
+    ExampleData(24, "Jane Doe", DateTime(1977, 6, 17), true, ExampleEnum.three),
+    ExampleData(25, "John Doe", DateTime(1977, 6, 17), true, ExampleEnum.one),
+    ExampleData(26, "Jane Doe", DateTime(1977, 6, 17), true, ExampleEnum.two),
+    ExampleData(27, "Jane Doe", DateTime(1977, 6, 17), true, ExampleEnum.three),
+    ExampleData(28, "John Doe", DateTime(1977, 6, 17), true, ExampleEnum.one),
+    ExampleData(29, "Jane Doe", DateTime(1977, 6, 17), true, ExampleEnum.two),
+    ExampleData(30, "John Doe", DateTime(1977, 6, 17), true, ExampleEnum.three),
+    ExampleData(31, "Jane Doe", DateTime(1977, 6, 17), true, ExampleEnum.one),
+    ExampleData(32, "John Doe", DateTime(1977, 6, 17), true, ExampleEnum.two),
+    ExampleData(33, "Jane Doe", DateTime(1977, 6, 17), true, ExampleEnum.three),
+    ExampleData(34, "John Doe", DateTime(1977, 6, 17), true, ExampleEnum.one),
+    ExampleData(35, "Jane Doe", DateTime(1977, 6, 17), true, ExampleEnum.two),
   ]);
 
   MyHomePage({Key? key, required this.title}) : super(key: key);
@@ -104,14 +103,16 @@ class _MyHomePageState extends State<MyHomePage> {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
-      body: ResponsiveDataGrid<ExampleData>(
+      body: ResponsiveDataGrid<ExampleData>.clientSide(
         title: TitleDefinition(
           title: "Testing Title",
           icon: Icon(Icons.help),
         ),
+        items: widget.exampleData,
         itemTapped: (row) => print(row.name),
+        pageSize: 30,
         columns: [
-          ColumnDefinition(
+          ColumnDefinition.intColumn(
             xsCols: 2,
             fieldName: "id",
             header: ColumnHeaderDefinition(
@@ -123,22 +124,22 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             value: (row) => row.id,
           ),
-          ColumnDefinition(
+          ColumnDefinition.stringColumn(
             xsCols: 6,
-            mediumCols: 4,
+            mediumCols: 3,
             fieldName: "name",
             header: ColumnHeaderDefinition(
               text: "Name",
               showMenu: true,
               orderRules: OrderRules(showSort: true),
-              filterRules: ValueMapFilterRules(
-                valueMap: {"John": Text("John"), "Doe": Text("Doe")},
+              filterRules: StringFilterRules(
                 filterable: true,
+                hintText: "Name",
               ),
             ),
             value: (row) => row.name,
           ),
-          ColumnDefinition(
+          ColumnDefinition.dateTimeColumn(
             xsCols: 4,
             mediumCols: 3,
             fieldName: "dob",
@@ -151,10 +152,11 @@ class _MyHomePageState extends State<MyHomePage> {
                 filterable: true,
               ),
             ),
-            value: (row) => DateFormat.yMd().format(row.dob),
+            value: (row) => row.dob,
+            format: DateFormat.YEAR_MONTH_DAY,
           ),
-          ColumnDefinition(
-            xsCols: 4,
+          ColumnDefinition.boolColumn(
+            xsCols: 3,
             mediumCols: 2,
             fieldName: "accepted",
             header: ColumnHeaderDefinition(
@@ -165,19 +167,26 @@ class _MyHomePageState extends State<MyHomePage> {
                 filterable: true,
               ),
             ),
-            value: (row) => row.accepted ? "Yes" : "No",
+            value: (row) => row.accepted,
+            trueText: "Yes",
+            falseText: "No",
+          ),
+          ColumnDefinition.enumColumn(
+            values: ExampleEnum.values,
+            fieldName: "exampleEnum",
+            text: (value) => value == ExampleEnum.one
+                ? "one"
+                : value == ExampleEnum.two
+                    ? "two"
+                    : "three",
+            value: (row) => row.exampleEnum,
+            headerText: "Enum",
+            xsCols: 4,
+            mediumCols: 2,
+            sortable: true,
+            filterable: true,
           )
         ],
-        loadData: load,
-      ),
-    );
-  }
-
-  Future<LoadResult<ExampleData>> load(LoadCriteria criteria) {
-    return Future.value(
-      LoadResult(
-        totalCount: widget.exampleData.length,
-        items: widget.exampleData,
       ),
     );
   }
@@ -188,6 +197,19 @@ class ExampleData {
   final String name;
   final DateTime dob;
   final bool accepted;
+  final ExampleEnum exampleEnum;
 
-  const ExampleData(this.id, this.name, this.dob, this.accepted);
+  const ExampleData(
+    this.id,
+    this.name,
+    this.dob,
+    this.accepted,
+    this.exampleEnum,
+  );
+}
+
+enum ExampleEnum {
+  one,
+  two,
+  three,
 }

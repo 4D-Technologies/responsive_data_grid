@@ -3,6 +3,7 @@ library client_filtering;
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 part './src/enums.dart';
 part './src/filter_criteria.dart';

@@ -1,12 +1,12 @@
 part of responsive_data_grid;
 
 class StringFilterRules<TItem extends Object>
-    extends FilterRules<TItem, DataGridStringColumnFilter<TItem>> {
+    extends FilterRules<TItem, DataGridStringColumnFilter<TItem>, String> {
   final String hintText;
   StringFilterRules({
     String? hintText,
     bool filterable = false,
-    FilterCriteria? criteria,
+    FilterCriteria<String>? criteria,
   })  : this.hintText = hintText ?? LocalizedMessages.value,
         super(
           criteria: criteria,
@@ -14,13 +14,14 @@ class StringFilterRules<TItem extends Object>
         );
 
   @override
-  DataGridStringColumnFilter<TItem> filter(ColumnDefinition<TItem> definition,
+  DataGridStringColumnFilter<TItem> filter(
+          ColumnDefinition<TItem, String> definition,
           ResponsiveDataGridState<TItem> grid) =>
       DataGridStringColumnFilter(definition, grid);
 
   @override
-  FilterRules<TItem, DataGridStringColumnFilter<TItem>> updateCriteria(
-          FilterCriteria? criteria) =>
+  FilterRules<TItem, DataGridStringColumnFilter<TItem>, String> updateCriteria(
+          FilterCriteria<String>? criteria) =>
       StringFilterRules<TItem>(
         criteria: criteria,
         filterable: filterable,
@@ -29,9 +30,9 @@ class StringFilterRules<TItem extends Object>
 }
 
 class DataGridStringColumnFilter<TItem extends Object>
-    extends DataGridColumnFilter<TItem> {
-  DataGridStringColumnFilter(
-      ColumnDefinition<TItem> definition, ResponsiveDataGridState<TItem> grid)
+    extends DataGridColumnFilter<TItem, String> {
+  DataGridStringColumnFilter(ColumnDefinition<TItem, String> definition,
+      ResponsiveDataGridState<TItem> grid)
       : super(definition, grid) {
     assert(TItem != dynamic);
   }
@@ -42,7 +43,7 @@ class DataGridStringColumnFilter<TItem extends Object>
 }
 
 class DataGridStringColumnFilterState<TItem extends Object>
-    extends DataGridColumnFilterState<TItem> {
+    extends DataGridColumnFilterState<TItem, String> {
   Operators? op;
   String? searchText;
 
@@ -53,7 +54,8 @@ class DataGridStringColumnFilterState<TItem extends Object>
     final criteria = widget.definition.header.filterRules.criteria;
     if (criteria != null) {
       op = criteria.logicalOperator;
-      searchText = criteria.value?.toString();
+      searchText =
+          criteria.values.length > 0 ? criteria.values.first.toString() : null;
     }
     super.initState();
   }
@@ -65,6 +67,10 @@ class DataGridStringColumnFilterState<TItem extends Object>
       children: [
         DropdownButtonFormField<Operators>(
             items: [
+              DropdownMenuItem(
+                child: Text(LocalizedMessages.any),
+                value: null,
+              ),
               DropdownMenuItem(
                   child: Text(Operators.contains.description),
                   value: Operators.contains),
@@ -99,24 +105,32 @@ class DataGridStringColumnFilterState<TItem extends Object>
                 op = value;
               });
             }),
-        TextFormField(
+        Visibility(
+          visible: op != null,
+          child: TextFormField(
             initialValue: searchText,
             decoration: InputDecoration(labelText: "value"),
-            onChanged: (value) => this.setState(() {
-                  searchText = value;
-                })),
+            onChanged: (value) => this.setState(
+              () {
+                searchText = value;
+              },
+            ),
+          ),
+        ),
         Align(
           alignment: Alignment.bottomRight,
           child: TextButton.icon(
             onPressed: () => super.filter(
-                context,
-                op == null
-                    ? null
-                    : FilterCriteria(
-                        fieldName: widget.definition.fieldName,
-                        logicalOperator: op!,
-                        op: Logic.and,
-                        value: searchText)),
+              context,
+              op == null
+                  ? null
+                  : FilterCriteria(
+                      fieldName: widget.definition.fieldName,
+                      logicalOperator: op!,
+                      op: Logic.and,
+                      values: [searchText],
+                    ),
+            ),
             icon: Icon(Icons.save),
             label: Text(LocalizedMessages.apply),
           ),

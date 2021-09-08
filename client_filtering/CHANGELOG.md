@@ -1,9 +1,10 @@
-## [0.0.11] - September 7th, 2021
+## [0.0.15] - September 8th, 2021
 
 - Add Between Operator for numerics and date/times.
 - Add Localization ability by setting the values in ClientFilteringLocalizedMessages.
-- Add Value2 to FilterCriteria to support between.
 - Use functions for copyWith so that nulls can be passed properly.
+- Make FilterCriteria Strongly typed
+- Make FilterCriteria hold list of values for filters on value lists where one to N values may be present.
 
 ## [0.0.7] - August 3rd, 2021
 

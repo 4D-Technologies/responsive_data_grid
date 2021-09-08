@@ -3,15 +3,16 @@ part of client_filtering;
 class LoadCriteria with IJsonable {
   final int? skip;
   final int? take;
-  final List<FilterCriteria> filterBy;
+  final List<FilterCriteria<dynamic>> filterBy;
   final List<OrderCriteria> orderBy;
 
   LoadCriteria({
     this.skip,
     this.take,
-    List<FilterCriteria>? filterBy,
+    List<FilterCriteria<dynamic>>? filterBy,
     List<OrderCriteria>? orderBy,
-  })  : this.filterBy = filterBy ?? List<FilterCriteria>.empty(growable: true),
+  })  : this.filterBy =
+            filterBy ?? List<FilterCriteria<dynamic>>.empty(growable: true),
         this.orderBy = orderBy ?? List<OrderCriteria>.empty(growable: true);
 
   @override
@@ -33,7 +34,7 @@ class LoadCriteria with IJsonable {
   LoadCriteria copyWith({
     int? Function()? skip,
     int? Function()? take,
-    List<FilterCriteria>? Function()? filterBy,
+    List<FilterCriteria<dynamic>>? Function()? filterBy,
     List<OrderCriteria>? Function()? orderBy,
   }) {
     return LoadCriteria(
@@ -57,8 +58,8 @@ class LoadCriteria with IJsonable {
     return LoadCriteria(
       skip: map['skip'],
       take: map['take'],
-      filterBy: List<FilterCriteria>.from(
-          map['filterBy']?.map((x) => FilterCriteria.fromJson(x))),
+      filterBy: List<FilterCriteria<dynamic>>.from(
+          map['filterBy']?.map((x) => FilterCriteria<dynamic>.fromJson(x))),
       orderBy: List<OrderCriteria>.from(
           map['orderBy']?.map((x) => OrderCriteria.fromJson(x))),
     );

@@ -29,7 +29,7 @@ namespace ClientFilteringTests
                     new FilterCriteria {
                         FieldName = nameof(Contact.Name),
                         LogicalOperator = Logic.Equals,
-                        Value = "Test User",
+                        Values = new [] {"Test User"},
                     }
                 }
             };

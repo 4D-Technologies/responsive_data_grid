@@ -1,7 +1,8 @@
 part of responsive_data_grid;
 
-class ColumnHeaderWidget<TItem extends Object> extends StatefulWidget {
-  final ColumnDefinition<TItem> definition;
+class ColumnHeaderWidget<TItem extends Object, TValue extends dynamic>
+    extends StatefulWidget {
+  final ColumnDefinition<TItem, TValue> definition;
   final ResponsiveDataGridState<TItem> grid;
 
   ColumnHeaderWidget(this.grid, this.definition) {
@@ -9,7 +10,7 @@ class ColumnHeaderWidget<TItem extends Object> extends StatefulWidget {
   }
 
   @override
-  State<StatefulWidget> createState() => ColumnHeaderState<TItem>(
+  State<StatefulWidget> createState() => ColumnHeaderState<TItem, TValue>(
         alignment: definition.header.alignment,
         textAlign: definition.header.textAlign,
         filterRules: definition.header.filterRules,
@@ -18,11 +19,11 @@ class ColumnHeaderWidget<TItem extends Object> extends StatefulWidget {
       );
 }
 
-class ColumnHeaderState<TItem extends Object>
-    extends State<ColumnHeaderWidget<TItem>> {
+class ColumnHeaderState<TItem extends Object, TValue extends dynamic>
+    extends State<ColumnHeaderWidget<TItem, TValue>> {
   AlignmentGeometry? alignment;
   TextAlign? textAlign;
-  FilterRules<TItem, DataGridColumnFilter<TItem>> filterRules;
+  FilterRules<TItem, DataGridColumnFilter<TItem, TValue>, TValue> filterRules;
   OrderRules orderRules;
   bool showMenu;
 
@@ -146,9 +147,10 @@ class ColumnHeaderState<TItem extends Object>
           onPressed: () => toggleOrder()));
     }
 
-    if (((header.showMenu == null && grid.widget.filterable) ||
-            (header.showMenu != null && header.showMenu!)) ||
-        (header.filterRules.filterable)) {
+    if ((((header.showMenu == null && grid.widget.filterable) ||
+                (header.showMenu != null && header.showMenu!)) ||
+            (header.filterRules.filterable)) &&
+        !(header.filterRules is NotSetFilterRules<TItem, TValue>)) {
       items.add(IconButton(
           icon: Icon(
             Icons.filter_list,

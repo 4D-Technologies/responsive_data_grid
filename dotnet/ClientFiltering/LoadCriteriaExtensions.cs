@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using ClientFiltering.Enums;
 using ClientFiltering.Models;
+using System.Reflection;
 
 namespace ClientFiltering
 {
@@ -107,16 +108,35 @@ namespace ClientFiltering
             Expression expression;
             var memberAccess = Expression.MakeMemberAccess(param, field);
 
-            var constantValue = GetConstantValue(property, criteria.Value);
+            var constantValues = Expression.Constant(criteria.Values);
 
+            var constantValue = GetConstantValue(property, criteria.Values.First());
+
+            var arrayContains = typeof(Enumerable).GetMethods(BindingFlags.Static | BindingFlags.Public)
+                .Single(x => x.Name == "Contains" && x.GetParameters().Length == 2)
+                .MakeGenericMethod(typeof(int));
 
             switch (criteria.LogicalOperator)
             {
                 case Logic.Equals:
-                    expression = Expression.Equal(property, constantValue);
+                    if (criteria.Values.Count() > 1)
+                    {
+                        expression = Expression.Call(arrayContains, constantValues, property);
+                    }
+                    else
+                    {
+                        expression = Expression.Equal(property, constantValue);
+                    }
                     break;
                 case Logic.NotEqual:
-                    expression = Expression.NotEqual(property, constantValue);
+                    if (criteria.Values.Count() > 1)
+                    {
+                        expression = Expression.Not(Expression.Call(arrayContains, constantValues, property));
+                    }
+                    else
+                    {
+                        expression = Expression.NotEqual(property, constantValue);
+                    }
                     break;
                 case Logic.LessThan:
                     expression = Expression.LessThan(property, constantValue);
@@ -152,7 +172,7 @@ namespace ClientFiltering
                         expression = Expression.Not(expression);
                     break;
                 case Logic.Between:
-                    var constantValue2 = GetConstantValue(property, criteria.Value2);
+                    var constantValue2 = GetConstantValue(property, criteria.Values.Last());
                     var expression1 = Expression.LessThanOrEqual(property, constantValue2);
                     var expression2 = Expression.GreaterThanOrEqual(property, constantValue);
                     expression = Expression.AndAlso(expression1, expression2);

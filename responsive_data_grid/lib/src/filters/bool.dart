@@ -1,12 +1,12 @@
 part of responsive_data_grid;
 
 class BoolFilterRules<TItem extends Object>
-    extends FilterRules<TItem, DataGridBoolColumnFilter<TItem>> {
+    extends FilterRules<TItem, DataGridBoolColumnFilter<TItem>, bool> {
   final String title;
   BoolFilterRules({
     String? title,
     bool filterable = false,
-    FilterCriteria? criteria,
+    FilterCriteria<bool>? criteria,
   })  : this.title = title ?? LocalizedMessages.state,
         super(
           criteria: criteria,
@@ -14,13 +14,14 @@ class BoolFilterRules<TItem extends Object>
         );
 
   @override
-  DataGridBoolColumnFilter<TItem> filter(ColumnDefinition<TItem> definition,
+  DataGridBoolColumnFilter<TItem> filter(
+          ColumnDefinition<TItem, bool> definition,
           ResponsiveDataGridState<TItem> grid) =>
       DataGridBoolColumnFilter(definition, grid);
 
   @override
-  FilterRules<TItem, DataGridBoolColumnFilter<TItem>> updateCriteria(
-          FilterCriteria? criteria) =>
+  FilterRules<TItem, DataGridBoolColumnFilter<TItem>, bool> updateCriteria(
+          FilterCriteria<bool>? criteria) =>
       BoolFilterRules<TItem>(
         title: title,
         filterable: filterable,
@@ -29,9 +30,9 @@ class BoolFilterRules<TItem extends Object>
 }
 
 class DataGridBoolColumnFilter<TItem extends Object>
-    extends DataGridColumnFilter<TItem> {
-  DataGridBoolColumnFilter(
-      ColumnDefinition<TItem> definition, ResponsiveDataGridState<TItem> grid)
+    extends DataGridColumnFilter<TItem, bool> {
+  DataGridBoolColumnFilter(ColumnDefinition<TItem, bool> definition,
+      ResponsiveDataGridState<TItem> grid)
       : super(definition, grid) {
     assert(TItem != Object);
   }
@@ -41,21 +42,14 @@ class DataGridBoolColumnFilter<TItem extends Object>
 }
 
 class DataGridBoolColumnFilterState<TItem extends Object>
-    extends DataGridColumnFilterState<TItem> {
+    extends DataGridColumnFilterState<TItem, bool> {
   bool? value;
 
   @override
   initState() {
     final criteria = widget.definition.header.filterRules.criteria;
-    if (criteria != null) {
-      value = criteria.value == null
-          ? null
-          : criteria.value == "true" ||
-                  criteria.value == "True" ||
-                  criteria.value == "1"
-              ? true
-              : false;
-    }
+    if (criteria != null)
+      value = criteria.values.length > 0 ? criteria.values.first : null;
 
     super.initState();
   }
@@ -86,7 +80,7 @@ class DataGridBoolColumnFilterState<TItem extends Object>
                       fieldName: widget.definition.fieldName,
                       logicalOperator: Operators.equals,
                       op: Logic.and,
-                      value: value!.toString(),
+                      values: [value],
                     ),
             ),
             icon: Icon(Icons.save),

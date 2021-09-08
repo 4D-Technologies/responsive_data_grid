@@ -1,6 +1,8 @@
 library responsive_data_grid;
 
+import 'dart:async';
 import 'dart:math' as math;
+import 'dart:math';
 import 'package:client_filtering/client_filtering.dart';
 import 'package:bootstrap_grid/bootstrap_grid.dart';
 import 'package:date_time_picker/date_time_picker.dart';
@@ -8,6 +10,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 
 part './src/filters/column_filter.dart';
 part './src/filters/bool.dart';
@@ -19,7 +22,9 @@ part './src/filters/string.dart';
 part './src/filters/values.dart';
 part './src/filters/timeofday.dart';
 
-part './src/rules.dart';
+part './src/rules/order.dart';
+part './src/rules/filter.dart';
+
 part './src/loadresult.dart';
 
 part './src/rows/row.dart';
@@ -46,6 +51,8 @@ class LocalizedMessages {
   static var state = "State";
   static var value = "Value";
   static var any = "(Any)";
+  static var doesNotInclude = "Does Not Include";
+  static var clear = "Clear";
 }
 
 class DecimalTextInputFormatter extends TextInputFormatter {

@@ -28,14 +28,19 @@ extension FilterCriteriaExtensions on List<FilterCriteria> {
       }
 
       if (e.logicalOperator == Operators.endsWidth) {
-        filter += " endsWidth(${escapeFieldName(e.fieldName)}, '${e.value}')";
+        filter +=
+            " endsWidth(${escapeFieldName(e.fieldName)}, '${e.values.first}')";
       } else if (e.logicalOperator == Operators.contains) {
-        filter += " contains(${escapeFieldName(e.fieldName)}, '${e.value}')";
+        filter +=
+            " contains(${escapeFieldName(e.fieldName)}, '${e.values.first}')";
       } else if (e.logicalOperator == Operators.notContains) {
         filter +=
-            " not contains(${escapeFieldName(e.fieldName)}, '${e.value}')";
+            " not contains(${escapeFieldName(e.fieldName)}, '${e.values.first}')";
       } else if (e.logicalOperator == Operators.startsWith) {
-        filter += " startsWith(${escapeFieldName(e.fieldName)}, '${e.value}')";
+        filter +=
+            " startsWith(${escapeFieldName(e.fieldName)}, '${e.values.first}')";
+      } else if (e.logicalOperator == Operators.between) {
+        filter += " ge ${e.values.first} and le ${e.values.last}";
       } else {
         filter += "${escapeFieldName(e.fieldName)} ";
         switch (e.logicalOperator) {
@@ -57,7 +62,7 @@ extension FilterCriteriaExtensions on List<FilterCriteria> {
           default:
             throw UnimplementedError();
         }
-        filter += " ${e.value}";
+        filter += " ${e.values.first}";
       }
     });
 

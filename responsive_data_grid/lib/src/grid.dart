@@ -1,11 +1,12 @@
 part of responsive_data_grid;
 
 class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
-  final Future<LoadResult<TItem>?> Function(LoadCriteria) loadData;
+  final Future<LoadResult<TItem>?> Function(LoadCriteria criteria)? loadData;
+  final List<TItem>? items;
 
   final void Function(TItem)? itemTapped;
 
-  final List<ColumnDefinition<TItem>> columns;
+  final List<ColumnDefinition<TItem, dynamic>> columns;
   final int pageSize;
   final double? height;
   final double? separatorThickness;
@@ -22,11 +23,13 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
   final int reactiveSegments;
   final TitleDefinition? title;
   final EdgeInsets padding;
+  final EdgeInsets contentPadding;
   final double elevation;
 
-  ResponsiveDataGrid({
+  ResponsiveDataGrid.serverSide({
     GlobalKey<ResponsiveDataGridState<TItem>>? key,
-    required this.loadData,
+    required Future<LoadResult<TItem>?> Function(LoadCriteria criteria)
+        loadData,
     required this.columns,
     this.itemTapped,
     this.separatorThickness,
@@ -41,13 +44,41 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
     this.reactiveSegments = 12,
     this.title,
     this.padding = const EdgeInsets.all(5),
+    this.contentPadding = const EdgeInsets.all(3),
     this.elevation = 0,
-  }) : super(key: key) {
-    assert(TItem != Object);
-  }
+  })  : this.items = null,
+        this.loadData = loadData;
+
+  ResponsiveDataGrid.clientSide({
+    GlobalKey<ResponsiveDataGridState<TItem>>? key,
+    required List<TItem> items,
+    required this.columns,
+    this.itemTapped,
+    this.separatorThickness,
+    this.pageSize = 50,
+    this.height,
+    this.scrollPhysics = const BouncingScrollPhysics(),
+    this.sortable = SortableOptions.none,
+    this.filterable = false,
+    this.noResults,
+    this.rowCrossAxisAlignment = CrossAxisAlignment.center,
+    this.headerCrossAxisAlignment = CrossAxisAlignment.center,
+    this.reactiveSegments = 12,
+    this.title,
+    this.padding = const EdgeInsets.all(5),
+    this.contentPadding = const EdgeInsets.only(
+      left: 10,
+      top: 3,
+      right: 10,
+      bottom: 3,
+    ),
+    this.elevation = 0,
+  })  : this.items = items,
+        this.loadData = null;
 
   @override
-  State<StatefulWidget> createState() => ResponsiveDataGridState<TItem>();
+  State<StatefulWidget> createState() =>
+      ResponsiveDataGridState<TItem>(columns: columns);
 }
 
 class ResponsiveDataGridState<TItem extends Object>
@@ -55,17 +86,21 @@ class ResponsiveDataGridState<TItem extends Object>
   List<FilterCriteria> filterBy = List<FilterCriteria>.empty(growable: true);
   List<OrderCriteria> orderBy = List<OrderCriteria>.empty(growable: true);
 
-  late List<TItem> items;
-  late List<ColumnDefinition<TItem>> columns;
+  final items = List<TItem>.empty(growable: true);
+  final List<ColumnDefinition<TItem, dynamic>> columns;
 
   bool isLoading = true;
   bool isInitialized = false;
   bool isDisposed = false;
 
-  int totalCount = 0;
+  bool scrollable = true;
 
-  ResponsiveDataGridState() {
-    assert(TItem != Object);
+  int totalCount = -1;
+
+  ResponsiveDataGridState({required this.columns}) {
+    //Validate that everything is setup correctly.
+    if (TItem == Object)
+      throw UnsupportedError("You must specify a generic type for the grid.");
   }
 
   @override
@@ -77,30 +112,20 @@ class ResponsiveDataGridState<TItem extends Object>
   @override
   void initState() {
     super.initState();
-    items = List<TItem>.empty(growable: true);
-    columns = widget.columns;
-    isLoading = true;
-    isInitialized = false;
-    totalCount = 0;
-    filterBy = List<FilterCriteria>.empty(growable: true);
-    orderBy = List<OrderCriteria>.empty(growable: true);
 
     SchedulerBinding.instance?.addPostFrameCallback((_) async {
       updateAllRules();
       try {
-        final result = await this.widget.loadData(
-              LoadCriteria(
-                skip: 0,
-                take: this.widget.pageSize,
-                orderBy: this.orderBy,
-                filterBy: this.filterBy,
-              ),
-            );
+        if (this.isDisposed) return;
+        items.clear();
+        final result = await _getData(this, 0);
+        if (this.isDisposed) return;
+        items.addAll(result?.items ?? []);
 
         if (this.isDisposed) return;
+
         setState(() {
-          items.clear();
-          items.addAll(result?.items ?? []);
+          totalCount = result?.totalCount ?? 0;
           isLoading = false;
           isInitialized = true;
         });
@@ -140,8 +165,7 @@ class ResponsiveDataGridState<TItem extends Object>
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final scrollable =
-            constraints.hasBoundedHeight || widget.height != null;
+        scrollable = constraints.hasBoundedHeight || widget.height != null;
         return Theme(
           data: gridTheme,
           child: Padding(
@@ -198,7 +222,8 @@ class ResponsiveDataGridState<TItem extends Object>
     ));
   }
 
-  void updateColumnRules(ColumnDefinition<TItem> col) {
+  void updateColumnRules<TValue extends dynamic>(
+      ColumnDefinition<TItem, TValue> col) {
     final column = columns.firstWhere((c) => c.fieldName == col.fieldName);
 
     columns.replaceRange(
@@ -207,7 +232,7 @@ class ResponsiveDataGridState<TItem extends Object>
     updateOrderByCriteria(col);
 
     updateAllRules();
-    load();
+    load(clear: true);
   }
 
   void updateAllRules() {
@@ -227,7 +252,8 @@ class ResponsiveDataGridState<TItem extends Object>
     });
   }
 
-  void updateOrderByCriteria(ColumnDefinition<TItem> col) {
+  void updateOrderByCriteria<TValue extends dynamic>(
+      ColumnDefinition<TItem, TValue> col) {
     if (widget.sortable != SortableOptions.single) return;
 
     columns
@@ -238,18 +264,17 @@ class ResponsiveDataGridState<TItem extends Object>
   }
 
   Future<void> load({bool clear = false}) async {
+    if (!clear && this.items.length >= this.totalCount) return;
     setState(() {
       this.isLoading = true;
     });
     try {
-      final results = await this.widget.loadData(LoadCriteria(
-          skip: this.items.length,
-          take: this.widget.pageSize,
-          filterBy: this.filterBy,
-          orderBy: this.orderBy));
+      if (clear) this.items.clear();
+
+      final results = await _getData(this, this.items.length);
+      this.items.addAll(results?.items ?? []);
       this.setState(() {
-        if (clear) this.items.clear();
-        this.items.addAll(results?.items ?? []);
+        this.totalCount = results?.totalCount ?? 0;
         this.isLoading = false;
       });
     } on Exception catch (e) {

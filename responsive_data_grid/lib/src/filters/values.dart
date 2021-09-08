@@ -1,12 +1,13 @@
 part of responsive_data_grid;
 
-class ValueMapFilterRules<TItem extends Object>
-    extends FilterRules<TItem, DataGridValuesColumnFilter<TItem>> {
-  final Map<String, Widget> valueMap;
+class ValueMapFilterRules<TItem extends Object, TValue extends dynamic>
+    extends FilterRules<TItem, DataGridValuesColumnFilter<TItem, TValue>,
+        TValue> {
+  final Map<TValue, Widget> valueMap;
 
   ValueMapFilterRules({
     required this.valueMap,
-    FilterCriteria? criteria,
+    FilterCriteria<TValue>? criteria,
     bool filterable = false,
   }) : super(
           criteria: criteria,
@@ -14,36 +15,38 @@ class ValueMapFilterRules<TItem extends Object>
         );
 
   @override
-  DataGridValuesColumnFilter<TItem> filter(ColumnDefinition<TItem> definition,
+  DataGridValuesColumnFilter<TItem, TValue> filter(
+          ColumnDefinition<TItem, TValue> definition,
           ResponsiveDataGridState<TItem> grid) =>
       DataGridValuesColumnFilter(definition, grid);
 
   @override
-  FilterRules<TItem, DataGridValuesColumnFilter<TItem>> updateCriteria(
-          FilterCriteria? criteria) =>
-      ValueMapFilterRules<TItem>(
-        valueMap: valueMap,
-        criteria: criteria,
-        filterable: filterable,
-      );
+  FilterRules<TItem, DataGridValuesColumnFilter<TItem, TValue>, TValue>
+      updateCriteria(FilterCriteria<TValue>? criteria) =>
+          ValueMapFilterRules<TItem, TValue>(
+            valueMap: valueMap,
+            criteria: criteria,
+            filterable: filterable,
+          );
 }
 
-class DataGridValuesColumnFilter<TItem extends Object>
-    extends DataGridColumnFilter<TItem> {
-  DataGridValuesColumnFilter(
-      ColumnDefinition<TItem> definition, ResponsiveDataGridState<TItem> grid)
+class DataGridValuesColumnFilter<TItem extends Object, TValue extends dynamic>
+    extends DataGridColumnFilter<TItem, TValue> {
+  DataGridValuesColumnFilter(ColumnDefinition<TItem, TValue> definition,
+      ResponsiveDataGridState<TItem> grid)
       : super(definition, grid) {
     assert(TItem != Object);
   }
 
   @override
   State<StatefulWidget> createState() =>
-      DataGridValuesColumnFilterState<TItem>();
+      DataGridValuesColumnFilterState<TItem, TValue>();
 }
 
-class DataGridValuesColumnFilterState<TItem extends Object>
-    extends DataGridColumnFilterState<TItem> {
-  String? value;
+class DataGridValuesColumnFilterState<TItem extends Object,
+    TValue extends dynamic> extends DataGridColumnFilterState<TItem, TValue> {
+  late List<TValue> values;
+  late Operators op;
 
   late ValueMapFilterRules filterRules;
 
@@ -52,7 +55,14 @@ class DataGridValuesColumnFilterState<TItem extends Object>
     filterRules = widget.definition.header.filterRules as ValueMapFilterRules;
     final criteria = widget.definition.header.filterRules.criteria;
     if (criteria != null) {
-      value = criteria.value;
+      values = criteria.values
+          .where((e) => e != null)
+          .cast<TValue>()
+          .toList(growable: true);
+      op = criteria.logicalOperator;
+    } else {
+      op = Operators.equals;
+      values = List<TValue>.empty(growable: true);
     }
 
     super.initState();
@@ -63,46 +73,57 @@ class DataGridValuesColumnFilterState<TItem extends Object>
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        DropdownButton<String?>(
-          onChanged: (value) {
-            setState(() {
-              this.value = value;
-            });
-          },
-          value: value,
-          items: [
-            DropdownMenuItem<String?>(
-              child: Text(LocalizedMessages.any),
-              value: null,
+        SwitchListTile(
+          value: op == Operators.notEqual,
+          title: Text(LocalizedMessages.doesNotInclude),
+          onChanged: (value) => setState(
+              () => value ? op = Operators.notEqual : op = Operators.equals),
+        ),
+        ...filterRules.valueMap.entries.map(
+          (e) => CheckboxListTile(
+            onChanged: (value) {
+              setState(() {
+                if (value != null && value && !values.contains(e.key))
+                  values.add(e.key);
+
+                if (value == null || !value && values.contains(e.key))
+                  values.remove(e.key);
+              });
+            },
+            value: values.contains(e.key),
+            tristate: false,
+            title: e.value,
+          ),
+        ),
+        Row(
+          mainAxisSize: MainAxisSize.max,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            TextButton.icon(
+              onPressed: () => super.filter(context, null),
+              icon: Icon(Icons.clear_all),
+              label: Text(LocalizedMessages.clear),
             ),
-            ...filterRules.valueMap.entries
-                .map(
-                  (entry) => DropdownMenuItem<String>(
-                    child: entry.value,
-                    value: entry.key,
-                  ),
-                )
-                .toList(),
+            Spacer(
+              flex: 2,
+            ),
+            TextButton.icon(
+              onPressed: () => super.filter(
+                context,
+                values.isEmpty
+                    ? null
+                    : FilterCriteria(
+                        fieldName: widget.definition.fieldName,
+                        logicalOperator: op,
+                        op: Logic.and,
+                        values: values,
+                      ),
+              ),
+              icon: Icon(Icons.save),
+              label: Text(LocalizedMessages.apply),
+            )
           ],
         ),
-        Align(
-          alignment: Alignment.bottomRight,
-          child: TextButton.icon(
-            onPressed: () => super.filter(
-              context,
-              value == null
-                  ? null
-                  : FilterCriteria(
-                      fieldName: widget.definition.fieldName,
-                      logicalOperator: Operators.equals,
-                      op: Logic.and,
-                      value: value!.toString(),
-                    ),
-            ),
-            icon: Icon(Icons.save),
-            label: Text(LocalizedMessages.apply),
-          ),
-        )
       ],
     );
   }

@@ -1,10 +1,10 @@
 part of responsive_data_grid;
 
-class TimeOfDayFilterRules<TItem extends Object>
-    extends FilterRules<TItem, DataGridTimeOfDayColumnFilter<TItem>> {
+class TimeOfDayFilterRules<TItem extends Object> extends FilterRules<TItem,
+    DataGridTimeOfDayColumnFilter<TItem>, TimeOfDay> {
   TimeOfDayFilterRules({
     bool filterable = false,
-    FilterCriteria? criteria,
+    FilterCriteria<TimeOfDay>? criteria,
   }) : super(
           criteria: criteria,
           filterable: filterable,
@@ -12,23 +12,23 @@ class TimeOfDayFilterRules<TItem extends Object>
 
   @override
   DataGridTimeOfDayColumnFilter<TItem> filter(
-          ColumnDefinition<TItem> definition,
+          ColumnDefinition<TItem, TimeOfDay> definition,
           ResponsiveDataGridState<TItem> grid) =>
       DataGridTimeOfDayColumnFilter(definition, grid);
 
   @override
-  FilterRules<TItem, DataGridTimeOfDayColumnFilter<TItem>> updateCriteria(
-          FilterCriteria? criteria) =>
-      TimeOfDayFilterRules<TItem>(
-        criteria: criteria,
-        filterable: filterable,
-      );
+  FilterRules<TItem, DataGridTimeOfDayColumnFilter<TItem>, TimeOfDay>
+      updateCriteria(FilterCriteria<TimeOfDay>? criteria) =>
+          TimeOfDayFilterRules<TItem>(
+            criteria: criteria,
+            filterable: filterable,
+          );
 }
 
 class DataGridTimeOfDayColumnFilter<TItem extends Object>
-    extends DataGridColumnFilter<TItem> {
-  DataGridTimeOfDayColumnFilter(
-      ColumnDefinition<TItem> definition, ResponsiveDataGridState<TItem> grid)
+    extends DataGridColumnFilter<TItem, TimeOfDay> {
+  DataGridTimeOfDayColumnFilter(ColumnDefinition<TItem, TimeOfDay> definition,
+      ResponsiveDataGridState<TItem> grid)
       : super(definition, grid) {
     assert(TItem != Object);
   }
@@ -39,25 +39,21 @@ class DataGridTimeOfDayColumnFilter<TItem extends Object>
 }
 
 class DataGridTimeOfDayColumnFilterState<TItem extends Object>
-    extends DataGridColumnFilterState<TItem> {
+    extends DataGridColumnFilterState<TItem, TimeOfDay> {
   TimeOfDay? tStart;
   TimeOfDay? tEnd;
   Operators? op;
 
-  late DateTimeFilterRules filterRules;
+  late TimeOfDayFilterRules filterRules;
 
   @override
   initState() {
-    filterRules = widget.definition.header.filterRules as DateTimeFilterRules;
+    filterRules = widget.definition.header.filterRules as TimeOfDayFilterRules;
 
     final criteria = filterRules.criteria;
     if (criteria != null) {
-      tStart = criteria.value != null
-          ? TimeOfDay.fromDateTime(DateTime.parse(criteria.value!))
-          : null;
-      tEnd = criteria.value2 != null
-          ? TimeOfDay.fromDateTime(DateTime.parse(criteria.value2!))
-          : null;
+      tStart = criteria.values.length > 0 ? criteria.values.first : null;
+      tEnd = criteria.values.length > 1 ? criteria.values.last : null;
       op = criteria.logicalOperator;
     }
     super.initState();
@@ -117,7 +113,6 @@ class DataGridTimeOfDayColumnFilterState<TItem extends Object>
             type: DateTimePickerType.time,
             decoration: InputDecoration(hintText: op?.description),
             initialTime: tStart,
-            firstDate: filterRules.firstDate,
             onChanged: (value) {
               this.setState(() {
                 tStart = TimeOfDay.fromDateTime(DateTime.parse(value));
@@ -152,14 +147,7 @@ class DataGridTimeOfDayColumnFilterState<TItem extends Object>
                       fieldName: widget.definition.fieldName,
                       logicalOperator: op!,
                       op: Logic.and,
-                      value: tStart == null
-                          ? null
-                          : DateTime(0, 1, 1, tStart!.hour, tStart!.minute)
-                              .toIso8601String(),
-                      value2: tEnd == null
-                          ? null
-                          : DateTime(0, 1, 1, tEnd!.hour, tEnd!.minute)
-                              .toIso8601String(),
+                      values: [tStart, tEnd].where((e) => e != null).toList(),
                     ),
             ),
             icon: Icon(Icons.save),
