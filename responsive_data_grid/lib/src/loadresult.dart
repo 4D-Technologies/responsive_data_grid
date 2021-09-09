@@ -12,17 +12,15 @@ class LoadResult<TItem extends Object> {
 
 FutureOr<LoadResult<TItem>?> _getData<TItem extends Object>(
     ResponsiveDataGridState<TItem> gridState, int skip) {
-  final pageSize = gridState.scrollable ? gridState.widget.pageSize : 999999;
+  final pageSize = gridState.pagingMode == PagingMode.none
+      ? gridState.widget.maximumRows
+      : gridState.widget.pageSize;
 
   if (gridState.widget.loadData == null) {
     var items = List<TItem>.from(gridState.widget.items!);
     //Filter
-    gridState.columns
-        .where((c) =>
-            (gridState.widget.filterable || c.header.filterRules.filterable) &&
-            c.header.filterRules.criteria != null)
-        .forEach((c) {
-      final criteria = c.header.filterRules.criteria!;
+    gridState.columns.where((c) => c.filterRules.criteria != null).forEach((c) {
+      final criteria = c.filterRules.criteria!;
 
       if (criteria.op == Logic.or)
         throw UnsupportedError("Or is not supported in Dart.");
@@ -197,7 +195,7 @@ FutureOr<LoadResult<TItem>?> _getData<TItem extends Object>(
     //Order By
     final sortColumns = gridState.columns.where((c) =>
         gridState.widget.sortable != SortableOptions.none ||
-        c.header.orderRules.direction != OrderDirections.notSet);
+        c.sortDirection != OrderDirections.notSet);
 
     if (sortColumns.isNotEmpty) {
       items.sort((a, b) {
@@ -229,7 +227,7 @@ FutureOr<LoadResult<TItem>?> _getData<TItem extends Object>(
           else
             result = value1.toString().compareTo(value2.toString());
 
-          if (c.header.orderRules.direction == OrderDirections.descending)
+          if (c.sortDirection == OrderDirections.descending)
             result = result * -1;
           if (result != 0) return result;
         }
@@ -246,7 +244,7 @@ FutureOr<LoadResult<TItem>?> _getData<TItem extends Object>(
     //skip/take
     items = items.sublist(
       skip,
-      min(skip + pageSize, items.length),
+      math.min(skip + pageSize, items.length),
     );
 
     return LoadResult(

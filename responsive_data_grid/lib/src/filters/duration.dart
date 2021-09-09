@@ -1,21 +1,19 @@
 part of responsive_data_grid;
 
-enum DateTimeFilterTypes {
-  DateOnly,
-  TimeOnly,
-  DateTime,
-  DateTimeSeparated,
+enum DurationFilterTypes {
+  all,
+  noMilliseconds,
 }
 
-class DateTimeFilterRules<TItem extends Object>
-    extends FilterRules<TItem, DataGridDateTimeColumnFilter<TItem>, DateTime> {
-  final DateTimeFilterTypes filterType;
+class DurationFilterRules<TItem extends Object>
+    extends FilterRules<TItem, DataGridDurationColumnFilter<TItem>, Duration> {
+  final DurationFilterTypes filterType;
   final DateTime firstDate;
   final DateTime lastDate;
 
-  DateTimeFilterRules({
-    required this.filterType,
-    FilterCriteria<DateTime>? criteria,
+  DurationFilterRules({
+    this.filterType = DurationFilterTypes.all,
+    FilterCriteria<Duration>? criteria,
     DateTime? firstDate,
     DateTime? lastDate,
   })  : this.firstDate = firstDate ?? DateTime.parse("0001-01-01"),
@@ -25,15 +23,15 @@ class DateTimeFilterRules<TItem extends Object>
         );
 
   @override
-  DataGridDateTimeColumnFilter<TItem> showFilter(
-          GridColumn<TItem, DateTime> definition,
+  DataGridDurationColumnFilter<TItem> showFilter(
+          GridColumn<TItem, Duration> definition,
           ResponsiveDataGridState<TItem> grid) =>
-      DataGridDateTimeColumnFilter(definition, grid);
+      DataGridDurationColumnFilter<TItem>(definition, grid);
 }
 
-class DataGridDateTimeColumnFilter<TItem extends Object>
-    extends DataGridColumnFilter<TItem, DateTime> {
-  DataGridDateTimeColumnFilter(GridColumn<TItem, DateTime> definition,
+class DataGridDurationColumnFilter<TItem extends Object>
+    extends DataGridColumnFilter<TItem, Duration> {
+  DataGridDurationColumnFilter(GridColumn<TItem, Duration> definition,
       ResponsiveDataGridState<TItem> grid)
       : super(definition, grid) {
     assert(TItem != Object);
@@ -44,24 +42,25 @@ class DataGridDateTimeColumnFilter<TItem extends Object>
       DataGridDateTimeColumnFilterState<TItem>();
 }
 
-class DataGridDateTimeColumnFilterState<TItem extends Object>
-    extends DataGridColumnFilterState<TItem, DateTime> {
-  DateTime? dtStart;
-  DateTime? dtEnd;
+class DataGridDurationColumnFilterState<TItem extends Object>
+    extends DataGridColumnFilterState<TItem, Duration> {
+  Duration? dValue1;
+  Duration? dValue2;
   Operators? op;
 
-  late DateTimeFilterRules<TItem> filterRules;
+  late DurationFilterRules<TItem> filterRules;
 
   @override
   initState() {
-    filterRules = widget.definition.filterRules as DateTimeFilterRules<TItem>;
+    filterRules = widget.definition.filterRules as DurationFilterRules<TItem>;
 
     final criteria = filterRules.criteria;
     if (criteria != null) {
-      dtStart = criteria.values.length > 0 ? criteria.values.first : null;
-      dtEnd = criteria.values.length > 1 ? criteria.values.last : null;
+      dValue1 = criteria.values.length > 0 ? criteria.values.first : null;
+      dValue2 = criteria.values.length > 1 ? criteria.values.last : null;
       op = criteria.logicalOperator;
     }
+
     super.initState();
   }
 
@@ -121,32 +120,14 @@ class DataGridDateTimeColumnFilterState<TItem extends Object>
                   op == Operators.notEqual ||
                   op == Operators.lessThan ||
                   op == Operators.lessThanOrEqualTo),
-          child: DateTimePicker(
-            type: _mapType(filterRules.filterType),
-            decoration: InputDecoration(hintText: op?.description),
-            lastDate: dtEnd ?? filterRules.lastDate,
-            initialValue: dtStart?.toIso8601String(),
-            firstDate: filterRules.firstDate,
-            onChanged: (value) {
-              this.setState(() {
-                dtStart = DateTime.parse(value);
-              });
-            },
+          child: Row(
+            children: [],
           ),
         ),
         Visibility(
           visible: op != null && (op == Operators.between),
-          child: DateTimePicker(
-            type: _mapType(filterRules.filterType),
-            decoration: InputDecoration(hintText: op?.description),
-            firstDate: dtStart ?? filterRules.firstDate,
-            lastDate: filterRules.lastDate,
-            initialValue: dtEnd?.toIso8601String(),
-            onChanged: (value) {
-              this.setState(() {
-                dtEnd = DateTime.parse(value);
-              });
-            },
+          child: Row(
+            children: [],
           ),
         ),
         Align(
@@ -160,7 +141,8 @@ class DataGridDateTimeColumnFilterState<TItem extends Object>
                       fieldName: widget.definition.fieldName,
                       logicalOperator: op!,
                       op: Logic.and,
-                      values: [dtStart, dtEnd].where((e) => e != null).toList(),
+                      values:
+                          [dValue1, dValue2].where((e) => e != null).toList(),
                     ),
             ),
             icon: Icon(Icons.save),
@@ -169,18 +151,5 @@ class DataGridDateTimeColumnFilterState<TItem extends Object>
         )
       ],
     );
-  }
-
-  DateTimePickerType _mapType(DateTimeFilterTypes filterType) {
-    switch (filterType) {
-      case DateTimeFilterTypes.DateOnly:
-        return DateTimePickerType.date;
-      case DateTimeFilterTypes.TimeOnly:
-        return DateTimePickerType.time;
-      case DateTimeFilterTypes.DateTime:
-        return DateTimePickerType.dateTime;
-      case DateTimeFilterTypes.DateTimeSeparated:
-        return DateTimePickerType.dateTimeSeparate;
-    }
   }
 }

@@ -6,15 +6,12 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
 
   final void Function(TItem)? itemTapped;
 
-  final List<ColumnDefinition<TItem, dynamic>> columns;
+  final List<GridColumn<TItem, dynamic>> columns;
   final int pageSize;
   final double? height;
   final double? separatorThickness;
 
   final SortableOptions sortable;
-  final bool filterable;
-
-  final ScrollPhysics scrollPhysics;
 
   final Widget? noResults;
 
@@ -25,6 +22,8 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
   final EdgeInsets padding;
   final EdgeInsets contentPadding;
   final double elevation;
+  final PagingMode pagingMode;
+  final int maximumRows;
 
   ResponsiveDataGrid.serverSide({
     GlobalKey<ResponsiveDataGridState<TItem>>? key,
@@ -35,9 +34,7 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
     this.separatorThickness,
     this.pageSize = 50,
     this.height,
-    this.scrollPhysics = const BouncingScrollPhysics(),
     this.sortable = SortableOptions.none,
-    this.filterable = false,
     this.noResults,
     this.rowCrossAxisAlignment = CrossAxisAlignment.center,
     this.headerCrossAxisAlignment = CrossAxisAlignment.center,
@@ -46,6 +43,8 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
     this.padding = const EdgeInsets.all(5),
     this.contentPadding = const EdgeInsets.all(3),
     this.elevation = 0,
+    this.pagingMode = PagingMode.auto,
+    this.maximumRows = 99999,
   })  : this.items = null,
         this.loadData = loadData;
 
@@ -57,9 +56,7 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
     this.separatorThickness,
     this.pageSize = 50,
     this.height,
-    this.scrollPhysics = const BouncingScrollPhysics(),
     this.sortable = SortableOptions.none,
-    this.filterable = false,
     this.noResults,
     this.rowCrossAxisAlignment = CrossAxisAlignment.center,
     this.headerCrossAxisAlignment = CrossAxisAlignment.center,
@@ -73,6 +70,8 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
       bottom: 3,
     ),
     this.elevation = 0,
+    this.pagingMode = PagingMode.auto,
+    this.maximumRows = 99999,
   })  : this.items = items,
         this.loadData = null;
 
@@ -87,13 +86,15 @@ class ResponsiveDataGridState<TItem extends Object>
   List<OrderCriteria> orderBy = List<OrderCriteria>.empty(growable: true);
 
   final items = List<TItem>.empty(growable: true);
-  final List<ColumnDefinition<TItem, dynamic>> columns;
+  final List<GridColumn<TItem, dynamic>> columns;
+  final _reloadSubject = BehaviorSubject<List<TItem>>();
 
-  bool isLoading = true;
-  bool isInitialized = false;
+  late bool scrollable;
+  late PagingMode pagingMode;
+  late double?
+      height; //This will be used once we figure out how, to maintain the same height when using paging.
+
   bool isDisposed = false;
-
-  bool scrollable = true;
 
   int totalCount = -1;
 
@@ -106,6 +107,7 @@ class ResponsiveDataGridState<TItem extends Object>
   @override
   void dispose() {
     isDisposed = true;
+    _reloadSubject.close();
     super.dispose();
   }
 
@@ -113,40 +115,22 @@ class ResponsiveDataGridState<TItem extends Object>
   void initState() {
     super.initState();
 
-    SchedulerBinding.instance?.addPostFrameCallback((_) async {
-      updateAllRules();
-      try {
-        if (this.isDisposed) return;
-        items.clear();
-        final result = await _getData(this, 0);
-        if (this.isDisposed) return;
-        items.addAll(result?.items ?? []);
+    scrollable = widget.height != null ||
+        context.findAncestorWidgetOfExactType<Scrollable>() == null;
 
-        if (this.isDisposed) return;
+    if (!scrollable && widget.pagingMode == PagingMode.infiniteScroll)
+      throw UnsupportedError(
+          "The grid cannot be scrolled and as a result pagingModel = PagingMode.infiniteScroll cannot be supported. Please use auto or pager.");
+    if (widget.pagingMode == PagingMode.auto) {
+      pagingMode = scrollable ? PagingMode.infiniteScroll : PagingMode.pager;
+    } else {
+      pagingMode = widget.pagingMode;
+    }
 
-        setState(() {
-          totalCount = result?.totalCount ?? 0;
-          isLoading = false;
-          isInitialized = true;
-        });
-      } on Exception catch (e) {
-        showDialog<void>(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: Text(LocalizedMessages.applicationError),
-            content: SelectableText(e.toString()),
-            actions: [
-              TextButton.icon(
-                onPressed: () => Navigator.of(context).pop(),
-                icon: Icon(Icons.check),
-                label: Text(LocalizedMessages.ok),
-              )
-            ],
-          ),
-        );
-      }
-    });
+    height = widget.height;
   }
+
+  Stream<List<TItem>> get onReload => _reloadSubject.stream.asBroadcastStream();
 
   @override
   Widget build(BuildContext context) {
@@ -161,54 +145,48 @@ class ResponsiveDataGridState<TItem extends Object>
       ),
     );
 
-    if (!isInitialized && !isLoading) return Container();
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        scrollable = constraints.hasBoundedHeight || widget.height != null;
-        return Theme(
-          data: gridTheme,
-          child: Padding(
-            padding: widget.padding,
-            child: Card(
-              borderOnForeground: false,
-              elevation: widget.elevation,
-              margin: EdgeInsets.all(0),
-              child: Container(
-                height: widget.height,
-                child: Column(
-                  mainAxisSize:
-                      !scrollable ? MainAxisSize.min : MainAxisSize.max,
-                  children: [
-                    Visibility(
-                      child: widget.title == null
-                          ? Container()
-                          : TitleRow(widget.title!),
-                      visible: widget.title != null,
-                    ),
-                    ResponsiveDataGridHeaderRowWidget(
-                        this, this.widget.columns),
-                    Visibility(
-                      child:
-                          ResponsiveDataGridBodyWidget(this, theme, scrollable),
-                      visible: isInitialized,
-                    ),
-                    Visibility(
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [CircularProgressIndicator()],
+    return Theme(
+      data: gridTheme,
+      child: Padding(
+        padding: widget.padding,
+        child: Card(
+          borderOnForeground: false,
+          elevation: widget.elevation,
+          margin: EdgeInsets.all(0),
+          child: Container(
+            height: height,
+            child: FutureBuilder(
+              future: _load(clear: true),
+              builder: (context, snapshot) {
+                return LayoutBuilder(
+                  builder: (context, constraints) {
+                    return Column(
+                      mainAxisSize:
+                          !scrollable ? MainAxisSize.min : MainAxisSize.max,
+                      children: [
+                        Visibility(
+                          child: widget.title == null
+                              ? Container()
+                              : TitleRowWidget(widget.title!),
+                          visible: widget.title != null,
                         ),
-                      ),
-                      visible: isInitialized && isLoading,
-                    ),
-                  ],
-                ),
-              ),
+                        ResponsiveDataGridHeaderRowWidget(
+                            this, this.widget.columns),
+                        ResponsiveDataGridBodyWidget(this, theme, scrollable,
+                            snapshot.connectionState != ConnectionState.done),
+                        Visibility(
+                          child: PagerWidget(this),
+                          visible: pagingMode == PagingMode.pager,
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
             ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
@@ -217,66 +195,57 @@ class ResponsiveDataGridState<TItem extends Object>
 
     return theme.copyWith(
         dataTableTheme: theme.dataTableTheme.copyWith(
-      headingRowColor: MaterialStateProperty.all(theme.accentColor),
+      headingRowColor: MaterialStateProperty.all(theme.colorScheme.secondary),
       headingTextStyle: theme.textTheme.caption,
     ));
   }
 
-  void updateColumnRules<TValue extends dynamic>(
-      ColumnDefinition<TItem, TValue> col) {
-    final column = columns.firstWhere((c) => c.fieldName == col.fieldName);
-
-    columns.replaceRange(
-        columns.indexOf(column), columns.indexOf(column) + 1, [col]);
-
-    updateOrderByCriteria(col);
-
-    updateAllRules();
-    load(clear: true);
-  }
-
-  void updateAllRules() {
+  void _updateAllRules() {
     filterBy.clear();
     orderBy.clear();
     columns.forEach((c) {
-      if (c.header.orderRules.direction != OrderDirections.notSet) {
+      if (c.sortDirection != OrderDirections.notSet) {
         orderBy.add(
-          OrderCriteria(
-              fieldName: c.fieldName, direction: c.header.orderRules.direction),
+          OrderCriteria(fieldName: c.fieldName, direction: c.sortDirection),
         );
       }
 
-      if (c.header.filterRules.criteria != null) {
-        filterBy.add(c.header.filterRules.criteria!);
+      if (c.filterRules.criteria != null) {
+        filterBy.add(c.filterRules.criteria!);
       }
     });
   }
 
-  void updateOrderByCriteria<TValue extends dynamic>(
-      ColumnDefinition<TItem, TValue> col) {
-    if (widget.sortable != SortableOptions.single) return;
+  Future<void> _updateOrderByCriteria<TValue extends dynamic>(
+      GridColumn<TItem, TValue> col) {
+    if (widget.sortable == SortableOptions.single) {
+      //Remove all other orders becuase only one is allowed at a time.
+      columns
+          .where((c) => c != col && c.sortDirection != OrderDirections.notSet)
+          .forEach(
+            (c) => c.sortDirection = OrderDirections.notSet,
+          );
+    }
 
-    columns
-        .where((c) =>
-            c != col && c.header.orderRules.direction != OrderDirections.notSet)
-        .forEach((c) => c.header.orderRules =
-            OrderRules(direction: OrderDirections.notSet));
+    return _load(clear: true);
   }
 
-  Future<void> load({bool clear = false}) async {
-    if (!clear && this.items.length >= this.totalCount) return;
-    setState(() {
-      this.isLoading = true;
-    });
-    try {
-      if (clear) this.items.clear();
+  Future<void> setPage(int page) =>
+      _load(clear: true, skip: (page - 1) * widget.pageSize);
 
-      final results = await _getData(this, this.items.length);
+  Future<void> _load({bool clear = false, int? skip}) async {
+    if (!clear && this.items.length >= this.totalCount) return;
+
+    try {
+      if (clear) {
+        this.items.clear();
+        _updateAllRules();
+      }
+
+      final results = await _getData(this, skip ?? this.items.length);
       this.items.addAll(results?.items ?? []);
-      this.setState(() {
-        this.totalCount = results?.totalCount ?? 0;
-        this.isLoading = false;
-      });
+      totalCount = results?.totalCount ?? 0;
+      if (clear) _reloadSubject.sink.add(this.items);
     } on Exception catch (e) {
       showDialog<void>(
         context: context,

@@ -5,34 +5,22 @@ class BoolFilterRules<TItem extends Object>
   final String title;
   BoolFilterRules({
     String? title,
-    bool filterable = false,
     FilterCriteria<bool>? criteria,
   })  : this.title = title ?? LocalizedMessages.state,
         super(
           criteria: criteria,
-          filterable: filterable,
         );
 
   @override
-  DataGridBoolColumnFilter<TItem> filter(
-          ColumnDefinition<TItem, bool> definition,
+  DataGridBoolColumnFilter<TItem> showFilter(GridColumn<TItem, bool> definition,
           ResponsiveDataGridState<TItem> grid) =>
       DataGridBoolColumnFilter(definition, grid);
-
-  @override
-  FilterRules<TItem, DataGridBoolColumnFilter<TItem>, bool> updateCriteria(
-          FilterCriteria<bool>? criteria) =>
-      BoolFilterRules<TItem>(
-        title: title,
-        filterable: filterable,
-        criteria: criteria,
-      );
 }
 
 class DataGridBoolColumnFilter<TItem extends Object>
     extends DataGridColumnFilter<TItem, bool> {
-  DataGridBoolColumnFilter(ColumnDefinition<TItem, bool> definition,
-      ResponsiveDataGridState<TItem> grid)
+  DataGridBoolColumnFilter(
+      GridColumn<TItem, bool> definition, ResponsiveDataGridState<TItem> grid)
       : super(definition, grid) {
     assert(TItem != Object);
   }
@@ -47,7 +35,7 @@ class DataGridBoolColumnFilterState<TItem extends Object>
 
   @override
   initState() {
-    final criteria = widget.definition.header.filterRules.criteria;
+    final criteria = widget.definition.filterRules.criteria;
     if (criteria != null)
       value = criteria.values.length > 0 ? criteria.values.first : null;
 

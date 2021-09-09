@@ -11,37 +11,23 @@ class DoubleFilterRules<TItem extends Object>
     this.minValue,
     this.maxValue,
     this.decimalPlaces = 2,
-    bool filterable = false,
     FilterCriteria<double>? criteria,
   })  : this.hintText = hintText ?? LocalizedMessages.value,
         super(
           criteria: criteria,
-          filterable: filterable,
         );
 
   @override
-  DataGridDoubleColumnFilter<TItem> filter(
-          ColumnDefinition<TItem, double> definition,
+  DataGridDoubleColumnFilter<TItem> showFilter(
+          GridColumn<TItem, double> definition,
           ResponsiveDataGridState<TItem> grid) =>
       DataGridDoubleColumnFilter(definition, grid);
-
-  @override
-  FilterRules<TItem, DataGridDoubleColumnFilter<TItem>, double> updateCriteria(
-          FilterCriteria<double>? criteria) =>
-      DoubleFilterRules<TItem>(
-        criteria: criteria,
-        decimalPlaces: decimalPlaces,
-        filterable: filterable,
-        hintText: hintText,
-        maxValue: maxValue,
-        minValue: minValue,
-      );
 }
 
 class DataGridDoubleColumnFilter<TItem extends Object>
     extends DataGridColumnFilter<TItem, double> {
-  DataGridDoubleColumnFilter(ColumnDefinition<TItem, double> definition,
-      ResponsiveDataGridState<TItem> grid)
+  DataGridDoubleColumnFilter(
+      GridColumn<TItem, double> definition, ResponsiveDataGridState<TItem> grid)
       : super(definition, grid) {
     assert(TItem != Object);
   }
@@ -66,7 +52,7 @@ class DataGridDoubleColumnFilterState<TItem extends Object>
   void initState() {
     super.initState();
 
-    filterRules = widget.definition.header.filterRules as DoubleFilterRules;
+    filterRules = widget.definition.filterRules as DoubleFilterRules;
 
     final criteria = filterRules.criteria;
     if (criteria != null) {

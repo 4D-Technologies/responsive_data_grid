@@ -5,8 +5,8 @@ homepage: https://github.com/Concerti-IO/responsive_data_grid/tree/main/responsi
 repository: https://github.com/Concerti-IO/responsive_data_grid
 
 environment:
-  sdk: ">=2.12.0 <3.0.0"
-  flutter: ">=1.20.0"
+  sdk: ">=2.14.0 <3.0.0"
+  flutter: ">=2.2.0"
 
 dependencies:
   flutter:
@@ -16,6 +16,7 @@ dependencies:
   bootstrap_grid: ^1.0.1
   client_filtering: ^0.0.15
   date_time_picker: ^2.1.0
+  rxdart: ^0.27.2
 
 dev_dependencies:
   flutter_test:

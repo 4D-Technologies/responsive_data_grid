@@ -5,34 +5,23 @@ class StringFilterRules<TItem extends Object>
   final String hintText;
   StringFilterRules({
     String? hintText,
-    bool filterable = false,
     FilterCriteria<String>? criteria,
   })  : this.hintText = hintText ?? LocalizedMessages.value,
         super(
           criteria: criteria,
-          filterable: filterable,
         );
 
   @override
-  DataGridStringColumnFilter<TItem> filter(
-          ColumnDefinition<TItem, String> definition,
+  DataGridStringColumnFilter<TItem> showFilter(
+          GridColumn<TItem, String> definition,
           ResponsiveDataGridState<TItem> grid) =>
       DataGridStringColumnFilter(definition, grid);
-
-  @override
-  FilterRules<TItem, DataGridStringColumnFilter<TItem>, String> updateCriteria(
-          FilterCriteria<String>? criteria) =>
-      StringFilterRules<TItem>(
-        criteria: criteria,
-        filterable: filterable,
-        hintText: hintText,
-      );
 }
 
 class DataGridStringColumnFilter<TItem extends Object>
     extends DataGridColumnFilter<TItem, String> {
-  DataGridStringColumnFilter(ColumnDefinition<TItem, String> definition,
-      ResponsiveDataGridState<TItem> grid)
+  DataGridStringColumnFilter(
+      GridColumn<TItem, String> definition, ResponsiveDataGridState<TItem> grid)
       : super(definition, grid) {
     assert(TItem != dynamic);
   }
@@ -51,7 +40,7 @@ class DataGridStringColumnFilterState<TItem extends Object>
 
   @override
   void initState() {
-    final criteria = widget.definition.header.filterRules.criteria;
+    final criteria = widget.definition.filterRules.criteria;
     if (criteria != null) {
       op = criteria.logicalOperator;
       searchText =

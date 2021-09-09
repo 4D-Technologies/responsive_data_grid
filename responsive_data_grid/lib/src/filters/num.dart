@@ -11,35 +11,22 @@ class NumFilterRules<TItem extends Object>
     this.minValue,
     this.maxValue,
     this.decimalPlaces = 2,
-    bool filterable = false,
     FilterCriteria<num>? criteria,
   })  : this.hintText = hintText ?? LocalizedMessages.value,
         super(
           criteria: criteria,
-          filterable: filterable,
         );
 
   @override
-  DataGridNumColumnFilter<TItem> filter(ColumnDefinition<TItem, num> definition,
+  DataGridNumColumnFilter<TItem> showFilter(GridColumn<TItem, num> definition,
           ResponsiveDataGridState<TItem> grid) =>
       DataGridNumColumnFilter(definition, grid);
 
-  @override
-  FilterRules<TItem, DataGridNumColumnFilter<TItem>, num> updateCriteria(
-          FilterCriteria<num>? criteria) =>
-      NumFilterRules<TItem>(
-        criteria: criteria,
-        decimalPlaces: decimalPlaces,
-        filterable: filterable,
-        hintText: hintText,
-        maxValue: maxValue,
-        minValue: minValue,
-      );
 }
 
 class DataGridNumColumnFilter<TItem extends Object>
     extends DataGridColumnFilter<TItem, num> {
-  DataGridNumColumnFilter(ColumnDefinition<TItem, num> definition,
+  DataGridNumColumnFilter(GridColumn<TItem, num> definition,
       ResponsiveDataGridState<TItem> grid)
       : super(definition, grid) {
     assert(TItem != Object);
@@ -64,7 +51,7 @@ class DataGridNumColumnFilterState<TItem extends Object>
   void initState() {
     super.initState();
 
-    filterRules = widget.definition.header.filterRules as NumFilterRules;
+    filterRules = widget.definition.filterRules as NumFilterRules;
 
     final criteria = filterRules.criteria;
     if (criteria != null) {

@@ -2,7 +2,7 @@ part of responsive_data_grid;
 
 class ColumnHeaderWidget<TItem extends Object, TValue extends dynamic>
     extends StatefulWidget {
-  final ColumnDefinition<TItem, TValue> definition;
+  final GridColumn<TItem, TValue> definition;
   final ResponsiveDataGridState<TItem> grid;
 
   ColumnHeaderWidget(this.grid, this.definition) {
@@ -10,61 +10,33 @@ class ColumnHeaderWidget<TItem extends Object, TValue extends dynamic>
   }
 
   @override
-  State<StatefulWidget> createState() => ColumnHeaderState<TItem, TValue>(
-        alignment: definition.header.alignment,
-        textAlign: definition.header.textAlign,
-        filterRules: definition.header.filterRules,
-        orderRules: definition.header.orderRules,
-        showMenu: definition.header.showMenu ?? false,
-      );
+  State<StatefulWidget> createState() => ColumnHeaderState<TItem, TValue>();
 }
 
 class ColumnHeaderState<TItem extends Object, TValue extends dynamic>
     extends State<ColumnHeaderWidget<TItem, TValue>> {
-  AlignmentGeometry? alignment;
-  TextAlign? textAlign;
-  FilterRules<TItem, DataGridColumnFilter<TItem, TValue>, TValue> filterRules;
-  OrderRules orderRules;
-  bool showMenu;
-
-  ColumnHeaderState({
-    required this.alignment,
-    required this.textAlign,
-    required this.filterRules,
-    required this.orderRules,
-    required this.showMenu,
-  }) {
+  ColumnHeaderState() {
     assert(TItem != dynamic);
   }
 
-  void toggleOrder() {
-    switch (orderRules.direction) {
+  Future<void> toggleOrder() async {
+    switch (widget.definition.sortDirection) {
       case OrderDirections.notSet:
-        setState(() => widget.definition.header.orderRules = widget
-            .definition.header.orderRules
-            .copyWith(direction: OrderDirections.ascending));
-
-        orderRules = orderRules.copyWith(direction: OrderDirections.ascending);
+        widget.definition.sortDirection = OrderDirections.ascending;
         break;
       case OrderDirections.ascending:
-        widget.definition.header.orderRules = widget
-            .definition.header.orderRules
-            .copyWith(direction: OrderDirections.descending);
-
-        orderRules = orderRules.copyWith(direction: OrderDirections.descending);
+        widget.definition.sortDirection = OrderDirections.descending;
         break;
       default:
-        widget.definition.header.orderRules =
-            OrderRules(direction: OrderDirections.notSet);
-        orderRules = orderRules.copyWith(direction: OrderDirections.notSet);
+        widget.definition.sortDirection = OrderDirections.notSet;
         break;
     }
 
-    widget.grid.updateColumnRules(widget.definition);
+    await widget.grid._updateOrderByCriteria(widget.definition);
   }
 
-  void toggleMenu(BuildContext context) {
-    showDialog<AlertDialog>(
+  Future<void> toggleMenu(BuildContext context) async {
+    final result = await showDialog<FilterCriteria<TValue>?>(
       context: context,
       barrierDismissible: false,
       builder: (context) {
@@ -75,11 +47,15 @@ class ColumnHeaderState<TItem extends Object, TValue extends dynamic>
                 icon: Icon(Icons.close),
                 onPressed: () => Navigator.of(context).pop())
           ]),
-          content: widget.definition.header.filterRules
-              .filter(widget.definition, widget.grid),
+          content: widget.definition.filterRules
+              .showFilter(widget.definition, widget.grid),
         );
       },
     );
+
+    widget.definition.filterRules.criteria = result;
+
+    await widget.grid._load(clear: true);
   }
 
   @override
@@ -97,11 +73,11 @@ class ColumnHeaderState<TItem extends Object, TValue extends dynamic>
             : colorScheme.onPrimary);
 
     final accentForegroundColor =
-        widget.definition.accentColor ?? theme.accentColor;
+        widget.definition.accentColor ?? theme.colorScheme.secondary;
 
     final iconTheme = theme.iconTheme.copyWith(color: foregroundColor);
     final accentIconTheme =
-        theme.accentIconTheme.copyWith(color: accentForegroundColor);
+        theme.iconTheme.copyWith(color: accentForegroundColor);
 
     final textStyle = widget.definition.header.textStyle ??
         theme.dataTableTheme.headingTextStyle ??
@@ -114,18 +90,17 @@ class ColumnHeaderState<TItem extends Object, TValue extends dynamic>
         Expanded(
           child: Text(
             widget.definition.header.text!,
-            textAlign: textAlign ?? TextAlign.start,
+            textAlign: widget.definition.header.textAlign,
             style: textStyle,
           ),
         ),
       );
     }
 
-    if ((orderRules.showSort == null &&
-            grid.widget.sortable != SortableOptions.none) ||
-        (orderRules.showSort ?? false)) {
+    if (widget.definition.header.showOrderBy &&
+        grid.widget.sortable != SortableOptions.none) {
       IconData icon;
-      switch (orderRules.direction) {
+      switch (widget.definition.sortDirection) {
         case OrderDirections.ascending:
           icon = Icons.arrow_upward;
           break;
@@ -139,7 +114,7 @@ class ColumnHeaderState<TItem extends Object, TValue extends dynamic>
       items.add(IconButton(
           icon: Icon(
             icon,
-            color: orderRules.direction != OrderDirections.notSet
+            color: widget.definition.sortDirection != OrderDirections.notSet
                 ? accentIconTheme.color
                 : iconTheme.color,
             size: iconTheme.size,
@@ -147,24 +122,24 @@ class ColumnHeaderState<TItem extends Object, TValue extends dynamic>
           onPressed: () => toggleOrder()));
     }
 
-    if ((((header.showMenu == null && grid.widget.filterable) ||
-                (header.showMenu != null && header.showMenu!)) ||
-            (header.filterRules.filterable)) &&
-        !(header.filterRules is NotSetFilterRules<TItem, TValue>)) {
-      items.add(IconButton(
+    if (header.showFilter) {
+      items.add(
+        IconButton(
           icon: Icon(
             Icons.filter_list,
-            color: header.filterRules.criteria != null
+            color: widget.definition.filterRules.criteria != null
                 ? accentIconTheme.color
                 : iconTheme.color,
             size: iconTheme.size,
           ),
-          onPressed: () => toggleMenu(context)));
+          onPressed: () => toggleMenu(context),
+        ),
+      );
     }
 
     return Container(
       color: widget.definition.backgroundColor,
-      alignment: header.alignment ?? Alignment.centerLeft,
+      alignment: header.alignment,
       child: Row(
         children: items,
       ),

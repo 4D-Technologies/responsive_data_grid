@@ -8,31 +8,21 @@ class ValueMapFilterRules<TItem extends Object, TValue extends dynamic>
   ValueMapFilterRules({
     required this.valueMap,
     FilterCriteria<TValue>? criteria,
-    bool filterable = false,
   }) : super(
           criteria: criteria,
-          filterable: filterable,
         );
 
   @override
-  DataGridValuesColumnFilter<TItem, TValue> filter(
-          ColumnDefinition<TItem, TValue> definition,
+  DataGridValuesColumnFilter<TItem, TValue> showFilter(
+          GridColumn<TItem, TValue> definition,
           ResponsiveDataGridState<TItem> grid) =>
       DataGridValuesColumnFilter(definition, grid);
 
-  @override
-  FilterRules<TItem, DataGridValuesColumnFilter<TItem, TValue>, TValue>
-      updateCriteria(FilterCriteria<TValue>? criteria) =>
-          ValueMapFilterRules<TItem, TValue>(
-            valueMap: valueMap,
-            criteria: criteria,
-            filterable: filterable,
-          );
 }
 
 class DataGridValuesColumnFilter<TItem extends Object, TValue extends dynamic>
     extends DataGridColumnFilter<TItem, TValue> {
-  DataGridValuesColumnFilter(ColumnDefinition<TItem, TValue> definition,
+  DataGridValuesColumnFilter(GridColumn<TItem, TValue> definition,
       ResponsiveDataGridState<TItem> grid)
       : super(definition, grid) {
     assert(TItem != Object);
@@ -52,8 +42,8 @@ class DataGridValuesColumnFilterState<TItem extends Object,
 
   @override
   initState() {
-    filterRules = widget.definition.header.filterRules as ValueMapFilterRules;
-    final criteria = widget.definition.header.filterRules.criteria;
+    filterRules = widget.definition.filterRules as ValueMapFilterRules;
+    final criteria = filterRules.criteria;
     if (criteria != null) {
       values = criteria.values
           .where((e) => e != null)

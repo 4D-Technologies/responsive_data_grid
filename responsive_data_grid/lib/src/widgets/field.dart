@@ -2,7 +2,7 @@ part of responsive_data_grid;
 
 class DataGridFieldWidget<TItem extends Object, TValue extends dynamic>
     extends StatelessWidget {
-  final ColumnDefinition<TItem, TValue> definition;
+  final GridColumn<TItem, TValue> definition;
   final TItem item;
   DataGridFieldWidget(this.definition, this.item) {
     assert(TItem != dynamic);
@@ -34,7 +34,9 @@ class DataGridFieldWidget<TItem extends Object, TValue extends dynamic>
           else
             stringValue = value.toString();
         } else {
-          if (value is DateTime)
+          if (value is String)
+            stringValue = value;
+          else if (value is DateTime)
             stringValue = DateFormat(definition.format).format(value);
           else if (value is num)
             stringValue = NumberFormat(definition.format).format(value);

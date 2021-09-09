@@ -2,7 +2,7 @@ part of responsive_data_grid;
 
 class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
   final TItem item;
-  final List<ColumnDefinition<TItem, dynamic>> columns;
+  final List<GridColumn<TItem, dynamic>> columns;
 
   DataGridRowWidget(this.item, this.columns) {
     assert(TItem != Object);

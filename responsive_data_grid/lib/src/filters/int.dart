@@ -9,34 +9,22 @@ class IntFilterRules<TItem extends Object>
     String? hintText,
     this.minValue,
     this.maxValue,
-    bool filterable = false,
     FilterCriteria<int>? criteria,
   })  : this.hintText = hintText ?? LocalizedMessages.value,
         super(
           criteria: criteria,
-          filterable: filterable,
         );
 
   @override
-  DataGridIntColumnFilter<TItem> filter(ColumnDefinition<TItem, int> definition,
+  DataGridIntColumnFilter<TItem> showFilter(GridColumn<TItem, int> definition,
           ResponsiveDataGridState<TItem> grid) =>
       DataGridIntColumnFilter(definition, grid);
 
-  @override
-  FilterRules<TItem, DataGridIntColumnFilter<TItem>, int> updateCriteria(
-          FilterCriteria<int>? criteria) =>
-      IntFilterRules<TItem>(
-        criteria: criteria,
-        filterable: filterable,
-        hintText: hintText,
-        maxValue: maxValue,
-        minValue: minValue,
-      );
 }
 
 class DataGridIntColumnFilter<TItem extends Object>
     extends DataGridColumnFilter<TItem, int> {
-  DataGridIntColumnFilter(ColumnDefinition<TItem, int> definition,
+  DataGridIntColumnFilter(GridColumn<TItem, int> definition,
       ResponsiveDataGridState<TItem> grid)
       : super(definition, grid) {
     assert(TItem != Object);
@@ -61,7 +49,7 @@ class DataGridIntColumnFilterState<TItem extends Object>
   void initState() {
     super.initState();
 
-    filterRules = widget.definition.header.filterRules as IntFilterRules;
+    filterRules = widget.definition.filterRules as IntFilterRules;
 
     final criteria = filterRules.criteria;
     if (criteria != null) {

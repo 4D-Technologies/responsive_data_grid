@@ -3,7 +3,7 @@ part of responsive_data_grid;
 class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
     extends StatelessWidget {
   final ResponsiveDataGridState<TItem> grid;
-  final List<ColumnDefinition<TItem, dynamic>> columns;
+  final List<GridColumn<TItem, dynamic>> columns;
 
   ResponsiveDataGridHeaderRowWidget(this.grid, this.columns) {
     assert(TItem != Object);

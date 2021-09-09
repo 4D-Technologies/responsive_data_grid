@@ -1,25 +1,9 @@
 part of responsive_data_grid;
 
-class TitleDefinition {
-  final Icon? icon;
-  final String title;
-  final TextStyle? textStyle;
-  final Color? backgroundColor;
-  final Color? foregroundColor;
-
-  const TitleDefinition({
-    required this.title,
-    this.icon,
-    this.textStyle,
-    this.backgroundColor,
-    this.foregroundColor,
-  });
-}
-
-class TitleRow extends StatelessWidget {
+class TitleRowWidget extends StatelessWidget {
   final TitleDefinition definition;
 
-  TitleRow(this.definition);
+  TitleRowWidget(this.definition);
 
   @override
   Widget build(BuildContext context) {

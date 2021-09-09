@@ -110,81 +110,77 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         items: widget.exampleData,
         itemTapped: (row) => print(row.name),
-        pageSize: 30,
+        pageSize: 25,
+        pagingMode: PagingMode.auto,
         columns: [
-          ColumnDefinition.intColumn(
+          IntColumn(
             xsCols: 2,
             fieldName: "id",
-            header: ColumnHeaderDefinition(
+            header: ColumnHeader(
               text: "Id",
-              orderRules: OrderRules(showSort: true),
-              filterRules: IntFilterRules(
-                filterable: true,
-              ),
+              showFilter: true,
+              showOrderBy: true,
             ),
             value: (row) => row.id,
           ),
-          ColumnDefinition.stringColumn(
+          StringColumn(
             xsCols: 6,
             mediumCols: 3,
             fieldName: "name",
-            header: ColumnHeaderDefinition(
+            filterRules: StringFilterRules(
+              hintText: "Name",
+            ),
+            header: ColumnHeader(
               text: "Name",
-              showMenu: true,
-              orderRules: OrderRules(showSort: true),
-              filterRules: StringFilterRules(
-                filterable: true,
-                hintText: "Name",
-              ),
+              showFilter: true,
+              showOrderBy: true,
             ),
             value: (row) => row.name,
           ),
-          ColumnDefinition.dateTimeColumn(
+          DateTimeColumn(
             xsCols: 4,
             mediumCols: 3,
             fieldName: "dob",
-            header: ColumnHeaderDefinition(
+            filterRules: DateTimeFilterRules(
+              filterType: DateTimeFilterTypes.DateOnly,
+            ),
+            header: ColumnHeader(
               text: "Date of Birth",
-              showMenu: true,
-              orderRules: OrderRules(showSort: true),
-              filterRules: DateTimeFilterRules(
-                filterType: DateTimeFilterTypes.DateOnly,
-                filterable: true,
-              ),
+              showFilter: true,
+              showOrderBy: true,
             ),
             value: (row) => row.dob,
             format: DateFormat.YEAR_MONTH_DAY,
           ),
-          ColumnDefinition.boolColumn(
+          BoolColumn(
             xsCols: 3,
             mediumCols: 2,
             fieldName: "accepted",
-            header: ColumnHeaderDefinition(
+            header: ColumnHeader(
               text: "Accepted",
-              showMenu: true,
-              orderRules: OrderRules(showSort: true),
-              filterRules: BoolFilterRules(
-                filterable: true,
-              ),
+              showFilter: true,
+              showOrderBy: true,
             ),
             value: (row) => row.accepted,
             trueText: "Yes",
             falseText: "No",
           ),
-          ColumnDefinition.enumColumn(
+          EnumColumn<ExampleData, ExampleEnum>(
             values: ExampleEnum.values,
             fieldName: "exampleEnum",
-            text: (value) => value == ExampleEnum.one
+            valueText: (value) => value == ExampleEnum.one
                 ? "one"
                 : value == ExampleEnum.two
                     ? "two"
                     : "three",
             value: (row) => row.exampleEnum,
-            headerText: "Enum",
+            header: ColumnHeader(
+              showFilter: true,
+              showOrderBy: true,
+              text: "Enum",
+            ),
             xsCols: 4,
             mediumCols: 2,
-            sortable: true,
-            filterable: true,
           )
         ],
       ),

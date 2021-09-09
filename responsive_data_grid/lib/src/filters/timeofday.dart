@@ -3,31 +3,22 @@ part of responsive_data_grid;
 class TimeOfDayFilterRules<TItem extends Object> extends FilterRules<TItem,
     DataGridTimeOfDayColumnFilter<TItem>, TimeOfDay> {
   TimeOfDayFilterRules({
-    bool filterable = false,
     FilterCriteria<TimeOfDay>? criteria,
   }) : super(
           criteria: criteria,
-          filterable: filterable,
         );
 
   @override
-  DataGridTimeOfDayColumnFilter<TItem> filter(
-          ColumnDefinition<TItem, TimeOfDay> definition,
+  DataGridTimeOfDayColumnFilter<TItem> showFilter(
+          GridColumn<TItem, TimeOfDay> definition,
           ResponsiveDataGridState<TItem> grid) =>
       DataGridTimeOfDayColumnFilter(definition, grid);
 
-  @override
-  FilterRules<TItem, DataGridTimeOfDayColumnFilter<TItem>, TimeOfDay>
-      updateCriteria(FilterCriteria<TimeOfDay>? criteria) =>
-          TimeOfDayFilterRules<TItem>(
-            criteria: criteria,
-            filterable: filterable,
-          );
 }
 
 class DataGridTimeOfDayColumnFilter<TItem extends Object>
     extends DataGridColumnFilter<TItem, TimeOfDay> {
-  DataGridTimeOfDayColumnFilter(ColumnDefinition<TItem, TimeOfDay> definition,
+  DataGridTimeOfDayColumnFilter(GridColumn<TItem, TimeOfDay> definition,
       ResponsiveDataGridState<TItem> grid)
       : super(definition, grid) {
     assert(TItem != Object);
@@ -48,7 +39,7 @@ class DataGridTimeOfDayColumnFilterState<TItem extends Object>
 
   @override
   initState() {
-    filterRules = widget.definition.header.filterRules as TimeOfDayFilterRules;
+    filterRules = widget.definition.filterRules as TimeOfDayFilterRules;
 
     final criteria = filterRules.criteria;
     if (criteria != null) {
