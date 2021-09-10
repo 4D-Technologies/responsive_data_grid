@@ -1,3 +1,18 @@
+## [0.0.14] - September 10th, 2021
+
+1. Added Pager control with paging functionality instead of just infinite scroll. Does not have the page numbers, just forward and back for now. Next step will be adding them.
+2. Added pagerMode property that defaults to automatic which prefers infinite scroll, but in cases where there is unbounded height it will automatically use the pager and size the grid according to the contents.
+3. Added pagerMode = none which will pull all of the data from the source up to the maxItems property.
+4. Added serverSide and clientSide constructors that allow you to define how you're going to use the grid. Server mode pulls data as before using the loadData() method, whereas clientSide provides a list of items to be used.
+5. Enabled client side full filtering and ordering when using a in memory list for the contents of the grid.
+6. Improved filter types to include clear options.
+7. Fixed a number of stubtle issues with generics.
+8. Added InfiniteScollingList and updated the infinite scrolling functionality to use it with all of it's abilities which makes hte scrolling much smoother when getting from the data source, and handles errors better.
+9. Refactored Columns to be explicit types to fix a series of issues with Dart not being able to infer column typing properly from what was put in. Added EnumColumn which allows you to quickly create a column that can filter on the values of an enum.
+10. Depends on Dart 2.14 for better enum functionality (Enum can now be a constraint on generics!)
+11. Updated to Flutter 2.5 implicitly, but still only depends on Flutter 2.2.
+12. Updated linting to the new flutter 2.5 linting functionality.
+
 ## [0.0.13] - September 7th, 2021
 
 1. Added the remaining filter types and ensured that custom filters are possible. Cleaned up the entire filter process.

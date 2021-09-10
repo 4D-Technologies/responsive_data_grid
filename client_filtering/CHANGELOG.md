@@ -1,3 +1,8 @@
+## [0.0.16] - September 10th, 2021
+
+- Updated to Dart 2.14
+- Updated linting and fixed various issues surfaced by the linter
+
 ## [0.0.15] - September 8th, 2021
 
 - Add Between Operator for numerics and date/times.
