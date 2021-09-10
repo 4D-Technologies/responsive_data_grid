@@ -11,8 +11,7 @@ class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
 
   @override
   Widget build(BuildContext context) {
-    final grid =
-        context.findAncestorWidgetOfExactType<ResponsiveDataGrid<TItem>>();
+    final grid = this.grid.widget;
 
     final theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
@@ -34,7 +33,7 @@ class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
       data: iconTheme,
       child: Container(
         color: backgroundColor,
-        margin: grid!.padding,
+        margin: grid.padding,
         child: Padding(
           padding: grid.contentPadding,
           child: BootstrapRow(

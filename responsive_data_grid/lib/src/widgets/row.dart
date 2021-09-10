@@ -3,8 +3,17 @@ part of responsive_data_grid;
 class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
   final TItem item;
   final List<GridColumn<TItem, dynamic>> columns;
+  final void Function(TItem item)? itemTapped;
+  final ThemeData theme;
+  final EdgeInsets padding;
 
-  DataGridRowWidget(this.item, this.columns) {
+  DataGridRowWidget(
+    this.item,
+    this.columns,
+    this.itemTapped,
+    this.theme,
+    this.padding,
+  ) {
     assert(TItem != Object);
   }
 
@@ -13,10 +22,28 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
     final grid =
         context.findAncestorWidgetOfExactType<ResponsiveDataGrid<TItem>>();
 
-    return BootstrapRow(
-      crossAxisAlignment: grid!.rowCrossAxisAlignment,
-      children: getColumns(context, item),
-      totalSegments: grid.reactiveSegments,
+    return InkWell(
+      onTap: itemTapped == null
+          ? null
+          : () {
+              if (itemTapped != null) {
+                itemTapped!(item);
+              }
+            },
+      enableFeedback: true,
+      excludeFromSemantics: false,
+      hoverColor: theme.colorScheme.secondary,
+      mouseCursor: itemTapped != null
+          ? SystemMouseCursors.click
+          : SystemMouseCursors.basic,
+      child: Padding(
+        padding: this.padding,
+        child: BootstrapRow(
+          crossAxisAlignment: grid!.rowCrossAxisAlignment,
+          children: getColumns(context, item),
+          totalSegments: grid.reactiveSegments,
+        ),
+      ),
     );
   }
 

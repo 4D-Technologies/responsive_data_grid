@@ -17,13 +17,12 @@ class ValueMapFilterRules<TItem extends Object, TValue extends dynamic>
           GridColumn<TItem, TValue> definition,
           ResponsiveDataGridState<TItem> grid) =>
       DataGridValuesColumnFilter(definition, grid);
-
 }
 
 class DataGridValuesColumnFilter<TItem extends Object, TValue extends dynamic>
     extends DataGridColumnFilter<TItem, TValue> {
-  DataGridValuesColumnFilter(GridColumn<TItem, TValue> definition,
-      ResponsiveDataGridState<TItem> grid)
+  DataGridValuesColumnFilter(
+      GridColumn<TItem, TValue> definition, ResponsiveDataGridState<TItem> grid)
       : super(definition, grid) {
     assert(TItem != Object);
   }
@@ -90,7 +89,7 @@ class DataGridValuesColumnFilterState<TItem extends Object,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             TextButton.icon(
-              onPressed: () => super.filter(context, null),
+              onPressed: () => super.clear(context),
               icon: Icon(Icons.clear_all),
               label: Text(LocalizedMessages.clear),
             ),
@@ -98,17 +97,17 @@ class DataGridValuesColumnFilterState<TItem extends Object,
               flex: 2,
             ),
             TextButton.icon(
-              onPressed: () => super.filter(
-                context,
-                values.isEmpty
-                    ? null
-                    : FilterCriteria(
+              onPressed: () => values.isEmpty
+                  ? super.clear(context)
+                  : super.filter(
+                      context,
+                      FilterCriteria(
                         fieldName: widget.definition.fieldName,
                         logicalOperator: op,
                         op: Logic.and,
                         values: values,
                       ),
-              ),
+                    ),
               icon: Icon(Icons.save),
               label: Text(LocalizedMessages.apply),
             )

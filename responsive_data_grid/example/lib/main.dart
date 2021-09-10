@@ -110,8 +110,8 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         items: widget.exampleData,
         itemTapped: (row) => print(row.name),
-        pageSize: 25,
-        pagingMode: PagingMode.auto,
+        pageSize: 30,
+        pagingMode: PagingMode.pager,
         columns: [
           IntColumn(
             xsCols: 2,

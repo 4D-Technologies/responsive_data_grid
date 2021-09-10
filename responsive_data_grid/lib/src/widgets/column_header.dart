@@ -19,7 +19,7 @@ class ColumnHeaderState<TItem extends Object, TValue extends dynamic>
     assert(TItem != dynamic);
   }
 
-  Future<void> toggleOrder() async {
+  void toggleOrder() async {
     switch (widget.definition.sortDirection) {
       case OrderDirections.notSet:
         widget.definition.sortDirection = OrderDirections.ascending;
@@ -32,11 +32,11 @@ class ColumnHeaderState<TItem extends Object, TValue extends dynamic>
         break;
     }
 
-    await widget.grid._updateOrderByCriteria(widget.definition);
+    widget.grid._updateOrderByCriteria(widget.definition);
   }
 
   Future<void> toggleMenu(BuildContext context) async {
-    final result = await showDialog<FilterCriteria<TValue>?>(
+    final result = await showDialog<FilterResult<TValue>?>(
       context: context,
       barrierDismissible: false,
       builder: (context) {
@@ -53,9 +53,11 @@ class ColumnHeaderState<TItem extends Object, TValue extends dynamic>
       },
     );
 
-    widget.definition.filterRules.criteria = result;
+    if (result == null) return;
 
-    await widget.grid._load(clear: true);
+    widget.definition.filterRules.criteria = result.criteria;
+
+    widget.grid._updateAllRules();
   }
 
   @override

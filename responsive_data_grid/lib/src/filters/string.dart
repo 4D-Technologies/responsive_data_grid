@@ -106,23 +106,34 @@ class DataGridStringColumnFilterState<TItem extends Object>
             ),
           ),
         ),
-        Align(
-          alignment: Alignment.bottomRight,
-          child: TextButton.icon(
-            onPressed: () => super.filter(
-              context,
-              op == null
-                  ? null
-                  : FilterCriteria(
-                      fieldName: widget.definition.fieldName,
-                      logicalOperator: op!,
-                      op: Logic.and,
-                      values: [searchText],
-                    ),
+        Row(
+          mainAxisSize: MainAxisSize.max,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            TextButton.icon(
+              onPressed: () => super.clear(context),
+              icon: Icon(Icons.clear_all),
+              label: Text(LocalizedMessages.clear),
             ),
-            icon: Icon(Icons.save),
-            label: Text(LocalizedMessages.apply),
-          ),
+            Spacer(
+              flex: 2,
+            ),
+            TextButton.icon(
+              onPressed: () => op == null
+                  ? super.clear(context)
+                  : super.filter(
+                      context,
+                      FilterCriteria(
+                        fieldName: widget.definition.fieldName,
+                        logicalOperator: op!,
+                        op: Logic.and,
+                        values: [searchText],
+                      ),
+                    ),
+              icon: Icon(Icons.save),
+              label: Text(LocalizedMessages.apply),
+            ),
+          ],
         ),
       ],
     );

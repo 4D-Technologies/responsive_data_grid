@@ -19,13 +19,12 @@ class IntFilterRules<TItem extends Object>
   DataGridIntColumnFilter<TItem> showFilter(GridColumn<TItem, int> definition,
           ResponsiveDataGridState<TItem> grid) =>
       DataGridIntColumnFilter(definition, grid);
-
 }
 
 class DataGridIntColumnFilter<TItem extends Object>
     extends DataGridColumnFilter<TItem, int> {
-  DataGridIntColumnFilter(GridColumn<TItem, int> definition,
-      ResponsiveDataGridState<TItem> grid)
+  DataGridIntColumnFilter(
+      GridColumn<TItem, int> definition, ResponsiveDataGridState<TItem> grid)
       : super(definition, grid) {
     assert(TItem != Object);
   }
@@ -150,24 +149,35 @@ class DataGridIntColumnFilterState<TItem extends Object>
             },
           ),
         ),
-        Align(
-          alignment: Alignment.bottomRight,
-          child: TextButton.icon(
-            onPressed: () => super.filter(
-              context,
-              op == null
-                  ? null
-                  : FilterCriteria(
-                      fieldName: widget.definition.fieldName,
-                      logicalOperator: op!,
-                      op: Logic.and,
-                      values:
-                          [iValue, iValue2].where((e) => e != null).toList(),
-                    ),
+        Row(
+          mainAxisSize: MainAxisSize.max,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            TextButton.icon(
+              onPressed: () => super.clear(context),
+              icon: Icon(Icons.clear_all),
+              label: Text(LocalizedMessages.clear),
             ),
-            icon: Icon(Icons.save),
-            label: Text(LocalizedMessages.apply),
-          ),
+            Spacer(
+              flex: 2,
+            ),
+            TextButton.icon(
+              onPressed: () => op == null
+                  ? super.clear(context)
+                  : super.filter(
+                      context,
+                      FilterCriteria(
+                        fieldName: widget.definition.fieldName,
+                        logicalOperator: op!,
+                        op: Logic.and,
+                        values:
+                            [iValue, iValue2].where((e) => e != null).toList(),
+                      ),
+                    ),
+              icon: Icon(Icons.save),
+              label: Text(LocalizedMessages.apply),
+            ),
+          ],
         )
       ],
     );

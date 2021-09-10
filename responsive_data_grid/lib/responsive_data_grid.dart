@@ -7,8 +7,8 @@ import 'package:bootstrap_grid/bootstrap_grid.dart';
 import 'package:date_time_picker/date_time_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart';
-import 'package:rxdart/rxdart.dart';
 
 part './src/filters/column_filter.dart';
 part './src/filters/bool.dart';
@@ -20,6 +20,7 @@ part './src/filters/string.dart';
 part './src/filters/values.dart';
 part './src/filters/timeofday.dart';
 part './src/filters/duration.dart';
+part './src/filters/filter_result.dart';
 
 part './src/rules/filter.dart';
 
@@ -31,7 +32,8 @@ part './src/grid.dart';
 part './src/extensions.dart';
 
 part './src/widgets/column_header.dart';
-part './src/widgets/body.dart';
+part './src/widgets/paged_body.dart';
+part './src/widgets/infinite_scroll_body.dart';
 part './src/widgets/field.dart';
 part './src/widgets/header_row.dart';
 part './src/widgets/title_row.dart';
@@ -51,6 +53,8 @@ part './src/definitions/columns/duration.dart';
 part './src/definitions/columns/int.dart';
 part './src/definitions/columns/double.dart';
 part './src/definitions/columns/num.dart';
+
+part 'src/notifications/criteriachange.dart';
 
 class LocalizedMessages {
   static var applicationError = "Application Error";
