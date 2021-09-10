@@ -46,22 +46,12 @@ class LoadCriteria with IJsonable {
   }
 
   Map<String, dynamic> toJson() {
+    // ignore: unnecessary_cast
     return {
       'skip': skip,
       'take': take,
       'filterBy': filterBy.map((x) => x.toJson()).toList(),
       'orderBy': orderBy.map((x) => x.toJson()).toList(),
-    };
-  }
-
-  factory LoadCriteria.fromJson(Map<String, dynamic> map) {
-    return LoadCriteria(
-      skip: map['skip'],
-      take: map['take'],
-      filterBy: List<FilterCriteria<dynamic>>.from(
-          map['filterBy']?.map((x) => FilterCriteria<dynamic>.fromJson(x))),
-      orderBy: List<OrderCriteria>.from(
-          map['orderBy']?.map((x) => OrderCriteria.fromJson(x))),
-    );
+    } as Map<String, dynamic>;
   }
 }

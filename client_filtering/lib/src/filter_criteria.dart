@@ -18,7 +18,7 @@ class FilterCriteria<TValue extends dynamic> with IJsonable {
     required this.op,
     required this.logicalOperator,
     required TValue? value,
-  }) : values = List<TValue?>.from([value], growable: true);
+  }) : values = List<TValue?>.from(<TValue?>[value], growable: true);
 
   FilterCriteria.between({
     required this.fieldName,
@@ -26,7 +26,7 @@ class FilterCriteria<TValue extends dynamic> with IJsonable {
     required this.logicalOperator,
     required TValue value1,
     required TValue value2,
-  }) : values = List<TValue?>.from([value1, value2], growable: true);
+  }) : values = List<TValue?>.from(<TValue?>[value1, value2], growable: true);
 
   @override
   bool operator ==(Object other) {
@@ -47,13 +47,13 @@ class FilterCriteria<TValue extends dynamic> with IJsonable {
         values.hashCode;
   }
 
-  FilterCriteria copyWith({
+  FilterCriteria<TValue> copyWith({
     String Function()? fieldName,
     Logic Function()? op,
     Operators Function()? logicalOperator,
     List<TValue?> Function()? values,
   }) {
-    return FilterCriteria(
+    return FilterCriteria<TValue>(
       fieldName: fieldName == null ? this.fieldName : fieldName(),
       op: op == null ? this.op : op(),
       logicalOperator:
@@ -68,27 +68,27 @@ class FilterCriteria<TValue extends dynamic> with IJsonable {
   }
 
   Map<String, dynamic> toJson() {
+    // ignore: unnecessary_cast
     return {
       'fieldName': fieldName,
       'op': serializeEnumString(op.toString()),
       'logicalOperator': serializeEnumString(logicalOperator.toString()),
       'values': values.map((e) => _valueToString(e)),
-    };
+    } as Map<String, dynamic>;
   }
 
-  factory FilterCriteria.fromJson(Map<String, dynamic> map) {
+  static FilterCriteria<TValue> fromJson<TValue extends dynamic>(
+      Map<String, dynamic> map) {
     return FilterCriteria(
-      fieldName: map['fieldName'],
-      op: deseralizeEnumString(map['op'], Logic.values),
+      fieldName: map['fieldName'].toString(),
+      op: deseralizeEnumString(map['op'].toString(), Logic.values),
       logicalOperator: deseralizeEnumString(
-        map['logicalOperator'],
+        map['logicalOperator'].toString(),
         Operators.values,
       ),
-      values: map['value'] is List<String?>
-          ? (map['value'] as List<String?>)
-              .map((e) => _parseValue(e))
-              .toList(growable: true)
-          : _parseValue(map['value']),
+      values: (map['values'] as List<String?>)
+          .map((e) => _parseValue<TValue>(e))
+          .toList(growable: true),
     );
   }
 
@@ -108,7 +108,7 @@ class FilterCriteria<TValue extends dynamic> with IJsonable {
         return value as TValue;
       case bool:
         return value == "True" || value == "true" || value == "1"
-            ? true
+            ? true as TValue
             : false as TValue;
       default:
         if (TValue == TimeOfDay)

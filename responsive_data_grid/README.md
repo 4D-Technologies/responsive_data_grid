@@ -24,7 +24,8 @@ For a fully automatic implementation that allows you to tie your responsive data
 
 1. Integration Testing
 2. More documentation, examples, and getting started with screen shots
-3. Column Freezing
-4. Grouping with Sumaries and Group Footers
-5. Footer with Overall Summaries
-6. Pagination
+3. Column Visibility
+4. Column Freezing
+5. Grouping with Sumaries and Group Footers
+6. Footer with Overall Summaries
+7. Pagination - Add page numbers that scale automatically based on the space available in the paging controller

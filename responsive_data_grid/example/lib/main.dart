@@ -33,7 +33,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  final exampleData = List<ExampleData>.from([
+  final exampleData = List<ExampleData>.from(<ExampleData>[
     ExampleData(1, "John Doe", DateTime(1977, 6, 17), true, ExampleEnum.one),
     ExampleData(2, "Jane Doe", DateTime(1977, 6, 17), false, ExampleEnum.two),
     ExampleData(3, "John Doe", DateTime(1977, 6, 17), true, ExampleEnum.three),

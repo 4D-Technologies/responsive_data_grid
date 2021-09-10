@@ -51,11 +51,14 @@ class EnumColumn<TItem extends Object, TValue extends Enum>
           xlCols: xlCols,
           xsCols: xsCols,
           filterRules: ValueMapFilterRules(
-            valueMap: Map<TValue, Widget>.fromIterable(
-              values,
-              key: (k) => k,
-              value: (v) => Text(
-                valueText(v),
+            valueMap: Map<TValue, Widget>.fromEntries(
+              values.map(
+                (e) => MapEntry(
+                  e,
+                  Text(
+                    valueText(e),
+                  ),
+                ),
               ),
             ),
             criteria: filter,

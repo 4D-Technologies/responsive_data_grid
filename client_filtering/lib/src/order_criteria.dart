@@ -32,16 +32,10 @@ class OrderCriteria with IJsonable {
   }
 
   Map<String, dynamic> toJson() {
+    // ignore: unnecessary_cast
     return {
       'fieldName': fieldName,
       'direction': serializeEnumString(direction.toString()),
-    };
-  }
-
-  factory OrderCriteria.fromJson(Map<String, dynamic> map) {
-    return OrderCriteria(
-      fieldName: map['fieldName'],
-      direction: deseralizeEnumString(map['direction'], OrderDirections.values),
-    );
+    } as Map<String, dynamic>;
   }
 }

@@ -13,7 +13,7 @@ extension OrderCriteriaExtensions on List<OrderCriteria> {
   }
 }
 
-extension FilterCriteriaExtensions on List<FilterCriteria> {
+extension FilterCriteriaExtensions on List<FilterCriteria<dynamic>> {
   String toOdata() {
     if (this.isEmpty) return "";
 

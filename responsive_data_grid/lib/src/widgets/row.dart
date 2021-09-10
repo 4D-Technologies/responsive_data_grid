@@ -50,7 +50,7 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
   List<BootstrapCol> getColumns(BuildContext context, TItem item) {
     return columns.map((c) {
       return BootstrapCol(
-        child: DataGridFieldWidget(c, item),
+        child: DataGridFieldWidget<TItem, dynamic>(c, item),
         lg: c.largeCols ?? c.mediumCols ?? c.smallCols ?? c.xsCols ?? 12,
         md: c.mediumCols ?? c.smallCols ?? c.xsCols ?? 12,
         sm: c.smallCols ?? c.xsCols ?? 12,

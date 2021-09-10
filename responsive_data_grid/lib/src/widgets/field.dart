@@ -30,7 +30,8 @@ class DataGridFieldWidget<TItem extends Object, TValue extends dynamic>
 
         if (definition.format == null) {
           if (value is TimeOfDay)
-            stringValue = value.format(context);
+            // ignore: unnecessary_cast
+            stringValue = (value as TimeOfDay).format(context);
           else
             stringValue = value.toString();
         } else {

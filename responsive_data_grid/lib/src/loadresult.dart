@@ -25,66 +25,71 @@ List<TItem> _applyCriteria<TItem extends Object>(
     switch (criteria.logicalOperator) {
       case Operators.equals:
         items = items.where((e) {
-          final value = c.value(e);
+          final dynamic value = c.value(e);
 
           return criteria.values.contains(value);
         }).toList();
         break;
       case Operators.lessThan:
         items = items.where((e) {
-          final value = c.value(e);
-          final cValue = criteria.values.isEmpty ? null : criteria.values.first;
+          final dynamic value = c.value(e);
+          final dynamic cValue =
+              criteria.values.isEmpty ? null : criteria.values.first;
           if (value == null || cValue == null) return false;
 
           if (value is DateTime && cValue is DateTime)
             return value.compareTo(cValue) < 0;
 
-          return value < cValue;
+          return (value < cValue) as bool;
         }).toList();
         break;
       case Operators.greaterThan:
         items = items.where((e) {
-          final value = c.value(e);
-          final cValue = criteria.values.isEmpty ? null : criteria.values.first;
+          final dynamic value = c.value(e);
+          final dynamic cValue =
+              criteria.values.isEmpty ? null : criteria.values.first;
           if (value == null || cValue == null) return false;
 
           if (value is DateTime && cValue is DateTime)
             return value.compareTo(cValue) > 0;
 
-          return value > cValue;
+          return (value > cValue) as bool;
         }).toList();
 
         break;
       case Operators.lessThanOrEqualTo:
         items = items.where((e) {
-          final value = c.value(e);
-          final cValue = criteria.values.isEmpty ? null : criteria.values.first;
+          final dynamic value = c.value(e);
+          final dynamic cValue =
+              criteria.values.isEmpty ? null : criteria.values.first;
           if (value == null || cValue == null) return false;
 
           if (value is DateTime && cValue is DateTime)
             return value.compareTo(cValue) <= 0;
 
-          return value <= cValue;
+          return (value <= cValue) as bool;
         }).toList();
 
         break;
       case Operators.greaterThanOrEqualTo:
         items = items.where((e) {
-          final value = c.value(e);
-          final cValue = criteria.values.isEmpty ? null : criteria.values.first;
+          final dynamic value = c.value(e);
+          final dynamic cValue =
+              criteria.values.isEmpty ? null : criteria.values.first;
           if (value == null || cValue == null) return false;
 
           if (value is DateTime && cValue is DateTime)
             return value.compareTo(cValue) >= 0;
 
-          return value >= cValue;
+          return (value >= cValue) as bool;
         }).toList();
 
         break;
       case Operators.contains:
         items = items.where((e) {
-          final value = c.value(e);
-          final cValue = criteria.values.isEmpty ? null : criteria.values.first;
+          final dynamic value = c.value(e);
+          final dynamic cValue =
+              criteria.values.isEmpty ? null : criteria.values.first;
 
           if (value == null ||
               cValue == null ||
@@ -96,8 +101,9 @@ List<TItem> _applyCriteria<TItem extends Object>(
         break;
       case Operators.notContains:
         items = items.where((e) {
-          final value = c.value(e);
-          final cValue = criteria.values.isEmpty ? null : criteria.values.first;
+          final dynamic value = c.value(e);
+          final dynamic cValue =
+              criteria.values.isEmpty ? null : criteria.values.first;
 
           if (value == null ||
               cValue == null ||
@@ -109,8 +115,9 @@ List<TItem> _applyCriteria<TItem extends Object>(
         break;
       case Operators.endsWidth:
         items = items.where((e) {
-          final value = c.value(e);
-          final cValue = criteria.values.isEmpty ? null : criteria.values.first;
+          final dynamic value = c.value(e);
+          final dynamic cValue =
+              criteria.values.isEmpty ? null : criteria.values.first;
 
           if (value == null ||
               cValue == null ||
@@ -122,8 +129,9 @@ List<TItem> _applyCriteria<TItem extends Object>(
         break;
       case Operators.startsWith:
         items = items.where((e) {
-          final value = c.value(e);
-          final cValue = criteria.values.isEmpty ? null : criteria.values.first;
+          final dynamic value = c.value(e);
+          final dynamic cValue =
+              criteria.values.isEmpty ? null : criteria.values.first;
 
           if (value == null ||
               cValue == null ||
@@ -135,14 +143,15 @@ List<TItem> _applyCriteria<TItem extends Object>(
         break;
       case Operators.notEqual:
         items = items.where((e) {
-          final value = c.value(e);
+          final dynamic value = c.value(e);
           return !criteria.values.contains(value);
         }).toList();
         break;
       case Operators.notEndsWith:
         items = items.where((e) {
-          final value = c.value(e);
-          final cValue = criteria.values.isEmpty ? null : criteria.values.first;
+          final dynamic value = c.value(e);
+          final dynamic cValue =
+              criteria.values.isEmpty ? null : criteria.values.first;
           if (value == null ||
               cValue == null ||
               !(value is String) ||
@@ -153,8 +162,9 @@ List<TItem> _applyCriteria<TItem extends Object>(
         break;
       case Operators.notStartsWith:
         items = items.where((e) {
-          final value = c.value(e);
-          final cValue = criteria.values.isEmpty ? null : criteria.values.first;
+          final dynamic value = c.value(e);
+          final dynamic cValue =
+              criteria.values.isEmpty ? null : criteria.values.first;
           if (value == null ||
               cValue == null ||
               !(value is String) ||
@@ -165,14 +175,14 @@ List<TItem> _applyCriteria<TItem extends Object>(
         break;
       case Operators.between:
         items = items.where((e) {
-          final value = c.value(e);
-          final cValue1 =
+          final dynamic value = c.value(e);
+          final dynamic cValue1 =
               criteria.values.isEmpty ? null : criteria.values.first;
-          final cValue2 =
+          final dynamic cValue2 =
               criteria.values.length > 1 ? criteria.values.last : null;
           if (value == null || cValue1 == null || cValue2 == null) return false;
 
-          return value >= cValue1 && value <= cValue2;
+          return (value >= cValue1) as bool && (value <= cValue2) as bool;
         }).toList();
         break;
     }
@@ -188,8 +198,8 @@ List<TItem> _applyCriteria<TItem extends Object>(
       for (int colNum = 0; colNum < sortColumns.length; colNum++) {
         final c = sortColumns.elementAt(colNum);
 
-        final value1 = c.value(a);
-        final value2 = c.value(b);
+        final dynamic value1 = c.value(a);
+        final dynamic value2 = c.value(b);
 
         if (value1 == null && value2 != null) return -1;
         if (value2 == null && value1 != null) return 1;

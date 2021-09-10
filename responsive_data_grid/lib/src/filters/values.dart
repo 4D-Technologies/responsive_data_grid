@@ -37,11 +37,12 @@ class DataGridValuesColumnFilterState<TItem extends Object,
   late List<TValue> values;
   late Operators op;
 
-  late ValueMapFilterRules filterRules;
+  late ValueMapFilterRules<TItem, TValue> filterRules;
 
   @override
   initState() {
-    filterRules = widget.definition.filterRules as ValueMapFilterRules;
+    filterRules =
+        widget.definition.filterRules as ValueMapFilterRules<TItem, TValue>;
     final criteria = filterRules.criteria;
     if (criteria != null) {
       values = criteria.values
