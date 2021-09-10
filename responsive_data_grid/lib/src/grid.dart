@@ -218,6 +218,10 @@ class ResponsiveDataGridState<TItem extends Object>
 
     _updateAllRules();
   }
+
+  void reload() {
+    _rebuildAllChildren(context);
+  }
 }
 
 class GridTheme {
