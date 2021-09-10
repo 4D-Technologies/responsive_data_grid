@@ -89,66 +89,59 @@ class PagerWidgetState<TItem extends Object> extends State<PagerWidget<TItem>> {
             ),
           );
 
-        return NotificationListener<GridCriteriaChangeNotification>(
-          onNotification: (notification) {
-            reload();
-            return false;
-          },
-          child: Flexible(
-            fit: FlexFit.loose,
-            child: LayoutBuilder(
-              builder: (context, constraints) => Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisSize: constraints.hasBoundedHeight
-                    ? MainAxisSize.max
-                    : MainAxisSize.min,
-                children: [
-                  ResponsiveDataGridPagedBodyWidget(
-                    widget.gridState,
-                    widget.theme,
-                    pageItems,
-                    constraints.hasBoundedHeight,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      IconButton(
-                        onPressed: () => setPage(1),
-                        icon: Icon(
-                          Icons.first_page,
-                        ),
+        return Flexible(
+          fit: FlexFit.loose,
+          child: LayoutBuilder(
+            builder: (context, constraints) => Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: constraints.hasBoundedHeight
+                  ? MainAxisSize.max
+                  : MainAxisSize.min,
+              children: [
+                ResponsiveDataGridPagedBodyWidget(
+                  widget.gridState,
+                  widget.theme,
+                  pageItems,
+                  constraints.hasBoundedHeight,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                      onPressed: () => setPage(1),
+                      icon: Icon(
+                        Icons.first_page,
                       ),
-                      IconButton(
-                        onPressed: currentPage == 1
-                            ? null
-                            : () => setPage(
-                                  math.max(1, currentPage - 1),
-                                ),
-                        icon: Icon(
-                          Icons.fast_rewind,
-                        ),
+                    ),
+                    IconButton(
+                      onPressed: currentPage == 1
+                          ? null
+                          : () => setPage(
+                                math.max(1, currentPage - 1),
+                              ),
+                      icon: Icon(
+                        Icons.fast_rewind,
                       ),
-                      Spacer(),
-                      Spacer(),
-                      IconButton(
-                        onPressed: currentPage == pageCount
-                            ? null
-                            : () =>
-                                setPage(math.min(pageCount, currentPage + 1)),
-                        icon: Icon(
-                          Icons.fast_forward,
-                        ),
+                    ),
+                    Spacer(),
+                    Spacer(),
+                    IconButton(
+                      onPressed: currentPage == pageCount
+                          ? null
+                          : () => setPage(math.min(pageCount, currentPage + 1)),
+                      icon: Icon(
+                        Icons.fast_forward,
                       ),
-                      IconButton(
-                        onPressed: () => setPage(pageCount),
-                        icon: Icon(
-                          Icons.last_page,
-                        ),
+                    ),
+                    IconButton(
+                      onPressed: () => setPage(pageCount),
+                      icon: Icon(
+                        Icons.last_page,
                       ),
-                    ],
-                  ),
-                ],
-              ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         );

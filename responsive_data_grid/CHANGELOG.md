@@ -1,4 +1,4 @@
-## [0.0.14] - September 10th, 2021
+## [0.0.16] - September 10th, 2021
 
 1. Added Pager control with paging functionality instead of just infinite scroll. Does not have the page numbers, just forward and back for now. Next step will be adding them.
 2. Added pagerMode property that defaults to automatic which prefers infinite scroll, but in cases where there is unbounded height it will automatically use the pager and size the grid according to the contents.
@@ -12,6 +12,7 @@
 10. Depends on Dart 2.14 for better enum functionality (Enum can now be a constraint on generics!)
 11. Updated to Flutter 2.5 implicitly, but still only depends on Flutter 2.2.
 12. Updated linting to the new flutter 2.5 linting functionality.
+13. Add Widget column type to pass in a hard coded widget quickly.
 
 ## [0.0.13] - September 7th, 2021
 

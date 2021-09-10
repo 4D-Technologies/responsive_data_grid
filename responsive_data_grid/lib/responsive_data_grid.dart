@@ -21,6 +21,7 @@ part './src/filters/values.dart';
 part './src/filters/timeofday.dart';
 part './src/filters/duration.dart';
 part './src/filters/filter_result.dart';
+part './src/filters/no_filter.dart';
 
 part './src/rules/filter.dart';
 
@@ -53,6 +54,7 @@ part './src/definitions/columns/duration.dart';
 part './src/definitions/columns/int.dart';
 part './src/definitions/columns/double.dart';
 part './src/definitions/columns/num.dart';
+part 'src/definitions/columns/widget.dart';
 
 part 'src/notifications/criteriachange.dart';
 

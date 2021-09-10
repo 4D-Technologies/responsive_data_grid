@@ -111,8 +111,12 @@ class _MyHomePageState extends State<MyHomePage> {
         items: widget.exampleData,
         itemTapped: (row) => print(row.name),
         pageSize: 30,
-        pagingMode: PagingMode.pager,
+        pagingMode: PagingMode.auto,
         columns: [
+          WidgetColumn(
+            widget: (item) => Icon(Icons.check, color: Colors.green),
+            xsCols: 1,
+          ),
           IntColumn(
             xsCols: 2,
             fieldName: "id",
@@ -124,8 +128,8 @@ class _MyHomePageState extends State<MyHomePage> {
             value: (row) => row.id,
           ),
           StringColumn(
-            xsCols: 6,
-            mediumCols: 3,
+            xsCols: 5,
+            mediumCols: 2,
             fieldName: "name",
             filterRules: StringFilterRules(
               hintText: "Name",
