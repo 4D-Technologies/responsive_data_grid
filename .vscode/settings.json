@@ -1,4 +1,5 @@
 {
   "csharp.testsCodeLens.enabled": true,
-  "dotnet-test-explorer.testProjectPath": "dotnet/**/*Tests.@(csproj|vbproj|fsproj)"
+  "dotnet-test-explorer.testProjectPath": "dotnet/**/*Tests.@(csproj|vbproj|fsproj)",
+  "dart.previewVsCodeTestRunner": true
 }

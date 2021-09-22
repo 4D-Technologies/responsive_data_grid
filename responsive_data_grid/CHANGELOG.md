@@ -1,4 +1,4 @@
-## [0.0.17] - September 10th, 2021
+## [0.0.21] - September 10th, 2021
 
 1. Added Pager control with paging functionality instead of just infinite scroll. Does not have the page numbers, just forward and back for now. Next step will be adding them.
 2. Added pagerMode property that defaults to automatic which prefers infinite scroll, but in cases where there is unbounded height it will automatically use the pager and size the grid according to the contents.

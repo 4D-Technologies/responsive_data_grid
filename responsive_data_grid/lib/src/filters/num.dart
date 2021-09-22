@@ -174,7 +174,7 @@ class DataGridNumColumnFilterState<TItem extends Object>
                         logicalOperator: op!,
                         op: Logic.and,
                         values:
-                            [nValue, nValue2].where((e) => e != null).toList(),
+                            [nValue, nValue2].where((e) => e != null).cast<num>().toList(),
                       ),
                     ),
               icon: Icon(Icons.save),

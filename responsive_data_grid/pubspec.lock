@@ -42,7 +42,7 @@ packages:
       name: client_filtering
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.0.16"
+    version: "0.0.17"
   clock:
     dependency: transitive
     description:

@@ -29,8 +29,11 @@ class _ResponsiveGridInfiniteScrollBodyWidgetState<TItem extends Object>
 
     pageSize = widget.gridState.widget.pageSize;
 
-    if (widget.gridState.widget.items != null)
+    if (widget.gridState.widget.items != null) {
       _allItems = _applyCriteria(widget.gridState);
+    } else {
+      _allItems = null;
+    }
 
     _controller.addPageRequestListener((pageKey) => _fetchPage(pageKey));
   }

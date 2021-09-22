@@ -127,7 +127,7 @@ class DataGridStringColumnFilterState<TItem extends Object>
                         fieldName: widget.definition.fieldName,
                         logicalOperator: op!,
                         op: Logic.and,
-                        values: [searchText],
+                        values: [searchText!],
                       ),
                     ),
               icon: Icon(Icons.save),

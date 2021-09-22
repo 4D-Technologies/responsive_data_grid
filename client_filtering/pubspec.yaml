@@ -1,6 +1,6 @@
 name: client_filtering
 description: Allows dynamic client filtering through a set of models
-version: 0.0.16
+version: 0.0.18
 homepage: https://github.com/Concerti-IO/responsive_data_grid/client_filtering
 repository: https://github.com/Concerti-IO/responsive_data_grid
 

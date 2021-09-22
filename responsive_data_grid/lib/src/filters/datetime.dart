@@ -170,8 +170,10 @@ class DataGridDateTimeColumnFilterState<TItem extends Object>
                         fieldName: widget.definition.fieldName,
                         logicalOperator: op!,
                         op: Logic.and,
-                        values:
-                            [dtStart, dtEnd].where((e) => e != null).toList(),
+                        values: [dtStart, dtEnd]
+                            .where((e) => e != null)
+                            .cast<DateTime>()
+                            .toList(),
                       ),
                     ),
               icon: Icon(Icons.save),

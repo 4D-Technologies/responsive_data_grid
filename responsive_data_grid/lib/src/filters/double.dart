@@ -175,8 +175,10 @@ class DataGridDoubleColumnFilterState<TItem extends Object>
                         fieldName: widget.definition.fieldName,
                         logicalOperator: op!,
                         op: Logic.and,
-                        values:
-                            [dValue, dValue2].where((e) => e != null).toList(),
+                        values: [dValue, dValue2]
+                            .where((e) => e != null)
+                            .cast<double>()
+                            .toList(),
                       ),
                     ),
               icon: Icon(Icons.save),

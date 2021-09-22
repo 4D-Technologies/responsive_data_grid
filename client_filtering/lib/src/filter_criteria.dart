@@ -4,7 +4,7 @@ class FilterCriteria<TValue extends dynamic> with IJsonable {
   final String fieldName;
   final Logic op;
   final Operators logicalOperator;
-  final List<TValue?> values;
+  final List<TValue> values;
 
   const FilterCriteria({
     required this.fieldName,
@@ -17,8 +17,8 @@ class FilterCriteria<TValue extends dynamic> with IJsonable {
     required this.fieldName,
     required this.op,
     required this.logicalOperator,
-    required TValue? value,
-  }) : values = List<TValue?>.from(<TValue?>[value], growable: true);
+    required TValue value,
+  }) : values = List<TValue>.from(<TValue>[value], growable: true);
 
   FilterCriteria.between({
     required this.fieldName,
@@ -26,7 +26,7 @@ class FilterCriteria<TValue extends dynamic> with IJsonable {
     required this.logicalOperator,
     required TValue value1,
     required TValue value2,
-  }) : values = List<TValue?>.from(<TValue?>[value1, value2], growable: true);
+  }) : values = List<TValue>.from(<TValue>[value1, value2], growable: true);
 
   @override
   bool operator ==(Object other) {
@@ -51,7 +51,7 @@ class FilterCriteria<TValue extends dynamic> with IJsonable {
     String Function()? fieldName,
     Logic Function()? op,
     Operators Function()? logicalOperator,
-    List<TValue?> Function()? values,
+    List<TValue> Function()? values,
   }) {
     return FilterCriteria<TValue>(
       fieldName: fieldName == null ? this.fieldName : fieldName(),
@@ -73,7 +73,7 @@ class FilterCriteria<TValue extends dynamic> with IJsonable {
       'fieldName': fieldName,
       'op': serializeEnumString(op.toString()),
       'logicalOperator': serializeEnumString(logicalOperator.toString()),
-      'values': values.map((e) => _valueToString(e)),
+      'values': values.map((e) => _valueToString(e)).toList(),
     } as Map<String, dynamic>;
   }
 
@@ -86,15 +86,13 @@ class FilterCriteria<TValue extends dynamic> with IJsonable {
         map['logicalOperator'].toString(),
         Operators.values,
       ),
-      values: (map['values'] as List<String?>)
+      values: (map['values'] as List<String>)
           .map((e) => _parseValue<TValue>(e))
           .toList(growable: true),
     );
   }
 
-  static TValue? _parseValue<TValue extends dynamic>(String? value) {
-    if (value == null) return null;
-
+  static TValue _parseValue<TValue extends dynamic>(String value) {
     switch (TValue) {
       case double:
         return double.parse(value) as TValue;
@@ -118,9 +116,7 @@ class FilterCriteria<TValue extends dynamic> with IJsonable {
     }
   }
 
-  static String? _valueToString<TValue extends dynamic>(TValue? value) {
-    if (value == null) return null;
-
+  static String? _valueToString<TValue extends dynamic>(TValue value) {
     switch (TValue) {
       case DateTime:
         return (value as DateTime).toIso8601String();
@@ -128,6 +124,7 @@ class FilterCriteria<TValue extends dynamic> with IJsonable {
         final tod = (value as TimeOfDay);
         return DateTime(1, 1, 1, tod.hour, tod.minute).toIso8601String();
       default:
+        if (value is Enum) return serializeEnumString(value.toString());
         return value.toString();
     }
   }

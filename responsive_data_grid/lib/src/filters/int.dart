@@ -170,8 +170,10 @@ class DataGridIntColumnFilterState<TItem extends Object>
                         fieldName: widget.definition.fieldName,
                         logicalOperator: op!,
                         op: Logic.and,
-                        values:
-                            [iValue, iValue2].where((e) => e != null).toList(),
+                        values: [iValue, iValue2]
+                            .where((e) => e != null)
+                            .cast<int>()
+                            .toList(),
                       ),
                     ),
               icon: Icon(Icons.save),

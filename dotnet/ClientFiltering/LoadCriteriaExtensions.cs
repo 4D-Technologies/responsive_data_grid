@@ -110,7 +110,7 @@ namespace ClientFiltering
 
             var constantValues = Expression.Constant(criteria.Values);
 
-            var constantValue = GetConstantValue(property, criteria.Values.First());
+            var constantValue = GetConstantValue(property, criteria.Values.Any() ? criteria.Values.First() : null);
 
             var arrayContains = typeof(Enumerable).GetMethods(BindingFlags.Static | BindingFlags.Public)
                 .Single(x => x.Name == "Contains" && x.GetParameters().Length == 2)

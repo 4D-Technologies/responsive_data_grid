@@ -152,7 +152,7 @@ class DataGridDurationColumnFilterState<TItem extends Object>
                         logicalOperator: op!,
                         op: Logic.and,
                         values:
-                            [dValue1, dValue2].where((e) => e != null).toList(),
+                            [dValue1, dValue2].where((e) => e != null).cast<Duration>().toList(),
                       ),
                     ),
               icon: Icon(Icons.save),

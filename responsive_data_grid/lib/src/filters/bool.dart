@@ -78,7 +78,7 @@ class DataGridBoolColumnFilterState<TItem extends Object>
                         fieldName: widget.definition.fieldName,
                         logicalOperator: Operators.equals,
                         op: Logic.and,
-                        values: [value],
+                        values: [value!],
                       ),
                     ),
               icon: Icon(Icons.save),

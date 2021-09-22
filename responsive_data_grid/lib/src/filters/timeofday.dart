@@ -147,7 +147,10 @@ class DataGridTimeOfDayColumnFilterState<TItem extends Object>
                         fieldName: widget.definition.fieldName,
                         logicalOperator: op!,
                         op: Logic.and,
-                        values: [tStart, tEnd].where((e) => e != null).toList(),
+                        values: [tStart, tEnd]
+                            .where((e) => e != null)
+                            .cast<TimeOfDay>()
+                            .toList(),
                       ),
                     ),
               icon: Icon(Icons.save),
