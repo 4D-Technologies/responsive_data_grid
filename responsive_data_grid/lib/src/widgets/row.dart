@@ -39,7 +39,13 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
       child: Padding(
         padding: this.padding,
         child: BootstrapRow(
-          crossAxisAlignment: grid!.rowCrossAxisAlignment,
+          crossAxisAlignment:
+              grid!.rowCrossAxisAlignment == CrossAxisAlignment.start ||
+                      grid.rowCrossAxisAlignment == CrossAxisAlignment.stretch
+                  ? WrapCrossAlignment.start
+                  : grid.rowCrossAxisAlignment == CrossAxisAlignment.center
+                      ? WrapCrossAlignment.center
+                      : WrapCrossAlignment.end,
           children: getColumns(context, item),
           totalSegments: grid.reactiveSegments,
         ),

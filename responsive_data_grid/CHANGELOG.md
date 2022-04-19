@@ -1,3 +1,10 @@
+## [0.0.24] - April 19th, 2022
+
+- Update to Dart 2.16
+- Update to Flutter 2.10
+- Update Github repro address
+- Fix issue with latest Bootstrap_grid.
+
 ## [0.0.21] - September 10th, 2021
 
 1. Added Pager control with paging functionality instead of just infinite scroll. Does not have the page numbers, just forward and back for now. Next step will be adding them.

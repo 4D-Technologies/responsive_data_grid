@@ -20,7 +20,7 @@ class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
             ?.resolve(MaterialState.values.toSet()) ??
         (colorScheme.brightness == Brightness.dark
             ? colorScheme.secondary
-            : colorScheme.secondaryVariant);
+            : colorScheme.secondaryContainer);
 
     final foregroundColor = theme.dataTableTheme.headingTextStyle?.color ??
         (colorScheme.brightness == Brightness.dark
@@ -38,7 +38,13 @@ class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
           padding: grid.contentPadding,
           child: BootstrapRow(
             children: getColumnHeaders(context),
-            crossAxisAlignment: grid.headerCrossAxisAlignment,
+            crossAxisAlignment: grid.headerCrossAxisAlignment ==
+                        CrossAxisAlignment.start ||
+                    grid.headerCrossAxisAlignment == CrossAxisAlignment.stretch
+                ? WrapCrossAlignment.start
+                : grid.headerCrossAxisAlignment == CrossAxisAlignment.center
+                    ? WrapCrossAlignment.center
+                    : WrapCrossAlignment.end,
             totalSegments: grid.reactiveSegments,
           ),
         ),
