@@ -1,3 +1,5 @@
+## [0.0.20] - May 18th, 2022
+
 ## [0.0.19] - April 19th, 2022
 
 - Updated to Dart 2.16

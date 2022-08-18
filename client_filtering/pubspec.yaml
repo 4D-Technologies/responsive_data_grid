@@ -1,18 +1,18 @@
 name: client_filtering
 description: Allows dynamic client filtering through a set of models
-version: 0.0.19
+version: 0.0.20
 homepage: https://github.com/4D-Technologies/responsive_data_grid/client_filtering
 repository: https://github.com/4D-Technologies/responsive_data_grid
 
 environment:
-  sdk: ">=2.16.0 <3.0.0"
+  sdk: ">=2.17.0 <3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
 
 dev_dependencies:
-  lints: ^1.0.1
+  lints: ^2.0.0
   flutter_test:
     sdk: flutter
 

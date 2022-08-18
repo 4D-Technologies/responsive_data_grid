@@ -1,0 +1,11 @@
+{
+	"extends": "../../tsconfig.json",
+	"compilerOptions": {
+		"strict": true,
+		"forceConsistentCasingInFileNames": true,
+		"outDir": "../../out-tsc/spec",
+		"types": ["jasmine", "node"]
+	},
+	"files": ["src/test.ts"],
+	"include": ["**/*.spec.ts", "**/*.d.ts"]
+}

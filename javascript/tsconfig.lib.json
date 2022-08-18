@@ -1,0 +1,51 @@
+{
+	"extends": "../../tsconfig.json",
+	"compilerOptions": {
+		"strict": true,
+		"forceConsistentCasingInFileNames": true,
+		"outDir": "../../out-tsc/lib",
+		"declarationMap": true,
+		"target": "es2020",
+		"module": "es2020",
+		"declaration": true,
+		"inlineSources": true,
+		"types": [],
+		"lib": [
+			"dom",
+			"es2020"
+		],
+		"paths": {
+			"@angular/*": [
+				"./node_modules/@angular/*"
+			],
+			"@progress/*": [
+				"./node_modules/@progress/*"
+			],
+			"rxjs": [
+				"./node_modules/rxjs"
+			],
+			"rxjs/*": [
+				"./node_modules/rxjs/*"
+			],
+			"cadlearning.dto": [
+				"./node_modules/cadlearning.dto"
+			],
+			"cadlearning.dto/*": [
+				"./node_modules/cadlearning.dto/*"
+			]
+		},
+		"experimentalDecorators": true
+	},
+	"angularCompilerOptions": {
+		"skipTemplateCodegen": true,
+		"strictMetadataEmit": true,
+		"fullTemplateTypeCheck": true,
+		"strictInjectionParameters": true,
+		"enableResourceInlining": true,
+		"compilationMode": "partial"
+	},
+	"exclude": [
+		"src/test.ts",
+		"**/*.spec.ts"
+	]
+}
