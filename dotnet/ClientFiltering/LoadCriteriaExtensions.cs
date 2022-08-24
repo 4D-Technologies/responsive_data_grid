@@ -13,7 +13,7 @@ public static class LoadCriteriaExtensions
 {
     public static Logic ToLogic(this Expression expression, bool isParentNot = false)
     {
-        switch(expression.NodeType)
+        switch (expression.NodeType)
         {
             case ExpressionType.Equal:
                 return Logic.Equals;
@@ -55,32 +55,31 @@ public static class LoadCriteriaExtensions
 
 
     public static IQueryable<T> ApplyLoadCriteria<T>(this IQueryable<T> query, LoadCriteria? criteria)
-        where T : class
     {
         if (criteria == null)
             return query;
 
-        if (criteria.FilterBy != null && criteria.FilterBy.Any())
+        if (criteria.Value.FilterBy != null && criteria.Value.FilterBy.Any())
         {
             var param = Expression.Parameter(typeof(T), "p");
             var predicates = new List<(Operators, Expression)>();
-            foreach (var filterBy in criteria.FilterBy)
+            foreach (var filterBy in criteria.Value.FilterBy)
                 predicates.Add((filterBy.Op, CreateFilterExpression<T>(filterBy, param)));
 
             query = query.ApplyFilterPredicates(predicates, param);
         }
 
-        if (criteria.OrderBy != null && criteria.OrderBy.Any())
+        if (criteria.Value.OrderBy != null && criteria.Value.OrderBy.Any())
         {
-            for (var pos = 0; pos < criteria.OrderBy.Count(); pos++)
-                query = query.ApplyOrderByCriteria(criteria.OrderBy.ElementAt(pos), pos == 0);
+            for (var pos = 0; pos < criteria.Value.OrderBy.Count(); pos++)
+                query = query.ApplyOrderByCriteria(criteria.Value.OrderBy.ElementAt(pos), pos == 0);
         }
 
-        if (criteria.Skip != null)
-            query = query.Skip(criteria.Skip.Value);
+        if (criteria.Value.Skip != null)
+            query = query.Skip(criteria.Value.Skip.Value);
 
-        if (criteria.Take != null)
-            query = query.Take(criteria.Take.Value);
+        if (criteria.Value.Take != null)
+            query = query.Take(criteria.Value.Take.Value);
 
         return query;
     }
@@ -141,7 +140,6 @@ public static class LoadCriteriaExtensions
     }
 
     private static Expression CreateFilterExpression<T>(FilterCriteria criteria, ParameterExpression param)
-            where T : class
     {
 
         var fields = criteria.FieldName.Split('.');
@@ -152,24 +150,29 @@ public static class LoadCriteriaExtensions
         if (field == null)
             throw new InvalidOperationException($"The field '{fields[0]}' does not exist in {typeof(T).Name}.");
 
-        
+
 
         var property = Expression.Property(param, field.Name);
 
-        foreach (var sField in fields.Skip(1))
+        if (fields.Length > 1)
         {
-            field = field?.PropertyType.GetProperties()
-                        .FirstOrDefault(p => string.Equals(p.Name, sField, StringComparison.OrdinalIgnoreCase));
+            foreach (var sField in fields.Skip(1))
+            {
+                field = field?.PropertyType.GetProperties()
+                            .FirstOrDefault(p => string.Equals(p.Name, sField, StringComparison.OrdinalIgnoreCase));
 
-            if (field == null)
-                throw new InvalidOperationException($"The field '{criteria.FieldName}' does not exist in {typeof(T).Name}.");
+                if (field == null)
+                    throw new InvalidOperationException($"The field '{criteria.FieldName}' does not exist in {typeof(T).Name}.");
 
-            property = Expression.Property(property, field.Name);
+                property = Expression.Property(property, field.Name);
+            }
         }
 
 
-        var values = (criteria.Values?.Select(v => GetConstantValue(property, v)).ToArray() ??
-            new ConstantExpression[] { Expression.Constant(null) })!;
+        var values = criteria.Values.Select(v => GetConstantValue(property, v)).ToArray();
+
+        if (!values.Any())
+            throw new InvalidOperationException("There must be at least a single value passed in a filter.");
 
         var arrayConstant = Expression.Constant(values);
 
@@ -189,6 +192,7 @@ public static class LoadCriteriaExtensions
                 }
                 else
                 {
+
                     expression = Expression.Equal(property, values[0]);
                 }
                 break;

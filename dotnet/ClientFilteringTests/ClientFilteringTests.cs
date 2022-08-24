@@ -22,7 +22,7 @@ namespace ClientFilteringTests
 
             var names = new[] { "Test User", "Testing" };
 
-            var criteria = LoadCriteria.FromExpressions<Contact>(c => c.Name == "Test User" && c.Id == id, null, null, new OrderCriteria { FieldName = nameof(Contact.Name), Direction = OrderDirections.Ascending});
+            var criteria = LoadCriteria.FromExpressions<Contact>(c => c.Name == "Test User" && c.Id == id, null, null, new OrderCriteria { FieldName = nameof(Contact.Name), Direction = OrderDirections.Ascending });
 
             var results = contacts.AsQueryable().ApplyLoadCriteria(criteria).ToArray();
 
@@ -81,9 +81,7 @@ namespace ClientFilteringTests
                 }
             };
 
-            var results = contacts.AsQueryable().ApplyLoadCriteria(criteria).ToArray();
-
-            results.Should().HaveCount(0);
+            Assert.Throws<InvalidOperationException>(() => contacts.AsQueryable().ApplyLoadCriteria(criteria));
         }
     }
 }

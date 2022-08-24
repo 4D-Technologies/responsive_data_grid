@@ -13,7 +13,7 @@ namespace ClientFiltering.Models;
 /// Load Crtieria for api calls that return lists
 /// </summary>
 [DataContract]
-public record LoadCriteria
+public record struct LoadCriteria
 {
     /// <summary>
     /// How far to skip into the records? (for paging)
@@ -38,7 +38,6 @@ public record LoadCriteria
 
 
     public static LoadCriteria FromExpressions<TSource>(Expression<Func<TSource, bool>>? filterBy = null, int? skip = null, int? take = null, params OrderCriteria[] orderBy)
-        where TSource : class
     {
         var filters = new List<FilterCriteria>();
 

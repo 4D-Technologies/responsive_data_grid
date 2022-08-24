@@ -10,18 +10,18 @@ namespace ClientFiltering.Models
     /// How Order by shall be executed
     /// </summary>
     [DataContract]
-    public record OrderCriteria
+    public record struct OrderCriteria
     {
         /// <summary>
         /// The Field to be ordered
         /// </summary>
         [DataMember]
-        public string FieldName { get; init; } = null!;
+        public string FieldName { get; init; }
         /// <summary>
         /// The direction to order it
         /// </summary>
         [DataMember]
         [JsonConverter(typeof(JsonStringEnumConverter))]
-        public OrderDirections Direction { get; init; } = OrderDirections.Ascending;
+        public OrderDirections Direction { get; init; }
     }
 }
