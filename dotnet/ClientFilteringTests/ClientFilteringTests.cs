@@ -83,5 +83,38 @@ namespace ClientFilteringTests
 
             Assert.Throws<InvalidOperationException>(() => contacts.AsQueryable().ApplyLoadCriteria(criteria));
         }
+
+        [Fact]
+        public void OrderBySubProperties()
+        {
+            var contact = new Contact(Id: Guid.NewGuid().ToString(),
+                                        Name: "Test User",
+                                        DateOfBirth: new DateTime(1977, 6, 17),
+                                        Child: new Contact(Id: Guid.NewGuid().ToString(), Name: "Test Child", new DateTime(2010, 1, 26))
+                                        );
+
+            var contacts = new List<Contact>(new[] { contact });
+
+            var criteria = new LoadCriteria
+            {
+                OrderBy = new[] {new OrderCriteria {
+                    Direction = OrderDirections.Ascending,
+                    FieldName = "Child.Name",
+                },},
+                FilterBy = new[] {
+                    new FilterCriteria {
+                        FieldName = nameof(Contact.Name),
+                        LogicalOperator = Logic.Equals,
+                        Values = new [] {"Test User"},
+                    }
+                }
+            };
+
+            var query = contacts.AsQueryable().ApplyLoadCriteria(criteria);
+            var results = query.ToArray();
+
+            results.Should().HaveCount(1);
+            results.First().Name.Should().BeEquivalentTo("Test User");
+        }
     }
 }

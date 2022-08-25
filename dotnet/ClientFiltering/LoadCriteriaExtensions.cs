@@ -96,16 +96,39 @@ public static class LoadCriteriaExtensions
 
         var command = isFirst ? descending ? "OrderByDescending" : "OrderBy" : descending ? "ThenByDescending" : "ThenBy";
 
-        var property = typeof(T).GetProperty(orderBy.FieldName) ?? throw new ArgumentOutOfRangeException(orderBy.FieldName, "The property could not be found.");
+        var fields = orderBy.FieldName.Split('.');
+
+        var field = typeof(T).GetProperties()
+                            .FirstOrDefault(p => string.Equals(p.Name, fields[0], StringComparison.OrdinalIgnoreCase));
+
+        if (field == null)
+            throw new InvalidOperationException($"The field '{fields[0]}' does not exist in {typeof(T).Name}.");
+
+        var property = Expression.Property(parameter, field.Name);
+
+        if (fields.Length > 1)
+        {
+            foreach (var sField in fields.Skip(1))
+            {
+                field = field?.PropertyType.GetProperties()
+                            .FirstOrDefault(p => string.Equals(p.Name, sField, StringComparison.OrdinalIgnoreCase));
+
+                if (field == null)
+                    throw new InvalidOperationException($"The field '{orderBy.FieldName}' does not exist in {typeof(T).Name}.");
+
+                property = Expression.Property(property, field.Name);
+            }
+        }
+
         // this is the part p.SortColumn
-        var propertyAccess = Expression.MakeMemberAccess(parameter, property);
+        var propertyAccess = Expression.MakeMemberAccess(parameter, field);
         // this is the part p =&gt; p.SortColumn
         var orderByExpression = Expression.Lambda(propertyAccess, parameter);
 
         var resultExpression = Expression.Call(
             typeof(Queryable),
             command,
-            new Type[] { typeof(T), property.PropertyType },
+            new Type[] { typeof(T), field.PropertyType },
             query.Expression,
             Expression.Quote(orderByExpression));
 
