@@ -120,10 +120,8 @@ public static class LoadCriteriaExtensions
             }
         }
 
-        // this is the part p.SortColumn
-        var propertyAccess = Expression.MakeMemberAccess(parameter, field);
         // this is the part p =&gt; p.SortColumn
-        var orderByExpression = Expression.Lambda(propertyAccess, parameter);
+        var orderByExpression = Expression.Lambda(property, parameter);
 
         var resultExpression = Expression.Call(
             typeof(Queryable),
