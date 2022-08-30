@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 using ClientFiltering.Enums;
 using ClientFiltering.Models;
 
@@ -53,21 +54,12 @@ public static class LoadCriteriaExtensions
         }
     }
 
-
     public static IQueryable<T> ApplyLoadCriteria<T>(this IQueryable<T> query, LoadCriteria? criteria)
     {
         if (criteria == null)
             return query;
 
-        if (criteria.Value.FilterBy != null && criteria.Value.FilterBy.Any())
-        {
-            var param = Expression.Parameter(typeof(T), "p");
-            var predicates = new List<(Operators, Expression)>();
-            foreach (var filterBy in criteria.Value.FilterBy)
-                predicates.Add((filterBy.Op, CreateFilterExpression<T>(filterBy, param)));
-
-            query = query.ApplyFilterPredicates(predicates, param);
-        }
+        query = ApplyFilterCriteria(query, criteria.Value.FilterBy);
 
         if (criteria.Value.OrderBy != null && criteria.Value.OrderBy.Any())
         {
@@ -80,6 +72,23 @@ public static class LoadCriteriaExtensions
 
         if (criteria.Value.Take != null)
             query = query.Take(criteria.Value.Take.Value);
+
+        return query;
+    }
+
+
+    public static IQueryable<T> ApplyFilterCriteria<T>(this IQueryable<T> query, IEnumerable<FilterCriteria>? filterCriteria)
+    {
+        if (filterCriteria == null || !filterCriteria.Any())
+            return query;
+
+
+        var param = Expression.Parameter(typeof(T), "p");
+        var predicates = new List<(Operators, Expression)>();
+        foreach (var filterBy in filterCriteria)
+            predicates.Add((filterBy.Op, CreateFilterExpression<T>(filterBy, param)));
+
+        query = query.ApplyFilterPredicates(predicates, param);
 
         return query;
     }
