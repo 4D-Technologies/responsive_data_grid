@@ -205,7 +205,7 @@ public static class LoadCriteriaExtensions
                 sb.AppendLine("}");
             }
 
-            object[] obj = await source2.Select(sb.ToString()).ToDynamicArrayAsync(cancellationToken);
+            object[]? obj = await source2?.Select(sb.ToString()).ToDynamicArrayAsync(cancellationToken);
             List<GroupValueResult> list = new();
             object[] array = obj;
             foreach (dynamic val in array)
