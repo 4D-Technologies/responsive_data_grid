@@ -2,16 +2,244 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using ClientFiltering.Enums;
 using ClientFiltering.Models;
+
+using GroupResult = ClientFiltering.Models.GroupResult;
 
 namespace ClientFiltering;
 
 public static class LoadCriteriaExtensions
 {
+    public static async Task<Result<TEntity>> GetCriteriaResult<TEntity>(this IQueryable<TEntity> query, LoadCriteria? criteria, CancellationToken cancellationToken = default) where TEntity : class
+    {
+        IQueryable<TEntity> filteredAndOrderedResult = query.ApplyLoadCriteria(criteria);
+
+        IEnumerable<GroupResult> groupResults = await query.CreateGroupResultsFromAppliedCriteria(filteredAndOrderedResult, criteria?.GroupBy?.ToArray(), cancellationToken);
+
+        IEnumerable<AggregateResult> aggregates = await query.CreateAggregatesFromAppliedCriteria(criteria?.Aggregates?.ToArray(), cancellationToken);
+
+        var result = new Result<TEntity>
+        {
+            Items = filteredAndOrderedResult,
+            Groups = groupResults,
+            Aggregates = aggregates,
+        };
+
+        return result;
+    }
+
+    public static async Task<IEnumerable<AggregateResult>> CreateAggregatesFromAppliedCriteria<T>(this IQueryable<T> rawQuery, AggregateCriteria[]? criteria, CancellationToken cancellationToken = default)
+    {
+        if (criteria == null || !criteria.Any())
+        {
+            return Enumerable.Empty<AggregateResult>();
+        }
+
+        StringBuilder sb = new("new {");
+        for (int i = 0; i < criteria!.Length; i++)
+        {
+            AggregateCriteria aggregateCriteria = criteria[i];
+            switch (aggregateCriteria.Aggregation)
+            {
+                case Aggregations.Sum:
+                    {
+                        sb.Append("\tSum(");
+                        sb.Append(aggregateCriteria.FieldName);
+                        sb.Append(") as V");
+                        sb.Append(i);
+                        sb.Append(',');
+                        sb.AppendLine();
+                        break;
+                    }
+                case Aggregations.Average:
+                    {
+                        sb.Append("\tAverage(");
+                        sb.Append(aggregateCriteria.FieldName);
+                        sb.Append(") as V");
+                        sb.Append(i);
+                        sb.Append(',');
+                        sb.AppendLine();
+                        break;
+                    }
+                case Aggregations.Count:
+                    {
+                        sb.Append("\tCount() as V");
+                        sb.Append(i);
+                        sb.Append(',');
+                        sb.AppendLine();
+                        break;
+                    }
+                case Aggregations.Maximum:
+                    {
+                        sb.Append("\tMax(");
+                        sb.Append(aggregateCriteria.FieldName);
+                        sb.Append(") as V");
+                        sb.Append(i);
+                        sb.Append(',');
+                        sb.AppendLine();
+                        break;
+                    }
+                case Aggregations.Minimum:
+                    {
+                        sb.Append("\tMin(");
+                        sb.Append(aggregateCriteria.FieldName);
+                        sb.Append(") as V");
+                        sb.Append(i);
+                        sb.Append(',');
+                        sb.AppendLine();
+                        break;
+                    }
+            }
+
+            sb.AppendLine("}");
+        }
+
+        object[] array = await (from g in rawQuery
+                                group g by true).Select(sb.ToString()).ToDynamicArrayAsync(cancellationToken);
+        List<AggregateResult> list = new List<AggregateResult>();
+        for (int j = 0; j < criteria!.Length; j++)
+        {
+            AggregateCriteria aggregateCriteria2 = criteria[j];
+            object? value = array.GetType().GetProperties()[j].GetValue(array);
+            list.Add(new AggregateResult
+            {
+                Aggregation = aggregateCriteria2.Aggregation,
+                FieldName = aggregateCriteria2.FieldName,
+                Result = (value == null) ? null : ((value.GetType() == typeof(DateTimeOffset)) ? ((DateTimeOffset)value).ToString("o") : ((value.GetType() == typeof(DateTime)) ? ((DateTime)value).ToString("o") : value.ToString()))
+            });
+        }
+
+        return list;
+    }
+
+    public static async Task<IEnumerable<GroupResult>> CreateGroupResultsFromAppliedCriteria<T>(this IQueryable<T> rawQuery, IQueryable<T> resultQuery, GroupCriteria[]? groups, CancellationToken cancellationToken = default)
+    {
+        if (groups == null || !groups.Any())
+        {
+            return Enumerable.Empty<GroupResult>();
+        }
+
+        List<GroupResult> results = new();
+        for (int i = 0; i < groups!.Length; i++)
+        {
+            GroupCriteria groupBy = groups[i];
+            if (!groupBy.Aggregates.Any())
+            {
+                results.Add(new GroupResult
+                {
+                    FieldName = groupBy.FieldName,
+                    Values = Enumerable.Empty<GroupValueResult>()
+                });
+                continue;
+            }
+
+            var source = rawQuery.GroupBy(groupBy.FieldName) as IQueryable<IGrouping<object, T>>;
+
+            object[] groupValues = ((IQueryable<IGrouping<object, T>>)resultQuery.GroupBy(groupBy.FieldName)).Select((IGrouping<object, T> r) => r.Key).Distinct().ToArray();
+
+            var source2 = source?.Where((IGrouping<object, T> g) => groupValues.Contains(g.Key));
+            var sb = new StringBuilder("new {");
+            sb.AppendLine("\tKey,");
+            for (int j = 0; j < groupBy.Aggregates.Count(); j++)
+            {
+                AggregateCriteria aggregateCriteria = groupBy.Aggregates.ElementAt(j);
+                switch (aggregateCriteria.Aggregation)
+                {
+                    case Aggregations.Sum:
+                        {
+                            sb.Append("\tSum(");
+                            sb.Append(aggregateCriteria.FieldName);
+                            sb.Append(") as V");
+                            sb.Append(j);
+                            sb.Append(',');
+                            sb.AppendLine();
+                            break;
+                        }
+                    case Aggregations.Average:
+                        {
+                            sb.Append("\tAverage(");
+                            sb.Append(aggregateCriteria.FieldName);
+                            sb.Append(") as V");
+                            sb.Append(j);
+                            sb.Append(',');
+                            sb.AppendLine();
+                            break;
+                        }
+                    case Aggregations.Count:
+                        {
+                            sb.Append("\tCount() as V");
+                            sb.Append(j);
+                            sb.Append(',');
+                            sb.AppendLine();
+                            break;
+                        }
+                    case Aggregations.Maximum:
+                        {
+                            sb.Append("\tMax(");
+                            sb.Append(aggregateCriteria.FieldName);
+                            sb.Append(") as V");
+                            sb.Append(j);
+                            sb.Append(',');
+                            sb.AppendLine();
+                            break;
+                        }
+                    case Aggregations.Minimum:
+                        {
+                            sb.Append("\tMin(");
+                            sb.Append(aggregateCriteria.FieldName);
+                            sb.Append(") as V");
+                            sb.Append(j);
+                            sb.Append(',');
+                            sb.AppendLine();
+                            break;
+                        }
+                }
+
+                sb.AppendLine("}");
+            }
+
+            object[] obj = await source2.Select(sb.ToString()).ToDynamicArrayAsync(cancellationToken);
+            List<GroupValueResult> list = new();
+            object[] array = obj;
+            foreach (dynamic val in array)
+            {
+                List<AggregateResult> list2 = new();
+                for (int l = 0; l < groupBy.Aggregates.Count(); l++)
+                {
+                    AggregateCriteria aggregateCriteria2 = groupBy.Aggregates.ElementAt(l);
+                    object value = val.GetType().GetProperties()[l + 1].GetValue(val);
+                    list2.Add(new AggregateResult
+                    {
+                        Aggregation = aggregateCriteria2.Aggregation,
+                        FieldName = aggregateCriteria2.FieldName,
+                        Result = (value == null) ? null : ((value.GetType() == typeof(DateTimeOffset)) ? ((DateTimeOffset)value).ToString("o") : ((value.GetType() == typeof(DateTime)) ? ((DateTime)value).ToString("o") : value.ToString()))
+                    });
+                }
+
+                list.Add(new GroupValueResult
+                {
+                    Value = val.GetType().GetProperties()[0].GetValue(val).ToString(),
+                    Aggregates = list2
+                });
+            }
+
+            results.Add(new ClientFiltering.Models.GroupResult
+            {
+                FieldName = groupBy.FieldName,
+                Values = list
+            });
+        }
+
+        return results;
+    }
+
     public static Logic ToLogic(this Expression expression, bool isParentNot = false)
     {
         switch (expression.NodeType)
@@ -29,118 +257,125 @@ public static class LoadCriteriaExtensions
             case ExpressionType.GreaterThanOrEqual:
                 return Logic.GreaterThanOrEqualTo;
             case ExpressionType.AndAlso:
-                //Likely Between
-                var aa = (expression as BinaryExpression)!;
-                if (aa.Left.NodeType == ExpressionType.LessThanOrEqual && aa.Right.NodeType == ExpressionType.GreaterThanOrEqual)
-                    return Logic.Between;
-
-                throw new NotSupportedException($"The two part expression with left type of {aa.Left.NodeType} && right type of {aa.Right.NodeType} is not supported.");
-            case ExpressionType.Not:
-            case ExpressionType.Call:
-                MethodCallExpression mce;
-                if (expression is UnaryExpression ue)
-                    expression = ue.Operand;
-
-                mce = (expression as MethodCallExpression)!;
-                return mce.Method.Name.ToLower() switch
                 {
-                    "contains" => isParentNot ? Logic.NotContains : Logic.Contains,
-                    "startswith" => isParentNot ? Logic.NotStartsWith : Logic.StartsWith,
-                    "endswith" => isParentNot ? Logic.NotEndsWith : Logic.EndsWidth,
-                    _ => throw new NotSupportedException($"Expression type of {expression.NodeType} is not supported."),
-                };
+                    var binaryExpression = expression as BinaryExpression;
+                    if (binaryExpression?.Left.NodeType == ExpressionType.LessThanOrEqual && binaryExpression.Right.NodeType == ExpressionType.GreaterThanOrEqual)
+                        return Logic.Between;
+
+                    throw new InvalidOperationException();
+                }
+
+            case ExpressionType.Call:
+            case ExpressionType.Not:
+                {
+                    if (expression is UnaryExpression unaryExpression)
+                        expression = unaryExpression.Operand;
+
+                    return ((expression as MethodCallExpression)?.Method.Name.ToLower()) switch
+                    {
+                        "contains" => isParentNot ? Logic.NotContains : Logic.Contains,
+                        "startswith" => isParentNot ? Logic.NotStartsWith : Logic.StartsWith,
+                        "endswith" => isParentNot ? Logic.NotEndsWith : Logic.EndsWidth,
+                        _ => throw new NotSupportedException(),
+                    };
+                }
             default:
-                throw new NotSupportedException($"Expression type of {expression.NodeType} is not supported.");
+                throw new NotSupportedException();
         }
     }
 
     public static IQueryable<T> ApplyLoadCriteria<T>(this IQueryable<T> query, LoadCriteria? criteria)
     {
-        if (criteria == null)
+        if (!criteria.HasValue)
+        {
             return query;
+        }
 
-        query = ApplyFilterCriteria(query, criteria.Value.FilterBy);
+        query = query.ApplyFilterCriteria(criteria.Value.FilterBy);
+        if (criteria.Value.GroupBy != null && criteria.Value.GroupBy.Any())
+        {
+            for (int i = 0; i < criteria.Value.GroupBy.Count(); i++)
+            {
+                query = query.ApplyGroupByCriteria(criteria.Value.GroupBy.ElementAt(i), i == 0);
+            }
+        }
 
         if (criteria.Value.OrderBy != null && criteria.Value.OrderBy.Any())
         {
-            for (var pos = 0; pos < criteria.Value.OrderBy.Count(); pos++)
-                query = query.ApplyOrderByCriteria(criteria.Value.OrderBy.ElementAt(pos), pos == 0);
+            for (int j = 0; j < criteria.Value.OrderBy.Count(); j++)
+            {
+                query = query.ApplyOrderByCriteria(criteria.Value.OrderBy.ElementAt(j), j == 0);
+            }
         }
 
-        if (criteria.Value.Skip != null)
+        if (criteria.Value.Skip.HasValue)
+        {
             query = query.Skip(criteria.Value.Skip.Value);
+        }
 
-        if (criteria.Value.Take != null)
+        if (criteria.Value.Take.HasValue)
+        {
             query = query.Take(criteria.Value.Take.Value);
+        }
 
         return query;
     }
 
-
     public static IQueryable<T> ApplyFilterCriteria<T>(this IQueryable<T> query, IEnumerable<FilterCriteria>? filterCriteria)
     {
         if (filterCriteria == null || !filterCriteria.Any())
+        {
             return query;
-
+        }
 
         var param = Expression.Parameter(typeof(T), "p");
-        var predicates = new List<(Operators, Expression)>();
-        foreach (var filterBy in filterCriteria)
-            predicates.Add((filterBy.Op, CreateFilterExpression<T>(filterBy, param)));
+        List<(Operators, Expression)> list = new();
+        foreach (FilterCriteria item in filterCriteria!)
+        {
+            list.Add((item.Op, CreateFilterExpression<T>(item, param)));
+        }
 
-        query = query.ApplyFilterPredicates(predicates, param);
+        query = query.ApplyFilterPredicates(list, param);
+        return query;
+    }
 
+    public static IQueryable<T> ApplyGroupByCriteria<T>(this IQueryable<T> query, GroupCriteria groupBy, bool isFirst)
+    {
+        if (groupBy.Direction == OrderDirections.NotSet)
+            return query;
+
+        var flag = groupBy.Direction == OrderDirections.Descending;
+        var parameterExpression = Expression.Parameter(typeof(T), "p");
+        var methodName = (!isFirst) ? (flag ? "ThenByDescending" : "ThenBy") : (flag ? "OrderByDescending" : "OrderBy");
+        var propertyFromFieldName = GetPropertyFromFieldName<T>(groupBy.FieldName, parameterExpression);
+        var expression = Expression.Lambda(propertyFromFieldName, parameterExpression);
+        var expression2 = Expression.Call(typeof(Queryable), methodName, new Type[2]
+        {
+                typeof(T),
+                propertyFromFieldName.Type
+        }, query.Expression, Expression.Quote(expression));
+        query = query.Provider.CreateQuery<T>(expression2);
         return query;
     }
 
     public static IQueryable<T> ApplyOrderByCriteria<T>(this IQueryable<T> query, OrderCriteria orderBy, bool isFirst)
     {
         if (orderBy.Direction == OrderDirections.NotSet)
-            return query;
-
-        var descending = orderBy.Direction == OrderDirections.Descending;
-
-        // Dynamically creates a call like this: query.OrderBy(p =&gt; p.SortColumn)
-        var parameter = Expression.Parameter(typeof(T), "p");
-
-        var command = isFirst ? descending ? "OrderByDescending" : "OrderBy" : descending ? "ThenByDescending" : "ThenBy";
-
-        var fields = orderBy.FieldName.Split('.');
-
-        var field = typeof(T).GetProperties()
-                            .FirstOrDefault(p => string.Equals(p.Name, fields[0], StringComparison.OrdinalIgnoreCase));
-
-        if (field == null)
-            throw new InvalidOperationException($"The field '{fields[0]}' does not exist in {typeof(T).Name}.");
-
-        var property = Expression.Property(parameter, field.Name);
-
-        if (fields.Length > 1)
         {
-            foreach (var sField in fields.Skip(1))
-            {
-                field = field?.PropertyType.GetProperties()
-                            .FirstOrDefault(p => string.Equals(p.Name, sField, StringComparison.OrdinalIgnoreCase));
-
-                if (field == null)
-                    throw new InvalidOperationException($"The field '{orderBy.FieldName}' does not exist in {typeof(T).Name}.");
-
-                property = Expression.Property(property, field.Name);
-            }
+            return query;
         }
 
-        // this is the part p =&gt; p.SortColumn
-        var orderByExpression = Expression.Lambda(property, parameter);
-
-        var resultExpression = Expression.Call(
-            typeof(Queryable),
-            command,
-            new Type[] { typeof(T), field.PropertyType },
-            query.Expression,
-            Expression.Quote(orderByExpression));
-
-        query = query.Provider.CreateQuery<T>(resultExpression);
-
+        var flag = orderBy.Direction == OrderDirections.Descending;
+        var parameterExpression = Expression.Parameter(typeof(T), "p");
+        var methodName = (!isFirst) ? (flag ? "ThenByDescending" : "ThenBy") : (flag ? "OrderByDescending" : "OrderBy");
+        var propertyFromFieldName = GetPropertyFromFieldName<T>(orderBy.FieldName, parameterExpression);
+        var expression = Expression.Lambda(propertyFromFieldName, parameterExpression);
+        var expression2 = Expression.Call(typeof(Queryable), methodName, new Type[2]
+        {
+                typeof(T),
+                propertyFromFieldName.Type
+        }, query.Expression, Expression.Quote(expression));
+        query = query.Provider.CreateQuery<T>(expression2);
         return query;
     }
 
@@ -331,6 +566,31 @@ public static class LoadCriteriaExtensions
         {
             return Expression.Constant(value, property.Type);
         }
+    }
+
+    private static MemberExpression GetPropertyFromFieldName<T>(string fieldName, ParameterExpression parameter)
+    {
+        string[] fields = fieldName.Split('.');
+        var propertyInfo = typeof(T)!.GetProperties().FirstOrDefault((PropertyInfo p) => string.Equals(p.Name, fields[0], StringComparison.OrdinalIgnoreCase));
+        if (propertyInfo == null)
+            throw new InvalidOperationException();
+
+        MemberExpression memberExpression = Expression.Property(parameter, propertyInfo.Name);
+        if (fields.Length > 1)
+        {
+            foreach (string sField in fields.Skip(1))
+            {
+                propertyInfo = propertyInfo?.PropertyType.GetProperties().FirstOrDefault((PropertyInfo p) => string.Equals(p.Name, sField, StringComparison.OrdinalIgnoreCase));
+                if (propertyInfo == null)
+                    throw new InvalidOperationException();
+
+                memberExpression = Expression.Property(memberExpression, propertyInfo.Name);
+            }
+
+            return memberExpression;
+        }
+
+        return memberExpression;
     }
 }
 

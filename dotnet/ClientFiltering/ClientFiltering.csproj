@@ -25,4 +25,7 @@ Useful for working with Kendo UI for Web and Responsive_Data_Grid on Flutter wit
   <ItemGroup>
     <None Include="LICENSE" Pack="true" PackagePath="" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.20" />
+  </ItemGroup>
 </Project>

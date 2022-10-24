@@ -35,6 +35,18 @@ public record struct LoadCriteria
     /// </summary>
     [DataMember]
     public IEnumerable<OrderCriteria>? OrderBy { get; init; }
+    /// <summary>
+    /// Any Groups requested
+    /// </summary>
+    /// <value></value>
+    [DataMember]
+    public IEnumerable<GroupCriteria>? GroupBy { get; init; }
+    /// <summary>
+    /// Any Aggregate results
+    /// </summary>
+    /// <value></value>
+    [DataMember]
+    public IEnumerable<AggregateCriteria>? Aggregates { get; init; }
 
 
     public static LoadCriteria FromExpressions<TSource>(Expression<Func<TSource, bool>>? filterBy = null, int? skip = null, int? take = null, params OrderCriteria[] orderBy)
