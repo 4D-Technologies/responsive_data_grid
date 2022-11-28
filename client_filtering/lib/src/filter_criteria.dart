@@ -2,8 +2,8 @@ part of client_filtering;
 
 class FilterCriteria<TValue extends dynamic> with IJsonable {
   final String fieldName;
-  final Logic op;
-  final Operators logicalOperator;
+  final Operators op;
+  final Logic logicalOperator;
   final List<TValue> values;
 
   const FilterCriteria({
@@ -49,8 +49,8 @@ class FilterCriteria<TValue extends dynamic> with IJsonable {
 
   FilterCriteria<TValue> copyWith({
     String Function()? fieldName,
-    Logic Function()? op,
-    Operators Function()? logicalOperator,
+    Operators Function()? op,
+    Logic Function()? logicalOperator,
     List<TValue> Function()? values,
   }) {
     return FilterCriteria<TValue>(
@@ -81,11 +81,8 @@ class FilterCriteria<TValue extends dynamic> with IJsonable {
       Map<String, dynamic> map) {
     return FilterCriteria(
       fieldName: map['fieldName'].toString(),
-      op: deseralizeEnumString(map['op'].toString(), Logic.values),
-      logicalOperator: deseralizeEnumString(
-        map['logicalOperator'].toString(),
-        Operators.values,
-      ),
+      op: Operators.fromInt(map['op'] as int),
+      logicalOperator: Logic.fromInt(map['logicalOperator'] as int),
       values: (map['values'] as List<String>)
           .map((e) => _parseValue<TValue>(e))
           .toList(growable: true),

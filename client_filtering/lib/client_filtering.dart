@@ -10,6 +10,14 @@ part './src/filter_criteria.dart';
 part './src/load_criteria.dart';
 part './src/order_criteria.dart';
 part './src/ijsonable.dart';
+part './src/group_criteria.dart';
+part './src//group_result.dart';
+part './src/group_value_result.dart';
+part './src/aggregate_criteria.dart';
+part './src/aggregate_result.dart';
+
+part './src/simple_list_response.dart';
+part './src/list_response.dart';
 
 String serializeEnumString(String enumString) => enumString.split(".")[1];
 T deseralizeEnumString<T>(String enumString, List<T> enumValues) =>
@@ -40,4 +48,10 @@ class ClientFilteringLocalizedMessages {
 
   static var and = "And";
   static var or = "Or";
+
+  static var sum = "Sum";
+  static var average = "Average";
+  static var maximum = "Maximum";
+  static var minimum = "Minimum";
+  static var count = "Count";
 }

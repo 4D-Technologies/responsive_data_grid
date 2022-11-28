@@ -1,76 +1,125 @@
 part of client_filtering;
 
-enum Logic {
-  and,
-  or,
+enum Aggregations {
+  sum(1),
+  average(2),
+  maxium(3),
+  minimum(4),
+  count(5);
+
+  final int value;
+
+  const Aggregations(this.value);
+
+  factory Aggregations.fromInt(num i) =>
+      Aggregations.values.firstWhere((x) => x.value == i);
+
+  @override
+  String toString() {
+    switch (this) {
+      case Aggregations.sum:
+        return ClientFilteringLocalizedMessages.sum;
+      case Aggregations.average:
+        return ClientFilteringLocalizedMessages.average;
+      case Aggregations.maxium:
+        return ClientFilteringLocalizedMessages.maximum;
+      case Aggregations.minimum:
+        return ClientFilteringLocalizedMessages.minimum;
+      case Aggregations.count:
+        return ClientFilteringLocalizedMessages.count;
+    }
+  }
 }
 
 enum Operators {
-  equals,
-  lessThan,
-  greaterThan,
-  lessThanOrEqualTo,
-  greaterThanOrEqualTo,
-  contains,
-  notContains,
-  endsWidth,
-  startsWith,
-  notEqual,
-  notEndsWith,
-  notStartsWith,
-  between,
-}
+  and(1),
+  or(2);
 
-enum OrderDirections { notSet, ascending, descending }
+  final int value;
 
-enum SortableOptions { none, single, multiColumn }
+  const Operators(this.value);
 
-extension LogicExtensions on Logic {
-  String get description {
+  factory Operators.fromInt(num i) =>
+      Operators.values.firstWhere((x) => x.value == i);
+
+  @override
+  String toString() {
     switch (this) {
-      case Logic.and:
+      case Operators.and:
         return ClientFilteringLocalizedMessages.and;
-      case Logic.or:
+      case Operators.or:
         return ClientFilteringLocalizedMessages.or;
     }
   }
 }
 
-extension OperatorExtensions on Operators {
-  String get description {
+enum Logic {
+  equals(1),
+  lessThan(2),
+  greaterThan(3),
+  lessThanOrEqualTo(4),
+  greaterThanOrEqualTo(5),
+  contains(6),
+  notContains(7),
+  endsWidth(8),
+  startsWith(9),
+  notEqual(10),
+  notEndsWith(12),
+  notStartsWith(11),
+  between(13);
+
+  final int value;
+  const Logic(this.value);
+
+  factory Logic.fromInt(num i) => Logic.values.firstWhere((x) => x.value == i);
+
+  @override
+  String toString() {
     switch (this) {
-      case Operators.between:
+      case Logic.between:
         return ClientFilteringLocalizedMessages.between;
-      case Operators.equals:
+      case Logic.equals:
         return ClientFilteringLocalizedMessages.equals;
-      case Operators.lessThan:
+      case Logic.lessThan:
         return ClientFilteringLocalizedMessages.lessThan;
-      case Operators.greaterThan:
+      case Logic.greaterThan:
         return ClientFilteringLocalizedMessages.greaterThan;
-      case Operators.lessThanOrEqualTo:
+      case Logic.lessThanOrEqualTo:
         return ClientFilteringLocalizedMessages.lessThenOrEqualTo;
-      case Operators.greaterThanOrEqualTo:
+      case Logic.greaterThanOrEqualTo:
         return ClientFilteringLocalizedMessages.greaterThanOrEqualTo;
-      case Operators.contains:
+      case Logic.contains:
         return ClientFilteringLocalizedMessages.contains;
-      case Operators.notContains:
+      case Logic.notContains:
         return ClientFilteringLocalizedMessages.notContains;
-      case Operators.endsWidth:
+      case Logic.endsWidth:
         return ClientFilteringLocalizedMessages.endsWith;
-      case Operators.startsWith:
+      case Logic.startsWith:
         return ClientFilteringLocalizedMessages.startsWith;
-      case Operators.notEqual:
+      case Logic.notEqual:
         return ClientFilteringLocalizedMessages.notEqual;
-      case Operators.notEndsWith:
+      case Logic.notEndsWith:
         return ClientFilteringLocalizedMessages.notEndsWith;
-      case Operators.notStartsWith:
+      case Logic.notStartsWith:
         return ClientFilteringLocalizedMessages.notStartsWith;
     }
   }
 }
 
-extension OrderExtensions on OrderDirections {
-  String get description {
+enum OrderDirections {
+  notSet(0),
+  ascending(1),
+  descending(2);
+
+  final int value;
+
+  const OrderDirections(this.value);
+
+  factory OrderDirections.fromInt(num i) =>
+      OrderDirections.values.firstWhere((x) => x.value == i);
+
+  @override
+  String toString() {
     switch (this) {
       case OrderDirections.notSet:
         return ClientFilteringLocalizedMessages.notSet;
@@ -82,8 +131,19 @@ extension OrderExtensions on OrderDirections {
   }
 }
 
-extension SortOptionExtensions on SortableOptions {
-  String get description {
+enum SortableOptions {
+  none(0),
+  single(1),
+  multiColumn(2);
+
+  final int value;
+  const SortableOptions(this.value);
+
+  factory SortableOptions.fromInt(num i) =>
+      SortableOptions.values.firstWhere((x) => x.value == i);
+
+  @override
+  String toString() {
     switch (this) {
       case SortableOptions.none:
         return ClientFilteringLocalizedMessages.none;

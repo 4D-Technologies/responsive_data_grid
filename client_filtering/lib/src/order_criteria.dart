@@ -9,6 +9,11 @@ class OrderCriteria with IJsonable {
     this.direction = OrderDirections.ascending,
   });
 
+  factory OrderCriteria.fromJson(Map<String, dynamic> json) => OrderCriteria(
+        fieldName: json['FieldName'].toString(),
+        direction: OrderDirections.fromInt(json['Direction'] as int),
+      );
+
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;

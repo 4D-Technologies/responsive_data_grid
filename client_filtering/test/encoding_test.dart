@@ -24,8 +24,8 @@ void main() {
         filterBy: [
           FilterCriteria<String>(
               fieldName: "test",
-              logicalOperator: Operators.equals,
-              op: Logic.and,
+              logicalOperator: Logic.equals,
+              op: Operators.and,
               values: []),
         ],
       );
@@ -42,8 +42,8 @@ void main() {
         filterBy: [
           FilterCriteria<String>(
               fieldName: "test",
-              logicalOperator: Operators.equals,
-              op: Logic.and,
+              logicalOperator: Logic.equals,
+              op: Operators.and,
               values: ["Test", "Testing2"]),
         ],
       );
@@ -61,8 +61,8 @@ void main() {
         filterBy: [
           FilterCriteria<TestEnum>(
               fieldName: "test",
-              logicalOperator: Operators.equals,
-              op: Logic.and,
+              logicalOperator: Logic.equals,
+              op: Operators.and,
               values: [TestEnum.test, TestEnum.test2]),
         ],
       );

@@ -15,6 +15,19 @@ class LoadCriteria with IJsonable {
             filterBy ?? List<FilterCriteria<dynamic>>.empty(growable: true),
         this.orderBy = orderBy ?? List<OrderCriteria>.empty(growable: true);
 
+  factory LoadCriteria.fromJson(Map<String, dynamic> json) => LoadCriteria(
+        skip: json["Skip"] as int?,
+        take: json["Take"] as int?,
+        filterBy: (json["FilterBy"] as List<Map<String, dynamic>>)
+            .map<FilterCriteria<dynamic>>((Map<String, dynamic> model) =>
+                FilterCriteria.fromJson<dynamic>(model))
+            .toList(),
+        orderBy: (json["OrderBy"] as List<Map<String, dynamic>>)
+            .map<OrderCriteria>(
+                (Map<String, dynamic> model) => OrderCriteria.fromJson(model))
+            .toList(),
+      );
+
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;

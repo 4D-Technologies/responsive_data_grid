@@ -1,3 +1,17 @@
+## [0.0.23] - November 28th, 2022
+
+- Add SimpleListResponse and ListResponse as wrappers that are returned from APIs supporting Client Filtering
+
+## [0.0.22] - November 28th, 2022
+
+- Improve Json serialization/deserialization
+- Add result types
+
+## [0.0.21] - November 28th, 2022
+
+- Added the result types
+- Updated to new dart enum types
+
 ## [0.0.20] - May 18th, 2022
 
 ## [0.0.19] - April 19th, 2022
