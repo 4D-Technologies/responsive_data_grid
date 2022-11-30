@@ -1,3 +1,11 @@
+## [0.0.25] - November 29th, 2022
+
+- Fix casing issue in serialization
+
+## [0.0.24] - November 29th, 2022
+
+- Fix serialization issue
+
 ## [0.0.23] - November 28th, 2022
 
 - Add SimpleListResponse and ListResponse as wrappers that are returned from APIs supporting Client Filtering

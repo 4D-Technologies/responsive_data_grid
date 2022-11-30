@@ -71,8 +71,8 @@ class FilterCriteria<TValue extends dynamic> with IJsonable {
     // ignore: unnecessary_cast
     return {
       'fieldName': fieldName,
-      'op': serializeEnumString(op.toString()),
-      'logicalOperator': serializeEnumString(logicalOperator.toString()),
+      'op': op.value,
+      'logicalOperator': logicalOperator.value,
       'values': values.map((e) => _valueToString(e)).toList(),
     } as Map<String, dynamic>;
   }
@@ -120,8 +120,9 @@ class FilterCriteria<TValue extends dynamic> with IJsonable {
       case TimeOfDay:
         final tod = (value as TimeOfDay);
         return DateTime(1, 1, 1, tod.hour, tod.minute).toIso8601String();
+      case IEnum:
+        return value.value.toString();
       default:
-        if (value is Enum) return serializeEnumString(value.toString());
         return value.toString();
     }
   }

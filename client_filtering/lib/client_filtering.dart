@@ -19,10 +19,6 @@ part './src/aggregate_result.dart';
 part './src/simple_list_response.dart';
 part './src/list_response.dart';
 
-String serializeEnumString(String enumString) => enumString.split(".")[1];
-T deseralizeEnumString<T>(String enumString, List<T> enumValues) =>
-    enumValues.firstWhere((e) => e.toString().endsWith(".$enumString"));
-
 class ClientFilteringLocalizedMessages {
   static var between = "Between";
   static var equals = "Equals";

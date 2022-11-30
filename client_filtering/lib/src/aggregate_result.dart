@@ -13,9 +13,9 @@ class AggregateResult {
 
   factory AggregateResult.fromJson(Map<String, dynamic> json) =>
       AggregateResult(
-        fieldName: json["FieldName"].toString(),
-        aggregation: Aggregations.fromInt(json["Aggregation"] as int),
-        result: json["Result"]?.toString(),
+        fieldName: json["fieldName"].toString(),
+        aggregation: Aggregations.fromInt(json["aggregation"] as int),
+        result: json["result"]?.toString(),
       );
 
   @override

@@ -16,13 +16,13 @@ class ListResponse<T> extends SimpleListResponse<T> {
     T Function(Map<String, dynamic>) objectMapper,
   ) =>
       ListResponse(
-        totalCount: json["TotalCount"] as int,
-        items: List<T>.from((json["Items"] as List<Map<String, dynamic>>)
+        totalCount: json["totalCount"] as int,
+        items: List<T>.from((json["items"] as List<Map<String, dynamic>>)
             .map<T>((model) => objectMapper(model))),
         groups: List<GroupResult>.from(
-            (json["Groups"] as List<Map<String, dynamic>>)
+            (json["groups"] as List<Map<String, dynamic>>)
                 .map<GroupResult>((model) => GroupResult.fromJson(model))),
-        aggregates: List<AggregateResult>.from((json["Aggregates"]
+        aggregates: List<AggregateResult>.from((json["aggregates"]
                 as List<Map<String, dynamic>>)
             .map<AggregateResult>((model) => AggregateResult.fromJson(model))),
       );

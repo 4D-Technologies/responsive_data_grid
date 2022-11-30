@@ -1,6 +1,10 @@
 part of client_filtering;
 
-enum Aggregations {
+abstract class IEnum {
+  final int value = 0;
+}
+
+enum Aggregations implements IEnum {
   sum(1),
   average(2),
   maxium(3),
@@ -31,7 +35,7 @@ enum Aggregations {
   }
 }
 
-enum Operators {
+enum Operators implements IEnum {
   and(1),
   or(2);
 
@@ -53,7 +57,7 @@ enum Operators {
   }
 }
 
-enum Logic {
+enum Logic implements IEnum {
   equals(1),
   lessThan(2),
   greaterThan(3),
@@ -106,7 +110,7 @@ enum Logic {
   }
 }
 
-enum OrderDirections {
+enum OrderDirections implements IEnum {
   notSet(0),
   ascending(1),
   descending(2);
@@ -131,7 +135,7 @@ enum OrderDirections {
   }
 }
 
-enum SortableOptions {
+enum SortableOptions implements IEnum {
   none(0),
   single(1),
   multiColumn(2);

@@ -10,8 +10,8 @@ class OrderCriteria with IJsonable {
   });
 
   factory OrderCriteria.fromJson(Map<String, dynamic> json) => OrderCriteria(
-        fieldName: json['FieldName'].toString(),
-        direction: OrderDirections.fromInt(json['Direction'] as int),
+        fieldName: json['fieldName'].toString(),
+        direction: OrderDirections.fromInt(json['direction'] as int),
       );
 
   @override
@@ -40,7 +40,7 @@ class OrderCriteria with IJsonable {
     // ignore: unnecessary_cast
     return {
       'fieldName': fieldName,
-      'direction': serializeEnumString(direction.toString()),
+      'direction': direction.value,
     } as Map<String, dynamic>;
   }
 }

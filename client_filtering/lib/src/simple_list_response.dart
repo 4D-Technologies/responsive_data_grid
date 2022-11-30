@@ -14,8 +14,8 @@ class SimpleListResponse<T> {
     T Function(Map<String, dynamic>) objectMapper,
   ) =>
       SimpleListResponse(
-        totalCount: json["TotalCount"] as int,
-        items: List<T>.from((json["Items"] as List<Map<String, dynamic>>)
+        totalCount: json["totalCount"] as int,
+        items: List<T>.from((json["items"] as List<Map<String, dynamic>>)
             .map<T>((model) => objectMapper(model))),
       );
 
