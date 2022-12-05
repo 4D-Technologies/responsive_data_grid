@@ -12,8 +12,9 @@ class GroupResult {
   factory GroupResult.fromJson(Map<String, dynamic> json) {
     return GroupResult(
       fieldName: json['fieldName'].toString(),
-      values: (json["values"] as List<Map<String, dynamic>>)
-          .map((Map<String, dynamic> model) => GroupValueResult.fromJson(model))
+      values: (json["values"] as List)
+          .map((dynamic model) =>
+              GroupValueResult.fromJson(model as Map<String, dynamic>))
           .toList(),
     );
   }

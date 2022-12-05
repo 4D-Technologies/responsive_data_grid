@@ -32,7 +32,7 @@ class DataGridTimeOfDayColumnFilterState<TItem extends Object>
     extends DataGridColumnFilterState<TItem, TimeOfDay> {
   TimeOfDay? tStart;
   TimeOfDay? tEnd;
-  Operators? op;
+  Logic? op;
 
   late TimeOfDayFilterRules filterRules;
 
@@ -54,54 +54,54 @@ class DataGridTimeOfDayColumnFilterState<TItem extends Object>
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        DropdownButtonFormField<Operators>(
+        DropdownButtonFormField<Logic>(
             items: [
               DropdownMenuItem(
-                  child: Text(Operators.greaterThan.description),
-                  value: Operators.greaterThan),
+                  child: Text(Logic.greaterThan.toString()),
+                  value: Logic.greaterThan),
               DropdownMenuItem(
-                  child: Text(Operators.greaterThanOrEqualTo.description),
-                  value: Operators.greaterThanOrEqualTo),
+                  child: Text(Logic.greaterThanOrEqualTo.toString()),
+                  value: Logic.greaterThanOrEqualTo),
               DropdownMenuItem(
-                child: Text(Operators.equals.description),
-                value: Operators.equals,
+                child: Text(Logic.equals.toString()),
+                value: Logic.equals,
               ),
               DropdownMenuItem(
-                child: Text(Operators.lessThan.description),
-                value: Operators.lessThan,
+                child: Text(Logic.lessThan.toString()),
+                value: Logic.lessThan,
               ),
               DropdownMenuItem(
-                  child: Text(Operators.lessThanOrEqualTo.description),
-                  value: Operators.lessThanOrEqualTo),
+                  child: Text(Logic.lessThanOrEqualTo.toString()),
+                  value: Logic.lessThanOrEqualTo),
               DropdownMenuItem(
-                child: Text(Operators.between.description),
-                value: Operators.between,
+                child: Text(Logic.between.toString()),
+                value: Logic.between,
               ),
               DropdownMenuItem(
-                child: Text(Operators.equals.description),
-                value: Operators.equals,
+                child: Text(Logic.equals.toString()),
+                value: Logic.equals,
               ),
               DropdownMenuItem(
-                child: Text(Operators.notEqual.description),
-                value: Operators.notEqual,
+                child: Text(Logic.notEqual.toString()),
+                value: Logic.notEqual,
               ),
             ],
             value: op,
-            onChanged: (Operators? value) {
+            onChanged: (Logic? value) {
               this.setState(() {
                 op = value;
               });
             }),
         Visibility(
           visible: op != null &&
-              (op == Operators.greaterThan ||
-                  op == Operators.greaterThanOrEqualTo ||
-                  op == Operators.between ||
-                  op == Operators.equals ||
-                  op == Operators.notEqual),
+              (op == Logic.greaterThan ||
+                  op == Logic.greaterThanOrEqualTo ||
+                  op == Logic.between ||
+                  op == Logic.equals ||
+                  op == Logic.notEqual),
           child: DateTimePicker(
             type: DateTimePickerType.time,
-            decoration: InputDecoration(hintText: op?.description),
+            decoration: InputDecoration(hintText: op?.toString()),
             initialTime: tStart,
             onChanged: (value) {
               this.setState(() {
@@ -112,12 +112,12 @@ class DataGridTimeOfDayColumnFilterState<TItem extends Object>
         ),
         Visibility(
           visible: op != null &&
-              (op == Operators.lessThan ||
-                  op == Operators.lessThanOrEqualTo ||
-                  op == Operators.between),
+              (op == Logic.lessThan ||
+                  op == Logic.lessThanOrEqualTo ||
+                  op == Logic.between),
           child: DateTimePicker(
             type: DateTimePickerType.time,
-            decoration: InputDecoration(hintText: op?.description),
+            decoration: InputDecoration(hintText: op?.toString()),
             initialTime: tEnd,
             onChanged: (value) {
               this.setState(() {
@@ -146,7 +146,7 @@ class DataGridTimeOfDayColumnFilterState<TItem extends Object>
                       FilterCriteria(
                         fieldName: widget.definition.fieldName,
                         logicalOperator: op!,
-                        op: Logic.and,
+                        op: Operators.and,
                         values: [tStart, tEnd]
                             .where((e) => e != null)
                             .cast<TimeOfDay>()

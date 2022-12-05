@@ -83,8 +83,8 @@ class FilterCriteria<TValue extends dynamic> with IJsonable {
       fieldName: map['fieldName'].toString(),
       op: Operators.fromInt(map['op'] as int),
       logicalOperator: Logic.fromInt(map['logicalOperator'] as int),
-      values: (map['values'] as List<String>)
-          .map((e) => _parseValue<TValue>(e))
+      values: (map['values'] as List)
+          .map((dynamic e) => _parseValue<TValue>(e as String))
           .toList(growable: true),
     );
   }

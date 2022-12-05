@@ -15,8 +15,11 @@ class SimpleListResponse<T> {
   ) =>
       SimpleListResponse(
         totalCount: json["totalCount"] as int,
-        items: List<T>.from((json["items"] as List<Map<String, dynamic>>)
-            .map<T>((model) => objectMapper(model))),
+        items: List<T>.from(
+          (json["items"] as List).map<T>(
+            (dynamic model) => objectMapper(model as Map<String, dynamic>),
+          ),
+        ),
       );
 
   @override

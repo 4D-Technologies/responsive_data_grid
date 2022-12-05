@@ -20,43 +20,43 @@ extension FilterCriteriaExtensions on List<FilterCriteria<dynamic>> {
     String filter = '';
     this.forEach((e) {
       if (filter.isNotEmpty) {
-        if (e.op == Logic.or) {
+        if (e.op == Operators.or) {
           filter += " OR ";
         } else {
           filter += " AND ";
         }
       }
 
-      if (e.logicalOperator == Operators.endsWidth) {
+      if (e.logicalOperator == Logic.endsWidth) {
         filter +=
             " endsWidth(${escapeFieldName(e.fieldName)}, '${e.values.first}')";
-      } else if (e.logicalOperator == Operators.contains) {
+      } else if (e.logicalOperator == Logic.contains) {
         filter +=
             " contains(${escapeFieldName(e.fieldName)}, '${e.values.first}')";
-      } else if (e.logicalOperator == Operators.notContains) {
+      } else if (e.logicalOperator == Logic.notContains) {
         filter +=
             " not contains(${escapeFieldName(e.fieldName)}, '${e.values.first}')";
-      } else if (e.logicalOperator == Operators.startsWith) {
+      } else if (e.logicalOperator == Logic.startsWith) {
         filter +=
             " startsWith(${escapeFieldName(e.fieldName)}, '${e.values.first}')";
-      } else if (e.logicalOperator == Operators.between) {
+      } else if (e.logicalOperator == Logic.between) {
         filter += " ge ${e.values.first} and le ${e.values.last}";
       } else {
         filter += "${escapeFieldName(e.fieldName)} ";
         switch (e.logicalOperator) {
-          case Operators.equals:
+          case Logic.equals:
             filter += "eq";
             break;
-          case Operators.greaterThan:
+          case Logic.greaterThan:
             filter += "gt";
             break;
-          case Operators.greaterThanOrEqualTo:
+          case Logic.greaterThanOrEqualTo:
             filter += "ge";
             break;
-          case Operators.lessThan:
+          case Logic.lessThan:
             filter += "lt";
             break;
-          case Operators.lessThanOrEqualTo:
+          case Logic.lessThanOrEqualTo:
             filter += "le";
             break;
           default:

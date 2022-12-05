@@ -11,7 +11,9 @@ dependencies:
   flutter:
     sdk: flutter
   intl:
-  client_filtering: ^0.0.20
+  client_filtering:
+    path: ../../client_filtering
+
   responsive_data_grid:
     path: ../
 

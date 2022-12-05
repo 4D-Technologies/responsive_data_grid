@@ -1,7 +1,8 @@
 part of responsive_data_grid;
 
 class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
-  final Future<LoadResult<TItem>?> Function(LoadCriteria criteria)? loadData;
+  final Future<SimpleListResponse<TItem>?> Function(LoadCriteria criteria)?
+      loadData;
   final List<TItem>? items;
 
   final void Function(TItem)? itemTapped;
@@ -27,7 +28,7 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
 
   ResponsiveDataGrid.serverSide({
     GlobalKey<ResponsiveDataGridState<TItem>>? key,
-    required Future<LoadResult<TItem>?> Function(LoadCriteria criteria)
+    required Future<SimpleListResponse<TItem>?> Function(LoadCriteria criteria)
         loadData,
     required this.columns,
     this.itemTapped,

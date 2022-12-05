@@ -18,13 +18,13 @@ class LoadCriteria with IJsonable {
   factory LoadCriteria.fromJson(Map<String, dynamic> json) => LoadCriteria(
         skip: json["skip"] as int?,
         take: json["take"] as int?,
-        filterBy: (json["filterBy"] as List<Map<String, dynamic>>)
-            .map<FilterCriteria<dynamic>>((Map<String, dynamic> model) =>
-                FilterCriteria.fromJson<dynamic>(model))
+        filterBy: (json["filterBy"] as List)
+            .map<FilterCriteria<dynamic>>((dynamic model) =>
+                FilterCriteria.fromJson<dynamic>(model as Map<String, dynamic>))
             .toList(),
-        orderBy: (json["orderBy"] as List<Map<String, dynamic>>)
-            .map<OrderCriteria>(
-                (Map<String, dynamic> model) => OrderCriteria.fromJson(model))
+        orderBy: (json["orderBy"] as List)
+            .map<OrderCriteria>((dynamic model) =>
+                OrderCriteria.fromJson(model as Map<String, dynamic>))
             .toList(),
       );
 

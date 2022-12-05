@@ -76,8 +76,8 @@ class DataGridBoolColumnFilterState<TItem extends Object>
                       context,
                       FilterCriteria(
                         fieldName: widget.definition.fieldName,
-                        logicalOperator: Operators.equals,
-                        op: Logic.and,
+                        logicalOperator: Logic.equals,
+                        op: Operators.and,
                         values: [value!],
                       ),
                     ),

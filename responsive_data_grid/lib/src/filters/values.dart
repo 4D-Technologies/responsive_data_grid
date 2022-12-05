@@ -35,7 +35,7 @@ class DataGridValuesColumnFilter<TItem extends Object, TValue extends dynamic>
 class DataGridValuesColumnFilterState<TItem extends Object,
     TValue extends dynamic> extends DataGridColumnFilterState<TItem, TValue> {
   late List<TValue> values;
-  late Operators op;
+  late Logic op;
 
   late ValueMapFilterRules<TItem, TValue> filterRules;
 
@@ -51,7 +51,7 @@ class DataGridValuesColumnFilterState<TItem extends Object,
           .toList(growable: true);
       op = criteria.logicalOperator;
     } else {
-      op = Operators.equals;
+      op = Logic.equals;
       values = List<TValue>.empty(growable: true);
     }
 
@@ -64,10 +64,10 @@ class DataGridValuesColumnFilterState<TItem extends Object,
       mainAxisSize: MainAxisSize.min,
       children: [
         SwitchListTile(
-          value: op == Operators.notEqual,
+          value: op == Logic.notEqual,
           title: Text(LocalizedMessages.doesNotInclude),
-          onChanged: (value) => setState(
-              () => value ? op = Operators.notEqual : op = Operators.equals),
+          onChanged: (value) =>
+              setState(() => value ? op = Logic.notEqual : op = Logic.equals),
         ),
         ...filterRules.valueMap.entries.map(
           (e) => CheckboxListTile(
@@ -105,7 +105,7 @@ class DataGridValuesColumnFilterState<TItem extends Object,
                       FilterCriteria(
                         fieldName: widget.definition.fieldName,
                         logicalOperator: op,
-                        op: Logic.and,
+                        op: Operators.and,
                         values: values,
                       ),
                     ),

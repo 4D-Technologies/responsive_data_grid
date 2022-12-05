@@ -14,9 +14,9 @@ class GroupCriteria with IJsonable {
   factory GroupCriteria.fromJson(Map<String, dynamic> json) => GroupCriteria(
         fieldName: json['fieldName'].toString(),
         directions: OrderDirections.fromInt(json['directions'] as int),
-        aggregates: (json["aggregates"] as List<Map<String, dynamic>>)
-            .map<AggregateCriteria>((Map<String, dynamic> model) =>
-                AggregateCriteria.fromJson(model))
+        aggregates: (json["aggregates"] as List)
+            .map<AggregateCriteria>((dynamic model) =>
+                AggregateCriteria.fromJson(model as Map<String, dynamic>))
             .toList(),
       );
 

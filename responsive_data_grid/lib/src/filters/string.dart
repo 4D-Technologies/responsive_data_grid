@@ -33,7 +33,7 @@ class DataGridStringColumnFilter<TItem extends Object>
 
 class DataGridStringColumnFilterState<TItem extends Object>
     extends DataGridColumnFilterState<TItem, String> {
-  Operators? op;
+  Logic? op;
   String? searchText;
 
   DataGridStringColumnFilterState();
@@ -54,42 +54,41 @@ class DataGridStringColumnFilterState<TItem extends Object>
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        DropdownButtonFormField<Operators>(
+        DropdownButtonFormField<Logic>(
             items: [
               DropdownMenuItem(
                 child: Text(LocalizedMessages.any),
                 value: null,
               ),
               DropdownMenuItem(
-                  child: Text(Operators.contains.description),
-                  value: Operators.contains),
+                  child: Text(Logic.contains.toString()),
+                  value: Logic.contains),
               DropdownMenuItem(
-                  child: Text(Operators.startsWith.description),
-                  value: Operators.startsWith),
+                  child: Text(Logic.startsWith.toString()),
+                  value: Logic.startsWith),
               DropdownMenuItem(
-                  child: Text(Operators.endsWidth.description),
-                  value: Operators.endsWidth),
+                  child: Text(Logic.endsWidth.toString()),
+                  value: Logic.endsWidth),
               DropdownMenuItem(
-                  child: Text(Operators.equals.description),
-                  value: Operators.equals),
+                  child: Text(Logic.equals.toString()), value: Logic.equals),
               DropdownMenuItem(
-                  child: Text(Operators.notEqual.description),
-                  value: Operators.notEqual),
+                  child: Text(Logic.notEqual.toString()),
+                  value: Logic.notEqual),
               DropdownMenuItem(
-                child: Text(Operators.notContains.description),
-                value: Operators.notContains,
+                child: Text(Logic.notContains.toString()),
+                value: Logic.notContains,
               ),
               DropdownMenuItem(
-                child: Text(Operators.notStartsWith.description),
-                value: Operators.notStartsWith,
+                child: Text(Logic.notStartsWith.toString()),
+                value: Logic.notStartsWith,
               ),
               DropdownMenuItem(
-                child: Text(Operators.notEndsWith.description),
-                value: Operators.notEndsWith,
+                child: Text(Logic.notEndsWith.toString()),
+                value: Logic.notEndsWith,
               ),
             ],
             value: op,
-            onChanged: (Operators? value) {
+            onChanged: (Logic? value) {
               this.setState(() {
                 op = value;
               });
@@ -126,7 +125,7 @@ class DataGridStringColumnFilterState<TItem extends Object>
                       FilterCriteria(
                         fieldName: widget.definition.fieldName,
                         logicalOperator: op!,
-                        op: Logic.and,
+                        op: Operators.and,
                         values: [searchText!],
                       ),
                     ),

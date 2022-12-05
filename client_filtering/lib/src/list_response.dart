@@ -17,14 +17,23 @@ class ListResponse<T> extends SimpleListResponse<T> {
   ) =>
       ListResponse(
         totalCount: json["totalCount"] as int,
-        items: List<T>.from((json["items"] as List<Map<String, dynamic>>)
-            .map<T>((model) => objectMapper(model))),
+        items: List<T>.from(
+          (json["items"] as List).map<T>(
+            (dynamic model) => objectMapper(model as Map<String, dynamic>),
+          ),
+        ),
         groups: List<GroupResult>.from(
-            (json["groups"] as List<Map<String, dynamic>>)
-                .map<GroupResult>((model) => GroupResult.fromJson(model))),
-        aggregates: List<AggregateResult>.from((json["aggregates"]
-                as List<Map<String, dynamic>>)
-            .map<AggregateResult>((model) => AggregateResult.fromJson(model))),
+          (json["groups"] as List).map<GroupResult>(
+            (dynamic model) =>
+                GroupResult.fromJson(model as Map<String, dynamic>),
+          ),
+        ),
+        aggregates: List<AggregateResult>.from(
+          (json["aggregates"] as List).map<AggregateResult>(
+            (dynamic model) =>
+                AggregateResult.fromJson(model as Map<String, dynamic>),
+          ),
+        ),
       );
 
   @override

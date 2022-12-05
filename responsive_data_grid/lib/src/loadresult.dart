@@ -1,15 +1,5 @@
 part of responsive_data_grid;
 
-class LoadResult<TItem extends Object> {
-  final int totalCount;
-  final List<TItem> items;
-
-  const LoadResult({
-    required this.totalCount,
-    required this.items,
-  });
-}
-
 List<TItem> _applyCriteria<TItem extends Object>(
     ResponsiveDataGridState<TItem> gridState) {
   var items = List<TItem>.from(gridState.widget.items!);
@@ -19,18 +9,18 @@ List<TItem> _applyCriteria<TItem extends Object>(
       .forEach((c) {
     final criteria = c.filterRules.criteria!;
 
-    if (criteria.op == Logic.or)
+    if (criteria.op == Operators.or)
       throw UnsupportedError("Or is not supported in Dart.");
 
     switch (criteria.logicalOperator) {
-      case Operators.equals:
+      case Logic.equals:
         items = items.where((e) {
           final dynamic value = c.value(e);
 
           return criteria.values.contains(value);
         }).toList();
         break;
-      case Operators.lessThan:
+      case Logic.lessThan:
         items = items.where((e) {
           final dynamic value = c.value(e);
           final dynamic cValue =
@@ -43,7 +33,7 @@ List<TItem> _applyCriteria<TItem extends Object>(
           return (value < cValue) as bool;
         }).toList();
         break;
-      case Operators.greaterThan:
+      case Logic.greaterThan:
         items = items.where((e) {
           final dynamic value = c.value(e);
           final dynamic cValue =
@@ -57,7 +47,7 @@ List<TItem> _applyCriteria<TItem extends Object>(
         }).toList();
 
         break;
-      case Operators.lessThanOrEqualTo:
+      case Logic.lessThanOrEqualTo:
         items = items.where((e) {
           final dynamic value = c.value(e);
           final dynamic cValue =
@@ -71,7 +61,7 @@ List<TItem> _applyCriteria<TItem extends Object>(
         }).toList();
 
         break;
-      case Operators.greaterThanOrEqualTo:
+      case Logic.greaterThanOrEqualTo:
         items = items.where((e) {
           final dynamic value = c.value(e);
           final dynamic cValue =
@@ -85,7 +75,7 @@ List<TItem> _applyCriteria<TItem extends Object>(
         }).toList();
 
         break;
-      case Operators.contains:
+      case Logic.contains:
         items = items.where((e) {
           final dynamic value = c.value(e);
           final dynamic cValue =
@@ -99,7 +89,7 @@ List<TItem> _applyCriteria<TItem extends Object>(
           return value.contains(cValue);
         }).toList();
         break;
-      case Operators.notContains:
+      case Logic.notContains:
         items = items.where((e) {
           final dynamic value = c.value(e);
           final dynamic cValue =
@@ -113,7 +103,7 @@ List<TItem> _applyCriteria<TItem extends Object>(
           return !value.contains(cValue);
         }).toList();
         break;
-      case Operators.endsWidth:
+      case Logic.endsWidth:
         items = items.where((e) {
           final dynamic value = c.value(e);
           final dynamic cValue =
@@ -127,7 +117,7 @@ List<TItem> _applyCriteria<TItem extends Object>(
           return value.endsWith(cValue);
         }).toList();
         break;
-      case Operators.startsWith:
+      case Logic.startsWith:
         items = items.where((e) {
           final dynamic value = c.value(e);
           final dynamic cValue =
@@ -141,13 +131,13 @@ List<TItem> _applyCriteria<TItem extends Object>(
           return value.startsWith(cValue);
         }).toList();
         break;
-      case Operators.notEqual:
+      case Logic.notEqual:
         items = items.where((e) {
           final dynamic value = c.value(e);
           return !criteria.values.contains(value);
         }).toList();
         break;
-      case Operators.notEndsWith:
+      case Logic.notEndsWith:
         items = items.where((e) {
           final dynamic value = c.value(e);
           final dynamic cValue =
@@ -160,7 +150,7 @@ List<TItem> _applyCriteria<TItem extends Object>(
           return !value.endsWith(cValue);
         }).toList();
         break;
-      case Operators.notStartsWith:
+      case Logic.notStartsWith:
         items = items.where((e) {
           final dynamic value = c.value(e);
           final dynamic cValue =
@@ -173,7 +163,7 @@ List<TItem> _applyCriteria<TItem extends Object>(
           return !value.startsWith(cValue);
         }).toList();
         break;
-      case Operators.between:
+      case Logic.between:
         items = items.where((e) {
           final dynamic value = c.value(e);
           final dynamic cValue1 =
