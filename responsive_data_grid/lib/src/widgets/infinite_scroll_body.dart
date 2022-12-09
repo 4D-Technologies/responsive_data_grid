@@ -30,7 +30,7 @@ class _ResponsiveGridInfiniteScrollBodyWidgetState<TItem extends Object>
     pageSize = widget.gridState.widget.pageSize;
 
     if (widget.gridState.widget.items != null) {
-      _allItems = _applyCriteria(widget.gridState);
+      _allItems = applyCriteria(widget.gridState).items;
     } else {
       _allItems = null;
     }
@@ -61,8 +61,8 @@ class _ResponsiveGridInfiniteScrollBodyWidgetState<TItem extends Object>
           LoadCriteria(
             skip: (page - 1) * pageSize,
             take: pageSize,
-            orderBy: widget.gridState._criteria.orderBy,
-            filterBy: widget.gridState._criteria.filterBy,
+            orderBy: widget.gridState.criteria.orderBy,
+            filterBy: widget.gridState.criteria.filterBy,
           ),
         );
 
@@ -98,11 +98,11 @@ class _ResponsiveGridInfiniteScrollBodyWidgetState<TItem extends Object>
       builderDelegate: PagedChildBuilderDelegate(
         itemBuilder: (context, item, index) {
           return DataGridRowWidget<TItem>(
-            item,
-            widget.gridState.widget.columns,
-            widget.gridState.widget.itemTapped,
-            widget.theme,
-            widget.gridState.widget.contentPadding,
+            item: item,
+            columns: widget.gridState.widget.columns,
+            itemTapped: widget.gridState.widget.itemTapped,
+            theme: widget.theme,
+            padding: widget.gridState.widget.contentPadding,
           );
         },
       ),

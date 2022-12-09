@@ -1,8 +1,8 @@
 part of client_filtering;
 
 class ListResponse<T> extends SimpleListResponse<T> {
-  final Iterable<GroupResult> groups;
-  final Iterable<AggregateResult> aggregates;
+  final List<GroupResult> groups;
+  final List<AggregateResult> aggregates;
 
   const ListResponse({
     required int totalCount,

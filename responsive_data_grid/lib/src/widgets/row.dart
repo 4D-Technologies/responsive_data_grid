@@ -7,13 +7,13 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
   final ThemeData theme;
   final EdgeInsets padding;
 
-  DataGridRowWidget(
-    this.item,
-    this.columns,
-    this.itemTapped,
-    this.theme,
-    this.padding,
-  ) {
+  DataGridRowWidget({
+    required this.item,
+    required this.columns,
+    required this.itemTapped,
+    required this.theme,
+    required this.padding,
+  }) {
     assert(TItem != Object);
   }
 

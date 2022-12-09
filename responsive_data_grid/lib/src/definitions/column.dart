@@ -43,7 +43,9 @@ abstract class GridColumn<TItem extends Object, TValue extends dynamic> {
     required this.foregroundColor,
     required this.accentColor,
     required this.alignment,
-  });
+  }) {
+    assert(TItem != Object);
+  }
 
   Widget getHeader(ResponsiveDataGridState<TItem> grid) {
     if (this.header.empty) return Container();

@@ -1,3 +1,4 @@
+import 'package:client_filtering/client_filtering.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:responsive_data_grid/responsive_data_grid.dart';
@@ -110,8 +111,20 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         items: widget.exampleData,
         itemTapped: (row) => print(row.name),
-        pageSize: 30,
-        pagingMode: PagingMode.auto,
+        pageSize: 20,
+        pagingMode: PagingMode.pager,
+        groups: [
+          GroupCriteria(
+            fieldName: "name",
+            direction: OrderDirections.ascending,
+            aggregates: [
+              AggregateCriteria(
+                fieldName: "name",
+                aggregation: Aggregations.count,
+              ),
+            ],
+          ),
+        ],
         columns: [
           WidgetColumn(
             widget: (item) => Icon(Icons.check, color: Colors.green),
@@ -131,6 +144,7 @@ class _MyHomePageState extends State<MyHomePage> {
             xsCols: 5,
             mediumCols: 2,
             fieldName: "name",
+            sortDirection: OrderDirections.ascending,
             filterRules: StringFilterRules(
               hintText: "Name",
             ),

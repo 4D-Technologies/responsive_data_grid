@@ -5,10 +5,14 @@ class LoadCriteria with IJsonable {
   final int? take;
   final List<FilterCriteria<dynamic>> filterBy;
   final List<OrderCriteria> orderBy;
+  final List<GroupCriteria>? groupBy;
+  final List<AggregateCriteria>? aggregates;
 
   LoadCriteria({
     this.skip,
     this.take,
+    this.groupBy,
+    this.aggregates,
     List<FilterCriteria<dynamic>>? filterBy,
     List<OrderCriteria>? orderBy,
   })  : this.filterBy =
@@ -49,12 +53,16 @@ class LoadCriteria with IJsonable {
     int? Function()? take,
     List<FilterCriteria<dynamic>>? Function()? filterBy,
     List<OrderCriteria>? Function()? orderBy,
+    List<GroupCriteria>? Function()? groupBy,
+    List<AggregateCriteria>? Function()? aggregates,
   }) {
     return LoadCriteria(
       skip: skip == null ? this.skip : skip(),
       take: take == null ? this.take : take(),
       filterBy: filterBy == null ? this.filterBy : filterBy(),
       orderBy: orderBy == null ? this.orderBy : orderBy(),
+      groupBy: groupBy == null ? this.groupBy : groupBy(),
+      aggregates: aggregates == null ? this.aggregates : aggregates(),
     );
   }
 

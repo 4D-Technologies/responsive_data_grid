@@ -7,11 +7,14 @@ linter:
     overridden_fields: true
     iterable_contains_unrelated_type: true
     camel_case_types: true
+    cancel_subscriptions: true
+    close_sinks: true
 
 analyzer:
   language:
     strict-inference: true
     strict-raw-types: true
+    strict-casts: true
   strong-mode:
     implicit-casts: false
     implicit-dynamic: false

@@ -12,6 +12,8 @@ dependencies:
   flutter:
     sdk: flutter
   intl: ^0.17.0
+
+  darq: ^1.2.1
   bootstrap_grid: ^1.0.4
   client_filtering:
     path: ../client_filtering

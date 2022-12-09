@@ -2,18 +2,18 @@ part of client_filtering;
 
 class GroupCriteria with IJsonable {
   final String fieldName;
-  final OrderDirections directions;
+  final OrderDirections direction;
   final List<AggregateCriteria> aggregates;
 
   const GroupCriteria({
     required this.fieldName,
-    required this.directions,
+    this.direction = OrderDirections.ascending,
     required this.aggregates,
   });
 
   factory GroupCriteria.fromJson(Map<String, dynamic> json) => GroupCriteria(
         fieldName: json['fieldName'].toString(),
-        directions: OrderDirections.fromInt(json['directions'] as int),
+        direction: OrderDirections.fromInt(json['directions'] as int),
         aggregates: (json["aggregates"] as List)
             .map<AggregateCriteria>((dynamic model) =>
                 AggregateCriteria.fromJson(model as Map<String, dynamic>))
@@ -26,13 +26,13 @@ class GroupCriteria with IJsonable {
 
     return other is GroupCriteria &&
         other.fieldName == fieldName &&
-        other.directions == directions &&
+        other.direction == direction &&
         other.aggregates == aggregates;
   }
 
   @override
   int get hashCode {
-    return fieldName.hashCode ^ directions.hashCode ^ aggregates.hashCode;
+    return fieldName.hashCode ^ direction.hashCode ^ aggregates.hashCode;
   }
 
   GroupCriteria copyWith({
@@ -42,7 +42,7 @@ class GroupCriteria with IJsonable {
   }) {
     return GroupCriteria(
       fieldName: fieldName == null ? this.fieldName : fieldName(),
-      directions: directions == null ? this.directions : directions(),
+      direction: directions == null ? this.direction : directions(),
       aggregates: aggregates == null ? this.aggregates : aggregates(),
     );
   }
@@ -51,7 +51,7 @@ class GroupCriteria with IJsonable {
     // ignore: unnecessary_cast
     return {
       'fieldName': fieldName,
-      'directions': directions.value,
+      'direction': direction.value,
       'aggregates': aggregates.map((x) => x.toJson()).toList(),
     } as Map<String, dynamic>;
   }
