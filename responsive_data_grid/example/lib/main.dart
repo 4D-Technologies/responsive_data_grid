@@ -113,6 +113,13 @@ class _MyHomePageState extends State<MyHomePage> {
         itemTapped: (row) => print(row.name),
         pageSize: 20,
         pagingMode: PagingMode.pager,
+        aggregations: [
+          AggregateCriteria(
+            fieldName: "accepted",
+            aggregation: Aggregations.count,
+          ),
+        ],
+        allowGrouping: true,
         groups: [
           GroupCriteria(
             fieldName: "name",
@@ -129,6 +136,7 @@ class _MyHomePageState extends State<MyHomePage> {
           WidgetColumn(
             widget: (item) => Icon(Icons.check, color: Colors.green),
             xsCols: 1,
+            fieldName: "Selected",
           ),
           IntColumn(
             xsCols: 2,

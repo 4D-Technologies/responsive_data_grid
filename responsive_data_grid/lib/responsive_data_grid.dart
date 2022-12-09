@@ -44,6 +44,7 @@ part './src/widgets/header_row.dart';
 part './src/widgets/title_row.dart';
 part './src/widgets/row.dart';
 part './src/widgets/pager.dart';
+part './src/widgets/grid_group_chooser.dart';
 
 part './src/widgets/group_header.dart';
 part './src/widgets/group_footer.dart';

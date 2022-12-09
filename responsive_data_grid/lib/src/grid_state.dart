@@ -21,8 +21,109 @@ class ResponsiveDataGridState<TItem extends Object>
       groupBy: widget.groups,
       skip: 0,
       take: widget.pageSize,
+      aggregates: widget.aggregations,
     );
     super.initState();
+  }
+
+  FutureOr<void> addGroup(GroupCriteria group) async {
+    setState(() => isLoading = true);
+
+    widget.groups.add(group);
+
+    criteria = criteria.copyWith(
+      skip: () => (pageNumber - 1) * widget.pageSize,
+      take: () => widget.pageSize,
+      filterBy: () => widget.columns
+          .where((c) => c.filterRules.criteria != null)
+          .map((c) => c.filterRules.criteria!)
+          .toList(),
+      orderBy: () => widget.columns
+          .where((c) => c.sortDirection != OrderDirections.notSet)
+          .map((e) => OrderCriteria(
+                fieldName: e.fieldName,
+                direction: e.sortDirection,
+              ))
+          .toList(),
+      groupBy: () => widget.groups,
+      aggregates: () => widget.aggregations,
+    );
+
+    _dataCache = ResponseCache<TItem>();
+
+    await FetchPage(pageNumber, false);
+
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  FutureOr<void> updateGroup(GroupCriteria group) async {
+    setState(() => isLoading = true);
+
+    widget.groups.replaceRange(
+      widget.groups.indexOf(group),
+      widget.groups.indexOf(group) + 1,
+      [group],
+    );
+
+    criteria = criteria.copyWith(
+      skip: () => (pageNumber - 1) * widget.pageSize,
+      take: () => widget.pageSize,
+      filterBy: () => widget.columns
+          .where((c) => c.filterRules.criteria != null)
+          .map((c) => c.filterRules.criteria!)
+          .toList(),
+      orderBy: () => widget.columns
+          .where((c) => c.sortDirection != OrderDirections.notSet)
+          .map((e) => OrderCriteria(
+                fieldName: e.fieldName,
+                direction: e.sortDirection,
+              ))
+          .toList(),
+      groupBy: () => widget.groups,
+      aggregates: () => widget.aggregations,
+    );
+
+    _dataCache = ResponseCache<TItem>();
+
+    await FetchPage(pageNumber, false);
+
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  FutureOr<void> removeGroup(GroupCriteria group) async {
+    setState(() => isLoading = true);
+
+    widget.groups.remove(group);
+
+    criteria = criteria.copyWith(
+      skip: () => (pageNumber - 1) * widget.pageSize,
+      take: () => widget.pageSize,
+      filterBy: () => widget.columns
+          .where((c) => c.filterRules.criteria != null)
+          .map((c) => c.filterRules.criteria!)
+          .toList(),
+      orderBy: () => widget.columns
+          .where((c) => c.sortDirection != OrderDirections.notSet)
+          .map((e) => OrderCriteria(
+                fieldName: e.fieldName,
+                direction: e.sortDirection,
+              ))
+          .toList(),
+      groupBy: () => widget.groups,
+      aggregates: () => widget.aggregations,
+    );
+
+    _dataCache = ResponseCache<TItem>();
+
+    await FetchPage(pageNumber, false);
+
+    setState(() {
+      isLoading = false;
+    });
   }
 
   FutureOr<void> setPage(int pageNumber) async {
@@ -139,9 +240,21 @@ class ResponsiveDataGridState<TItem extends Object>
                   TitleRowWidget(widget.title!),
                 );
 
+              if (widget.allowGrouping) {
+                parts.add(
+                  GridGroupChooser<TItem>(
+                      gridState: this,
+                      theme: theme,
+                      addGroup: addGroup,
+                      removeGroup: removeGroup,
+                      updateGroup: updateGroup),
+                );
+              }
+
               parts.add(
                 ResponsiveDataGridHeaderRowWidget<TItem>(this, widget.columns),
               );
+
               parts.add(
                 FutureBuilder(
                   builder: (context, snapshot) {

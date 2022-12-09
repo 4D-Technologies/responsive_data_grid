@@ -183,12 +183,12 @@ ListResponse<TItem> applyCriteria<TItem extends Object>(
   //Order By
   final sortColumns = gridState.widget.columns
       .where((c) => c.sortDirection != OrderDirections.notSet)
-      .toList(growable: gridState.widget.groups != null);
+      .toList(growable: true);
 
   //We add the groups to the front as columns because that's most important for the grid to disply
-  if (gridState.widget.groups != null) {
-    for (int j = gridState.widget.groups!.length - 1; j >= 0; j--) {
-      final g = gridState.widget.groups![0];
+  if (gridState.widget.groups.isNotEmpty) {
+    for (int j = gridState.widget.groups.length - 1; j >= 0; j--) {
+      final g = gridState.widget.groups[0];
       final col = gridState.widget.columns
           .where((c) => c.fieldName == g.fieldName)
           .firstOrDefault();
@@ -229,6 +229,7 @@ ListResponse<TItem> applyCriteria<TItem extends Object>(
     items = sortedItems.toList();
   }
 
+  final filteredItems = List<TItem>.from(items);
   if (gridState.criteria.skip != null)
     items = items.skip(gridState.criteria.skip!).toList();
   if (gridState.criteria.take != null)
@@ -237,8 +238,8 @@ ListResponse<TItem> applyCriteria<TItem extends Object>(
   Map<String, List<GroupValueResult>> groupValuesMap = {};
   if (gridState.criteria.groupBy != null &&
       gridState.criteria.groupBy!.isNotEmpty) {
-    for (int j = gridState.widget.groups!.length - 1; j >= 0; j--) {
-      final g = gridState.widget.groups![0];
+    for (int j = gridState.widget.groups.length - 1; j >= 0; j--) {
+      final g = gridState.widget.groups[j];
       final col = gridState.widget.columns
           .where((c) => c.fieldName == g.fieldName)
           .firstOrDefault();
@@ -250,8 +251,9 @@ ListResponse<TItem> applyCriteria<TItem extends Object>(
       //Get the aggregates and values here.
       groupValuesMap.addAll({
         g.fieldName: values.map((v) {
-          final groupItems =
-              items.where((i) => col.value(i)?.toString() == v).toList();
+          final groupItems = filteredItems
+              .where((i) => col.value(i)?.toString() == v)
+              .toList();
 
           return GroupValueResult(
             value: v,
@@ -288,15 +290,14 @@ ListResponse<TItem> applyCriteria<TItem extends Object>(
     totalCount: gridState.widget.items!.length,
     items: items,
     groups: gridState.widget.groups
-            ?.where(
-              (g) => groupValuesMap.containsKey(g.fieldName),
-            )
-            .map((g) => GroupResult(
-                  fieldName: g.fieldName,
-                  values: groupValuesMap[g.fieldName]!,
-                ))
-            .toList() ??
-        [],
+        .where(
+          (g) => groupValuesMap.containsKey(g.fieldName),
+        )
+        .map((g) => GroupResult(
+              fieldName: g.fieldName,
+              values: groupValuesMap[g.fieldName]!,
+            ))
+        .toList(),
     aggregates: aggregates,
   );
 }

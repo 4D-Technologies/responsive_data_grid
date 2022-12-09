@@ -7,8 +7,8 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
   final void Function(TItem)? itemTapped;
 
   final List<GridColumn<TItem, dynamic>> columns;
-  final List<GroupCriteria>? groups;
-  final List<AggregateCriteria>? aggregations;
+  final List<GroupCriteria> groups;
+  final List<AggregateCriteria> aggregations;
   final int pageSize;
   final double? height;
   final double? separatorThickness;
@@ -35,8 +35,8 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
     required Future<ListResponse<TItem>?> Function(LoadCriteria criteria)
         loadData,
     required this.columns,
-    this.groups,
-    this.aggregations,
+    List<GroupCriteria>? groups,
+    List<AggregateCriteria>? aggregations,
     this.itemTapped,
     this.separatorThickness,
     this.pageSize = 50,
@@ -55,16 +55,19 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
     this.pagingMode = PagingMode.auto,
     this.maximumRows = 99999,
   })  : this.items = null,
-        this.loadData = loadData;
+        this.loadData = loadData,
+        this.groups = groups ?? List<GroupCriteria>.empty(growable: true),
+        this.aggregations =
+            aggregations ?? List<AggregateCriteria>.empty(growable: true);
 
   ResponsiveDataGrid.clientSide({
     GlobalKey<ResponsiveDataGridState<TItem>>? key,
     required List<TItem> items,
     required this.columns,
-    this.groups,
+    List<GroupCriteria>? groups,
     this.groupIndent = 15,
     this.allowGrouping = false,
-    this.aggregations,
+    List<AggregateCriteria>? aggregations,
     this.itemTapped,
     this.separatorThickness,
     this.pageSize = 50,
@@ -86,7 +89,10 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
     this.pagingMode = PagingMode.auto,
     this.maximumRows = 99999,
   })  : this.items = items,
-        this.loadData = null;
+        this.loadData = null,
+        this.groups = groups ?? List<GroupCriteria>.empty(growable: true),
+        this.aggregations =
+            aggregations ?? List<AggregateCriteria>.empty(growable: true);
 
   @override
   State<StatefulWidget> createState() => ResponsiveDataGridState<TItem>();
