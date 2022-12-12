@@ -1,12 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Runtime.Serialization;
-using System.Text.Json.Serialization;
-using ClientFiltering.Enums;
-
 namespace ClientFiltering.Models;
 [DataContract]
-public record struct GroupCriteria
+public readonly record struct GroupCriteria
 {
     [DataMember]
     public string FieldName { get; init; }

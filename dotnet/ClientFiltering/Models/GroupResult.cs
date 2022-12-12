@@ -1,10 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Runtime.Serialization;
-
 namespace ClientFiltering.Models;
 [DataContract]
-public record struct GroupResult
+public readonly record struct GroupResult
 {
     [DataMember]
     public string FieldName { get; init; }

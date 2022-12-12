@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Linq.Dynamic.Core;
-using System.Linq.Expressions;
+﻿using System.Linq.Dynamic.Core;
 using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using ClientFiltering.Enums;
 using ClientFiltering.Models;
 
 using GroupResult = ClientFiltering.Models.GroupResult;
@@ -205,9 +199,8 @@ public static class LoadCriteriaExtensions
                 sb.AppendLine("}");
             }
 
-            object[]? obj = await source2?.Select(sb.ToString()).ToDynamicArrayAsync(cancellationToken);
+            var array = source2 == null ? Array.Empty<Object>() : await source2.Select(sb.ToString()).ToDynamicArrayAsync(cancellationToken);
             List<GroupValueResult> list = new();
-            object[] array = obj;
             foreach (dynamic val in array)
             {
                 List<AggregateResult> list2 = new();

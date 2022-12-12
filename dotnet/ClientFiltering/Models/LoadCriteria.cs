@@ -1,19 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Runtime.Serialization;
-
-using ClientFiltering.Enums;
-
 namespace ClientFiltering.Models;
 
 /// <summary>
 /// Load Crtieria for api calls that return lists
 /// </summary>
 [DataContract]
-public record struct LoadCriteria
+public readonly record struct LoadCriteria
 {
     /// <summary>
     /// How far to skip into the records? (for paging)
