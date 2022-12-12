@@ -116,5 +116,35 @@ namespace ClientFilteringTests
             results.Should().HaveCount(1);
             results.First().Name.Should().BeEquivalentTo("Test User");
         }
+
+        [Fact]
+        public void FilterByNullableProperty()
+        {
+            var contact = new Contact(Id: Guid.NewGuid().ToString(),
+                            Name: "Test User",
+                            DateOfBirth: new DateTime(1977, 6, 17),
+                            Child: new Contact(Id: Guid.NewGuid().ToString(), Name: "Test Child", new DateTime(2010, 1, 26)),
+                            OrganizationId: 100000
+                            );
+
+            var contacts = new List<Contact>(new[] { contact });
+
+            var criteria = new LoadCriteria
+            {
+                FilterBy = new[] {
+                    new FilterCriteria {
+                        FieldName = nameof(Contact.OrganizationId),
+                        LogicalOperator = Logic.Equals,
+                        Values = new [] {"100000"},
+                    }
+                }
+            };
+
+            var query = contacts.AsQueryable().ApplyLoadCriteria(criteria);
+            var results = query.ToArray();
+
+            results.Should().HaveCount(1);
+            results.First().Name.Should().BeEquivalentTo("Test User");
+        }
     }
 }
