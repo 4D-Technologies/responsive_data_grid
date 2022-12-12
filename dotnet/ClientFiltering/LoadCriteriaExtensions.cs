@@ -518,35 +518,35 @@ public static class LoadCriteriaExtensions
         {
             return Expression.Constant(null, property.Type);
         }
-        else if (property.Type == typeof(bool))
+        else if (property.Type == typeof(bool) || property.Type == typeof(Nullable<bool>))
         {
             return Expression.Constant(Convert.ToBoolean(value), property.Type);
         }
-        else if (property.Type == typeof(int))
+        else if (property.Type == typeof(int) || property.Type == typeof(Nullable<int>))
         {
             return Expression.Constant(Convert.ToInt32(value), property.Type);
         }
-        else if (property.Type == typeof(double))
+        else if (property.Type == typeof(double) || property.Type == typeof(Nullable<double>))
         {
             return Expression.Constant(Convert.ToDouble(value), property.Type);
         }
-        else if (property.Type == typeof(float))
+        else if (property.Type == typeof(float) || property.Type == typeof(Nullable<float>))
         {
             return Expression.Constant(Convert.ToSingle(value), property.Type);
         }
-        else if (property.Type == typeof(decimal))
+        else if (property.Type == typeof(decimal) || property.Type == typeof(Nullable<decimal>))
         {
             return Expression.Constant(Convert.ToDecimal(value), property.Type);
         }
-        else if (property.Type == typeof(long))
+        else if (property.Type == typeof(long) || property.Type == typeof(Nullable<long>))
         {
             return Expression.Constant(Convert.ToInt64(value), property.Type);
         }
-        else if (property.Type == typeof(DateTimeOffset))
+        else if (property.Type == typeof(DateTimeOffset) || property.Type == typeof(Nullable<DateTimeOffset>))
         {
             return Expression.Constant(DateTimeOffset.ParseExact(value, "o", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.RoundtripKind), property.Type);
         }
-        else if (property.Type == typeof(DateTime))
+        else if (property.Type == typeof(DateTime) || property.Type == typeof(Nullable<DateTime>))
         {
             return Expression.Constant(DateTime.ParseExact(value, "o", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.RoundtripKind), property.Type);
         }
