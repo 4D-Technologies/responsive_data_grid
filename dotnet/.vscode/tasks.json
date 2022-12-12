@@ -19,6 +19,8 @@
             "type": "process",
             "args": [
                 "publish",
+                "-c",
+                "release",
                 "${workspaceFolder}/ClientFilteringTests/ClientFilteringTests.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
