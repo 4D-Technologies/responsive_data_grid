@@ -2,7 +2,6 @@ part of responsive_data_grid;
 
 class GridGroupFooter<TItem extends Object> extends StatelessWidget {
   final GroupResult group;
-  final GroupValueResult value;
   final int groupCount;
   final ResponsiveDataGridState gridState;
   final ThemeData theme;
@@ -10,7 +9,6 @@ class GridGroupFooter<TItem extends Object> extends StatelessWidget {
   GridGroupFooter({
     required this.group,
     required this.groupCount,
-    required this.value,
     required this.theme,
     required this.gridState,
   }) {
@@ -48,7 +46,7 @@ class GridGroupFooter<TItem extends Object> extends StatelessWidget {
   List<BootstrapCol> getColumns(BuildContext context) {
     return gridState.widget.columns.map(
       (c) {
-        final agg = value.aggregates
+        final agg = group.aggregates
             .where((a) => a.fieldName == c.fieldName)
             .firstOrDefault();
         return BootstrapCol(

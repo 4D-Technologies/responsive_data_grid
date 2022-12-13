@@ -20,7 +20,7 @@ class _ResponsiveGridInfiniteScrollBodyWidgetState<TItem extends Object>
     extends State<ResponsiveGridInfiniteScrollBodyWidget<TItem>> {
   final _controller = PagingController<int, TItem>(firstPageKey: 1);
 
-  late List<TItem>? _allItems;
+  late ListResponse<TItem>? _allItems;
   late int pageSize;
 
   @override
@@ -30,7 +30,13 @@ class _ResponsiveGridInfiniteScrollBodyWidgetState<TItem extends Object>
     pageSize = widget.gridState.widget.pageSize;
 
     if (widget.gridState.widget.items != null) {
-      _allItems = applyCriteria(widget.gridState).items;
+      _allItems = ListResponse.fromData(
+        data: widget.gridState.widget.items!,
+        criteria: widget.gridState.criteria,
+        getFieldValue: (fieldName, item) => widget.gridState.widget.columns
+            .firstWhere((c) => c.fieldName == fieldName)
+            .value(item),
+      );
     } else {
       _allItems = null;
     }
@@ -50,11 +56,11 @@ class _ResponsiveGridInfiniteScrollBodyWidgetState<TItem extends Object>
 
     try {
       if (_allItems != null) {
-        totalCount = _allItems!.length;
+        totalCount = _allItems!.totalCount;
         int start = (page - 1) * pageSize;
-        items = _allItems!.sublist(
+        items = _allItems!.items.sublist(
           start,
-          math.min(start + pageSize, _allItems!.length),
+          math.min(start + pageSize, _allItems!.totalCount),
         );
       } else {
         final result = await widget.gridState.widget.loadData!(

@@ -6,6 +6,11 @@ public readonly record struct GroupResult
     public string FieldName { get; init; }
 
     [DataMember]
-    public IEnumerable<GroupValueResult> Values { get; init; }
+    public String? Value { get; init; }
 
+    [DataMember]
+    public IEnumerable<AggregateResult> Aggregates { get; init; }
+
+    [DataMember]
+    public IEnumerable<GroupResult> SubGroups { get; init; }
 }

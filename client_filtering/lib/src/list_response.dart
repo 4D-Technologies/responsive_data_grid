@@ -36,6 +36,49 @@ class ListResponse<T> extends SimpleListResponse<T> {
         ),
       );
 
+  factory ListResponse.fromData({
+    required List<T> data,
+    required LoadCriteria criteria,
+    required dynamic Function(String fieldName, T item) getFieldValue,
+  }) {
+    var items = criteria.filterItems(data: data, getFieldValue: getFieldValue);
+    items = criteria.orderItems(items: items, getFieldValue: getFieldValue);
+
+    final totalCount = items.length;
+
+    //Overall aggregates must be done on the filtered and ordered values that aren't paged.
+    List<AggregateResult> aggregates;
+    if (criteria.aggregates == null || criteria.aggregates!.isEmpty) {
+      aggregates = List<AggregateResult>.empty();
+    } else {
+      aggregates = criteria.aggregates!
+          .map((e) => criteria.createAggregation(
+              items: items, getFieldValue: getFieldValue, criteria: e))
+          .toList();
+    }
+
+    if (criteria.skip != null) items = items.skip(criteria.skip!).toList();
+    if (criteria.take != null) items = items.take(criteria.take!).toList();
+
+    //Grouping must be done on the paging of the items so that only the paged items show up in the groups
+    List<GroupResult> groupResults;
+    if (criteria.groupBy == null || criteria.groupBy!.isEmpty) {
+      groupResults = List<GroupResult>.empty();
+    } else {
+      groupResults = criteria.groupItems(
+          criteria: criteria.groupBy!.first,
+          items: items,
+          getFieldValue: getFieldValue);
+    }
+
+    return ListResponse<T>(
+      totalCount: totalCount,
+      items: items.toList(),
+      groups: groupResults,
+      aggregates: aggregates,
+    );
+  }
+
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;

@@ -44,15 +44,7 @@ class ResponseCache<TItem extends Object> {
       if (existing == null) {
         groups.add(g);
       } else {
-        g.values.forEach((e) {
-          final existingValue =
-              existing.values.where((f) => f.value == e.value).firstOrDefault();
-          if (existingValue == null) {
-            existing.values.add(e);
-          } else {
-            existing.values[existing.values.indexOf(existingValue)] = e;
-          }
-        });
+        groups[groups.indexOf(existing)] = g;
       }
     });
 

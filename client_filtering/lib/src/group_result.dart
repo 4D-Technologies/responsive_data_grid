@@ -2,19 +2,28 @@ part of client_filtering;
 
 class GroupResult {
   final String fieldName;
-  final List<GroupValueResult> values;
+  final String? value;
+  final List<AggregateResult> aggregates;
+  final List<GroupResult> subGroups;
 
   const GroupResult({
     required this.fieldName,
-    required this.values,
+    required this.value,
+    required this.aggregates,
+    required this.subGroups,
   });
 
   factory GroupResult.fromJson(Map<String, dynamic> json) {
     return GroupResult(
       fieldName: json['fieldName'].toString(),
-      values: (json["values"] as List)
-          .map((dynamic model) =>
-              GroupValueResult.fromJson(model as Map<String, dynamic>))
+      value: json['value']?.toString(),
+      aggregates: (json["aggregates"] as List)
+          .map<AggregateResult>((dynamic model) =>
+              AggregateResult.fromJson(model as Map<String, dynamic>))
+          .toList(),
+      subGroups: (json["subGroups"] as List)
+          .map<GroupResult>((dynamic model) =>
+              GroupResult.fromJson(model as Map<String, dynamic>))
           .toList(),
     );
   }
@@ -25,11 +34,16 @@ class GroupResult {
 
     return other is GroupResult &&
         other.fieldName == fieldName &&
-        other.values == values;
+        other.value == value &&
+        other.aggregates == aggregates &&
+        other.subGroups == subGroups;
   }
 
   @override
   int get hashCode {
-    return fieldName.hashCode ^ values.hashCode;
+    return fieldName.hashCode ^
+        value.hashCode ^
+        aggregates.hashCode ^
+        subGroups.hashCode;
   }
 }

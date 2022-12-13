@@ -168,7 +168,13 @@ class ResponsiveDataGridState<TItem extends Object>
     }
 
     if (widget.items != null) {
-      response = applyCriteria(this);
+      response = ListResponse.fromData(
+        data: widget.items!,
+        criteria: criteria,
+        getFieldValue: (fieldName, item) => widget.columns
+            .firstWhere((c) => c.fieldName == fieldName)
+            .value(item),
+      );
     } else if (widget.loadData != null) {
       response = await widget.loadData!(
             LoadCriteria(

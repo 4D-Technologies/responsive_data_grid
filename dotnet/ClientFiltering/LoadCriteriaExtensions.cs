@@ -15,9 +15,17 @@ public static class LoadCriteriaExtensions
     {
         IQueryable<TEntity> filteredAndOrderedResult = query.ApplyLoadCriteria(criteria);
 
-        IEnumerable<GroupResult> groupResults = await query.CreateGroupResultsFromAppliedCriteria(filteredAndOrderedResult, criteria?.GroupBy?.ToArray(), cancellationToken);
+        IEnumerable<GroupResult> groupResults;
+        if (criteria?.GroupBy == null)
+        {
+            groupResults = Array.Empty<GroupResult>();
+        }
+        else
+        {
+            groupResults = await query.CreateGroupResultsFromAppliedCriteria(filteredAndOrderedResult, criteria.Value.GroupBy.GetEnumerator(), cancellationToken);
+        }
 
-        IEnumerable<AggregateResult> aggregates = await query.CreateAggregatesFromAppliedCriteria(criteria?.Aggregates?.ToArray(), cancellationToken);
+        var aggregates = await query.CreateAggregatesFromAppliedCriteria(criteria?.Aggregates?.ToArray(), cancellationToken);
 
         var result = new Result<TEntity>
         {
@@ -113,124 +121,69 @@ public static class LoadCriteriaExtensions
         return list;
     }
 
-    public static async Task<IEnumerable<GroupResult>> CreateGroupResultsFromAppliedCriteria<T>(this IQueryable<T> rawQuery, IQueryable<T> resultQuery, GroupCriteria[]? groups, CancellationToken cancellationToken = default)
+    public static IEnumerable<AggregateResult> GetAggregates<T>(IQueryable<T> query, IEnumerable<AggregateCriteria> aggregates)
     {
-        if (groups == null || !groups.Any())
+        return aggregates.Select(a =>
         {
-            return Enumerable.Empty<GroupResult>();
-        }
+            object result;
+            switch (a.Aggregation)
+            {
+                case Aggregations.Sum:
+                    result = query.Sum(a.FieldName);
+                    break;
+                case Aggregations.Average:
+                    result = query.Average(a.FieldName);
+                    break;
+                case Aggregations.Count:
+                    result = query.Count();
+                    break;
+                case Aggregations.Maximum:
+                    result = query.Max(a.FieldName);
+                    break;
+                case Aggregations.Minimum:
+                    result = query.Min(a.FieldName);
+                    break;
+                default:
+                    throw new NotImplementedException($"The aggregation type {a.Aggregation} is not implemented.");
+            }
 
-        List<GroupResult> results = new();
-        for (int i = 0; i < groups!.Length; i++)
+            return new AggregateResult
+            {
+                FieldName = a.FieldName,
+                Result = result?.ToString(),
+                Aggregation = a.Aggregation,
+            };
+        });
+    }
+
+    public static async Task<IEnumerable<GroupResult>> CreateGroupResultsFromAppliedCriteria<T>(this IQueryable<T> rawQuery, IQueryable<T> resultQuery, IEnumerator<GroupCriteria> enumerator, CancellationToken cancellationToken = default)
+    {
+        var currentGroup = enumerator.Current;
+
+        IEnumerable<string?> groupValues = ((IQueryable<IGrouping<object, T>>)resultQuery
+                                                .GroupBy(currentGroup.FieldName))
+                                                .Select((IGrouping<object, T> r) => r.Key == null ? null : r.Key.ToString())
+                                                .Distinct()
+                                                .ToArray();
+
+        return await Task.WhenAll(groupValues.Select(async v =>
         {
-            GroupCriteria groupBy = groups[i];
-            if (!groupBy.Aggregates.Any())
+            var aggregates = Enumerable.Empty<AggregateResult>();
+            var subGroups = Enumerable.Empty<GroupResult>();
+
+            var groupItemQuery = resultQuery.Where($"{currentGroup.FieldName} == \"{v}\"");
+
+            var hasAdditionalGroup = enumerator.MoveNext();
+
+            return new GroupResult
             {
-                results.Add(new GroupResult
-                {
-                    FieldName = groupBy.FieldName,
-                    Values = Enumerable.Empty<GroupValueResult>()
-                });
-                continue;
-            }
-
-            var source = rawQuery.GroupBy(groupBy.FieldName) as IQueryable<IGrouping<object, T>>;
-
-            object[] groupValues = ((IQueryable<IGrouping<object, T>>)resultQuery.GroupBy(groupBy.FieldName)).Select((IGrouping<object, T> r) => r.Key).Distinct().ToArray();
-
-            var source2 = source?.Where((IGrouping<object, T> g) => groupValues.Contains(g.Key));
-            var sb = new StringBuilder("new {");
-            sb.AppendLine("\tKey,");
-            for (int j = 0; j < groupBy.Aggregates.Count(); j++)
-            {
-                AggregateCriteria aggregateCriteria = groupBy.Aggregates.ElementAt(j);
-                switch (aggregateCriteria.Aggregation)
-                {
-                    case Aggregations.Sum:
-                        {
-                            sb.Append("\tSum(");
-                            sb.Append(aggregateCriteria.FieldName);
-                            sb.Append(") as V");
-                            sb.Append(j);
-                            sb.Append(',');
-                            sb.AppendLine();
-                            break;
-                        }
-                    case Aggregations.Average:
-                        {
-                            sb.Append("\tAverage(");
-                            sb.Append(aggregateCriteria.FieldName);
-                            sb.Append(") as V");
-                            sb.Append(j);
-                            sb.Append(',');
-                            sb.AppendLine();
-                            break;
-                        }
-                    case Aggregations.Count:
-                        {
-                            sb.Append("\tCount() as V");
-                            sb.Append(j);
-                            sb.Append(',');
-                            sb.AppendLine();
-                            break;
-                        }
-                    case Aggregations.Maximum:
-                        {
-                            sb.Append("\tMax(");
-                            sb.Append(aggregateCriteria.FieldName);
-                            sb.Append(") as V");
-                            sb.Append(j);
-                            sb.Append(',');
-                            sb.AppendLine();
-                            break;
-                        }
-                    case Aggregations.Minimum:
-                        {
-                            sb.Append("\tMin(");
-                            sb.Append(aggregateCriteria.FieldName);
-                            sb.Append(") as V");
-                            sb.Append(j);
-                            sb.Append(',');
-                            sb.AppendLine();
-                            break;
-                        }
-                }
-
-                sb.AppendLine("}");
-            }
-
-            var array = source2 == null ? Array.Empty<Object>() : await source2.Select(sb.ToString()).ToDynamicArrayAsync(cancellationToken);
-            List<GroupValueResult> list = new();
-            foreach (dynamic val in array)
-            {
-                List<AggregateResult> list2 = new();
-                for (int l = 0; l < groupBy.Aggregates.Count(); l++)
-                {
-                    AggregateCriteria aggregateCriteria2 = groupBy.Aggregates.ElementAt(l);
-                    object value = val.GetType().GetProperties()[l + 1].GetValue(val);
-                    list2.Add(new AggregateResult
-                    {
-                        Aggregation = aggregateCriteria2.Aggregation,
-                        FieldName = aggregateCriteria2.FieldName,
-                        Result = (value == null) ? null : ((value.GetType() == typeof(DateTimeOffset)) ? ((DateTimeOffset)value).ToString("o") : ((value.GetType() == typeof(DateTime)) ? ((DateTime)value).ToString("o") : value.ToString()))
-                    });
-                }
-
-                list.Add(new GroupValueResult
-                {
-                    Value = val.GetType().GetProperties()[0].GetValue(val).ToString(),
-                    Aggregates = list2
-                });
-            }
-
-            results.Add(new ClientFiltering.Models.GroupResult
-            {
-                FieldName = groupBy.FieldName,
-                Values = list
-            });
-        }
-
-        return results;
+                FieldName = currentGroup.FieldName,
+                Value = v,
+                Aggregates = GetAggregates(groupItemQuery, currentGroup.Aggregates),
+                SubGroups = !hasAdditionalGroup ? Enumerable.Empty<GroupResult>() :
+                                await CreateGroupResultsFromAppliedCriteria(rawQuery, groupItemQuery, enumerator, cancellationToken)
+            };
+        }));
     }
 
     public static Logic ToLogic(this Expression expression, bool isParentNot = false)

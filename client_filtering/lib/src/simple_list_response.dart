@@ -9,6 +9,25 @@ class SimpleListResponse<T> {
     required this.items,
   });
 
+  factory SimpleListResponse.fromData({
+    required List<T> data,
+    required LoadCriteria criteria,
+    required dynamic Function(String fieldName, T item) getFieldValue,
+  }) {
+    var items = criteria.filterItems(data: data, getFieldValue: getFieldValue);
+    items = criteria.orderItems(items: items, getFieldValue: getFieldValue);
+
+    final totalCount = items.length;
+
+    if (criteria.skip != null) items = items.skip(criteria.skip!).toList();
+    if (criteria.take != null) items = items.take(criteria.take!).toList();
+
+    return SimpleListResponse<T>(
+      totalCount: totalCount,
+      items: items.toList(),
+    );
+  }
+
   factory SimpleListResponse.fromJson(
     Map<String, dynamic> json,
     T Function(Map<String, dynamic>) objectMapper,

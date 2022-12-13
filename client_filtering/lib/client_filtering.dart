@@ -2,8 +2,10 @@ library client_filtering;
 
 import 'dart:convert';
 
+import 'package:darq/darq.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:collection/collection.dart';
 
 part './src/enums.dart';
 part './src/filter_criteria.dart';
@@ -12,7 +14,6 @@ part './src/order_criteria.dart';
 part './src/ijsonable.dart';
 part './src/group_criteria.dart';
 part './src//group_result.dart';
-part './src/group_value_result.dart';
 part './src/aggregate_criteria.dart';
 part './src/aggregate_result.dart';
 

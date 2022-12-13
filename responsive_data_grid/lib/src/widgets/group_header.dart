@@ -2,11 +2,9 @@ part of responsive_data_grid;
 
 class GridGroupHeader extends StatelessWidget {
   final GroupResult group;
-  final GroupValueResult value;
   final ThemeData theme;
   GridGroupHeader({
     required this.group,
-    required this.value,
     required this.theme,
   });
 
@@ -17,12 +15,12 @@ class GridGroupHeader extends StatelessWidget {
       child: Padding(
         child: Row(
           children: [
-            IconButton(
-              onPressed: () {},
-              icon: Icon(Icons.arrow_drop_down),
-            ),
+            // IconButton(
+            //   onPressed: () {},
+            //   icon: Icon(Icons.arrow_drop_down),
+            // ),
             Text(
-              value.value ?? LocalizedMessages.noEntry,
+              group.value ?? LocalizedMessages.noEntry,
               style: theme.primaryTextTheme.headline6,
             ),
           ],

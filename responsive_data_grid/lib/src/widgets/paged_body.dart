@@ -17,7 +17,7 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
     if (pageData.groups.isNotEmpty) {
       child = buildGroups(
         pageData,
-        pageData.groups.first,
+        pageData.groups,
         pageData.items,
       );
     } else {
@@ -27,42 +27,40 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
     return child;
   }
 
-  Widget buildGroups(ListResponse<TItem> response, GroupResult currentGroup,
+  Widget buildGroups(ListResponse<TItem> response, List<GroupResult> groups,
       List<TItem> items) {
     final col = gridState.widget.columns
-        .firstWhere((c) => c.fieldName == currentGroup.fieldName);
+        .firstWhere((c) => c.fieldName == groups.first.fieldName);
 
     return ListView.builder(
       itemBuilder: (context, index) {
-        final value = currentGroup.values[index];
+        final group = groups[index];
 
         final groupItems = items
-            .where((e) => col.value(e)?.toString() == value.value)
+            .where((e) => col.value(e)?.toString() == group.value)
             .toList();
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             GridGroupHeader(
-              group: currentGroup,
-              value: value,
+              group: group,
               theme: theme,
             ),
             Padding(
               padding: EdgeInsets.only(left: 15),
-              child: response.groups.last == currentGroup
+              child: group.subGroups.isEmpty
                   ? getPage(
                       groupItems,
                     )
                   : buildGroups(
                       response,
-                      currentGroup,
+                      group.subGroups,
                       groupItems,
                     ),
             ),
             GridGroupFooter<TItem>(
-              group: currentGroup,
-              value: value,
+              group: group,
               gridState: gridState,
               theme: theme,
               groupCount: response.groups.length,
@@ -70,7 +68,7 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
           ],
         );
       },
-      itemCount: currentGroup.values.length,
+      itemCount: groups.length,
       shrinkWrap: true,
     );
   }

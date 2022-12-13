@@ -10,7 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart';
-import 'package:collection/collection.dart';
 
 part './src/response_cache.dart';
 part './src/filters/column_filter.dart';
@@ -27,8 +26,6 @@ part './src/filters/filter_result.dart';
 part './src/filters/no_filter.dart';
 
 part './src/rules/filter.dart';
-
-part './src/loadresult.dart';
 
 //part './src/rows/header.dart';
 
