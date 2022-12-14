@@ -7,6 +7,7 @@ class ColumnHeader {
   final TextAlign textAlign;
   final bool showFilter;
   final bool showOrderBy;
+  final bool showAggregations;
   final TextStyle? textStyle;
   final Color? backgroundColor;
   final Color? foregroundColor;
@@ -17,6 +18,7 @@ class ColumnHeader {
     this.alignment = Alignment.centerLeft,
     this.showFilter = false,
     this.showOrderBy = false,
+    this.showAggregations = false,
     this.textAlign = TextAlign.start,
     this.backgroundColor,
     this.foregroundColor,

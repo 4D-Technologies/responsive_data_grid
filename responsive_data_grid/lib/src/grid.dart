@@ -29,6 +29,7 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
 
   final int groupIndent;
   final bool allowGrouping;
+  final bool allowAggregations;
 
   ResponsiveDataGrid.serverSide({
     GlobalKey<ResponsiveDataGridState<TItem>>? key,
@@ -53,6 +54,7 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
     this.contentPadding = const EdgeInsets.all(3),
     this.elevation = 0,
     this.pagingMode = PagingMode.auto,
+    this.allowAggregations = false,
     this.maximumRows = 99999,
   })  : this.items = null,
         this.loadData = loadData,
@@ -87,6 +89,7 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
     ),
     this.elevation = 0,
     this.pagingMode = PagingMode.auto,
+    this.allowAggregations = false,
     this.maximumRows = 99999,
   })  : this.items = items,
         this.loadData = null,

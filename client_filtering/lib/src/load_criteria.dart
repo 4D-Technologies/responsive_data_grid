@@ -262,13 +262,14 @@ class LoadCriteria with IJsonable {
 
     if (groupBy != null) {
       for (int j = groupBy!.length - 1; j >= 0; j--) {
-        final g = groupBy![0];
+        final g = groupBy![j];
 
-        if (!orderInfo.any((c) => c.fieldName == g.fieldName))
-          orderInfo.insert(
-            0,
-            OrderCriteria(fieldName: g.fieldName, direction: g.direction),
-          );
+        orderInfo.removeWhere((c) => c.fieldName == g.fieldName);
+
+        orderInfo.insert(
+          0,
+          OrderCriteria(fieldName: g.fieldName, direction: g.direction),
+        );
       }
     }
 
@@ -315,6 +316,7 @@ class LoadCriteria with IJsonable {
   List<GroupResult> groupItems<T>({
     required GroupCriteria criteria,
     required Iterable<T> items,
+    required Iterable<T> allItems,
     required dynamic Function(String fieldName, T item) getFieldValue,
   }) {
     //Get all of the values for the given column
@@ -336,10 +338,14 @@ class LoadCriteria with IJsonable {
           .where((i) => getFieldValue(criteria.fieldName, i)?.toString() == e)
           .toList();
 
+      final allValueItems = allItems
+          .where((i) => getFieldValue(criteria.fieldName, i)?.toString() == e)
+          .toList();
+
       //Get group aggregates here
       final aggregates = criteria.aggregates
           .map((e) => createAggregation(
-                items: valueItems,
+                items: allValueItems,
                 getFieldValue: getFieldValue,
                 criteria: e,
               ))
@@ -354,6 +360,7 @@ class LoadCriteria with IJsonable {
             : groupItems(
                 criteria: nextGroupCriteria,
                 items: valueItems,
+                allItems: allItems,
                 getFieldValue: getFieldValue,
               ),
       );

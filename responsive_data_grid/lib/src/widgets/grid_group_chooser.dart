@@ -41,7 +41,14 @@ class GridGroupChooser<TItem> extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(col.header.text ?? col.fieldName),
+                      Icon(
+                        Icons.account_tree,
+                        color: theme.primaryIconTheme.color,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(left: 4),
+                        child: Text(col.header.text ?? col.fieldName),
+                      ),
                       IconButton(
                         onPressed: () {
                           OrderDirections newDirection;
@@ -72,6 +79,14 @@ class GridGroupChooser<TItem> extends StatelessWidget {
                                   : Icons.sort,
                         ),
                       ),
+                      Visibility(
+                        visible: gridState.widget.allowAggregations,
+                        child: IconButton(
+                          onPressed: () {},
+                          icon: Icon(Icons.assessment,
+                              color: theme.primaryIconTheme.color),
+                        ),
+                      ),
                       IconButton(
                         onPressed: () {
                           removeGroup(g);
@@ -85,10 +100,9 @@ class GridGroupChooser<TItem> extends StatelessWidget {
             );
           }).toList(growable: true);
 
-    children.add(Spacer());
     children.add(
       Padding(
-        padding: EdgeInsets.all(4),
+        padding: EdgeInsets.only(top: 4, bottom: 4),
         child: DecoratedBox(
           decoration: BoxDecoration(
             color: theme.buttonTheme.colorScheme!.background,
@@ -98,7 +112,10 @@ class GridGroupChooser<TItem> extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text("Add Group"),
+                Icon(
+                  Icons.add,
+                  color: theme.primaryIconTheme.color,
+                ),
                 DropdownButton<String>(
                     items: gridState.widget.columns
                         .orderBy((e) => e.header.text ?? e.fieldName)
@@ -110,9 +127,10 @@ class GridGroupChooser<TItem> extends StatelessWidget {
                       if (value == null) return;
                       addGroup(
                         GroupCriteria(
-                            fieldName: value,
-                            aggregates: [],
-                            direction: OrderDirections.ascending),
+                          fieldName: value,
+                          aggregates: [],
+                          direction: OrderDirections.ascending,
+                        ),
                       );
                     }),
               ],

@@ -129,12 +129,27 @@ class ColumnHeaderState<TItem extends Object, TValue extends dynamic>
         IconButton(
           icon: Icon(
             Icons.filter_list,
-            color: widget.definition.filterRules.criteria != null
+            color: widget.grid.widget.aggregations.isNotEmpty
                 ? accentIconTheme.color
                 : iconTheme.color,
             size: iconTheme.size,
           ),
           onPressed: () => toggleMenu(context),
+        ),
+      );
+    }
+
+    if (header.showAggregations) {
+      items.add(
+        IconButton(
+          icon: Icon(
+            Icons.assessment,
+            color: widget.definition.filterRules.criteria != null
+                ? accentIconTheme.color
+                : iconTheme.color,
+            size: iconTheme.size,
+          ),
+          onPressed: () {},
         ),
       );
     }

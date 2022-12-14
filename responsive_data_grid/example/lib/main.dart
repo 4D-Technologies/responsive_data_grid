@@ -113,6 +113,7 @@ class _MyHomePageState extends State<MyHomePage> {
         itemTapped: (row) => print(row.name),
         pageSize: 20,
         pagingMode: PagingMode.pager,
+        allowAggregations: true,
         aggregations: [
           AggregateCriteria(
             fieldName: "accepted",
@@ -145,6 +146,7 @@ class _MyHomePageState extends State<MyHomePage> {
               text: "Id",
               showFilter: true,
               showOrderBy: true,
+              showAggregations: true,
             ),
             value: (row) => row.id,
           ),
@@ -186,6 +188,7 @@ class _MyHomePageState extends State<MyHomePage> {
               text: "Accepted",
               showFilter: true,
               showOrderBy: true,
+              showAggregations: true,
             ),
             value: (row) => row.accepted,
             trueText: "Yes",

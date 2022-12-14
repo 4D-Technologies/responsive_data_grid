@@ -61,11 +61,17 @@ class ResponsiveDataGridState<TItem extends Object>
   FutureOr<void> updateGroup(GroupCriteria group) async {
     setState(() => isLoading = true);
 
-    widget.groups.replaceRange(
-      widget.groups.indexOf(group),
-      widget.groups.indexOf(group) + 1,
-      [group],
-    );
+    //Must use the indexWhere because the group has changed so equality won't work.
+    final currentIndex =
+        widget.groups.indexWhere((g) => g.fieldName == group.fieldName);
+
+    if (currentIndex >= 0) {
+      widget.groups.replaceRange(
+        currentIndex,
+        currentIndex + 1,
+        [group],
+      );
+    }
 
     criteria = criteria.copyWith(
       skip: () => (pageNumber - 1) * widget.pageSize,

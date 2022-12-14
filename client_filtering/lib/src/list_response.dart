@@ -44,9 +44,31 @@ class ListResponse<T> extends SimpleListResponse<T> {
     var items = criteria.filterItems(data: data, getFieldValue: getFieldValue);
     items = criteria.orderItems(items: items, getFieldValue: getFieldValue);
 
-    final totalCount = items.length;
+    //Create data page
+    List<T> pageItems;
+    if (criteria.skip != null && criteria.take != null) {
+      pageItems = items.skip(criteria.skip!).take(criteria.take!).toList();
+    } else if (criteria.skip != null) {
+      pageItems = items.skip(criteria.skip!).toList();
+    } else if (criteria.take != null) {
+      pageItems = items.take(criteria.take!).toList();
+    } else {
+      pageItems = List<T>.from(items);
+    }
 
-    //Overall aggregates must be done on the filtered and ordered values that aren't paged.
+    //Create Groups
+    List<GroupResult> groupResults;
+    if (criteria.groupBy == null || criteria.groupBy!.isEmpty) {
+      groupResults = List<GroupResult>.empty();
+    } else {
+      groupResults = criteria.groupItems(
+          criteria: criteria.groupBy!.first,
+          items: pageItems,
+          allItems: items,
+          getFieldValue: getFieldValue);
+    }
+
+    //Create overall aggregates
     List<AggregateResult> aggregates;
     if (criteria.aggregates == null || criteria.aggregates!.isEmpty) {
       aggregates = List<AggregateResult>.empty();
@@ -57,23 +79,9 @@ class ListResponse<T> extends SimpleListResponse<T> {
           .toList();
     }
 
-    if (criteria.skip != null) items = items.skip(criteria.skip!).toList();
-    if (criteria.take != null) items = items.take(criteria.take!).toList();
-
-    //Grouping must be done on the paging of the items so that only the paged items show up in the groups
-    List<GroupResult> groupResults;
-    if (criteria.groupBy == null || criteria.groupBy!.isEmpty) {
-      groupResults = List<GroupResult>.empty();
-    } else {
-      groupResults = criteria.groupItems(
-          criteria: criteria.groupBy!.first,
-          items: items,
-          getFieldValue: getFieldValue);
-    }
-
     return ListResponse<T>(
-      totalCount: totalCount,
-      items: items.toList(),
+      totalCount: items.length,
+      items: pageItems,
       groups: groupResults,
       aggregates: aggregates,
     );

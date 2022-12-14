@@ -18,7 +18,7 @@ dependencies:
   client_filtering:
     path: ../client_filtering
   date_time_picker: ^2.1.0
-  infinite_scroll_pagination: ^3.1.0
+  infinite_scroll_pagination: ^3.2.0
 
 dev_dependencies:
   flutter_lints: ^2.0.1
