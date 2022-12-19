@@ -9,9 +9,18 @@ import 'package:date_time_picker/date_time_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' as intl;
 
+part './src/widgets/aligned_dialog.dart';
 part './src/response_cache.dart';
+
+part './src/widgets//group_aggregate_chooser.dart';
+part './src/widgets/aggregation_chooser.dart';
+
+part 'src/widgets/dropdown_view_widget.dart';
+part './src/widgets/column_menu.dart';
+part './src/widgets/group_menu.dart';
+
 part './src/filters/column_filter.dart';
 part './src/filters/bool.dart';
 part './src/filters/datetime.dart';

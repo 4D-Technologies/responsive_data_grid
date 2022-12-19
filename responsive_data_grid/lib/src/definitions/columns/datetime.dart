@@ -8,6 +8,7 @@ class DateTimeColumn<TItem extends Object> extends GridColumn<TItem, DateTime> {
     required DateTime? Function(TItem row) value,
     DateTimeFilterRules<TItem>? filterRules,
     OrderDirections sortDirection = OrderDirections.notSet,
+    List<AggregateCriteria>? aggregations,
     String? format,
     double? width,
     double? minWidth,
@@ -46,5 +47,41 @@ class DateTimeColumn<TItem extends Object> extends GridColumn<TItem, DateTime> {
                 filterType: DateTimeFilterTypes.DateTime,
               ),
           sortDirection: sortDirection,
+          aggregations: aggregations,
         );
+
+  @override
+  List<AggregationChooser<TItem>> getAggregations({
+    required Iterable<AggregateCriteria> selected,
+    required void Function(AggregateCriteria aggregate, bool value) update,
+  }) =>
+      [
+        AggregationChooser(
+          column: this,
+          aggregation: Aggregations.average,
+          selected: selected,
+          update: update,
+        ),
+        AggregationChooser(
+          column: this,
+          aggregation: Aggregations.maxium,
+          selected: selected,
+          update: update,
+        ),
+        AggregationChooser(
+          column: this,
+          aggregation: Aggregations.minimum,
+          selected: selected,
+          update: update,
+        ),
+        AggregationChooser(
+          column: this,
+          aggregation: Aggregations.sum,
+          selected: selected,
+          update: update,
+        ),
+      ];
+
+  @override
+  bool get hasAggregations => true;
 }

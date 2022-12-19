@@ -8,6 +8,7 @@ class NumColumn<TItem extends Object> extends GridColumn<TItem, num> {
     required num? Function(TItem row) value,
     NumFilterRules<TItem>? filterRules,
     OrderDirections sortDirection = OrderDirections.notSet,
+    List<AggregateCriteria>? aggregations,
     String? format,
     double? width,
     double? minWidth,
@@ -43,5 +44,41 @@ class NumColumn<TItem extends Object> extends GridColumn<TItem, num> {
           xsCols: xsCols,
           filterRules: filterRules ?? NumFilterRules<TItem>(),
           sortDirection: sortDirection,
+          aggregations: aggregations,
         );
+
+  @override
+  List<AggregationChooser<TItem>> getAggregations({
+    required Iterable<AggregateCriteria> selected,
+    required void Function(AggregateCriteria aggregate, bool value) update,
+  }) =>
+      [
+        AggregationChooser(
+          column: this,
+          aggregation: Aggregations.average,
+          selected: selected,
+          update: update,
+        ),
+        AggregationChooser(
+          column: this,
+          aggregation: Aggregations.maxium,
+          selected: selected,
+          update: update,
+        ),
+        AggregationChooser(
+          column: this,
+          aggregation: Aggregations.minimum,
+          selected: selected,
+          update: update,
+        ),
+        AggregationChooser(
+          column: this,
+          aggregation: Aggregations.sum,
+          selected: selected,
+          update: update,
+        ),
+      ];
+
+  @override
+  bool get hasAggregations => true;
 }

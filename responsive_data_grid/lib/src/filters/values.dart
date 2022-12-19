@@ -85,35 +85,6 @@ class DataGridValuesColumnFilterState<TItem extends Object,
             title: e.value,
           ),
         ),
-        Row(
-          mainAxisSize: MainAxisSize.max,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            TextButton.icon(
-              onPressed: () => super.clear(context),
-              icon: Icon(Icons.clear_all),
-              label: Text(LocalizedMessages.clear),
-            ),
-            Spacer(
-              flex: 2,
-            ),
-            TextButton.icon(
-              onPressed: () => values.isEmpty
-                  ? super.clear(context)
-                  : super.filter(
-                      context,
-                      FilterCriteria(
-                        fieldName: widget.definition.fieldName,
-                        logicalOperator: op,
-                        op: Operators.and,
-                        values: values,
-                      ),
-                    ),
-              icon: Icon(Icons.save),
-              label: Text(LocalizedMessages.apply),
-            )
-          ],
-        ),
       ],
     );
   }

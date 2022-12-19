@@ -45,4 +45,21 @@ class BoolColumn<TItem extends Object> extends GridColumn<TItem, bool> {
           filterRules: filterRules ?? BoolFilterRules<TItem>(),
           sortDirection: sortDirection,
         );
+
+  @override
+  List<AggregationChooser<TItem>> getAggregations({
+    required Iterable<AggregateCriteria> selected,
+    required void Function(AggregateCriteria aggregate, bool value) update,
+  }) =>
+      [
+        AggregationChooser(
+          column: this,
+          aggregation: Aggregations.count,
+          selected: selected,
+          update: update,
+        ),
+      ];
+
+  @override
+  bool get hasAggregations => true;
 }

@@ -7,6 +7,7 @@ abstract class GridColumn<TItem extends Object, TValue extends dynamic> {
   final ColumnHeader header;
   FilterRules<TItem, DataGridColumnFilter<TItem, TValue>, TValue> filterRules;
   OrderDirections sortDirection;
+  List<AggregateCriteria> aggregations;
   final double? width;
   final double? minWidth;
   final double? maxWidth;
@@ -28,7 +29,7 @@ abstract class GridColumn<TItem extends Object, TValue extends dynamic> {
     required this.customFieldWidget,
     required this.value,
     required this.filterRules,
-    required this.sortDirection,
+    this.sortDirection = OrderDirections.notSet,
     required this.format,
     required this.width,
     required this.minWidth,
@@ -43,7 +44,9 @@ abstract class GridColumn<TItem extends Object, TValue extends dynamic> {
     required this.foregroundColor,
     required this.accentColor,
     required this.alignment,
-  }) {
+    List<AggregateCriteria>? aggregations,
+  }) : this.aggregations =
+            aggregations ?? List<AggregateCriteria>.empty(growable: true) {
     assert(TItem != Object);
   }
 
@@ -52,4 +55,11 @@ abstract class GridColumn<TItem extends Object, TValue extends dynamic> {
 
     return ColumnHeaderWidget<TItem, TValue>(grid, this);
   }
+
+  List<AggregationChooser<TItem>> getAggregations({
+    required Iterable<AggregateCriteria> selected,
+    required void Function(AggregateCriteria aggregate, bool value) update,
+  });
+
+  bool get hasAggregations;
 }

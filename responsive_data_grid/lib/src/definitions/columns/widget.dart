@@ -40,6 +40,23 @@ class WidgetColumn<TItem extends Object> extends GridColumn<TItem, void> {
           filterRules: NoFilterRules(),
           sortDirection: OrderDirections.notSet,
         );
+
+  @override
+  List<AggregationChooser<TItem>> getAggregations({
+    required Iterable<AggregateCriteria> selected,
+    required void Function(AggregateCriteria aggregate, bool value) update,
+  }) =>
+      [
+        AggregationChooser(
+          column: this,
+          aggregation: Aggregations.count,
+          selected: selected,
+          update: update,
+        ),
+      ];
+
+  @override
+  bool get hasAggregations => true;
 }
 
 class WidgetColumnHeader extends ColumnHeader {

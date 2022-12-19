@@ -70,38 +70,34 @@ class DataGridDateTimeColumnFilterState<TItem extends Object>
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        DropdownButtonFormField<Logic>(
+        DropdownButtonFormField<Logic?>(
             items: [
-              DropdownMenuItem(
+              DropdownMenuItem<Logic?>(
                 child: Text(LocalizedMessages.any),
                 value: null,
               ),
-              DropdownMenuItem(
+              DropdownMenuItem<Logic?>(
                   child: Text(Logic.greaterThan.toString()),
                   value: Logic.greaterThan),
-              DropdownMenuItem(
+              DropdownMenuItem<Logic?>(
                   child: Text(Logic.greaterThanOrEqualTo.toString()),
                   value: Logic.greaterThanOrEqualTo),
-              DropdownMenuItem(
-                child: Text(Logic.equals.toString()),
-                value: Logic.equals,
-              ),
-              DropdownMenuItem(
+              DropdownMenuItem<Logic?>(
                 child: Text(Logic.lessThan.toString()),
                 value: Logic.lessThan,
               ),
-              DropdownMenuItem(
+              DropdownMenuItem<Logic?>(
                   child: Text(Logic.lessThanOrEqualTo.toString()),
                   value: Logic.lessThanOrEqualTo),
-              DropdownMenuItem(
+              DropdownMenuItem<Logic?>(
                 child: Text(Logic.between.toString()),
                 value: Logic.between,
               ),
-              DropdownMenuItem(
+              DropdownMenuItem<Logic?>(
                 child: Text(Logic.equals.toString()),
                 value: Logic.equals,
               ),
-              DropdownMenuItem(
+              DropdownMenuItem<Logic?>(
                 child: Text(Logic.notEqual.toString()),
                 value: Logic.notEqual,
               ),
@@ -149,38 +145,6 @@ class DataGridDateTimeColumnFilterState<TItem extends Object>
             },
           ),
         ),
-        Row(
-          mainAxisSize: MainAxisSize.max,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            TextButton.icon(
-              onPressed: () => super.clear(context),
-              icon: Icon(Icons.clear_all),
-              label: Text(LocalizedMessages.clear),
-            ),
-            Spacer(
-              flex: 2,
-            ),
-            TextButton.icon(
-              onPressed: () => op == null
-                  ? super.clear(context)
-                  : super.filter(
-                      context,
-                      FilterCriteria(
-                        fieldName: widget.definition.fieldName,
-                        logicalOperator: op!,
-                        op: Operators.and,
-                        values: [dtStart, dtEnd]
-                            .where((e) => e != null)
-                            .cast<DateTime>()
-                            .toList(),
-                      ),
-                    ),
-              icon: Icon(Icons.save),
-              label: Text(LocalizedMessages.apply),
-            ),
-          ],
-        )
       ],
     );
   }

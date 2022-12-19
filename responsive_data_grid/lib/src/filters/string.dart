@@ -54,7 +54,8 @@ class DataGridStringColumnFilterState<TItem extends Object>
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        DropdownButtonFormField<Logic>(
+        DropdownButtonFormField<Logic?>(
+            elevation: 30,
             items: [
               DropdownMenuItem(
                 child: Text(LocalizedMessages.any),
@@ -104,35 +105,6 @@ class DataGridStringColumnFilterState<TItem extends Object>
               },
             ),
           ),
-        ),
-        Row(
-          mainAxisSize: MainAxisSize.max,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            TextButton.icon(
-              onPressed: () => super.clear(context),
-              icon: Icon(Icons.clear_all),
-              label: Text(LocalizedMessages.clear),
-            ),
-            Spacer(
-              flex: 2,
-            ),
-            TextButton.icon(
-              onPressed: () => op == null
-                  ? super.clear(context)
-                  : super.filter(
-                      context,
-                      FilterCriteria(
-                        fieldName: widget.definition.fieldName,
-                        logicalOperator: op!,
-                        op: Operators.and,
-                        values: [searchText!],
-                      ),
-                    ),
-              icon: Icon(Icons.save),
-              label: Text(LocalizedMessages.apply),
-            ),
-          ],
         ),
       ],
     );

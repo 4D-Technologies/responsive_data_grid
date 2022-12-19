@@ -8,6 +8,7 @@ class DurationColumn<TItem extends Object> extends GridColumn<TItem, Duration> {
     required Duration? Function(TItem row) value,
     DurationFilterRules<TItem>? filterRules,
     OrderDirections sortDirection = OrderDirections.notSet,
+    List<AggregateCriteria>? aggregations,
     double? width,
     double? minWidth,
     double? maxWidth,
@@ -42,5 +43,41 @@ class DurationColumn<TItem extends Object> extends GridColumn<TItem, Duration> {
           xsCols: xsCols,
           filterRules: filterRules ?? DurationFilterRules<TItem>(),
           sortDirection: sortDirection,
+          aggregations: aggregations,
         );
+
+  @override
+  List<AggregationChooser<TItem>> getAggregations({
+    required Iterable<AggregateCriteria> selected,
+    required void Function(AggregateCriteria aggregate, bool value) update,
+  }) =>
+      [
+        AggregationChooser(
+          column: this,
+          aggregation: Aggregations.average,
+          selected: selected,
+          update: update,
+        ),
+        AggregationChooser(
+          column: this,
+          aggregation: Aggregations.maxium,
+          selected: selected,
+          update: update,
+        ),
+        AggregationChooser(
+          column: this,
+          aggregation: Aggregations.minimum,
+          selected: selected,
+          update: update,
+        ),
+        AggregationChooser(
+          column: this,
+          aggregation: Aggregations.sum,
+          selected: selected,
+          update: update,
+        ),
+      ];
+
+  @override
+  bool get hasAggregations => true;
 }

@@ -40,9 +40,27 @@ class DataGridIntColumnFilterState<TItem extends Object>
 
   int? iValue;
   int? iValue2;
-  Logic? op;
+  Logic? logic = null;
 
   late IntFilterRules filterRules;
+
+  void applyCriteria() {
+    if (logic == null || (iValue == null && iValue2 == null)) {
+      filterRules.criteria = null;
+    } else {
+      List<int> values = List<int>.empty(growable: true);
+
+      if (iValue != null) values.add(iValue!);
+      if (iValue2 != null) values.add(iValue2!);
+
+      filterRules.criteria = FilterCriteria<int>(
+        fieldName: widget.definition.fieldName,
+        op: Operators.and,
+        values: values,
+        logicalOperator: logic!,
+      );
+    }
+  }
 
   @override
   void initState() {
@@ -56,7 +74,7 @@ class DataGridIntColumnFilterState<TItem extends Object>
       tecValue1 = TextEditingController(text: iValue.toString());
       iValue2 = criteria.values.length > 1 ? criteria.values.last : null;
       tecValue2 = TextEditingController(text: iValue2.toString());
-      op = criteria.logicalOperator;
+      logic = criteria.logicalOperator;
     } else {
       tecValue1 = TextEditingController();
       tecValue2 = TextEditingController();
@@ -66,121 +84,89 @@ class DataGridIntColumnFilterState<TItem extends Object>
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisSize: MainAxisSize.min,
+      mainAxisSize: MainAxisSize.max,
       children: [
         DropdownButton<Logic?>(
+            isExpanded: true,
             items: [
-              DropdownMenuItem(
+              DropdownMenuItem<Logic?>(
                 child: Text(LocalizedMessages.any),
                 value: null,
               ),
-              DropdownMenuItem(
+              DropdownMenuItem<Logic?>(
                 child: Text(Logic.greaterThan.toString()),
                 value: Logic.greaterThan,
               ),
-              DropdownMenuItem(
+              DropdownMenuItem<Logic?>(
                 child: Text(Logic.greaterThanOrEqualTo.toString()),
                 value: Logic.greaterThanOrEqualTo,
               ),
-              DropdownMenuItem(
-                child: Text(Logic.equals.toString()),
-                value: Logic.equals,
-              ),
-              DropdownMenuItem(
+              DropdownMenuItem<Logic?>(
                 child: Text(Logic.lessThan.toString()),
                 value: Logic.lessThan,
               ),
-              DropdownMenuItem(
+              DropdownMenuItem<Logic?>(
                 child: Text(Logic.lessThanOrEqualTo.toString()),
                 value: Logic.lessThanOrEqualTo,
               ),
-              DropdownMenuItem(
+              DropdownMenuItem<Logic?>(
                 child: Text(Logic.between.toString()),
                 value: Logic.between,
               ),
-              DropdownMenuItem(
+              DropdownMenuItem<Logic?>(
                 child: Text(Logic.equals.toString()),
                 value: Logic.equals,
               ),
-              DropdownMenuItem(
+              DropdownMenuItem<Logic?>(
                 child: Text(Logic.notEqual.toString()),
                 value: Logic.notEqual,
               ),
             ],
-            value: op,
+            value: logic,
             onChanged: (Logic? value) {
               this.setState(() {
-                op = value;
+                logic = value;
+                applyCriteria();
               });
             }),
         Visibility(
-          visible: op != null &&
-              (op == Logic.greaterThan ||
-                  op == Logic.greaterThanOrEqualTo ||
-                  op == Logic.between ||
-                  op == Logic.equals ||
-                  op == Logic.notEqual),
+          visible: logic != null &&
+              (logic == Logic.greaterThan ||
+                  logic == Logic.greaterThanOrEqualTo ||
+                  logic == Logic.between ||
+                  logic == Logic.equals ||
+                  logic == Logic.notEqual),
           child: TextField(
-            decoration: InputDecoration(hintText: op?.toString()),
+            decoration: InputDecoration(hintText: logic?.toString()),
             keyboardType: TextInputType.number,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             controller: tecValue1,
             onChanged: (value) {
               this.setState(() {
-                iValue = int.parse(value);
+                iValue = int.tryParse(value);
+                applyCriteria();
               });
             },
           ),
         ),
         Visibility(
-          visible: op != null &&
-              (op == Logic.lessThan ||
-                  op == Logic.lessThanOrEqualTo ||
-                  op == Logic.between),
+          visible: logic != null &&
+              (logic == Logic.lessThan ||
+                  logic == Logic.lessThanOrEqualTo ||
+                  logic == Logic.between),
           child: TextField(
-            decoration: InputDecoration(hintText: op?.toString()),
+            decoration: InputDecoration(hintText: logic?.toString()),
             keyboardType: TextInputType.number,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             controller: tecValue2,
             onChanged: (value) {
               this.setState(() {
-                iValue2 = int.parse(value);
+                iValue2 = int.tryParse(value);
+                applyCriteria();
               });
             },
           ),
         ),
-        Row(
-          mainAxisSize: MainAxisSize.max,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            TextButton.icon(
-              onPressed: () => super.clear(context),
-              icon: Icon(Icons.clear_all),
-              label: Text(LocalizedMessages.clear),
-            ),
-            Spacer(
-              flex: 2,
-            ),
-            TextButton.icon(
-              onPressed: () => op == null
-                  ? super.clear(context)
-                  : super.filter(
-                      context,
-                      FilterCriteria(
-                        fieldName: widget.definition.fieldName,
-                        logicalOperator: op!,
-                        op: Operators.and,
-                        values: [iValue, iValue2]
-                            .where((e) => e != null)
-                            .cast<int>()
-                            .toList(),
-                      ),
-                    ),
-              icon: Icon(Icons.save),
-              label: Text(LocalizedMessages.apply),
-            ),
-          ],
-        )
       ],
     );
   }

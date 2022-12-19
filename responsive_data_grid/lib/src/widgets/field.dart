@@ -38,9 +38,9 @@ class DataGridFieldWidget<TItem extends Object, TValue extends dynamic>
           if (value is String)
             stringValue = value;
           else if (value is DateTime)
-            stringValue = DateFormat(definition.format).format(value);
+            stringValue = intl.DateFormat(definition.format).format(value);
           else if (value is num)
-            stringValue = NumberFormat(definition.format).format(value);
+            stringValue = intl.NumberFormat(definition.format).format(value);
           else if (value is bool) {
             final trueValue = definition.format!
                 .substring(0, definition.format!.indexOf("|"));

@@ -3,9 +3,9 @@ part of responsive_data_grid;
 class ColumnHeaderWidget<TItem extends Object, TValue extends dynamic>
     extends StatefulWidget {
   final GridColumn<TItem, TValue> definition;
-  final ResponsiveDataGridState<TItem> grid;
+  final ResponsiveDataGridState<TItem> gridState;
 
-  ColumnHeaderWidget(this.grid, this.definition) {
+  ColumnHeaderWidget(this.gridState, this.definition) {
     assert(TItem != dynamic);
   }
 
@@ -32,7 +32,7 @@ class ColumnHeaderState<TItem extends Object, TValue extends dynamic>
         break;
     }
 
-    widget.grid._updateOrderByCriteria(widget.definition);
+    widget.gridState._updateOrderByCriteria(widget.definition);
   }
 
   Future<void> toggleMenu(BuildContext context) async {
@@ -48,7 +48,7 @@ class ColumnHeaderState<TItem extends Object, TValue extends dynamic>
                 onPressed: () => Navigator.of(context).pop())
           ]),
           content: widget.definition.filterRules
-              .showFilter(widget.definition, widget.grid),
+              .showFilter(widget.definition, widget.gridState),
         );
       },
     );
@@ -57,13 +57,13 @@ class ColumnHeaderState<TItem extends Object, TValue extends dynamic>
 
     widget.definition.filterRules.criteria = result.criteria;
 
-    widget.grid._updateAllRules();
+    widget.gridState._updateAllRules();
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final grid = widget.grid;
+    final grid = widget.gridState;
     final header = widget.definition.header;
 
     final ColorScheme colorScheme = theme.colorScheme;
@@ -124,32 +124,12 @@ class ColumnHeaderState<TItem extends Object, TValue extends dynamic>
           onPressed: () => toggleOrder()));
     }
 
-    if (header.showFilter) {
+    if (header.showFilter || header.showAggregations) {
       items.add(
-        IconButton(
-          icon: Icon(
-            Icons.filter_list,
-            color: widget.grid.widget.aggregations.isNotEmpty
-                ? accentIconTheme.color
-                : iconTheme.color,
-            size: iconTheme.size,
-          ),
-          onPressed: () => toggleMenu(context),
-        ),
-      );
-    }
-
-    if (header.showAggregations) {
-      items.add(
-        IconButton(
-          icon: Icon(
-            Icons.assessment,
-            color: widget.definition.filterRules.criteria != null
-                ? accentIconTheme.color
-                : iconTheme.color,
-            size: iconTheme.size,
-          ),
-          onPressed: () {},
+        ColumnMenu(
+          column: widget.definition,
+          theme: theme,
+          gridState: widget.gridState,
         ),
       );
     }

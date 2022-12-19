@@ -12,7 +12,8 @@ class GridGroupChooser<TItem> extends StatelessWidget {
     required this.addGroup,
     required this.removeGroup,
     required this.updateGroup,
-  });
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -79,20 +80,12 @@ class GridGroupChooser<TItem> extends StatelessWidget {
                                   : Icons.sort,
                         ),
                       ),
-                      Visibility(
-                        visible: gridState.widget.allowAggregations,
-                        child: IconButton(
-                          onPressed: () {},
-                          icon: Icon(Icons.assessment,
-                              color: theme.primaryIconTheme.color),
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () {
-                          removeGroup(g);
-                        },
-                        icon: Icon(Icons.delete, color: theme.errorColor),
-                      ),
+                      GroupMenu(
+                        group: g,
+                        removeGroup: removeGroup,
+                        theme: theme,
+                        gridState: gridState,
+                      )
                     ],
                   ),
                 ),

@@ -16,7 +16,7 @@ class GroupMenu<TItem extends Object> extends DropDownViewWidget {
           icon: Icon(
             Icons.menu,
             color: group.aggregates.isNotEmpty
-                ? theme.primaryIconTheme.color
+                ? theme.colorScheme.secondary
                 : theme.iconTheme.color,
             size: theme.iconTheme.size,
           ),
@@ -25,7 +25,8 @@ class GroupMenu<TItem extends Object> extends DropDownViewWidget {
         );
 
   @override
-  Widget build(BuildContext context, VoidCallback close) {
+  Widget build(
+      BuildContext context, void Function(BuildContext context) close) {
     return Column(
       children: [
         SizedBox(height: 5),
@@ -51,7 +52,7 @@ class GroupMenu<TItem extends Object> extends DropDownViewWidget {
                     ),
                     onPressed: () async {
                       await gridState.updateGroup(group);
-                      close();
+                      close(context);
                     },
                     icon: Icon(
                       Icons.save,
@@ -69,7 +70,7 @@ class GroupMenu<TItem extends Object> extends DropDownViewWidget {
                     onPressed: () async {
                       group.aggregates.clear();
                       await gridState.updateGroup(group);
-                      close();
+                      close(context);
                     },
                     icon: Icon(
                       Icons.clear_all,

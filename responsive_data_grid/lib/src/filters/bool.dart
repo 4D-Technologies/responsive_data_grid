@@ -57,35 +57,6 @@ class DataGridBoolColumnFilterState<TItem extends Object>
           },
           tristate: true,
         ),
-        Row(
-          mainAxisSize: MainAxisSize.max,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            TextButton.icon(
-              onPressed: () => super.clear(context),
-              icon: Icon(Icons.clear_all),
-              label: Text(LocalizedMessages.clear),
-            ),
-            Spacer(
-              flex: 2,
-            ),
-            TextButton.icon(
-              onPressed: () => value == null
-                  ? super.clear(context)
-                  : super.filter(
-                      context,
-                      FilterCriteria(
-                        fieldName: widget.definition.fieldName,
-                        logicalOperator: Logic.equals,
-                        op: Operators.and,
-                        values: [value!],
-                      ),
-                    ),
-              icon: Icon(Icons.save),
-              label: Text(LocalizedMessages.apply),
-            ),
-          ],
-        )
       ],
     );
   }

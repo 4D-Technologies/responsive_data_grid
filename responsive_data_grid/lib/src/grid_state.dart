@@ -26,10 +26,8 @@ class ResponsiveDataGridState<TItem extends Object>
     super.initState();
   }
 
-  FutureOr<void> addGroup(GroupCriteria group) async {
+  FutureOr<void> refreshData() async {
     setState(() => isLoading = true);
-
-    widget.groups.add(group);
 
     criteria = criteria.copyWith(
       skip: () => (pageNumber - 1) * widget.pageSize,
@@ -58,9 +56,13 @@ class ResponsiveDataGridState<TItem extends Object>
     });
   }
 
-  FutureOr<void> updateGroup(GroupCriteria group) async {
-    setState(() => isLoading = true);
+  FutureOr<void> addGroup(GroupCriteria group) async {
+    widget.groups.add(group);
 
+    await refreshData();
+  }
+
+  FutureOr<void> updateGroup(GroupCriteria group) async {
     //Must use the indexWhere because the group has changed so equality won't work.
     final currentIndex =
         widget.groups.indexWhere((g) => g.fieldName == group.fieldName);
@@ -72,32 +74,7 @@ class ResponsiveDataGridState<TItem extends Object>
         [group],
       );
     }
-
-    criteria = criteria.copyWith(
-      skip: () => (pageNumber - 1) * widget.pageSize,
-      take: () => widget.pageSize,
-      filterBy: () => widget.columns
-          .where((c) => c.filterRules.criteria != null)
-          .map((c) => c.filterRules.criteria!)
-          .toList(),
-      orderBy: () => widget.columns
-          .where((c) => c.sortDirection != OrderDirections.notSet)
-          .map((e) => OrderCriteria(
-                fieldName: e.fieldName,
-                direction: e.sortDirection,
-              ))
-          .toList(),
-      groupBy: () => widget.groups,
-      aggregates: () => widget.aggregations,
-    );
-
-    _dataCache = ResponseCache<TItem>();
-
-    await FetchPage(pageNumber, false);
-
-    setState(() {
-      isLoading = false;
-    });
+    await refreshData();
   }
 
   FutureOr<void> removeGroup(GroupCriteria group) async {
@@ -105,31 +82,7 @@ class ResponsiveDataGridState<TItem extends Object>
 
     widget.groups.remove(group);
 
-    criteria = criteria.copyWith(
-      skip: () => (pageNumber - 1) * widget.pageSize,
-      take: () => widget.pageSize,
-      filterBy: () => widget.columns
-          .where((c) => c.filterRules.criteria != null)
-          .map((c) => c.filterRules.criteria!)
-          .toList(),
-      orderBy: () => widget.columns
-          .where((c) => c.sortDirection != OrderDirections.notSet)
-          .map((e) => OrderCriteria(
-                fieldName: e.fieldName,
-                direction: e.sortDirection,
-              ))
-          .toList(),
-      groupBy: () => widget.groups,
-      aggregates: () => widget.aggregations,
-    );
-
-    _dataCache = ResponseCache<TItem>();
-
-    await FetchPage(pageNumber, false);
-
-    setState(() {
-      isLoading = false;
-    });
+    await refreshData();
   }
 
   FutureOr<void> setPage(int pageNumber) async {
