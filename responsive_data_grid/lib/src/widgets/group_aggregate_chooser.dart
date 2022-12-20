@@ -28,7 +28,6 @@ class _GridGroupAggregateChooserState<TItem extends Object>
 
   @override
   void initState() {
-    print("initstate");
     columns = widget.gridState.widget.columns
         .where((c) => c.hasAggregations)
         .orderBy((c) => c.header.text ?? c.fieldName)
@@ -37,8 +36,6 @@ class _GridGroupAggregateChooserState<TItem extends Object>
         .map((e) =>
             widget.criteria.aggregates.any((a) => a.fieldName == e.fieldName))
         .toList();
-
-    print(expansionStates);
 
     super.initState();
   }

@@ -11,9 +11,7 @@ class ColumnMenu<T extends Object> extends DropDownViewWidget {
   }) : super(
           icon: Icon(
             Icons.menu,
-            color: gridState.widget.aggregations
-                        .where((a) => a.fieldName == column.fieldName)
-                        .isNotEmpty ||
+            color: column.aggregations.isNotEmpty ||
                     column.filterRules.criteria != null
                 ? theme.colorScheme.secondary
                 : theme.iconTheme.color,

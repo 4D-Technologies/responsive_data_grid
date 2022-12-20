@@ -7,6 +7,7 @@ class BoolColumn<TItem extends Object> extends GridColumn<TItem, bool> {
     Widget? Function(TItem row)? customFieldWidget,
     required bool? Function(TItem row) value,
     BoolFilterRules<TItem>? filterRules,
+    List<AggregateCriteria>? aggregations,
     OrderDirections sortDirection = OrderDirections.notSet,
     String trueText = "true",
     String falseText = "false",
@@ -44,6 +45,7 @@ class BoolColumn<TItem extends Object> extends GridColumn<TItem, bool> {
           xsCols: xsCols,
           filterRules: filterRules ?? BoolFilterRules<TItem>(),
           sortDirection: sortDirection,
+          aggregations: aggregations,
         );
 
   @override

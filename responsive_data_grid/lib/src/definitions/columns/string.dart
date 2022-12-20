@@ -7,6 +7,7 @@ class StringColumn<TItem extends Object> extends GridColumn<TItem, String> {
     Widget? Function(TItem row)? customFieldWidget,
     required String? Function(TItem row) value,
     StringFilterRules<TItem>? filterRules,
+    List<AggregateCriteria>? aggregations,
     OrderDirections sortDirection = OrderDirections.notSet,
     double? width,
     double? minWidth,
@@ -42,6 +43,7 @@ class StringColumn<TItem extends Object> extends GridColumn<TItem, String> {
           xsCols: xsCols,
           filterRules: filterRules ?? StringFilterRules<TItem>(),
           sortDirection: sortDirection,
+          aggregations: aggregations,
         );
 
   @override

@@ -18,10 +18,10 @@ class GridGroupFooter<TItem extends Object> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
-      decoration: BoxDecoration(color: Colors.black38),
+      decoration: BoxDecoration(color: Colors.black26),
       child: Padding(
         padding: EdgeInsets.only(
-          left: 15.0 * groupCount,
+          left: 3,
           top: 3,
           bottom: 3,
           right: 3,
@@ -46,13 +46,20 @@ class GridGroupFooter<TItem extends Object> extends StatelessWidget {
   List<BootstrapCol> getColumns(BuildContext context) {
     return gridState.widget.columns.map(
       (c) {
-        final agg = group.aggregates
-            .where((a) => a.fieldName == c.fieldName)
-            .firstOrDefault();
         return BootstrapCol(
-          child: agg?.result == null
-              ? Container()
-              : Text("${agg!.aggregation.toString()}: ${agg.result}"),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisSize: MainAxisSize.min,
+            children: group.aggregates
+                .where((g) => g.fieldName == c.fieldName && g.result != null)
+                .map(
+                  (agg) => Text(
+                    "${agg.aggregation.toString()}: ${agg.formatResult(c.format)}",
+                    style: theme.textTheme.labelMedium,
+                  ),
+                )
+                .toList(),
+          ),
           lg: c.largeCols ?? c.mediumCols ?? c.smallCols ?? c.xsCols ?? 12,
           md: c.mediumCols ?? c.smallCols ?? c.xsCols ?? 12,
           sm: c.smallCols ?? c.xsCols ?? 12,

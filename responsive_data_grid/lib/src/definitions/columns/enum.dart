@@ -12,6 +12,7 @@ class EnumColumn<TItem extends Object, TValue extends Enum>
     required TValue? Function(TItem row) value,
     FilterCriteria<TValue>? filter,
     OrderDirections sortDirection = OrderDirections.notSet,
+    List<AggregateCriteria>? aggregations,
     double? width,
     double? minWidth,
     double? maxWidth,
@@ -64,6 +65,7 @@ class EnumColumn<TItem extends Object, TValue extends Enum>
             criteria: filter,
           ),
           sortDirection: sortDirection,
+          aggregations: aggregations,
         );
 
   @override

@@ -4,6 +4,7 @@ class WidgetColumn<TItem extends Object> extends GridColumn<TItem, void> {
   WidgetColumn({
     String? fieldName,
     required Widget Function(TItem item) widget,
+    List<AggregateCriteria>? aggregations,
     WidgetColumnHeader? header,
     double? width,
     double? minWidth,
@@ -39,6 +40,7 @@ class WidgetColumn<TItem extends Object> extends GridColumn<TItem, void> {
           xsCols: xsCols,
           filterRules: NoFilterRules(),
           sortDirection: OrderDirections.notSet,
+          aggregations: aggregations,
         );
 
   @override

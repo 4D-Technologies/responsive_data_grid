@@ -372,7 +372,7 @@ class LoadCriteria with IJsonable {
     required dynamic Function(String fieldName, T item) getFieldValue,
     required AggregateCriteria criteria,
   }) {
-    String? result;
+    dynamic result;
     final nonNullItems =
         items.where((e) => getFieldValue(criteria.fieldName, e) != null);
     switch (criteria.aggregation) {
@@ -380,38 +380,35 @@ class LoadCriteria with IJsonable {
         result = nonNullItems
             .map((e) =>
                 num.parse(getFieldValue(criteria.fieldName, e)!.toString()))
-            .sum
-            .toString();
+            .sum;
         break;
       case Aggregations.average:
         result = nonNullItems
             .map((e) =>
                 num.parse(getFieldValue(criteria.fieldName, e)!.toString()))
-            .average
-            .toString();
+            .average;
         break;
       case Aggregations.maxium:
         result = nonNullItems
             .map((e) =>
                 num.parse(getFieldValue(criteria.fieldName, e)!.toString()))
-            .maxOrNull
-            .toString();
+            .maxOrNull;
         break;
       case Aggregations.minimum:
         result = nonNullItems
             .map((e) =>
                 num.parse(getFieldValue(criteria.fieldName, e)!.toString()))
-            .minOrNull
-            .toString();
+            .minOrNull;
         break;
       case Aggregations.count:
-        result = items.length.toString();
+        result = items.length;
         break;
     }
 
     return AggregateResult(
-        fieldName: criteria.fieldName,
-        aggregation: criteria.aggregation,
-        result: result);
+      fieldName: criteria.fieldName,
+      aggregation: criteria.aggregation,
+      result: result,
+    );
   }
 }

@@ -114,12 +114,6 @@ class _MyHomePageState extends State<MyHomePage> {
         pageSize: 20,
         pagingMode: PagingMode.pager,
         allowAggregations: true,
-        aggregations: [
-          AggregateCriteria(
-            fieldName: "accepted",
-            aggregation: Aggregations.count,
-          ),
-        ],
         allowGrouping: true,
         groups: [
           GroupCriteria(
@@ -164,6 +158,12 @@ class _MyHomePageState extends State<MyHomePage> {
               showOrderBy: true,
             ),
             value: (row) => row.name,
+            aggregations: [
+              AggregateCriteria(
+                fieldName: "name",
+                aggregation: Aggregations.count,
+              ),
+            ],
           ),
           DateTimeColumn(
             xsCols: 4,

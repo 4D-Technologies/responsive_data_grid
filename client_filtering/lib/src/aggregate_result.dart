@@ -3,7 +3,7 @@ part of client_filtering;
 class AggregateResult {
   final String fieldName;
   final Aggregations aggregation;
-  final String? result;
+  final dynamic result;
 
   const AggregateResult({
     required this.fieldName,
@@ -15,7 +15,12 @@ class AggregateResult {
       AggregateResult(
         fieldName: json["fieldName"].toString(),
         aggregation: Aggregations.fromInt(json["aggregation"] as int),
-        result: json["result"]?.toString(),
+        result: json["result"] == null
+            ? null
+            : !(json["result"].runtimeType is String)
+                ? json["result"]
+                : DateTime.tryParse(json["result"]!.toString()) ??
+                    json["result"],
       );
 
   @override
@@ -31,5 +36,28 @@ class AggregateResult {
   @override
   int get hashCode {
     return fieldName.hashCode ^ aggregation.hashCode ^ result.hashCode;
+  }
+
+  String? formatResult(String? format) {
+    if (result == null) return "";
+
+    switch (aggregation) {
+      case Aggregations.sum:
+      case Aggregations.average:
+      case Aggregations.maxium:
+      case Aggregations.minimum:
+        if (result is int || result is BigInt) format ??= "#";
+
+        if (result is num) {
+          format ??= "#.0#";
+          return intl.NumberFormat(format).format(
+            result,
+          );
+        } else {
+          return result.toString();
+        }
+      case Aggregations.count:
+        return result.toString();
+    }
   }
 }

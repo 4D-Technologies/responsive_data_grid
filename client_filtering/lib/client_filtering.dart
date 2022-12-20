@@ -6,6 +6,7 @@ import 'package:darq/darq.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
+import 'package:intl/intl.dart' as intl;
 
 part './src/enums.dart';
 part './src/filter_criteria.dart';

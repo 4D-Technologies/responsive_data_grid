@@ -21,33 +21,40 @@ class ResponsiveDataGridState<TItem extends Object>
       groupBy: widget.groups,
       skip: 0,
       take: widget.pageSize,
-      aggregates: widget.aggregations,
+      aggregates: widget.columns
+          .map((e) => e.aggregations)
+          .selectMany((element, index) => element)
+          .toList(),
     );
     super.initState();
   }
 
   FutureOr<void> refreshData() async {
-    setState(() => isLoading = true);
+    setState(() {
+      isLoading = true;
+      criteria = criteria.copyWith(
+        skip: () => (pageNumber - 1) * widget.pageSize,
+        take: () => widget.pageSize,
+        filterBy: () => widget.columns
+            .where((c) => c.filterRules.criteria != null)
+            .map((c) => c.filterRules.criteria!)
+            .toList(),
+        orderBy: () => widget.columns
+            .where((c) => c.sortDirection != OrderDirections.notSet)
+            .map((e) => OrderCriteria(
+                  fieldName: e.fieldName,
+                  direction: e.sortDirection,
+                ))
+            .toList(),
+        groupBy: () => widget.groups,
+        aggregates: () => widget.columns
+            .map((e) => e.aggregations)
+            .selectMany((element, index) => element)
+            .toList(),
+      );
 
-    criteria = criteria.copyWith(
-      skip: () => (pageNumber - 1) * widget.pageSize,
-      take: () => widget.pageSize,
-      filterBy: () => widget.columns
-          .where((c) => c.filterRules.criteria != null)
-          .map((c) => c.filterRules.criteria!)
-          .toList(),
-      orderBy: () => widget.columns
-          .where((c) => c.sortDirection != OrderDirections.notSet)
-          .map((e) => OrderCriteria(
-                fieldName: e.fieldName,
-                direction: e.sortDirection,
-              ))
-          .toList(),
-      groupBy: () => widget.groups,
-      aggregates: () => widget.aggregations,
-    );
-
-    _dataCache = ResponseCache<TItem>();
+      _dataCache = ResponseCache<TItem>();
+    });
 
     await FetchPage(pageNumber, false);
 
@@ -105,7 +112,10 @@ class ResponsiveDataGridState<TItem extends Object>
               ))
           .toList(),
       groupBy: () => widget.groups,
-      aggregates: () => widget.aggregations,
+      aggregates: () => widget.columns
+          .map((e) => e.aggregations)
+          .selectMany((element, index) => element)
+          .toList(),
     );
 
     await FetchPage(pageNumber, false);
@@ -240,7 +250,7 @@ class ResponsiveDataGridState<TItem extends Object>
 
               if (_dataCache.aggregates.isNotEmpty)
                 parts.add(
-                  GridFooter(_dataCache, this),
+                  GridFooter(_dataCache, this, theme),
                 );
 
               if (pagingMode == PagingMode.pager)
