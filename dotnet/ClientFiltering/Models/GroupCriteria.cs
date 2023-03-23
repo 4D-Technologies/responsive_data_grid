@@ -1,14 +1,17 @@
 namespace ClientFiltering.Models;
 [DataContract]
-public readonly record struct GroupCriteria
+public record GroupCriteria
 {
     [DataMember]
-    public string FieldName { get; init; }
+    public required string FieldName { get; init; }
 
     [DataMember]
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public OrderDirections Direction { get; init; }
+    public required OrderDirections Direction { get; init; }
 
     [DataMember]
-    public IEnumerable<AggregateCriteria> Aggregates { get; init; }
+    public IEnumerable<AggregateCriteria>? Aggregates { get; init; }
+
+    [DataMember]
+    public GroupCriteria? SubGroup { get; init; }
 }

@@ -4,7 +4,7 @@ namespace ClientFiltering.Models;
 /// Load Crtieria for api calls that return lists
 /// </summary>
 [DataContract]
-public readonly record struct LoadCriteria
+public record LoadCriteria
 {
     /// <summary>
     /// How far to skip into the records? (for paging)
@@ -31,7 +31,7 @@ public readonly record struct LoadCriteria
     /// </summary>
     /// <value></value>
     [DataMember]
-    public IEnumerable<GroupCriteria>? GroupBy { get; init; }
+    public GroupCriteria? GroupBy { get; init; }
     /// <summary>
     /// Any Aggregate results
     /// </summary>
@@ -40,7 +40,7 @@ public readonly record struct LoadCriteria
     public IEnumerable<AggregateCriteria>? Aggregates { get; init; }
 
 
-    public static LoadCriteria FromExpressions<TSource>(Expression<Func<TSource, bool>>? filterBy = null, int? skip = null, int? take = null, params OrderCriteria[] orderBy)
+    public static LoadCriteria FromExpressions<TSource>(Expression<Func<TSource, bool>>? filterBy = null, int? skip = null, int? take = null, IEnumerable<OrderCriteria>? orderBy = null, GroupCriteria? groupBy = null, IEnumerable<AggregateCriteria>? aggregateBy = null)
     {
         var filters = new List<FilterCriteria>();
 
@@ -50,17 +50,17 @@ public readonly record struct LoadCriteria
 
         return new LoadCriteria
         {
-            FilterBy = filters,
-            OrderBy = orderBy,
+            FilterBy = filters.ToImmutableArray(),
+            OrderBy = orderBy?.ToImmutableArray(),
             Skip = skip,
-            Take = take
+            Take = take,
+            GroupBy = groupBy,
+            Aggregates = aggregateBy?.ToImmutableArray()
         };
     }
 
-    private static void ParseFilter(Expression filterBy, ref List<FilterCriteria> filters, Operators op = Operators.And)
+    private static void ParseFilter(Expression filterBy, ref List<FilterCriteria> filters, LogicalOperators op = LogicalOperators.And)
     {
-
-
         if (filterBy is LambdaExpression expression)
         {
             ParseFilter(expression.Body, ref filters, op);
@@ -72,14 +72,14 @@ public readonly record struct LoadCriteria
         {
             if (be.NodeType == ExpressionType.AndAlso || be.NodeType == ExpressionType.And)
             {
-                ParseFilter(be.Left, ref filters, Operators.And);
-                ParseFilter(be.Right, ref filters, Operators.And);
+                ParseFilter(be.Left, ref filters, LogicalOperators.And);
+                ParseFilter(be.Right, ref filters, LogicalOperators.And);
                 return;
             }
             else if (be.NodeType == ExpressionType.OrElse || be.NodeType == ExpressionType.Or)
             {
-                ParseFilter(be.Left, ref filters, Operators.Or);
-                ParseFilter(be.Right, ref filters, Operators.Or);
+                ParseFilter(be.Left, ref filters, LogicalOperators.Or);
+                ParseFilter(be.Right, ref filters, LogicalOperators.Or);
                 return;
             }
 
@@ -96,14 +96,14 @@ public readonly record struct LoadCriteria
                 value = Expression.Lambda(me).Compile().DynamicInvoke();
             }
 
-            var logic = be.ToLogic();
+            var logic = be.ToRelationalOperator();
 
 
             filters.Add(new FilterCriteria
             {
                 FieldName = left.Member.Name,
-                LogicalOperator = logic,
-                Values = new[] { GetValue(value) },
+                Relation = logic,
+                Values = new[] { GetValue(value) }.ToImmutableArray(),
                 Op = op
             });
 
@@ -119,7 +119,7 @@ public readonly record struct LoadCriteria
 
         if (filterBy is MethodCallExpression mce)
         {
-            var logic = mce.ToLogic(isParentNot);
+            var logic = mce.ToRelationalOperator(isParentNot);
 
             switch (mce.Method.Name.ToLower())
             {
@@ -129,9 +129,9 @@ public readonly record struct LoadCriteria
                     filters.Add(new FilterCriteria
                     {
                         FieldName = ((MemberExpression)mce.Object!).Member.Name,
-                        LogicalOperator = logic,
+                        Relation = logic,
                         Op = op,
-                        Values = new[] { GetValue(value) }
+                        Values = new[] { GetValue(value) }.ToImmutableArray()
                     });
                     break;
                 case "contains":
@@ -148,8 +148,8 @@ public readonly record struct LoadCriteria
                         FieldName = mce.Arguments.Where(a => a.NodeType == ExpressionType.MemberAccess &&
                                                         a is MemberExpression me &&
                                                         me.Expression is ParameterExpression).Cast<MemberExpression>().First().Member.Name,
-                        LogicalOperator = logic,
-                        Values = values == null ? Array.Empty<string?>() : values is IEnumerable<object?> ve ? ve?.Select(v => GetValue(v)) ?? Array.Empty<string?>() : new[] { GetValue(values) },
+                        Relation = logic,
+                        Values = values == null ? ImmutableArray.Create<string?>() : values is IEnumerable<object?> ve ? ve?.Select(v => GetValue(v))?.ToImmutableArray() ?? ImmutableArray.Create<string?>() : new[] { GetValue(values) }.ToImmutableArray(),
                         Op = op
                     });
                     break;

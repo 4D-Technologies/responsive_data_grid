@@ -1,9 +1,14 @@
 namespace ClientFiltering.Models;
-public readonly record struct Result<TItems>
+
+[DataContract]
+public record Result<TItems>
 {
-    public IQueryable<TItems> Items { get; init; }
+    [DataMember]
+    public required IQueryable<TItems> Items { get; init; }
 
-    public IEnumerable<GroupResult> Groups { get; init; }
+    [DataMember]
+    public IEnumerable<GroupResult>? GroupResults { get; init; }
 
-    public IEnumerable<AggregateResult> Aggregates { get; init; }
+    [DataMember]
+    public IEnumerable<AggregateResult>? Aggregates { get; init; }
 }

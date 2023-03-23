@@ -4,17 +4,17 @@ namespace ClientFiltering.Models;
 /// How Order by shall be executed
 /// </summary>
 [DataContract]
-public readonly record struct OrderCriteria
+public record OrderCriteria
 {
     /// <summary>
     /// The Field to be ordered
     /// </summary>
     [DataMember]
-    public string FieldName { get; init; }
+    public required string FieldName { get; init; }
     /// <summary>
     /// The direction to order it
     /// </summary>
     [DataMember]
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public OrderDirections Direction { get; init; }
+    public required OrderDirections Direction { get; init; }
 }

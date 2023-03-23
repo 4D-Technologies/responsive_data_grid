@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using ClientFiltering;
 using ClientFiltering.Enums;
 using ClientFiltering.Models;
@@ -22,12 +24,58 @@ namespace ClientFilteringTests
 
             var names = new[] { "Test User", "Testing" };
 
-            var criteria = LoadCriteria.FromExpressions<Contact>(c => c.Name == "Test User" && c.Id == id, null, null, new OrderCriteria { FieldName = nameof(Contact.Name), Direction = OrderDirections.Ascending });
+            var criteria = LoadCriteria.FromExpressions<Contact>(c => c.Name == "Test User" && c.Id == id, null, null, new[] { new OrderCriteria { FieldName = nameof(Contact.Name), Direction = OrderDirections.Ascending } });
 
             var results = contacts.AsQueryable().ApplyLoadCriteria(criteria).ToArray();
 
             results.Should().HaveCount(1);
             results.First().Name.Should().BeEquivalentTo("Test User");
+        }
+
+        [Fact]
+        public async Task GetResultWithGroupsAndAggregates()
+        {
+            var id = Guid.NewGuid().ToString();
+            var contact = new Contact(Id: id, Name: "Test User", DateOfBirth: new DateTime(1977, 6, 17));
+
+            var contacts = new List<Contact>(new[] { contact });
+
+            var names = new[] { "Test User", "Testing" };
+
+            var criteria = LoadCriteria.FromExpressions<Contact>(c => c.Name == "Test User" && c.Id == id,
+                                                null,
+                                                null,
+                                                new[] {
+                                                    new OrderCriteria {
+                                                        FieldName = nameof(Contact.Name),
+                                                        Direction = OrderDirections.Ascending
+                                                    }
+                                                },
+                                                new GroupCriteria
+                                                {
+                                                    FieldName = nameof(Contact.OrganizationId),
+                                                    Direction = OrderDirections.Ascending,
+                                                    Aggregates = new[] {
+                                                        new AggregateCriteria {
+                                                            Aggregation = Aggregations.Count,
+                                                            FieldName = nameof(Contact.Name)
+                                                        }
+                                                    }
+                                                },
+                                                new[] {
+                                                    new AggregateCriteria
+                                                    {
+                                                        Aggregation = Aggregations.Count,
+                                                        FieldName = nameof(Contact.Name)
+                                                    }
+                                                });
+
+            var results = await LoadCriteriaExtensions.GetCriteriaResult(contacts.AsQueryable(), criteria, CancellationToken.None);
+
+            results.Should().NotBeNull();
+            results.Items.Should().NotBeEmpty();
+            results.GroupResults.Should().NotBeEmpty();
+            results.GroupResults!.First().Value.Should().BeNull();
         }
 
         [Fact]
@@ -46,7 +94,7 @@ namespace ClientFilteringTests
                 FilterBy = new[] {
                     new FilterCriteria {
                         FieldName = nameof(Contact.Name),
-                        LogicalOperator = Logic.Equals,
+                        Relation = RelationalOperators.Equals,
                         Values = new [] {"Test User"},
                     }
                 }
@@ -75,7 +123,7 @@ namespace ClientFilteringTests
                 FilterBy = new[] {
                     new FilterCriteria {
                         FieldName = nameof(Contact.Name),
-                        LogicalOperator = Logic.Equals,
+                        Relation = RelationalOperators.Equals,
                         Values = Enumerable.Empty<string>(),
                     }
                 }
@@ -104,7 +152,7 @@ namespace ClientFilteringTests
                 FilterBy = new[] {
                     new FilterCriteria {
                         FieldName = nameof(Contact.Name),
-                        LogicalOperator = Logic.Equals,
+                        Relation = RelationalOperators.Equals,
                         Values = new [] {"Test User"},
                     }
                 }
@@ -134,7 +182,7 @@ namespace ClientFilteringTests
                 FilterBy = new[] {
                     new FilterCriteria {
                         FieldName = nameof(Contact.OrganizationId),
-                        LogicalOperator = Logic.Equals,
+                        Relation = RelationalOperators.Equals,
                         Values = new [] {"100000"},
                     }
                 }

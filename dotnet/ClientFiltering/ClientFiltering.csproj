@@ -1,31 +1,40 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <Version>1.0.14</Version>
+    <TargetFramework>net7.0</TargetFramework>
+    <Version>2.0.2.0</Version>
     <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
     <RootNamespace>ClientFiltering</RootNamespace>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageLicenseFile>
+      LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <Authors>James Hancock</Authors>
-    <Company>Concerti</Company>
-    <Description>A simple library that implements Client Filtering, Sorting and paging and can apply that filtering, sorting and paging in a single line to any IQueryable.  
-Useful for working with Kendo UI for Web and Responsive_Data_Grid on Flutter without having to resort to using the overly heavy and difficult oData library.</Description>
-    <Copyright>Copyright 2022 Concerti Inc.</Copyright>
+    <Company>
+      Concerti</Company>
+    <Description>A simple library that implements Client Filtering, Sorting and paging and
+      can apply
+      that filtering, sorting and paging in a single line to any IQueryable.
+      Useful for working with Kendo UI for Web and Responsive_Data_Grid on Flutter without having to
+      resort to using the overly heavy and difficult oData library.</Description>
+    <Copyright>Copyright 2022
+      Concerti Inc.</Copyright>
     <PackageProjectUrl>https://github.com/4D-Technologies/responsive_data_grid</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/4D-Technologies/responsive_data_grid</RepositoryUrl>
+    <RepositoryUrl>
+      https://github.com/4D-Technologies/responsive_data_grid</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageTags>odata;client filtering;linq</PackageTags>
+    <PackageTags>odata;client
+      filtering;linq</PackageTags>
     <PackageReleaseNotes>Initial Release</PackageReleaseNotes>
     <AssemblyVersion>$(Version)</AssemblyVersion>
-    <FileVersion>$(Version)</FileVersion>
+    <FileVersion>
+      $(Version)</FileVersion>
     <Title>Automatic Client Filtering, Sorting and Paging</Title>
   </PropertyGroup>
   <ItemGroup>
     <None Include="LICENSE" Pack="true" PackagePath="" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.20" />
+    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.3.1" />
   </ItemGroup>
 </Project>

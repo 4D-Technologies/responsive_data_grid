@@ -1,14 +1,14 @@
 namespace ClientFiltering.Models;
 
 [DataContract]
-public readonly record struct AggregateResult
+public record AggregateResult
 {
     [DataMember]
-    public string FieldName { get; init; }
+    public required string FieldName { get; init; }
 
     [DataMember]
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public Aggregations Aggregation { get; init; }
+    public required Aggregations Aggregation { get; init; }
 
     [DataMember]
     public string? Result { get; init; }

@@ -1,10 +1,10 @@
 ﻿using System.Linq.Dynamic.Core;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using ClientFiltering.Models;
-
 using GroupResult = ClientFiltering.Models.GroupResult;
 
 namespace ClientFiltering;
@@ -16,13 +16,13 @@ public static class LoadCriteriaExtensions
         IQueryable<TEntity> filteredAndOrderedResult = query.ApplyLoadCriteria(criteria);
 
         IEnumerable<GroupResult> groupResults;
-        if (criteria?.GroupBy == null)
+        if (criteria?.GroupBy is null)
         {
             groupResults = Array.Empty<GroupResult>();
         }
         else
         {
-            groupResults = await query.CreateGroupResultsFromAppliedCriteria(filteredAndOrderedResult, criteria.Value.GroupBy.GetEnumerator(), cancellationToken);
+            groupResults = await query.CreateGroupResultsFromAppliedCriteria(filteredAndOrderedResult, criteria.GroupBy, cancellationToken);
         }
 
         var aggregates = await query.CreateAggregatesFromAppliedCriteria(criteria?.Aggregates?.ToArray(), cancellationToken);
@@ -30,8 +30,8 @@ public static class LoadCriteriaExtensions
         var result = new Result<TEntity>
         {
             Items = filteredAndOrderedResult,
-            Groups = groupResults,
-            Aggregates = aggregates,
+            GroupResults = groupResults.ToImmutableArray(),
+            Aggregates = aggregates.ToImmutableArray(),
         };
 
         return result;
@@ -121,30 +121,40 @@ public static class LoadCriteriaExtensions
         return list;
     }
 
-    public static IEnumerable<AggregateResult> GetAggregates<T>(IQueryable<T> query, IEnumerable<AggregateCriteria> aggregates)
+    public static async Task<IEnumerable<AggregateResult>> GetAggregates<T>(IQueryable<T> query, IEnumerable<AggregateCriteria> aggregates, CancellationToken cancellationToken)
     {
-        return aggregates.Select(a =>
+        return await Task.WhenAll(aggregates.Select(async a =>
         {
+            //We must get all of the results and then do the aggregation in memory because
+            //certain database providers do not support async versions or error if you try and do 
+            //sync aggregates.
+
             object result;
-            switch (a.Aggregation)
+            if (a.Aggregation == Aggregations.Count)
             {
-                case Aggregations.Sum:
-                    result = query.Sum(a.FieldName);
-                    break;
-                case Aggregations.Average:
-                    result = query.Average(a.FieldName);
-                    break;
-                case Aggregations.Count:
-                    result = query.Count();
-                    break;
-                case Aggregations.Maximum:
-                    result = query.Max(a.FieldName);
-                    break;
-                case Aggregations.Minimum:
-                    result = query.Min(a.FieldName);
-                    break;
-                default:
-                    throw new NotImplementedException($"The aggregation type {a.Aggregation} is not implemented.");
+                //Count doesn't require that the field be a numeric value so has to be handled specially.
+                result = (await query.Select(a.FieldName).Distinct().ToDynamicArrayAsync(cancellationToken)).Count();
+            }
+            else
+            {
+                var results = (await query.Select(a.FieldName).ToDynamicArrayAsync(cancellationToken)).Cast<Decimal>();
+                switch (a.Aggregation)
+                {
+                    case Aggregations.Sum:
+                        result = results.Sum();
+                        break;
+                    case Aggregations.Average:
+                        result = results.Average();
+                        break;
+                    case Aggregations.Maximum:
+                        result = results.Max();
+                        break;
+                    case Aggregations.Minimum:
+                        result = results.Min();
+                        break;
+                    default:
+                        throw new NotImplementedException($"The aggregation type {a.Aggregation} is not implemented.");
+                }
             }
 
             return new AggregateResult
@@ -153,64 +163,53 @@ public static class LoadCriteriaExtensions
                 Result = result?.ToString(),
                 Aggregation = a.Aggregation,
             };
-        });
+        }));
     }
 
-    public static async Task<IEnumerable<GroupResult>> CreateGroupResultsFromAppliedCriteria<T>(this IQueryable<T> rawQuery, IQueryable<T> resultQuery, IEnumerator<GroupCriteria> enumerator, CancellationToken cancellationToken = default)
+    public static async Task<IEnumerable<GroupResult>> CreateGroupResultsFromAppliedCriteria<T>(this IQueryable<T> rawQuery, IQueryable<T> resultQuery, GroupCriteria group, CancellationToken cancellationToken = default)
     {
-        var currentGroup = enumerator.Current;
+        var groupValues = resultQuery
+                                .GroupBy(group.FieldName)
+                                .Select("Key")
+                                .Distinct()
+                                .Cast<object?>()
+                                .ToArray();
 
-        IEnumerable<string?> groupValues = ((IQueryable<IGrouping<object, T>>)resultQuery
-                                                .GroupBy(currentGroup.FieldName))
-                                                .Select((IGrouping<object, T> r) => r.Key == null ? null : r.Key.ToString())
-                                                .Distinct()
-                                                .ToArray();
-
-        return await Task.WhenAll(groupValues.Select(async v =>
+        var results = await Task.WhenAll(groupValues.Select(async v =>
         {
             var aggregates = Enumerable.Empty<AggregateResult>();
             var subGroups = Enumerable.Empty<GroupResult>();
 
-            var groupItemQuery = resultQuery.Where($"{currentGroup.FieldName} == \"{v}\"");
-
-            var hasAdditionalGroup = enumerator.MoveNext();
+            var groupItemQuery = resultQuery.Where($"{group.FieldName} == \"{v}\"");
 
             return new GroupResult
             {
-                FieldName = currentGroup.FieldName,
-                Value = v,
-                Aggregates = GetAggregates(groupItemQuery, currentGroup.Aggregates),
-                SubGroups = !hasAdditionalGroup ? Enumerable.Empty<GroupResult>() :
-                                await CreateGroupResultsFromAppliedCriteria(rawQuery, groupItemQuery, enumerator, cancellationToken)
+                FieldName = group.FieldName,
+                Value = v?.ToString(),
+                Aggregates = group.Aggregates == null ? null : await GetAggregates(groupItemQuery, group.Aggregates, cancellationToken),
+                SubGroupResults = group.SubGroup is null ? null : await CreateGroupResultsFromAppliedCriteria(rawQuery, groupItemQuery, group.SubGroup, cancellationToken)
             };
         }));
+
+        return results;
     }
 
-    public static Logic ToLogic(this Expression expression, bool isParentNot = false)
+    public static RelationalOperators ToRelationalOperator(this Expression expression, bool isParentNot = false)
     {
         switch (expression.NodeType)
         {
             case ExpressionType.Equal:
-                return Logic.Equals;
+                return RelationalOperators.Equals;
             case ExpressionType.NotEqual:
-                return Logic.NotEqual;
+                return RelationalOperators.NotEqual;
             case ExpressionType.LessThan:
-                return Logic.LessThan;
+                return RelationalOperators.LessThan;
             case ExpressionType.GreaterThan:
-                return Logic.GreaterThan;
+                return RelationalOperators.GreaterThan;
             case ExpressionType.LessThanOrEqual:
-                return Logic.LessThanOrEqualTo;
+                return RelationalOperators.LessThanOrEqualTo;
             case ExpressionType.GreaterThanOrEqual:
-                return Logic.GreaterThanOrEqualTo;
-            case ExpressionType.AndAlso:
-                {
-                    var binaryExpression = expression as BinaryExpression;
-                    if (binaryExpression?.Left.NodeType == ExpressionType.LessThanOrEqual && binaryExpression.Right.NodeType == ExpressionType.GreaterThanOrEqual)
-                        return Logic.Between;
-
-                    throw new InvalidOperationException();
-                }
-
+                return RelationalOperators.GreaterThanOrEqualTo;
             case ExpressionType.Call:
             case ExpressionType.Not:
                 {
@@ -219,9 +218,9 @@ public static class LoadCriteriaExtensions
 
                     return ((expression as MethodCallExpression)?.Method.Name.ToLower()) switch
                     {
-                        "contains" => isParentNot ? Logic.NotContains : Logic.Contains,
-                        "startswith" => isParentNot ? Logic.NotStartsWith : Logic.StartsWith,
-                        "endswith" => isParentNot ? Logic.NotEndsWith : Logic.EndsWidth,
+                        "contains" => isParentNot ? RelationalOperators.NotContains : RelationalOperators.Contains,
+                        "startswith" => isParentNot ? RelationalOperators.NotStartsWith : RelationalOperators.StartsWith,
+                        "endswith" => isParentNot ? RelationalOperators.NotEndsWith : RelationalOperators.EndsWidth,
                         _ => throw new NotSupportedException(),
                     };
                 }
@@ -232,36 +231,29 @@ public static class LoadCriteriaExtensions
 
     public static IQueryable<T> ApplyLoadCriteria<T>(this IQueryable<T> query, LoadCriteria? criteria)
     {
-        if (!criteria.HasValue)
-        {
+        if (criteria is null)
             return query;
-        }
 
-        query = query.ApplyFilterCriteria(criteria.Value.FilterBy);
-        if (criteria.Value.GroupBy != null && criteria.Value.GroupBy.Any())
+        query = query.ApplyFilterCriteria(criteria.FilterBy);
+        if (criteria.GroupBy is not null)
+            query = query.ApplyGroupByCriteria(criteria.GroupBy, true);
+
+        if (criteria.OrderBy != null && criteria.OrderBy.Any())
         {
-            for (int i = 0; i < criteria.Value.GroupBy.Count(); i++)
+            for (int j = 0; j < criteria.OrderBy.Count(); j++)
             {
-                query = query.ApplyGroupByCriteria(criteria.Value.GroupBy.ElementAt(i), i == 0);
+                query = query.ApplyOrderByCriteria(criteria.OrderBy.ElementAt(j), j == 0);
             }
         }
 
-        if (criteria.Value.OrderBy != null && criteria.Value.OrderBy.Any())
+        if (criteria.Skip is not null)
         {
-            for (int j = 0; j < criteria.Value.OrderBy.Count(); j++)
-            {
-                query = query.ApplyOrderByCriteria(criteria.Value.OrderBy.ElementAt(j), j == 0);
-            }
+            query = query.Skip(criteria.Skip.Value);
         }
 
-        if (criteria.Value.Skip.HasValue)
+        if (criteria.Take is not null)
         {
-            query = query.Skip(criteria.Value.Skip.Value);
-        }
-
-        if (criteria.Value.Take.HasValue)
-        {
-            query = query.Take(criteria.Value.Take.Value);
+            query = query.Take(criteria.Take.Value);
         }
 
         return query;
@@ -275,7 +267,7 @@ public static class LoadCriteriaExtensions
         }
 
         var param = Expression.Parameter(typeof(T), "p");
-        List<(Operators, Expression)> list = new();
+        List<(LogicalOperators, Expression)> list = new();
         foreach (FilterCriteria item in filterCriteria!)
         {
             list.Add((item.Op, CreateFilterExpression<T>(item, param)));
@@ -325,7 +317,7 @@ public static class LoadCriteriaExtensions
         return query;
     }
 
-    private static IQueryable<T> ApplyFilterPredicates<T>(this IQueryable<T> source, List<(Operators Op, Expression Value)> predicates, ParameterExpression param)
+    private static IQueryable<T> ApplyFilterPredicates<T>(this IQueryable<T> source, List<(LogicalOperators Op, Expression Value)> predicates, ParameterExpression param)
     {
         if (source == null) throw new ArgumentNullException(nameof(source));
         if (predicates == null) throw new ArgumentNullException(nameof(predicates));
@@ -336,7 +328,7 @@ public static class LoadCriteriaExtensions
         var body = predicates[0].Value;
         foreach (var (Op, Value) in predicates.Skip(1))
         {
-            if (Op == Operators.And)
+            if (Op == LogicalOperators.And)
             {
                 body = Expression.AndAlso(body, Value);
             }
@@ -394,9 +386,9 @@ public static class LoadCriteriaExtensions
         Expression expression;
 
         //Used for creating the member function calls for EndsWith etc.
-        switch (criteria.LogicalOperator)
+        switch (criteria.Relation)
         {
-            case Logic.Equals:
+            case RelationalOperators.Equals:
                 if (values.Length > 1)
                 {
                     expression = Expression.Call(arrayContains, arrayConstant, property);
@@ -407,7 +399,7 @@ public static class LoadCriteriaExtensions
                     expression = Expression.Equal(property, values[0]);
                 }
                 break;
-            case Logic.NotEqual:
+            case RelationalOperators.NotEqual:
                 if (values.Length > 1)
                 {
                     expression = Expression.Not(Expression.Call(arrayContains, arrayConstant, property));
@@ -417,46 +409,38 @@ public static class LoadCriteriaExtensions
                     expression = Expression.NotEqual(property, values[0]);
                 }
                 break;
-            case Logic.LessThan:
+            case RelationalOperators.LessThan:
                 expression = Expression.LessThan(property, values[0]);
                 break;
-            case Logic.GreaterThan:
+            case RelationalOperators.GreaterThan:
                 expression = Expression.GreaterThan(property, values[0]);
                 break;
-            case Logic.LessThanOrEqualTo:
+            case RelationalOperators.LessThanOrEqualTo:
                 expression = Expression.LessThanOrEqual(property, values[0]);
                 break;
-            case Logic.GreaterThanOrEqualTo:
+            case RelationalOperators.GreaterThanOrEqualTo:
                 expression = Expression.GreaterThanOrEqual(property, values[0]);
                 break;
-            case Logic.StartsWith:
-            case Logic.NotStartsWith:
+            case RelationalOperators.StartsWith:
+            case RelationalOperators.NotStartsWith:
                 var miStartsWith = typeof(string).GetMethod("StartsWith", new Type[] { typeof(string) })!;
                 expression = Expression.Call(Expression.MakeMemberAccess(param, field), miStartsWith, values[0]);
-                if (criteria.LogicalOperator == Logic.NotStartsWith)
+                if (criteria.Relation == RelationalOperators.NotStartsWith)
                     expression = Expression.Not(expression);
                 break;
-            case Logic.Contains:
-            case Logic.NotContains:
+            case RelationalOperators.Contains:
+            case RelationalOperators.NotContains:
                 var miContains = typeof(string).GetMethod("Contains", new Type[] { typeof(string) })!;
                 expression = Expression.Call(Expression.MakeMemberAccess(param, field), miContains, values[0]);
-                if (criteria.LogicalOperator == Logic.NotContains)
+                if (criteria.Relation == RelationalOperators.NotContains)
                     expression = Expression.Not(expression);
                 break;
-            case Logic.EndsWidth:
-            case Logic.NotEndsWith:
+            case RelationalOperators.EndsWidth:
+            case RelationalOperators.NotEndsWith:
                 var miEndsWith = typeof(string).GetMethod("EndsWith", new Type[] { typeof(string) })!;
                 expression = Expression.Call(Expression.MakeMemberAccess(param, field), miEndsWith, values[0]);
-                if (criteria.LogicalOperator == Logic.NotEndsWith)
+                if (criteria.Relation == RelationalOperators.NotEndsWith)
                     expression = Expression.Not(expression);
-                break;
-            case Logic.Between:
-                if (values.Length < 2)
-                    throw new InvalidOperationException($"Logical Operator Between requires 2 values to be passed but received: {criteria.Values}");
-
-                var expression1 = Expression.LessThanOrEqual(property, values[1]);
-                var expression2 = Expression.GreaterThanOrEqual(property, values[0]);
-                expression = Expression.AndAlso(expression1, expression2);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(criteria), "The operator is not known.");
@@ -497,11 +481,31 @@ public static class LoadCriteriaExtensions
         }
         else if (property.Type == typeof(DateTimeOffset) || property.Type == typeof(Nullable<DateTimeOffset>))
         {
-            return Expression.Constant(DateTimeOffset.ParseExact(value, "o", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.RoundtripKind), property.Type);
+            DateTimeOffset dt;
+            if (Regex.IsMatch(value, @"^\d*$", RegexOptions.IgnoreCase | RegexOptions.Singleline))
+            {
+                dt = DateTimeOffset.FromUnixTimeMilliseconds(Convert.ToInt64(value));
+            }
+            else
+            {
+                dt = DateTimeOffset.Parse(value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.RoundtripKind);
+            }
+
+            return Expression.Constant(dt, property.Type);
         }
         else if (property.Type == typeof(DateTime) || property.Type == typeof(Nullable<DateTime>))
         {
-            return Expression.Constant(DateTime.ParseExact(value, "o", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.RoundtripKind), property.Type);
+            DateTime dt;
+            if (Regex.IsMatch(value, @"^\d*$", RegexOptions.IgnoreCase | RegexOptions.Singleline))
+            {
+                dt = DateTimeOffset.FromUnixTimeMilliseconds(Convert.ToInt64(value)).DateTime;
+            }
+            else
+            {
+                dt = DateTime.Parse(value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.RoundtripKind);
+            }
+
+            return Expression.Constant(dt, property.Type);
         }
         else if (property.Type.IsEnum)
         {

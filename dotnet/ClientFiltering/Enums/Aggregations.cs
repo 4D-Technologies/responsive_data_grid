@@ -1,5 +1,3 @@
-using System.Runtime.Serialization;
-
 namespace ClientFiltering.Enums;
 [DataContract]
 public enum Aggregations
