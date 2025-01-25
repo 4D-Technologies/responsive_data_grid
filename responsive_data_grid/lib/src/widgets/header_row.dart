@@ -37,7 +37,7 @@ class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
         child: Padding(
           padding: grid.contentPadding,
           child: BootstrapRow(
-            children: getColumnHeaders(context),
+            children: getColumnHeaders(context, grid),
             crossAxisAlignment: grid.headerCrossAxisAlignment ==
                         CrossAxisAlignment.start ||
                     grid.headerCrossAxisAlignment == CrossAxisAlignment.stretch
@@ -52,11 +52,16 @@ class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
     );
   }
 
-  List<BootstrapCol> getColumnHeaders(BuildContext context) {
+  List<BootstrapCol> getColumnHeaders(
+      BuildContext context, ResponsiveDataGrid<TItem> grid) {
     return columns
         .map(
           (c) => BootstrapCol(
-            child: c.getHeader(grid),
+            child: Padding(
+              padding: EdgeInsets.only(
+                  left: columns.indexOf(c) == 0 ? 0 : grid.columnSpacing),
+              child: c.getHeader(this.grid),
+            ),
             lg: c.largeCols ?? c.mediumCols ?? c.smallCols ?? c.xsCols ?? 12,
             md: c.mediumCols ?? c.smallCols ?? c.xsCols ?? 12,
             sm: c.smallCols ?? c.xsCols ?? 12,

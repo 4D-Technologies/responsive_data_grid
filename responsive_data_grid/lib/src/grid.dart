@@ -22,6 +22,8 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
   final TitleDefinition? title;
   final EdgeInsets padding;
   final EdgeInsets contentPadding;
+  final double columnSpacing;
+  final double rowSpacing;
   final double elevation;
   final PagingMode pagingMode;
   final int maximumRows;
@@ -36,6 +38,8 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
         loadData,
     required this.columns,
     List<GroupCriteria>? groups,
+    this.columnSpacing = 10,
+    this.rowSpacing = 2,
     this.itemTapped,
     this.separatorThickness,
     this.pageSize = 50,
@@ -82,6 +86,8 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
       right: 10,
       bottom: 3,
     ),
+    this.columnSpacing = 3,
+    this.rowSpacing = 3,
     this.elevation = 0,
     this.pagingMode = PagingMode.auto,
     this.allowAggregations = false,

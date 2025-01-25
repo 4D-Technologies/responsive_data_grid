@@ -51,7 +51,7 @@ abstract class GridColumn<TItem extends Object, TValue extends dynamic> {
   }
 
   Widget getHeader(ResponsiveDataGridState<TItem> grid) {
-    if (this.header.empty) return Container();
+    if (this.header.empty) return SizedBox();
 
     return ColumnHeaderWidget<TItem, TValue>(grid, this);
   }

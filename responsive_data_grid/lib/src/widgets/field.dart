@@ -19,12 +19,12 @@ class DataGridFieldWidget<TItem extends Object, TValue extends dynamic>
     if (definition.customFieldWidget != null) {
       child = DefaultTextStyle(
         style: effectiveDataTextStyle,
-        child: definition.customFieldWidget!(item) ?? Container(),
+        child: definition.customFieldWidget!(item) ?? SizedBox(),
       );
     } else {
       final stringValue = definition.getFormattedValue(item);
       if (stringValue == null) {
-        child = Container();
+        child = SizedBox();
       } else {
         child = Text(
           stringValue,

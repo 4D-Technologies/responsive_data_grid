@@ -90,10 +90,13 @@ class ColumnHeaderState<TItem extends Object, TValue extends dynamic>
     if (widget.definition.header.text != null) {
       items.add(
         Expanded(
-          child: Text(
-            widget.definition.header.text!,
-            textAlign: widget.definition.header.textAlign,
-            style: textStyle,
+          child: Align(
+            alignment: header.alignment,
+            child: Text(
+              widget.definition.header.text!,
+              textAlign: widget.definition.header.textAlign,
+              style: textStyle,
+            ),
           ),
         ),
       );

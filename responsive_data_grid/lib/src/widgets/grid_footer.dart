@@ -25,6 +25,7 @@ class GridFooter<TItem extends Object> extends StatelessWidget {
             bottom: 3,
           ),
           child: BootstrapRow(
+            horizontalSpacing: gridState.widget.columnSpacing,
             crossAxisAlignment: gridState.widget.rowCrossAxisAlignment ==
                         CrossAxisAlignment.start ||
                     gridState.widget.rowCrossAxisAlignment ==
@@ -45,18 +46,24 @@ class GridFooter<TItem extends Object> extends StatelessWidget {
   List<BootstrapCol> getColumns(BuildContext context) {
     return gridState.widget.columns.map((c) {
       return BootstrapCol(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          mainAxisSize: MainAxisSize.min,
-          children: data.aggregates
-              .where((g) => g.fieldName == c.fieldName && g.result != null)
-              .map(
-                (agg) => Text(
-                  "${agg.aggregation.toString()}: ${c.format.call(agg.result)}",
-                  style: theme.textTheme.labelLarge,
-                ),
-              )
-              .toList(),
+        child: Padding(
+          padding: EdgeInsets.only(
+              left: gridState.widget.columns.indexOf(c) == 0
+                  ? 0
+                  : gridState.widget.columnSpacing),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisSize: MainAxisSize.min,
+            children: data.aggregates
+                .where((g) => g.fieldName == c.fieldName && g.result != null)
+                .map(
+                  (agg) => Text(
+                    "${agg.aggregation.toString()}: ${c.format.call(agg.result)}",
+                    style: theme.textTheme.labelLarge,
+                  ),
+                )
+                .toList(),
+          ),
         ),
         lg: c.largeCols ?? c.mediumCols ?? c.smallCols ?? c.xsCols ?? 12,
         md: c.mediumCols ?? c.smallCols ?? c.xsCols ?? 12,

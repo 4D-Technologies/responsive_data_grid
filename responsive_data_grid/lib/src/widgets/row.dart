@@ -41,6 +41,8 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
       child: Padding(
         padding: this.padding,
         child: BootstrapRow(
+          alignment: WrapAlignment.start,
+          runSpacing: grid!.rowSpacing,
           crossAxisAlignment:
               grid!.rowCrossAxisAlignment == CrossAxisAlignment.start ||
                       grid.rowCrossAxisAlignment == CrossAxisAlignment.stretch
@@ -48,17 +50,23 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
                   : grid.rowCrossAxisAlignment == CrossAxisAlignment.center
                       ? WrapCrossAlignment.center
                       : WrapCrossAlignment.end,
-          children: getColumns(context, item),
+          children: getColumns(context, grid, item),
           totalSegments: grid.reactiveSegments,
         ),
       ),
     );
   }
 
-  List<BootstrapCol> getColumns(BuildContext context, TItem item) {
+  List<BootstrapCol> getColumns(
+      BuildContext context, ResponsiveDataGrid<TItem> grid, TItem item) {
     return columns.map((c) {
       return BootstrapCol(
-        child: DataGridFieldWidget<TItem, dynamic>(c, item),
+        child: Padding(
+          padding: EdgeInsets.only(
+            left: columns.indexOf(c) == 0 ? 0 : grid.columnSpacing,
+          ),
+          child: DataGridFieldWidget<TItem, dynamic>(c, item),
+        ),
         lg: c.largeCols ?? c.mediumCols ?? c.smallCols ?? c.xsCols ?? 12,
         md: c.mediumCols ?? c.smallCols ?? c.xsCols ?? 12,
         sm: c.smallCols ?? c.xsCols ?? 12,
