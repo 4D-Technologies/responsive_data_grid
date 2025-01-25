@@ -71,3 +71,16 @@ extension FilterCriteriaExtensions on List<FilterCriteria<dynamic>> {
 
   String escapeFieldName(String fieldName) => fieldName.replaceAll("'", "''");
 }
+
+extension TimeOfDayExtensions on TimeOfDay {
+  DateTime toDateTime() {
+    final now = new DateTime.now();
+    return new DateTime(
+      now.year,
+      now.month,
+      now.day,
+      this.hour,
+      this.minute,
+    );
+  }
+}

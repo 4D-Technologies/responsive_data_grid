@@ -27,7 +27,7 @@ class WidgetColumn<TItem extends Object> extends GridColumn<TItem, void> {
           backgroundColor: backgroundColor,
           customFieldWidget: widget,
           foregroundColor: foregroundColor,
-          format: null,
+          format: (value) => null,
           header: header ?? WidgetColumnHeader(),
           largeCols: largeCols,
           maxWidth: maxWidth,

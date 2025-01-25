@@ -40,7 +40,7 @@ class EnumColumn<TItem extends Object, TValue extends Enum>
                 return Text(valueText(val));
               },
           foregroundColor: foregroundColor,
-          format: null,
+          format: (value) => value == null ? null : valueText(value),
           header: header ?? ColumnHeader(),
           largeCols: largeCols,
           maxWidth: maxWidth,

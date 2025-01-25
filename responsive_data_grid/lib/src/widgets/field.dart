@@ -13,7 +13,7 @@ class DataGridFieldWidget<TItem extends Object, TValue extends dynamic>
     final theme = Theme.of(context);
     final effectiveDataTextStyle = definition.textStyle ??
         theme.dataTableTheme.dataTextStyle ??
-        theme.textTheme.bodyText2!;
+        theme.primaryTextTheme.bodyMedium!;
 
     Widget? child;
     if (definition.customFieldWidget != null) {
@@ -22,36 +22,10 @@ class DataGridFieldWidget<TItem extends Object, TValue extends dynamic>
         child: definition.customFieldWidget!(item) ?? Container(),
       );
     } else {
-      final value = definition.value(item);
-      if (value == null) {
+      final stringValue = definition.getFormattedValue(item);
+      if (stringValue == null) {
         child = Container();
       } else {
-        late String stringValue;
-
-        if (definition.format == null) {
-          if (value is TimeOfDay)
-            // ignore: unnecessary_cast
-            stringValue = (value as TimeOfDay).format(context);
-          else
-            stringValue = value.toString();
-        } else {
-          if (value is String)
-            stringValue = value;
-          else if (value is DateTime)
-            stringValue = intl.DateFormat(definition.format).format(value);
-          else if (value is num)
-            stringValue = intl.NumberFormat(definition.format).format(value);
-          else if (value is bool) {
-            final trueValue = definition.format!
-                .substring(0, definition.format!.indexOf("|"));
-            final falseValue = definition.format!
-                .substring(definition.format!.indexOf("|") + 1);
-            stringValue = value ? trueValue : falseValue;
-          } else
-            throw UnsupportedError(
-                "The format is specified but the type ${TValue} cannot be formatted.");
-        }
-
         child = Text(
           stringValue,
           style: effectiveDataTextStyle,

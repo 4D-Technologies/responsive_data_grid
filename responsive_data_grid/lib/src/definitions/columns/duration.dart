@@ -31,7 +31,7 @@ class DurationColumn<TItem extends Object> extends GridColumn<TItem, Duration> {
           customFieldWidget: customFieldWidget,
           foregroundColor: foregroundColor,
           header: header ?? ColumnHeader(),
-          format: null,
+          format: (value) => value?.toString() ?? '',
           largeCols: largeCols,
           maxWidth: maxWidth,
           mediumCols: mediumCols,

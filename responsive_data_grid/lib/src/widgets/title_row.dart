@@ -23,7 +23,7 @@ class TitleRowWidget extends StatelessWidget {
             : colorScheme.onPrimary);
 
     final titleTextStyle = bannerTheme.contentTextStyle ??
-        theme.textTheme.headline6?.copyWith(color: foregroundColor);
+        theme.textTheme.titleSmall?.copyWith(color: foregroundColor);
 
     final overallIconTheme = theme.iconTheme.copyWith(color: foregroundColor);
 

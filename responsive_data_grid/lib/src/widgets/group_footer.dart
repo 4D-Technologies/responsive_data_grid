@@ -54,7 +54,7 @@ class GridGroupFooter<TItem extends Object> extends StatelessWidget {
                 .where((g) => g.fieldName == c.fieldName && g.result != null)
                 .map(
                   (agg) => Text(
-                    "${agg.aggregation.toString()}: ${agg.formatResult(c.format)}",
+                    "${agg.aggregation.toString()}: ${c.format.call(agg.result)}",
                     style: theme.textTheme.labelMedium,
                   ),
                 )

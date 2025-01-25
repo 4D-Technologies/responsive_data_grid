@@ -95,13 +95,12 @@ class DataGridTimeOfDayColumnFilterState<TItem extends Object>
                   op == Logic.between ||
                   op == Logic.equals ||
                   op == Logic.notEqual),
-          child: DateTimePicker(
-            type: DateTimePickerType.time,
+          child: DateTimeField.time(
             decoration: InputDecoration(hintText: op?.toString()),
-            initialTime: tStart,
+            initialPickerDateTime: tStart == null ? null : tStart!.toDateTime(),
             onChanged: (value) {
               this.setState(() {
-                tStart = TimeOfDay.fromDateTime(DateTime.parse(value));
+                tStart = value == null ? null : TimeOfDay.fromDateTime(value);
               });
             },
           ),
@@ -111,13 +110,12 @@ class DataGridTimeOfDayColumnFilterState<TItem extends Object>
               (op == Logic.lessThan ||
                   op == Logic.lessThanOrEqualTo ||
                   op == Logic.between),
-          child: DateTimePicker(
-            type: DateTimePickerType.time,
+          child: DateTimeField.time(
             decoration: InputDecoration(hintText: op?.toString()),
-            initialTime: tEnd,
+            initialPickerDateTime: tEnd == null ? null : tEnd!.toDateTime(),
             onChanged: (value) {
               this.setState(() {
-                tEnd = TimeOfDay.fromDateTime(DateTime.parse(value));
+                tEnd = value == null ? null : TimeOfDay.fromDateTime(value);
               });
             },
           ),

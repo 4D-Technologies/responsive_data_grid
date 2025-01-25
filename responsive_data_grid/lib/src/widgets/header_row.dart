@@ -17,7 +17,7 @@ class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
     final ColorScheme colorScheme = theme.colorScheme;
 
     final backgroundColor = theme.dataTableTheme.headingRowColor
-            ?.resolve(MaterialState.values.toSet()) ??
+            ?.resolve(WidgetState.values.toSet()) ??
         (colorScheme.brightness == Brightness.dark
             ? colorScheme.secondary
             : colorScheme.secondaryContainer);

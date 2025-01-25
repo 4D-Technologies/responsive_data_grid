@@ -9,7 +9,7 @@ class NumColumn<TItem extends Object> extends GridColumn<TItem, num> {
     NumFilterRules<TItem>? filterRules,
     OrderDirections sortDirection = OrderDirections.notSet,
     List<AggregateCriteria>? aggregations,
-    String? format,
+    intl.NumberFormat? format,
     double? width,
     double? minWidth,
     double? maxWidth,
@@ -31,7 +31,8 @@ class NumColumn<TItem extends Object> extends GridColumn<TItem, num> {
           backgroundColor: backgroundColor,
           customFieldWidget: customFieldWidget,
           foregroundColor: foregroundColor,
-          format: format,
+          format: (value) =>
+              format?.format(value) ?? intl.NumberFormat().format(value),
           header: header ?? ColumnHeader(),
           largeCols: largeCols,
           maxWidth: maxWidth,

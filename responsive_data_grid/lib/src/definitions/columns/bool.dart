@@ -32,7 +32,11 @@ class BoolColumn<TItem extends Object> extends GridColumn<TItem, bool> {
           backgroundColor: backgroundColor,
           customFieldWidget: customFieldWidget,
           foregroundColor: foregroundColor,
-          format: "$trueText|$falseText",
+          format: (value) => value == null
+              ? null
+              : value
+                  ? trueText
+                  : falseText,
           header: header ?? ColumnHeader(),
           largeCols: largeCols,
           maxWidth: maxWidth,

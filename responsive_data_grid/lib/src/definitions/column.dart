@@ -21,7 +21,7 @@ abstract class GridColumn<TItem extends Object, TValue extends dynamic> {
   final Color? backgroundColor;
   final Color? foregroundColor;
   final Color? accentColor;
-  final String? format;
+  final String? Function(TValue? value) format;
 
   GridColumn({
     required this.fieldName,
@@ -62,4 +62,8 @@ abstract class GridColumn<TItem extends Object, TValue extends dynamic> {
   });
 
   bool get hasAggregations;
+
+  String? getFormattedValue(TItem item) {
+    return format(value(item));
+  }
 }

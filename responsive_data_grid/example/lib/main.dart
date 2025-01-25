@@ -25,8 +25,9 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
         brightness: Brightness.dark,
-        dataTableTheme: Theme.of(context).dataTableTheme.copyWith(
-            headingRowColor: MaterialStateProperty.all(Colors.black54)),
+        dataTableTheme: Theme.of(context)
+            .dataTableTheme
+            .copyWith(headingRowColor: WidgetStateProperty.all(Colors.black54)),
       ),
       home: MyHomePage(title: 'Flutter Demo Home Page'),
     );
@@ -178,7 +179,7 @@ class _MyHomePageState extends State<MyHomePage> {
               showOrderBy: true,
             ),
             value: (row) => row.dob,
-            format: DateFormat.YEAR_MONTH_DAY,
+            format: DateFormat.yMd(),
           ),
           BoolColumn(
             xsCols: 3,

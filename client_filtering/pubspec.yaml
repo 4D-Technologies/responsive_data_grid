@@ -5,15 +5,13 @@ homepage: https://github.com/4D-Technologies/responsive_data_grid/client_filteri
 repository: https://github.com/4D-Technologies/responsive_data_grid
 
 environment:
-  sdk: ">=2.17.0 <3.0.0"
+  sdk: ">=2.17.0 <4.0.0"
 
 dependencies:
-  darq: ^1.2.1
-  intl: ^0.18.0
+  darq: ^2.0.0
+  intl: 
 
 dev_dependencies:
-  lints: ^2.0.1
+  lints: ^5.1.1
   flutter_test:
     sdk: flutter
-
-flutter:

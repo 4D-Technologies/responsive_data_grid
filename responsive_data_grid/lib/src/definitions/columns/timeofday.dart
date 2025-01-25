@@ -23,6 +23,7 @@ class TimeOfDayColumn<TItem extends Object>
     Color? foregroundColor,
     Color? accentColor,
     AlignmentGeometry alignment = Alignment.centerLeft,
+    intl.DateFormat? format,
   }) : super(
           fieldName: fieldName,
           value: value,
@@ -31,7 +32,17 @@ class TimeOfDayColumn<TItem extends Object>
           backgroundColor: backgroundColor,
           customFieldWidget: customFieldWidget,
           foregroundColor: foregroundColor,
-          format: null,
+          format: (value) => value == null
+              ? null
+              : (format ?? intl.DateFormat.jm()).format(
+                  DateTime(
+                    1,
+                    1,
+                    1,
+                    value.hour,
+                    value.minute,
+                  ),
+                ),
           header: header ?? ColumnHeader(),
           largeCols: largeCols,
           maxWidth: maxWidth,

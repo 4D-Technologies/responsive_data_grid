@@ -17,15 +17,9 @@ class GridBody<TItem extends Object> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (constraints.hasBoundedHeight) {
-      return Expanded(
-        child: SingleChildScrollView(
-          child: getBody(),
-        ),
-      );
-    } else {
-      return getBody();
-    }
+    return Expanded(
+      child: getBody(),
+    );
   }
 
   Widget getBody() {
@@ -37,8 +31,10 @@ class GridBody<TItem extends Object> extends StatelessWidget {
         theme: gridTheme,
       );
     } else {
-      //This needs to keep the scroll context no matter what refreshes happen and show the in view rows, scroll until there is no more data, and then call for more data to be loaded
-      return Container();
+      return ResponsiveGridInfiniteScrollBodyWidget<TItem>(
+        gridState: gridState,
+        theme: gridTheme,
+      );
     }
   }
 }

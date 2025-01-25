@@ -9,7 +9,7 @@ class DoubleColumn<TItem extends Object> extends GridColumn<TItem, double> {
     DoubleFilterRules<TItem>? filterRules,
     OrderDirections sortDirection = OrderDirections.notSet,
     List<AggregateCriteria>? aggregations,
-    String? format,
+    intl.NumberFormat? format,
     double? width,
     double? minWidth,
     double? maxWidth,
@@ -31,7 +31,8 @@ class DoubleColumn<TItem extends Object> extends GridColumn<TItem, double> {
           backgroundColor: backgroundColor,
           customFieldWidget: customFieldWidget,
           foregroundColor: foregroundColor,
-          format: format,
+          format: (value) =>
+              format?.format(value) ?? intl.NumberFormat().format(value),
           header: header ?? ColumnHeader(),
           largeCols: largeCols,
           maxWidth: maxWidth,

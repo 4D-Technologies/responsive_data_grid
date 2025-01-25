@@ -88,7 +88,7 @@ class GroupMenu<TItem extends Object> extends DropDownViewWidget {
                   onPressed: () => removeGroup(group),
                   icon: Icon(
                     Icons.delete,
-                    color: theme.errorColor,
+                    color: theme.colorScheme.error,
                   ),
                 ),
               ],

@@ -69,7 +69,6 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
         );
       },
       itemCount: groups.length,
-      shrinkWrap: true,
     );
   }
 

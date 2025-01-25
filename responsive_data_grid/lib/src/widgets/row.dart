@@ -32,7 +32,9 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
             },
       enableFeedback: true,
       excludeFromSemantics: false,
-      hoverColor: theme.colorScheme.secondary,
+      hoverColor:
+          theme.dataTableTheme.dataRowColor?.resolve({WidgetState.hovered}) ??
+              theme.colorScheme.primary,
       mouseCursor: itemTapped != null
           ? SystemMouseCursors.click
           : SystemMouseCursors.basic,

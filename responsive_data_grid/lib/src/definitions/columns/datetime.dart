@@ -9,7 +9,7 @@ class DateTimeColumn<TItem extends Object> extends GridColumn<TItem, DateTime> {
     DateTimeFilterRules<TItem>? filterRules,
     OrderDirections sortDirection = OrderDirections.notSet,
     List<AggregateCriteria>? aggregations,
-    String? format,
+    intl.DateFormat? format,
     double? width,
     double? minWidth,
     double? maxWidth,
@@ -31,7 +31,9 @@ class DateTimeColumn<TItem extends Object> extends GridColumn<TItem, DateTime> {
           backgroundColor: backgroundColor,
           customFieldWidget: customFieldWidget,
           foregroundColor: foregroundColor,
-          format: format,
+          format: (value) => value == null
+              ? null
+              : format?.format(value) ?? intl.DateFormat().format(value),
           header: header ?? ColumnHeader(),
           largeCols: largeCols,
           maxWidth: maxWidth,

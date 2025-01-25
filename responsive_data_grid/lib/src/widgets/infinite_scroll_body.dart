@@ -5,11 +5,11 @@ class ResponsiveGridInfiniteScrollBodyWidget<TItem extends Object>
   final ResponsiveDataGridState<TItem> gridState;
   final ThemeData theme;
 
-  ResponsiveGridInfiniteScrollBodyWidget(
-    Key key,
-    this.gridState,
-    this.theme,
-  ) : super(key: key);
+  ResponsiveGridInfiniteScrollBodyWidget({
+    Key? key,
+    required this.gridState,
+    required this.theme,
+  }) : super(key: key);
 
   @override
   State<ResponsiveGridInfiniteScrollBodyWidget<TItem>> createState() =>
@@ -98,7 +98,7 @@ class _ResponsiveGridInfiniteScrollBodyWidgetState<TItem extends Object>
               : Divider(
                   thickness: widget.gridState.widget.separatorThickness,
                 ),
-      shrinkWrap: false,
+      shrinkWrap: true,
       scrollDirection: Axis.vertical,
       padding: widget.gridState.widget.padding.copyWith(top: 0, bottom: 0),
       builderDelegate: PagedChildBuilderDelegate(
@@ -115,13 +115,11 @@ class _ResponsiveGridInfiniteScrollBodyWidgetState<TItem extends Object>
     );
 
     if (_allItems != null) {
-      return Expanded(child: listView);
+      return listView;
     } else {
-      return Expanded(
-        child: RefreshIndicator(
-          child: listView,
-          onRefresh: () => Future.sync(() => _controller.refresh()),
-        ),
+      return RefreshIndicator(
+        child: listView,
+        onRefresh: () => Future.sync(() => _controller.refresh()),
       );
     }
   }

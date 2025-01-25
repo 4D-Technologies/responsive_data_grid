@@ -1,11 +1,6 @@
 part of responsive_data_grid;
 
-enum DateTimeFilterTypes {
-  DateOnly,
-  TimeOnly,
-  DateTime,
-  DateTimeSeparated,
-}
+enum DateTimeFilterTypes { DateOnly, TimeOnly, DateTime }
 
 class DateTimeFilterRules<TItem extends Object>
     extends FilterRules<TItem, DataGridDateTimeColumnFilter<TItem>, DateTime> {
@@ -117,30 +112,30 @@ class DataGridDateTimeColumnFilterState<TItem extends Object>
                   op == Logic.notEqual ||
                   op == Logic.lessThan ||
                   op == Logic.lessThanOrEqualTo),
-          child: DateTimePicker(
-            type: _mapType(filterRules.filterType),
+          child: DateTimeField(
             decoration: InputDecoration(hintText: op?.toString()),
             lastDate: dtEnd ?? filterRules.lastDate,
-            initialValue: dtStart?.toIso8601String(),
+            initialPickerDateTime: dtStart,
             firstDate: filterRules.firstDate,
+            mode: _mapType(filterRules.filterType),
             onChanged: (value) {
               this.setState(() {
-                dtStart = DateTime.parse(value);
+                dtStart = value;
               });
             },
           ),
         ),
         Visibility(
           visible: op != null && (op == Logic.between),
-          child: DateTimePicker(
-            type: _mapType(filterRules.filterType),
+          child: DateTimeField(
             decoration: InputDecoration(hintText: op?.toString()),
             firstDate: dtStart ?? filterRules.firstDate,
             lastDate: filterRules.lastDate,
-            initialValue: dtEnd?.toIso8601String(),
+            initialPickerDateTime: dtEnd,
+            mode: _mapType(filterRules.filterType),
             onChanged: (value) {
               this.setState(() {
-                dtEnd = DateTime.parse(value);
+                dtEnd = value;
               });
             },
           ),
@@ -149,16 +144,14 @@ class DataGridDateTimeColumnFilterState<TItem extends Object>
     );
   }
 
-  DateTimePickerType _mapType(DateTimeFilterTypes filterType) {
+  DateTimeFieldPickerMode _mapType(DateTimeFilterTypes filterType) {
     switch (filterType) {
       case DateTimeFilterTypes.DateOnly:
-        return DateTimePickerType.date;
+        return DateTimeFieldPickerMode.date;
       case DateTimeFilterTypes.TimeOnly:
-        return DateTimePickerType.time;
+        return DateTimeFieldPickerMode.time;
       case DateTimeFilterTypes.DateTime:
-        return DateTimePickerType.dateTime;
-      case DateTimeFilterTypes.DateTimeSeparated:
-        return DateTimePickerType.dateTimeSeparate;
+        return DateTimeFieldPickerMode.dateAndTime;
     }
   }
 }

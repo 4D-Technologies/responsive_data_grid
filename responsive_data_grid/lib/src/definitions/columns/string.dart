@@ -30,7 +30,7 @@ class StringColumn<TItem extends Object> extends GridColumn<TItem, String> {
           backgroundColor: backgroundColor,
           customFieldWidget: customFieldWidget,
           foregroundColor: foregroundColor,
-          format: null,
+          format: (value) => value,
           header: header ?? ColumnHeader(),
           largeCols: largeCols,
           maxWidth: maxWidth,
