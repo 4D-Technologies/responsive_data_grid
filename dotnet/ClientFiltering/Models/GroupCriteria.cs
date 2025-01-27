@@ -1,4 +1,5 @@
 namespace ClientFiltering.Models;
+
 [DataContract]
 public record GroupCriteria
 {
@@ -10,7 +11,7 @@ public record GroupCriteria
     public required OrderDirections Direction { get; init; }
 
     [DataMember]
-    public IEnumerable<AggregateCriteria>? Aggregates { get; init; }
+    public IReadOnlyCollection<AggregateCriteria>? Aggregates { get; init; }
 
     [DataMember]
     public GroupCriteria? SubGroup { get; init; }

@@ -1,4 +1,5 @@
 namespace ClientFiltering.Models;
+
 [DataContract]
 public record GroupResult
 {
@@ -9,8 +10,8 @@ public record GroupResult
     public required string? Value { get; init; }
 
     [DataMember]
-    public IEnumerable<AggregateResult>? Aggregates { get; init; }
+    public IReadOnlyCollection<AggregateResult>? Aggregates { get; init; }
 
     [DataMember]
-    public IEnumerable<GroupResult>? SubGroupResults { get; init; }
+    public IReadOnlyCollection<GroupResult>? SubGroupResults { get; init; }
 }

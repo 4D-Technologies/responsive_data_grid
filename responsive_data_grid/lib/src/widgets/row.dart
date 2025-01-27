@@ -44,7 +44,7 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
           alignment: WrapAlignment.start,
           runSpacing: grid!.rowSpacing,
           crossAxisAlignment:
-              grid!.rowCrossAxisAlignment == CrossAxisAlignment.start ||
+              grid.rowCrossAxisAlignment == CrossAxisAlignment.start ||
                       grid.rowCrossAxisAlignment == CrossAxisAlignment.stretch
                   ? WrapCrossAlignment.start
                   : grid.rowCrossAxisAlignment == CrossAxisAlignment.center

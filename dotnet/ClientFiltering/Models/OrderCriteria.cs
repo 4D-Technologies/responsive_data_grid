@@ -11,6 +11,7 @@ public record OrderCriteria
     /// </summary>
     [DataMember]
     public required string FieldName { get; init; }
+
     /// <summary>
     /// The direction to order it
     /// </summary>
