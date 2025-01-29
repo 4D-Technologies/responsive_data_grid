@@ -11,6 +11,8 @@ import 'package:flutter/services.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart' as intl;
 
+import 'responsive_data_grid.dart';
+
 part './src/widgets/aligned_dialog.dart';
 part './src/response_cache.dart';
 

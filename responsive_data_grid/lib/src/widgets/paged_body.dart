@@ -73,6 +73,9 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
   }
 
   Widget getPage(List<TItem> items) {
+    if (items.isEmpty) {
+      return gridState.widget.noResults ?? Text("No results found.");
+    }
     return ListView.separated(
       separatorBuilder: (context, index) =>
           gridState.widget.separatorThickness == null ||

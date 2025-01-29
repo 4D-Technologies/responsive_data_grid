@@ -1,6 +1,8 @@
 part of responsive_data_grid;
 
 class ResponseCache<TItem extends Object> {
+  final _onCleared = StreamController<void>.broadcast();
+
   int totalCount = 0;
   Map<int, ListResponse<TItem>> pageMap = {};
   List<GroupResult> groups = List<GroupResult>.empty(growable: true);
@@ -28,6 +30,21 @@ class ResponseCache<TItem extends Object> {
 
     return result;
   }
+
+  void clear() {
+    totalCount = 0;
+    pageMap.clear();
+    groups.clear();
+    aggregates.clear();
+    _items.clear();
+    _onCleared.add(null);
+  }
+
+  void dispose() {
+    _onCleared.close();
+  }
+
+  Stream<void> get onCleared => _onCleared.stream;
 
   void addPage(ListResponse<TItem> response, int pageNumber) {
     totalCount = response.totalCount;

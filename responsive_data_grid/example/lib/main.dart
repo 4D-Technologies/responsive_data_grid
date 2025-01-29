@@ -116,18 +116,20 @@ class _MyHomePageState extends State<MyHomePage> {
         pagingMode: PagingMode.pager,
         allowAggregations: true,
         allowGrouping: true,
-        groupCriteria: [
-          GroupCriteria(
-            fieldName: "name",
-            direction: OrderDirections.ascending,
-            aggregates: [
-              AggregateCriteria(
-                fieldName: "name",
-                aggregation: Aggregations.count,
-              ),
-            ],
-          ),
-        ],
+        initialLoadCriteria: LoadCriteria(
+          groupBy: [
+            GroupCriteria(
+              fieldName: "name",
+              direction: OrderDirections.ascending,
+              aggregates: [
+                AggregateCriteria(
+                  fieldName: "name",
+                  aggregation: Aggregations.count,
+                ),
+              ],
+            ),
+          ],
+        ),
         columns: [
           WidgetColumn(
             widget: (item) => Icon(Icons.check, color: Colors.green),

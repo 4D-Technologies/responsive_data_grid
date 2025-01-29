@@ -20,27 +20,12 @@ class _ResponsiveGridInfiniteScrollBodyWidgetState<TItem extends Object>
     extends State<ResponsiveGridInfiniteScrollBodyWidget<TItem>> {
   final _controller = PagingController<int, TItem>(firstPageKey: 1);
 
-  late ListResponse<TItem>? _allItems;
-  late int pageSize;
-
   @override
   void initState() {
     super.initState();
-
-    pageSize = widget.gridState.widget.pageSize;
-
-    if (widget.gridState.widget.items != null) {
-      _allItems = ListResponse.fromData(
-        data: widget.gridState.widget.items!,
-        criteria: widget.gridState.criteria,
-        getFieldValue: (fieldName, item) => widget.gridState.widget.columns
-            .firstWhere((c) => c.fieldName == fieldName)
-            .value(item),
-      );
-    } else {
-      _allItems = null;
-    }
-
+    widget.gridState._dataCache.onCleared.listen((void v) {
+      _controller.refresh();
+    });
     _controller.addPageRequestListener((pageKey) => _fetchPage(pageKey));
   }
 
@@ -51,36 +36,18 @@ class _ResponsiveGridInfiniteScrollBodyWidgetState<TItem extends Object>
   }
 
   FutureOr<void> _fetchPage(int page) async {
-    late int totalCount;
-    late List<TItem> items;
-
     try {
-      if (_allItems != null) {
-        totalCount = _allItems!.totalCount;
-        int start = (page - 1) * pageSize;
-        items = _allItems!.items.sublist(
-          start,
-          math.min(start + pageSize, _allItems!.totalCount),
-        );
-      } else {
-        final result = await widget.gridState.widget.loadData!(
-          LoadCriteria(
-            skip: (page - 1) * pageSize,
-            take: pageSize,
-            orderBy: widget.gridState.criteria.orderBy,
-            filterBy: widget.gridState.criteria.filterBy,
-          ),
-        );
+      await widget.gridState.FetchPage(page, false);
 
-        totalCount = result!.totalCount;
-        items = result.items;
-      }
-
-      final pageCount = (totalCount.toDouble() / pageSize.toDouble()).ceil();
+      final pageCount = (widget.gridState._dataCache.totalCount.toDouble() /
+              widget.gridState.widget.pageSize.toDouble())
+          .ceil();
       if (pageCount == page) {
-        _controller.appendLastPage(items);
+        _controller
+            .appendLastPage(widget.gridState._dataCache.pageMap[page]!.items);
       } else {
-        _controller.appendPage(items, page + 1);
+        _controller.appendPage(
+            widget.gridState._dataCache.pageMap[page]!.items, page + 1);
       }
     } catch (error) {
       _controller.error = error;
@@ -89,7 +56,7 @@ class _ResponsiveGridInfiniteScrollBodyWidgetState<TItem extends Object>
 
   @override
   Widget build(BuildContext context) {
-    final listView = PagedListView<int, TItem>.separated(
+    return PagedListView<int, TItem>.separated(
       pagingController: _controller,
       separatorBuilder: (context, index) =>
           widget.gridState.widget.separatorThickness == null ||
@@ -98,10 +65,18 @@ class _ResponsiveGridInfiniteScrollBodyWidgetState<TItem extends Object>
               : Divider(
                   thickness: widget.gridState.widget.separatorThickness,
                 ),
-      shrinkWrap: true,
+      shrinkWrap: false,
       scrollDirection: Axis.vertical,
       padding: widget.gridState.widget.padding.copyWith(top: 0, bottom: 0),
       builderDelegate: PagedChildBuilderDelegate(
+        noItemsFoundIndicatorBuilder: (context) => Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            widget.gridState.widget.noResults ?? Text("No results found."),
+          ],
+        ),
         itemBuilder: (context, item, index) {
           return DataGridRowWidget<TItem>(
             item: item,
@@ -113,14 +88,5 @@ class _ResponsiveGridInfiniteScrollBodyWidgetState<TItem extends Object>
         },
       ),
     );
-
-    if (_allItems != null) {
-      return listView;
-    } else {
-      return RefreshIndicator(
-        child: listView,
-        onRefresh: () => Future.sync(() => _controller.refresh()),
-      );
-    }
   }
 }

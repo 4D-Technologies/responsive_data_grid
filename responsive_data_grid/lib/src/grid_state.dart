@@ -18,16 +18,49 @@ class ResponsiveDataGridState<TItem extends Object>
   @override
   initState() {
     super.initState();
-    criteria = LoadCriteria(
-      groupBy: widget.groups,
-      skip: 0,
-      take: widget.pageSize,
-      aggregates: widget.columns
-          .map((e) => e.aggregations)
-          .selectMany((element, index) => element)
-          .toList(),
-    );
-    //refreshData();
+    criteria = widget.initialLoadCriteria?.copyWith(
+          take: () => widget.initialLoadCriteria!.take ?? widget.pageSize,
+          groupBy: () =>
+              widget.initialLoadCriteria!.groupBy ??
+              List<GroupCriteria>.empty(growable: true),
+          aggregates: () =>
+              widget.initialLoadCriteria!.aggregates ??
+              List<AggregateCriteria>.empty(growable: true),
+        ) ??
+        LoadCriteria(
+          skip: 0,
+          take: widget.pageSize,
+          aggregates: widget.columns
+              .map((e) => e.aggregations)
+              .selectMany((element, index) => element)
+              .toList(),
+        );
+
+    refreshData();
+  }
+
+  @override
+  void dispose() {
+    _dataCache.dispose();
+    super.dispose();
+  }
+
+  Future<void> updateFilterCriteria(
+      List<FilterCriteria<dynamic>> filterCriteria) async {
+    setState(() {
+      this.isLoading = true;
+      this.criteria = this.criteria.copyWith(
+            filterBy: () => filterCriteria,
+          );
+
+      _dataCache.clear();
+    });
+
+    setState(() {
+      isLoading = false;
+
+      _rebuildAllChildren();
+    });
   }
 
   FutureOr<void> refreshData() async {
@@ -47,17 +80,16 @@ class ResponsiveDataGridState<TItem extends Object>
                   direction: e.sortDirection,
                 ))
             .toList(),
-        groupBy: () => widget.groups,
         aggregates: () => widget.columns
             .map((e) => e.aggregations)
             .selectMany((element, index) => element)
             .toList(),
       );
 
-      _dataCache = ResponseCache<TItem>();
+      _dataCache.clear();
     });
 
-    await FetchPage(pageNumber, false);
+    await setPage(1);
 
     setState(() {
       isLoading = false;
@@ -65,7 +97,7 @@ class ResponsiveDataGridState<TItem extends Object>
   }
 
   FutureOr<void> addGroup(GroupCriteria group) async {
-    widget.groups.add(group);
+    criteria.groupBy!.add(group);
 
     await refreshData();
   }
@@ -73,10 +105,10 @@ class ResponsiveDataGridState<TItem extends Object>
   FutureOr<void> updateGroup(GroupCriteria group) async {
     //Must use the indexWhere because the group has changed so equality won't work.
     final currentIndex =
-        widget.groups.indexWhere((g) => g.fieldName == group.fieldName);
+        criteria.groupBy!.indexWhere((g) => g.fieldName == group.fieldName);
 
     if (currentIndex >= 0) {
-      widget.groups.replaceRange(
+      criteria.groupBy!.replaceRange(
         currentIndex,
         currentIndex + 1,
         [group],
@@ -88,7 +120,7 @@ class ResponsiveDataGridState<TItem extends Object>
   FutureOr<void> removeGroup(GroupCriteria group) async {
     setState(() => isLoading = true);
 
-    widget.groups.remove(group);
+    criteria.groupBy!.remove(group);
 
     await refreshData();
   }
@@ -112,7 +144,6 @@ class ResponsiveDataGridState<TItem extends Object>
                 direction: e.sortDirection,
               ))
           .toList(),
-      groupBy: () => widget.groups,
       aggregates: () => widget.columns
           .map((e) => e.aggregations)
           .selectMany((element, index) => element)
@@ -225,28 +256,25 @@ class ResponsiveDataGridState<TItem extends Object>
                       this, widget.columns),
                 );
 
-                parts.add(
-                  FutureBuilder(
-                    builder: (context, snapshot) {
-                      if (!snapshot.hasData) {
-                        return Column(
-                          mainAxisSize: MainAxisSize.max,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [CircularProgressIndicator()],
-                        );
-                      }
-
-                      return GridBody<TItem>(
-                        gridState: this,
-                        constraints: constraints,
-                        pagingMode: pagingMode,
-                        gridTheme: theme,
-                      );
-                    },
-                    future: FetchPage(this.pageNumber, false),
-                  ),
-                );
+                if (isLoading) {
+                  parts.add(
+                    Column(
+                      mainAxisSize: MainAxisSize.max,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [CircularProgressIndicator()],
+                    ),
+                  );
+                } else {
+                  parts.add(
+                    GridBody<TItem>(
+                      gridState: this,
+                      constraints: constraints,
+                      pagingMode: pagingMode,
+                      gridTheme: theme,
+                    ),
+                  );
+                }
 
                 if (_dataCache.aggregates.isNotEmpty)
                   parts.add(
@@ -281,7 +309,7 @@ class ResponsiveDataGridState<TItem extends Object>
     );
   }
 
-  void _rebuildAllChildren(BuildContext context) {
+  void _rebuildAllChildren() {
     void rebuild(Element el) {
       el.markNeedsBuild();
       el.visitChildren(rebuild);
@@ -304,7 +332,7 @@ class ResponsiveDataGridState<TItem extends Object>
       }
     });
 
-    _rebuildAllChildren(context);
+    _rebuildAllChildren();
   }
 
   void _updateOrderByCriteria<TValue extends dynamic>(
@@ -322,7 +350,7 @@ class ResponsiveDataGridState<TItem extends Object>
   }
 
   void reload() {
-    _rebuildAllChildren(context);
+    _rebuildAllChildren();
   }
 }
 
