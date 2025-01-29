@@ -66,7 +66,7 @@ class DateTimeColumn<TItem extends Object> extends GridColumn<TItem, DateTime> {
         ),
         AggregationChooser(
           column: this,
-          aggregation: Aggregations.maxium,
+          aggregation: Aggregations.maximum,
           selected: selected,
           update: update,
         ),

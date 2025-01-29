@@ -4,6 +4,7 @@ class GroupResult {
   final String fieldName;
   final String? value;
   final List<AggregateResult> aggregates;
+
   final List<GroupResult> subGroups;
 
   const GroupResult({

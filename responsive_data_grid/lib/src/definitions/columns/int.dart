@@ -61,7 +61,7 @@ class IntColumn<TItem extends Object> extends GridColumn<TItem, int> {
         ),
         AggregationChooser(
           column: this,
-          aggregation: Aggregations.maxium,
+          aggregation: Aggregations.maximum,
           selected: selected,
           update: update,
         ),

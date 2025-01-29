@@ -37,7 +37,7 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
     required Future<ListResponse<TItem>?> Function(LoadCriteria criteria)
         loadData,
     required this.columns,
-    List<GroupCriteria>? groups,
+    List<GroupCriteria>? groupCriteria,
     this.columnSpacing = 10,
     this.rowSpacing = 2,
     this.itemTapped,
@@ -60,13 +60,14 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
     this.maximumRows = 99999,
   })  : this.items = null,
         this.loadData = loadData,
-        this.groups = groups ?? List<GroupCriteria>.empty(growable: true);
+        this.groups =
+            groupCriteria ?? List<GroupCriteria>.empty(growable: true);
 
   ResponsiveDataGrid.clientSide({
     GlobalKey<ResponsiveDataGridState<TItem>>? key,
     required List<TItem> items,
     required this.columns,
-    List<GroupCriteria>? groups,
+    List<GroupCriteria>? groupCriteria,
     this.groupIndent = 15,
     this.allowGrouping = false,
     this.itemTapped,
@@ -94,7 +95,8 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
     this.maximumRows = 99999,
   })  : this.items = items,
         this.loadData = null,
-        this.groups = groups ?? List<GroupCriteria>.empty(growable: true);
+        this.groups =
+            groupCriteria ?? List<GroupCriteria>.empty(growable: true);
 
   @override
   State<StatefulWidget> createState() => ResponsiveDataGridState<TItem>();

@@ -61,7 +61,7 @@ class DoubleColumn<TItem extends Object> extends GridColumn<TItem, double> {
         ),
         AggregationChooser(
           column: this,
-          aggregation: Aggregations.maxium,
+          aggregation: Aggregations.maximum,
           selected: selected,
           update: update,
         ),

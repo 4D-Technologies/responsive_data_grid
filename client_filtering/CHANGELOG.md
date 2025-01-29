@@ -1,3 +1,9 @@
+# Change Log
+
+## [0.0.26] - January 27th, 2025
+
+- Enable oData query generation for filter, order, skip and take as extension methods
+
 ## [0.0.25] - November 29th, 2022
 
 - Fix casing issue in serialization

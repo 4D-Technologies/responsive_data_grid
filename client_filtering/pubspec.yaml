@@ -1,6 +1,6 @@
 name: client_filtering
 description: Allows dynamic client filtering through a set of models
-version: 0.0.26
+version: 0.0.27
 homepage: https://github.com/4D-Technologies/responsive_data_grid/client_filtering
 repository: https://github.com/4D-Technologies/responsive_data_grid
 
@@ -9,7 +9,8 @@ environment:
 
 dependencies:
   darq: ^2.0.0
-  intl: 
+  intl:
+  odata_query: ^2.3.0
 
 dev_dependencies:
   lints: ^5.1.1

@@ -116,7 +116,7 @@ class _MyHomePageState extends State<MyHomePage> {
         pagingMode: PagingMode.pager,
         allowAggregations: true,
         allowGrouping: true,
-        groups: [
+        groupCriteria: [
           GroupCriteria(
             fieldName: "name",
             direction: OrderDirections.ascending,

@@ -388,7 +388,7 @@ class LoadCriteria with IJsonable {
                 num.parse(getFieldValue(criteria.fieldName, e)!.toString()))
             .average;
         break;
-      case Aggregations.maxium:
+      case Aggregations.maximum:
         result = nonNullItems
             .map((e) =>
                 num.parse(getFieldValue(criteria.fieldName, e)!.toString()))

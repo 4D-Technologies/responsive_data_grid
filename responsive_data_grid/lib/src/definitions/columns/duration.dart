@@ -60,7 +60,7 @@ class DurationColumn<TItem extends Object> extends GridColumn<TItem, Duration> {
         ),
         AggregationChooser(
           column: this,
-          aggregation: Aggregations.maxium,
+          aggregation: Aggregations.maximum,
           selected: selected,
           update: update,
         ),

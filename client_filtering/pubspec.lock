@@ -131,6 +131,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.15.0"
+  odata_query:
+    dependency: "direct main"
+    description:
+      name: odata_query
+      sha256: a69d426cedd250e1733c9064e3fe029df513a20e9d7740f49c442656d6847264
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.3.0"
   path:
     dependency: transitive
     description:

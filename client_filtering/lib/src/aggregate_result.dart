@@ -44,7 +44,7 @@ class AggregateResult {
     switch (aggregation) {
       case Aggregations.sum:
       case Aggregations.average:
-      case Aggregations.maxium:
+      case Aggregations.maximum:
       case Aggregations.minimum:
         if (result is int || result is BigInt) format ??= "#";
 

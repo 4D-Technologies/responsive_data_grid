@@ -7,7 +7,7 @@ abstract class IEnum {
 enum Aggregations implements IEnum {
   sum(1),
   average(2),
-  maxium(3),
+  maximum(3),
   minimum(4),
   count(5);
 
@@ -25,7 +25,7 @@ enum Aggregations implements IEnum {
         return ClientFilteringLocalizedMessages.sum;
       case Aggregations.average:
         return ClientFilteringLocalizedMessages.average;
-      case Aggregations.maxium:
+      case Aggregations.maximum:
         return ClientFilteringLocalizedMessages.maximum;
       case Aggregations.minimum:
         return ClientFilteringLocalizedMessages.minimum;

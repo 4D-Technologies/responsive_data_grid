@@ -72,7 +72,7 @@ class TimeOfDayColumn<TItem extends Object>
         ),
         AggregationChooser(
           column: this,
-          aggregation: Aggregations.maxium,
+          aggregation: Aggregations.maximum,
           selected: selected,
           update: update,
         ),
