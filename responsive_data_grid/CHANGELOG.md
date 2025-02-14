@@ -1,3 +1,10 @@
+# Change Log
+
+## [1.0.1] - February 14th, 2025
+
+- Significant updates and improvements with breaking changes to formatting and a few other areas.
+- Enables infinite scrolling on non-grouped grids.
+
 ## [0.0.25] - May 18th, 2022
 
 - Update to Dart 2.17
