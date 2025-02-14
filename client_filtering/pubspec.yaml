@@ -8,6 +8,9 @@ environment:
   sdk: ">=2.17.0 <4.0.0"
 
 dependencies:
+  flutter:
+    sdk: flutter
+
   darq: ^2.0.0
   intl: ^0.17.0
   odata_query: ^2.3.0
