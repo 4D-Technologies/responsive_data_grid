@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.0.27] - January 27th, 2025
+
+- Open up intl version constraint
+
 ## [0.0.26] - January 27th, 2025
 
 - Enable oData query generation for filter, order, skip and take as extension methods

@@ -36,9 +36,10 @@ packages:
   client_filtering:
     dependency: "direct main"
     description:
-      path: "../client_filtering"
-      relative: true
-    source: path
+      name: client_filtering
+      sha256: a13ae2e117fa1e2286a6f7d6b9da0fb86e32d1923d89a217f5d6facc889b09ca
+      url: "https://pub.dev"
+    source: hosted
     version: "0.0.27"
   clock:
     dependency: transitive
