@@ -1,5 +1,10 @@
 # Change Log
 
+## [1.0.2] - March 24th, 2025
+
+- Update to infinite scroll 5.0.0
+
+
 ## [1.0.1] - February 14th, 2025
 
 - Significant updates and improvements with breaking changes to formatting and a few other areas.

@@ -18,7 +18,9 @@ class ResponsiveGridInfiniteScrollBodyWidget<TItem extends Object>
 
 class _ResponsiveGridInfiniteScrollBodyWidgetState<TItem extends Object>
     extends State<ResponsiveGridInfiniteScrollBodyWidget<TItem>> {
-  final _controller = PagingController<int, TItem>(firstPageKey: 1);
+  late final PagingController<int, TItem> _controller = PagingController(
+      getNextPageKey: (state) => (state.keys?.last ?? 0) + 1,
+      fetchPage: (pageKey) => _fetchPage(pageKey));
 
   @override
   void initState() {
@@ -26,7 +28,6 @@ class _ResponsiveGridInfiniteScrollBodyWidgetState<TItem extends Object>
     widget.gridState._dataCache.onCleared.listen((void v) {
       _controller.refresh();
     });
-    _controller.addPageRequestListener((pageKey) => _fetchPage(pageKey));
   }
 
   @override
@@ -35,57 +36,73 @@ class _ResponsiveGridInfiniteScrollBodyWidgetState<TItem extends Object>
     super.dispose();
   }
 
-  FutureOr<void> _fetchPage(int page) async {
+  FutureOr<List<TItem>> _fetchPage(int page) async {
     try {
-      await widget.gridState.FetchPage(page, false);
+      _controller.value = _controller.value.copyWith(
+        error: null,
+        isLoading: true,
+      );
+
+      final response = await widget.gridState.FetchPage(page, false);
 
       final pageCount = (widget.gridState._dataCache.totalCount.toDouble() /
               widget.gridState.widget.pageSize.toDouble())
           .ceil();
-      if (pageCount == page) {
-        _controller
-            .appendLastPage(widget.gridState._dataCache.pageMap[page]!.items);
-      } else {
-        _controller.appendPage(
-            widget.gridState._dataCache.pageMap[page]!.items, page + 1);
-      }
+
+      _controller.value = _controller.value.copyWith(
+        error: null,
+        hasNextPage: page < pageCount,
+        isLoading: false,
+      );
+
+      return response.items;
     } catch (error) {
-      _controller.error = error;
+      _controller.value = _controller.value.copyWith(
+        error: error,
+        isLoading: false,
+        hasNextPage: false,
+      );
+      return [];
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return PagedListView<int, TItem>.separated(
-      pagingController: _controller,
-      separatorBuilder: (context, index) =>
-          widget.gridState.widget.separatorThickness == null ||
-                  widget.gridState.widget.separatorThickness == 0.0
-              ? Container()
-              : Divider(
-                  thickness: widget.gridState.widget.separatorThickness,
-                ),
-      shrinkWrap: false,
-      scrollDirection: Axis.vertical,
-      padding: widget.gridState.widget.padding.copyWith(top: 0, bottom: 0),
-      builderDelegate: PagedChildBuilderDelegate(
-        noItemsFoundIndicatorBuilder: (context) => Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            widget.gridState.widget.noResults ?? Text("No results found."),
-          ],
+    return PagingListener(
+      controller: _controller,
+      builder: (context, state, fetchNextPage) =>
+          PagedListView<int, TItem>.separated(
+        state: state,
+        fetchNextPage: fetchNextPage,
+        separatorBuilder: (context, index) =>
+            widget.gridState.widget.separatorThickness == null ||
+                    widget.gridState.widget.separatorThickness == 0.0
+                ? Container()
+                : Divider(
+                    thickness: widget.gridState.widget.separatorThickness,
+                  ),
+        shrinkWrap: false,
+        scrollDirection: Axis.vertical,
+        padding: widget.gridState.widget.padding.copyWith(top: 0, bottom: 0),
+        builderDelegate: PagedChildBuilderDelegate(
+          noItemsFoundIndicatorBuilder: (context) => Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              widget.gridState.widget.noResults ?? Text("No results found."),
+            ],
+          ),
+          itemBuilder: (context, item, index) {
+            return DataGridRowWidget<TItem>(
+              item: item,
+              columns: widget.gridState.widget.columns,
+              itemTapped: widget.gridState.widget.itemTapped,
+              theme: widget.theme,
+              padding: widget.gridState.widget.contentPadding,
+            );
+          },
         ),
-        itemBuilder: (context, item, index) {
-          return DataGridRowWidget<TItem>(
-            item: item,
-            columns: widget.gridState.widget.columns,
-            itemTapped: widget.gridState.widget.itemTapped,
-            theme: widget.theme,
-            padding: widget.gridState.widget.contentPadding,
-          );
-        },
       ),
     );
   }

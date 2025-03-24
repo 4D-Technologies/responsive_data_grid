@@ -9,13 +9,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  intl:
+  intl: ^0.20.2
 
   responsive_data_grid:
     path: ../
 
-  client_filtering:
-    path: ../../client_filtering
+  client_filtering: ^0.0.28
 
   cupertino_icons: ^1.0.8
 

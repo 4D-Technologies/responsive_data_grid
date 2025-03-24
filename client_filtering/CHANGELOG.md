@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.0.28] - March 24th, 2025
+
+- Update some versions
+
 ## [0.0.27] - January 27th, 2025
 
 - Open up intl version constraint
