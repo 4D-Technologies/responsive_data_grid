@@ -1,25 +1,20 @@
-part of responsive_data_grid;
+part of '../../responsive_data_grid.dart';
 
-class TimeOfDayFilterRules<TItem extends Object> extends FilterRules<TItem,
-    DataGridTimeOfDayColumnFilter<TItem>, TimeOfDay> {
-  TimeOfDayFilterRules({
-    FilterCriteria<TimeOfDay>? criteria,
-  }) : super(
-          criteria: criteria,
-        );
+class TimeOfDayFilterRules<TItem extends Object>
+    extends
+        FilterRules<TItem, DataGridTimeOfDayColumnFilter<TItem>, TimeOfDay> {
+  TimeOfDayFilterRules({super.criteria});
 
   @override
   DataGridTimeOfDayColumnFilter<TItem> showFilter(
-          GridColumn<TItem, TimeOfDay> definition,
-          ResponsiveDataGridState<TItem> grid) =>
-      DataGridTimeOfDayColumnFilter(definition, grid);
+    GridColumn<TItem, TimeOfDay> definition,
+    ResponsiveDataGridState<TItem> grid,
+  ) => DataGridTimeOfDayColumnFilter(definition, grid);
 }
 
 class DataGridTimeOfDayColumnFilter<TItem extends Object>
     extends DataGridColumnFilter<TItem, TimeOfDay> {
-  DataGridTimeOfDayColumnFilter(GridColumn<TItem, TimeOfDay> definition,
-      ResponsiveDataGridState<TItem> grid)
-      : super(definition, grid) {
+  DataGridTimeOfDayColumnFilter(super.definition, super.grid, {super.key}) {
     assert(TItem != Object);
   }
 
@@ -37,12 +32,12 @@ class DataGridTimeOfDayColumnFilterState<TItem extends Object>
   late TimeOfDayFilterRules filterRules;
 
   @override
-  initState() {
+  void initState() {
     filterRules = widget.definition.filterRules as TimeOfDayFilterRules;
 
     final criteria = filterRules.criteria;
     if (criteria != null) {
-      tStart = criteria.values.length > 0 ? criteria.values.first : null;
+      tStart = criteria.values.isNotEmpty ? criteria.values.first : null;
       tEnd = criteria.values.length > 1 ? criteria.values.last : null;
       op = criteria.logicalOperator;
     }
@@ -55,41 +50,46 @@ class DataGridTimeOfDayColumnFilterState<TItem extends Object>
       mainAxisSize: MainAxisSize.min,
       children: [
         DropdownButtonFormField<Logic?>(
-            items: [
-              DropdownMenuItem<Logic?>(
-                  child: Text(Logic.greaterThan.toString()),
-                  value: Logic.greaterThan),
-              DropdownMenuItem<Logic?>(
-                  child: Text(Logic.greaterThanOrEqualTo.toString()),
-                  value: Logic.greaterThanOrEqualTo),
-              DropdownMenuItem<Logic?>(
-                child: Text(Logic.lessThan.toString()),
-                value: Logic.lessThan,
-              ),
-              DropdownMenuItem<Logic?>(
-                  child: Text(Logic.lessThanOrEqualTo.toString()),
-                  value: Logic.lessThanOrEqualTo),
-              DropdownMenuItem<Logic?>(
-                child: Text(Logic.between.toString()),
-                value: Logic.between,
-              ),
-              DropdownMenuItem<Logic?>(
-                child: Text(Logic.equals.toString()),
-                value: Logic.equals,
-              ),
-              DropdownMenuItem<Logic?>(
-                child: Text(Logic.notEqual.toString()),
-                value: Logic.notEqual,
-              ),
-            ],
-            value: op,
-            onChanged: (Logic? value) {
-              this.setState(() {
-                op = value;
-              });
-            }),
+          items: [
+            DropdownMenuItem<Logic?>(
+              value: Logic.greaterThan,
+              child: Text(Logic.greaterThan.toString()),
+            ),
+            DropdownMenuItem<Logic?>(
+              value: Logic.greaterThanOrEqualTo,
+              child: Text(Logic.greaterThanOrEqualTo.toString()),
+            ),
+            DropdownMenuItem<Logic?>(
+              value: Logic.lessThan,
+              child: Text(Logic.lessThan.toString()),
+            ),
+            DropdownMenuItem<Logic?>(
+              value: Logic.lessThanOrEqualTo,
+              child: Text(Logic.lessThanOrEqualTo.toString()),
+            ),
+            DropdownMenuItem<Logic?>(
+              value: Logic.between,
+              child: Text(Logic.between.toString()),
+            ),
+            DropdownMenuItem<Logic?>(
+              value: Logic.equals,
+              child: Text(Logic.equals.toString()),
+            ),
+            DropdownMenuItem<Logic?>(
+              value: Logic.notEqual,
+              child: Text(Logic.notEqual.toString()),
+            ),
+          ],
+          initialValue: op,
+          onChanged: (Logic? value) {
+            setState(() {
+              op = value;
+            });
+          },
+        ),
         Visibility(
-          visible: op != null &&
+          visible:
+              op != null &&
               (op == Logic.greaterThan ||
                   op == Logic.greaterThanOrEqualTo ||
                   op == Logic.between ||
@@ -97,24 +97,27 @@ class DataGridTimeOfDayColumnFilterState<TItem extends Object>
                   op == Logic.notEqual),
           child: DateTimeField.time(
             decoration: InputDecoration(hintText: op?.toString()),
-            initialPickerDateTime: tStart == null ? null : tStart!.toDateTime(),
-            onChanged: (value) {
-              this.setState(() {
+            value: tStart?.toDateTime(),
+            initialPickerDateTime: tStart?.toDateTime(),
+            onChanged: (DateTime? value) {
+              setState(() {
                 tStart = value == null ? null : TimeOfDay.fromDateTime(value);
               });
             },
           ),
         ),
         Visibility(
-          visible: op != null &&
+          visible:
+              op != null &&
               (op == Logic.lessThan ||
                   op == Logic.lessThanOrEqualTo ||
                   op == Logic.between),
           child: DateTimeField.time(
             decoration: InputDecoration(hintText: op?.toString()),
-            initialPickerDateTime: tEnd == null ? null : tEnd!.toDateTime(),
-            onChanged: (value) {
-              this.setState(() {
+            value: tEnd?.toDateTime(),
+            initialPickerDateTime: tEnd?.toDateTime(),
+            onChanged: (DateTime? value) {
+              setState(() {
                 tEnd = value == null ? null : TimeOfDay.fromDateTime(value);
               });
             },

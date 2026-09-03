@@ -1,4 +1,4 @@
-part of responsive_data_grid;
+part of '../../responsive_data_grid.dart';
 
 abstract class DropDownViewWidget extends StatefulWidget {
   final Icon icon;
@@ -6,16 +6,16 @@ abstract class DropDownViewWidget extends StatefulWidget {
   final double dropDownWidth;
   final double? dropDownHeight;
 
-  DropDownViewWidget({
-    Key? key,
+  const DropDownViewWidget({
+    super.key,
     required this.icon,
     required this.theme,
     required this.dropDownWidth,
     this.dropDownHeight,
-  }) : super(key: key);
+  });
 
   @override
-  _DropDownViewState createState() => _DropDownViewState();
+  State<DropDownViewWidget> createState() => _DropDownViewState();
 
   Widget build(BuildContext context, void Function(BuildContext context) close);
 }
@@ -34,7 +34,14 @@ class _DropDownViewState extends State<DropDownViewWidget> {
   Widget build(BuildContext context) {
     return IconButton(
       key: widget.key,
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+      visualDensity: VisualDensity.compact,
+      padding: EdgeInsets.zero,
+      constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
+      style: IconButton.styleFrom(
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        minimumSize: const Size(24, 24),
+        padding: EdgeInsets.zero,
+      ),
       icon: widget.icon,
       color: widget.theme.buttonTheme.colorScheme!.primary,
       onPressed: (() {
@@ -46,11 +53,9 @@ class _DropDownViewState extends State<DropDownViewWidget> {
           followerAnchor: Alignment.topRight,
           targetAnchor: Alignment.bottomLeft,
           offset: Offset(32, 0),
-          builder: (BuildContext ctx) => Container(
+          builder: (BuildContext ctx) => SizedBox(
             width: widget.dropDownWidth,
-            child: SingleChildScrollView(
-              child: widget.build(context, close),
-            ),
+            child: SingleChildScrollView(child: widget.build(context, close)),
           ),
         );
       }),

@@ -1,13 +1,18 @@
-part of responsive_data_grid;
+part of '../../responsive_data_grid.dart';
 
-abstract class DataGridColumnFilter<TItem extends Object,
-    TValue extends dynamic> extends StatefulWidget {
+abstract class DataGridColumnFilter<
+  TItem extends Object,
+  TValue extends dynamic
+>
+    extends StatefulWidget {
   final GridColumn<TItem, TValue> definition;
   final ResponsiveDataGridState<TItem> grid;
 
-  DataGridColumnFilter(this.definition, this.grid);
+  const DataGridColumnFilter(this.definition, this.grid, {super.key});
 }
 
-abstract class DataGridColumnFilterState<TItem extends Object,
-    TValue extends dynamic> extends State<DataGridColumnFilter<TItem, TValue>> {
-}
+abstract class DataGridColumnFilterState<
+  TItem extends Object,
+  TValue extends dynamic
+>
+    extends State<DataGridColumnFilter<TItem, TValue>> {}

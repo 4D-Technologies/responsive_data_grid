@@ -1,4 +1,4 @@
-part of responsive_data_grid;
+part of '../../responsive_data_grid.dart';
 
 class TitleDefinition {
   final Icon? icon;

@@ -1,4 +1,4 @@
-part of responsive_data_grid;
+part of '../../responsive_data_grid.dart';
 
 class GridGroupFooter<TItem extends Object> extends StatelessWidget {
   final GroupResult group;
@@ -7,6 +7,7 @@ class GridGroupFooter<TItem extends Object> extends StatelessWidget {
   final ThemeData theme;
 
   GridGroupFooter({
+    super.key,
     required this.group,
     required this.groupCount,
     required this.theme,
@@ -20,22 +21,18 @@ class GridGroupFooter<TItem extends Object> extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(color: Colors.black26),
       child: Padding(
-        padding: EdgeInsets.only(
-          left: 3,
-          top: 3,
-          bottom: 3,
-          right: 3,
-        ),
+        padding: EdgeInsets.only(left: 3, top: 3, bottom: 3, right: 3),
         child: BootstrapRow(
-          crossAxisAlignment: gridState.widget.rowCrossAxisAlignment ==
+          crossAxisAlignment:
+              gridState.widget.rowCrossAxisAlignment ==
                       CrossAxisAlignment.start ||
                   gridState.widget.rowCrossAxisAlignment ==
                       CrossAxisAlignment.stretch
               ? WrapCrossAlignment.start
               : gridState.widget.rowCrossAxisAlignment ==
-                      CrossAxisAlignment.center
-                  ? WrapCrossAlignment.center
-                  : WrapCrossAlignment.end,
+                    CrossAxisAlignment.center
+              ? WrapCrossAlignment.center
+              : WrapCrossAlignment.end,
           children: getColumns(context),
           totalSegments: gridState.widget.reactiveSegments,
         ),
@@ -44,34 +41,33 @@ class GridGroupFooter<TItem extends Object> extends StatelessWidget {
   }
 
   List<BootstrapCol> getColumns(BuildContext context) {
-    return gridState.widget.columns.map(
-      (c) {
-        return BootstrapCol(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            mainAxisSize: MainAxisSize.min,
-            children: group.aggregates
-                .where((g) => g.fieldName == c.fieldName && g.result != null)
-                .map(
-                  (agg) => Text(
-                    "${agg.aggregation.toString()}: ${c.format.call(agg.result)}",
-                    style: theme.textTheme.labelMedium,
-                  ),
-                )
-                .toList(),
-          ),
-          lg: c.largeCols ?? c.mediumCols ?? c.smallCols ?? c.xsCols ?? 12,
-          md: c.mediumCols ?? c.smallCols ?? c.xsCols ?? 12,
-          sm: c.smallCols ?? c.xsCols ?? 12,
-          xl: c.xlCols ??
-              c.largeCols ??
-              c.mediumCols ??
-              c.smallCols ??
-              c.xsCols ??
-              12,
-          xs: c.xsCols ?? 12,
-        );
-      },
-    ).toList();
+    return gridState.widget.columns.map((c) {
+      return BootstrapCol(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          mainAxisSize: MainAxisSize.min,
+          children: group.aggregates
+              .where((g) => g.fieldName == c.fieldName && g.result != null)
+              .map(
+                (agg) => Text(
+                  "${agg.aggregation.toString()}: ${agg.formatResult(null)}",
+                  style: theme.textTheme.labelMedium,
+                ),
+              )
+              .toList(),
+        ),
+        lg: c.largeCols ?? c.mediumCols ?? c.smallCols ?? c.xsCols ?? 12,
+        md: c.mediumCols ?? c.smallCols ?? c.xsCols ?? 12,
+        sm: c.smallCols ?? c.xsCols ?? 12,
+        xl:
+            c.xlCols ??
+            c.largeCols ??
+            c.mediumCols ??
+            c.smallCols ??
+            c.xsCols ??
+            12,
+        xs: c.xsCols ?? 12,
+      );
+    }).toList();
   }
 }

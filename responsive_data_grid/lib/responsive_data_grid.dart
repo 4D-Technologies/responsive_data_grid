@@ -1,4 +1,4 @@
-library responsive_data_grid;
+library;
 
 import 'dart:async';
 import 'dart:math' as math;
@@ -6,20 +6,20 @@ import 'package:bootstrap_grid/bootstrap_grid.dart';
 import 'package:client_filtering/client_filtering.dart';
 import 'package:darq/darq.dart';
 import 'package:date_field/date_field.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart' as intl;
+import 'package:material_ui/material_ui.dart';
 
 import 'responsive_data_grid.dart';
 
 part './src/widgets/aligned_dialog.dart';
 part './src/response_cache.dart';
 
-part './src/widgets//group_aggregate_chooser.dart';
+part './src/widgets/group_aggregate_chooser.dart';
 part './src/widgets/aggregation_chooser.dart';
 
-part 'src/widgets/dropdown_view_widget.dart';
+part './src/widgets/dropdown_view_widget.dart';
 part './src/widgets/column_menu.dart';
 part './src/widgets/group_menu.dart';
 
@@ -74,9 +74,9 @@ part './src/definitions/columns/duration.dart';
 part './src/definitions/columns/int.dart';
 part './src/definitions/columns/double.dart';
 part './src/definitions/columns/num.dart';
-part 'src/definitions/columns/widget.dart';
+part './src/definitions/columns/widget.dart';
 
-part 'src/notifications/criteriachange.dart';
+part './src/notifications/criteriachange.dart';
 
 class LocalizedMessages {
   static var applicationError = "Application Error";
@@ -94,7 +94,7 @@ class LocalizedMessages {
 
 class DecimalTextInputFormatter extends TextInputFormatter {
   DecimalTextInputFormatter({required this.decimalRange})
-      : assert(decimalRange > 0);
+    : assert(decimalRange > 0);
 
   final int decimalRange;
 
@@ -133,10 +133,10 @@ enum PagingMode {
   ///If In a scrollable control, will use a pager, if not, will use infinite scroll.
   auto,
 
-  ///The controll will pull new records using the page size as needed as the user scrolls
+  ///The control will pull new records using the page size as needed as the user scrolls
   infiniteScroll,
 
-  ///The controll will display up to the page size of records and display the paging control based on the totalCount and page size to navigate between pages of data, requesting the valid page as required
+  ///The control will display up to the page size of records and display the paging control based on the totalCount and page size to navigate between pages of data, requesting the valid page as required
   pager,
 
   ///All results will always be loaded

@@ -1,6 +1,6 @@
 import 'package:client_filtering/client_filtering.dart';
-import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:responsive_data_grid/responsive_data_grid.dart';
 
 void main() {
@@ -8,6 +8,8 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -25,9 +27,9 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
         brightness: Brightness.dark,
-        dataTableTheme: Theme.of(context)
-            .dataTableTheme
-            .copyWith(headingRowColor: WidgetStateProperty.all(Colors.black54)),
+        dataTableTheme: Theme.of(context).dataTableTheme.copyWith(
+          headingRowColor: WidgetStateProperty.all(Colors.black54),
+        ),
       ),
       home: MyHomePage(title: 'Flutter Demo Home Page'),
     );
@@ -73,7 +75,7 @@ class MyHomePage extends StatefulWidget {
     ExampleData(35, "Jane Doe", DateTime(1977, 6, 17), true, ExampleEnum.two),
   ]);
 
-  MyHomePage({Key? key, required this.title}) : super(key: key);
+  MyHomePage({super.key, required this.title});
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -87,7 +89,7 @@ class MyHomePage extends StatefulWidget {
   final String title;
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
@@ -106,12 +108,9 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: ResponsiveDataGrid<ExampleData>.clientSide(
-        title: TitleDefinition(
-          title: "Testing Title",
-          icon: Icon(Icons.help),
-        ),
+        title: TitleDefinition(title: "Testing Title", icon: Icon(Icons.help)),
         items: widget.exampleData,
-        itemTapped: (row) => print(row.name),
+        itemTapped: (row) {},
         pageSize: 20,
         pagingMode: PagingMode.pager,
         allowAggregations: true,
@@ -152,9 +151,7 @@ class _MyHomePageState extends State<MyHomePage> {
             mediumCols: 2,
             fieldName: "name",
             sortDirection: OrderDirections.ascending,
-            filterRules: StringFilterRules(
-              hintText: "Name",
-            ),
+            filterRules: StringFilterRules(hintText: "Name"),
             header: ColumnHeader(
               text: "Name",
               showFilter: true,
@@ -203,8 +200,8 @@ class _MyHomePageState extends State<MyHomePage> {
             valueText: (value) => value == ExampleEnum.one
                 ? "one"
                 : value == ExampleEnum.two
-                    ? "two"
-                    : "three",
+                ? "two"
+                : "three",
             value: (row) => row.exampleEnum,
             header: ColumnHeader(
               showFilter: true,
@@ -213,7 +210,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             xsCols: 4,
             mediumCols: 2,
-          )
+          ),
         ],
       ),
     );
@@ -236,8 +233,4 @@ class ExampleData {
   );
 }
 
-enum ExampleEnum {
-  one,
-  two,
-  three,
-}
+enum ExampleEnum { one, two, three }

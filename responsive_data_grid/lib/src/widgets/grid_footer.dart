@@ -1,15 +1,11 @@
-part of responsive_data_grid;
+part of '../../responsive_data_grid.dart';
 
 class GridFooter<TItem extends Object> extends StatelessWidget {
   final ResponseCache<TItem> data;
   final ResponsiveDataGridState gridState;
   final ThemeData theme;
 
-  GridFooter(
-    this.data,
-    this.gridState,
-    this.theme,
-  ) {
+  GridFooter(this.data, this.gridState, this.theme, {super.key}) {
     assert(TItem != Object);
   }
 
@@ -20,21 +16,19 @@ class GridFooter<TItem extends Object> extends StatelessWidget {
       child: DecoratedBox(
         decoration: BoxDecoration(color: Colors.black45),
         child: Padding(
-          padding: EdgeInsets.only(
-            top: 3,
-            bottom: 3,
-          ),
+          padding: EdgeInsets.only(top: 3, bottom: 3),
           child: BootstrapRow(
             horizontalSpacing: gridState.widget.columnSpacing,
-            crossAxisAlignment: gridState.widget.rowCrossAxisAlignment ==
+            crossAxisAlignment:
+                gridState.widget.rowCrossAxisAlignment ==
                         CrossAxisAlignment.start ||
                     gridState.widget.rowCrossAxisAlignment ==
                         CrossAxisAlignment.stretch
                 ? WrapCrossAlignment.start
                 : gridState.widget.rowCrossAxisAlignment ==
-                        CrossAxisAlignment.center
-                    ? WrapCrossAlignment.center
-                    : WrapCrossAlignment.end,
+                      CrossAxisAlignment.center
+                ? WrapCrossAlignment.center
+                : WrapCrossAlignment.end,
             children: getColumns(context),
             totalSegments: gridState.widget.reactiveSegments,
           ),
@@ -48,9 +42,10 @@ class GridFooter<TItem extends Object> extends StatelessWidget {
       return BootstrapCol(
         child: Padding(
           padding: EdgeInsets.only(
-              left: gridState.widget.columns.indexOf(c) == 0
-                  ? 0
-                  : gridState.widget.columnSpacing),
+            left: gridState.widget.columns.indexOf(c) == 0
+                ? 0
+                : gridState.widget.columnSpacing,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             mainAxisSize: MainAxisSize.min,
@@ -58,7 +53,7 @@ class GridFooter<TItem extends Object> extends StatelessWidget {
                 .where((g) => g.fieldName == c.fieldName && g.result != null)
                 .map(
                   (agg) => Text(
-                    "${agg.aggregation.toString()}: ${c.format.call(agg.result)}",
+                    "${agg.aggregation.toString()}: ${agg.formatResult(null)}",
                     style: theme.textTheme.labelLarge,
                   ),
                 )
@@ -68,7 +63,8 @@ class GridFooter<TItem extends Object> extends StatelessWidget {
         lg: c.largeCols ?? c.mediumCols ?? c.smallCols ?? c.xsCols ?? 12,
         md: c.mediumCols ?? c.smallCols ?? c.xsCols ?? 12,
         sm: c.smallCols ?? c.xsCols ?? 12,
-        xl: c.xlCols ??
+        xl:
+            c.xlCols ??
             c.largeCols ??
             c.mediumCols ??
             c.smallCols ??

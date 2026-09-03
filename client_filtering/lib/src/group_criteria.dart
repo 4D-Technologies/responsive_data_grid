@@ -1,4 +1,4 @@
-part of client_filtering;
+part of '../client_filtering.dart';
 
 class GroupCriteria with IJsonable {
   final String fieldName;
@@ -12,13 +12,15 @@ class GroupCriteria with IJsonable {
   });
 
   factory GroupCriteria.fromJson(Map<String, dynamic> json) => GroupCriteria(
-        fieldName: json['fieldName'].toString(),
-        direction: OrderDirections.fromInt(json['directions'] as int),
-        aggregates: (json["aggregates"] as List)
-            .map<AggregateCriteria>((dynamic model) =>
-                AggregateCriteria.fromJson(model as Map<String, dynamic>))
-            .toList(),
-      );
+    fieldName: json['fieldName'].toString(),
+    direction: OrderDirections.fromInt(json['directions'] as int),
+    aggregates: (json["aggregates"] as List)
+        .map<AggregateCriteria>(
+          (dynamic model) =>
+              AggregateCriteria.fromJson(model as Map<String, dynamic>),
+        )
+        .toList(),
+  );
 
   @override
   bool operator ==(Object other) {
@@ -42,17 +44,19 @@ class GroupCriteria with IJsonable {
   }) {
     return GroupCriteria(
       fieldName: fieldName == null ? this.fieldName : fieldName(),
-      direction: directions == null ? this.direction : directions(),
+      direction: directions == null ? direction : directions(),
       aggregates: aggregates == null ? this.aggregates : aggregates(),
     );
   }
 
+  @override
   Map<String, dynamic> toJson() {
     // ignore: unnecessary_cast
     return {
-      'fieldName': fieldName,
-      'direction': direction.value,
-      'aggregates': aggregates.map((x) => x.toJson()).toList(),
-    } as Map<String, dynamic>;
+          'fieldName': fieldName,
+          'direction': direction.value,
+          'aggregates': aggregates.map((x) => x.toJson()).toList(),
+        }
+        as Map<String, dynamic>;
   }
 }

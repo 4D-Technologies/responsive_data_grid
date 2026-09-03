@@ -1,17 +1,18 @@
-part of responsive_data_grid;
+part of '../../responsive_data_grid.dart';
 
 class DataGridFieldWidget<TItem extends Object, TValue extends dynamic>
     extends StatelessWidget {
   final GridColumn<TItem, TValue> definition;
   final TItem item;
-  DataGridFieldWidget(this.definition, this.item) {
+  DataGridFieldWidget(this.definition, this.item, {super.key}) {
     assert(TItem != dynamic);
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final effectiveDataTextStyle = definition.textStyle ??
+    final effectiveDataTextStyle =
+        definition.textStyle ??
         theme.dataTableTheme.dataTextStyle ??
         theme.primaryTextTheme.bodyMedium!;
 
@@ -26,10 +27,7 @@ class DataGridFieldWidget<TItem extends Object, TValue extends dynamic>
       if (stringValue == null) {
         child = SizedBox();
       } else {
-        child = Text(
-          stringValue,
-          style: effectiveDataTextStyle,
-        );
+        child = Text(stringValue, style: effectiveDataTextStyle);
       }
     }
 

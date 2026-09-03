@@ -1,4 +1,4 @@
-part of client_filtering;
+part of '../client_filtering.dart';
 
 abstract class IEnum {
   final int value = 0;
@@ -11,6 +11,7 @@ enum Aggregations implements IEnum {
   minimum(4),
   count(5);
 
+  @override
   final int value;
 
   const Aggregations(this.value);
@@ -39,6 +40,7 @@ enum Operators implements IEnum {
   and(1),
   or(2);
 
+  @override
   final int value;
 
   const Operators(this.value);
@@ -72,6 +74,7 @@ enum Logic implements IEnum {
   notStartsWith(11),
   between(13);
 
+  @override
   final int value;
   const Logic(this.value);
 
@@ -115,6 +118,7 @@ enum OrderDirections implements IEnum {
   ascending(1),
   descending(2);
 
+  @override
   final int value;
 
   const OrderDirections(this.value);
@@ -140,6 +144,7 @@ enum SortableOptions implements IEnum {
   single(1),
   multiColumn(2);
 
+  @override
   final int value;
   const SortableOptions(this.value);
 

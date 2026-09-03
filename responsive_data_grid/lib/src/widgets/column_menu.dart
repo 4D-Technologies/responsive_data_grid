@@ -1,45 +1,42 @@
-part of responsive_data_grid;
+part of '../../responsive_data_grid.dart';
 
 class ColumnMenu<T extends Object> extends DropDownViewWidget {
   final GridColumn<T, dynamic> column;
   final ResponsiveDataGridState<T> gridState;
 
   ColumnMenu({
+    super.key,
     required this.column,
-    required ThemeData theme,
+    required super.theme,
     required this.gridState,
   }) : super(
-          icon: Icon(
-            Icons.menu,
-            color: column.aggregations.isNotEmpty ||
-                    column.filterRules.criteria != null
-                ? theme.colorScheme.secondary
-                : theme.iconTheme.color,
-            size: theme.iconTheme.size,
-          ),
-          theme: theme,
-          dropDownWidth: 250,
-        );
+         icon: Icon(
+           Icons.menu,
+           color:
+               column.aggregations.isNotEmpty ||
+                   column.filterRules.criteria != null
+               ? theme.colorScheme.secondary
+               : theme.iconTheme.color,
+           size: theme.iconTheme.size,
+         ),
+         dropDownWidth: 250,
+       );
 
   void updateAggregations(AggregateCriteria aggregation, bool selected) {
     if (selected) {
-      if (column.aggregations.any((a) => a.aggregation == aggregation)) return;
+      if (column.aggregations.any((a) => a == aggregation)) return;
 
-      column.aggregations.add(
-        AggregateCriteria(
-          fieldName: column.fieldName,
-          aggregation: aggregation.aggregation,
-        ),
-      );
+      column.aggregations.add(aggregation);
     } else {
-      column.aggregations
-          .removeWhere((a) => a.aggregation == aggregation.aggregation);
+      column.aggregations.removeWhere((a) => a == aggregation);
     }
   }
 
   @override
   Widget build(
-      BuildContext context, void Function(BuildContext context) close) {
+    BuildContext context,
+    void Function(BuildContext context) close,
+  ) {
     final aggregates = column.getAggregations(
       selected: column.aggregations,
       update: updateAggregations,
@@ -51,66 +48,66 @@ class ColumnMenu<T extends Object> extends DropDownViewWidget {
         Material(
           elevation: 20,
           type: MaterialType.card,
-          child: Container(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Visibility(
-                  visible: aggregates.isNotEmpty,
-                  child: SizedBox(
-                    width: 250,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(color: Colors.black38),
-                      child: Padding(
-                        padding: EdgeInsets.all(3),
-                        child: Text("Aggregates"),
-                      ),
-                    ),
-                  ),
-                ),
-                ...aggregates,
-                SizedBox(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Visibility(
+                visible: aggregates.isNotEmpty,
+                child: SizedBox(
                   width: 250,
                   child: DecoratedBox(
                     decoration: BoxDecoration(color: Colors.black38),
                     child: Padding(
                       padding: EdgeInsets.all(3),
-                      child: Text("Filter"),
+                      child: Text("Aggregates"),
                     ),
                   ),
                 ),
-                column.filterRules.showFilter(column, gridState),
-                Divider(),
-                Row(
-                  mainAxisSize: MainAxisSize.max,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    TextButton.icon(
-                      onPressed: () async {
-                        column.aggregations.clear();
-                        column.filterRules.criteria = null;
-                        await gridState.refreshData();
-                        close(context);
-                      },
-                      icon: Icon(Icons.clear_all),
-                      label: Text(LocalizedMessages.clear),
-                    ),
-                    Spacer(
-                      flex: 2,
-                    ),
-                    TextButton.icon(
-                      onPressed: () async {
-                        await gridState.refreshData();
-                        close(context);
-                      },
-                      icon: Icon(Icons.save),
-                      label: Text(LocalizedMessages.apply),
-                    ),
-                  ],
+              ),
+              ...aggregates,
+              SizedBox(
+                width: 250,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(color: Colors.black38),
+                  child: Padding(
+                    padding: EdgeInsets.all(3),
+                    child: Text("Filter"),
+                  ),
                 ),
-              ],
-            ),
+              ),
+              column.filterRules.showFilter(column, gridState),
+              Divider(),
+              Row(
+                mainAxisSize: MainAxisSize.max,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  TextButton.icon(
+                    onPressed: () async {
+                      column.aggregations.clear();
+                      column.filterRules.criteria = null;
+                      await gridState.refreshData();
+                      if (context.mounted) {
+                        close(context);
+                      }
+                    },
+                    icon: Icon(Icons.clear_all),
+                    label: Text(LocalizedMessages.clear),
+                  ),
+                  Spacer(flex: 2),
+                  TextButton.icon(
+                    onPressed: () async {
+                      await gridState.refreshData();
+                      if (context.mounted) {
+                        close(context);
+                      }
+                    },
+                    icon: Icon(Icons.save),
+                    label: Text(LocalizedMessages.apply),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ],

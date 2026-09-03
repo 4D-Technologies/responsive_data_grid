@@ -1,4 +1,4 @@
-part of responsive_data_grid;
+part of '../../responsive_data_grid.dart';
 
 class GridBody<TItem extends Object> extends StatelessWidget {
   final ResponsiveDataGridState<TItem> gridState;
@@ -7,6 +7,7 @@ class GridBody<TItem extends Object> extends StatelessWidget {
   final ThemeData gridTheme;
 
   GridBody({
+    super.key,
     required this.gridState,
     required this.constraints,
     required this.pagingMode,
@@ -17,9 +18,7 @@ class GridBody<TItem extends Object> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: getBody(),
-    );
+    return Expanded(child: getBody());
   }
 
   Widget getBody() {

@@ -1,11 +1,11 @@
-part of responsive_data_grid;
+part of '../../responsive_data_grid.dart';
 
 class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
     extends StatelessWidget {
   final ResponsiveDataGridState<TItem> grid;
   final List<GridColumn<TItem, dynamic>> columns;
 
-  ResponsiveDataGridHeaderRowWidget(this.grid, this.columns) {
+  ResponsiveDataGridHeaderRowWidget(this.grid, this.columns, {super.key}) {
     assert(TItem != Object);
   }
 
@@ -16,13 +16,16 @@ class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
     final theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
 
-    final backgroundColor = theme.dataTableTheme.headingRowColor
-            ?.resolve(WidgetState.values.toSet()) ??
+    final backgroundColor =
+        theme.dataTableTheme.headingRowColor?.resolve(
+          WidgetState.values.toSet(),
+        ) ??
         (colorScheme.brightness == Brightness.dark
             ? colorScheme.secondary
             : colorScheme.secondaryContainer);
 
-    final foregroundColor = theme.dataTableTheme.headingTextStyle?.color ??
+    final foregroundColor =
+        theme.dataTableTheme.headingTextStyle?.color ??
         (colorScheme.brightness == Brightness.dark
             ? colorScheme.onSurface
             : colorScheme.onPrimary);
@@ -38,13 +41,13 @@ class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
           padding: grid.contentPadding,
           child: BootstrapRow(
             children: getColumnHeaders(context, grid),
-            crossAxisAlignment: grid.headerCrossAxisAlignment ==
-                        CrossAxisAlignment.start ||
+            crossAxisAlignment:
+                grid.headerCrossAxisAlignment == CrossAxisAlignment.start ||
                     grid.headerCrossAxisAlignment == CrossAxisAlignment.stretch
                 ? WrapCrossAlignment.start
                 : grid.headerCrossAxisAlignment == CrossAxisAlignment.center
-                    ? WrapCrossAlignment.center
-                    : WrapCrossAlignment.end,
+                ? WrapCrossAlignment.center
+                : WrapCrossAlignment.end,
             totalSegments: grid.reactiveSegments,
           ),
         ),
@@ -53,19 +56,23 @@ class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
   }
 
   List<BootstrapCol> getColumnHeaders(
-      BuildContext context, ResponsiveDataGrid<TItem> grid) {
+    BuildContext context,
+    ResponsiveDataGrid<TItem> grid,
+  ) {
     return columns
         .map(
           (c) => BootstrapCol(
             child: Padding(
               padding: EdgeInsets.only(
-                  left: columns.indexOf(c) == 0 ? 0 : grid.columnSpacing),
+                left: columns.indexOf(c) == 0 ? 0 : grid.columnSpacing,
+              ),
               child: c.getHeader(this.grid),
             ),
             lg: c.largeCols ?? c.mediumCols ?? c.smallCols ?? c.xsCols ?? 12,
             md: c.mediumCols ?? c.smallCols ?? c.xsCols ?? 12,
             sm: c.smallCols ?? c.xsCols ?? 12,
-            xl: c.xlCols ??
+            xl:
+                c.xlCols ??
                 c.largeCols ??
                 c.mediumCols ??
                 c.smallCols ??

@@ -1,9 +1,15 @@
 # Change Log
 
+## [1.0.3] - September 3rd, 2026
+
+- Fix date/time filters after `date_field` 7.
+- Use `material_ui` for Material types (`TimeOfDay`, `InputDecoration`, icons) without taking a `cupertino_ui` dependency.
+- Keep shared Flutter widgets (`Column`, `Text`, layout) from `flutter/widgets` via `material_ui`.
+- Bridge `infinite_scroll_pagination` (still on SDK Material) with `MaterialUiCompatibilityBridge`.
+
 ## [1.0.2] - March 24th, 2025
 
 - Update to infinite scroll 5.0.0
-
 
 ## [1.0.1] - February 14th, 2025
 

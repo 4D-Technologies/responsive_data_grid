@@ -1,29 +1,22 @@
-part of responsive_data_grid;
+part of '../../responsive_data_grid.dart';
 
 class ValueMapFilterRules<TItem extends Object, TValue extends dynamic>
-    extends FilterRules<TItem, DataGridValuesColumnFilter<TItem, TValue>,
-        TValue> {
+    extends
+        FilterRules<TItem, DataGridValuesColumnFilter<TItem, TValue>, TValue> {
   final Map<TValue, Widget> valueMap;
 
-  ValueMapFilterRules({
-    required this.valueMap,
-    FilterCriteria<TValue>? criteria,
-  }) : super(
-          criteria: criteria,
-        );
+  ValueMapFilterRules({required this.valueMap, super.criteria});
 
   @override
   DataGridValuesColumnFilter<TItem, TValue> showFilter(
-          GridColumn<TItem, TValue> definition,
-          ResponsiveDataGridState<TItem> grid) =>
-      DataGridValuesColumnFilter(definition, grid);
+    GridColumn<TItem, TValue> definition,
+    ResponsiveDataGridState<TItem> grid,
+  ) => DataGridValuesColumnFilter(definition, grid);
 }
 
 class DataGridValuesColumnFilter<TItem extends Object, TValue extends dynamic>
     extends DataGridColumnFilter<TItem, TValue> {
-  DataGridValuesColumnFilter(
-      GridColumn<TItem, TValue> definition, ResponsiveDataGridState<TItem> grid)
-      : super(definition, grid) {
+  DataGridValuesColumnFilter(super.definition, super.grid, {super.key}) {
     assert(TItem != Object);
   }
 
@@ -32,8 +25,11 @@ class DataGridValuesColumnFilter<TItem extends Object, TValue extends dynamic>
       DataGridValuesColumnFilterState<TItem, TValue>();
 }
 
-class DataGridValuesColumnFilterState<TItem extends Object,
-    TValue extends dynamic> extends DataGridColumnFilterState<TItem, TValue> {
+class DataGridValuesColumnFilterState<
+  TItem extends Object,
+  TValue extends dynamic
+>
+    extends DataGridColumnFilterState<TItem, TValue> {
   late List<TValue> values;
   late Logic op;
 
@@ -73,11 +69,13 @@ class DataGridValuesColumnFilterState<TItem extends Object,
           (e) => CheckboxListTile(
             onChanged: (value) {
               setState(() {
-                if (value != null && value && !values.contains(e.key))
+                if (value != null && value && !values.contains(e.key)) {
                   values.add(e.key);
+                }
 
-                if (value == null || !value && values.contains(e.key))
+                if (value == null || !value && values.contains(e.key)) {
                   values.remove(e.key);
+                }
               });
             },
             value: values.contains(e.key),

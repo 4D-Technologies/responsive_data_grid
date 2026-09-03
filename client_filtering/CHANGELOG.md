@@ -1,5 +1,10 @@
 # Change Log
 
+## [0.0.29] - September 3rd, 2026
+
+- Use `material_ui` for `TimeOfDay` serialization instead of `package:flutter/material.dart`.
+- Keep remaining APIs on shared Flutter types (`DateTime`, `foundation`).
+
 ## [0.0.28] - March 24th, 2025
 
 - Update some versions

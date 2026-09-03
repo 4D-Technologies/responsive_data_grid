@@ -1,4 +1,4 @@
-part of responsive_data_grid;
+part of '../responsive_data_grid.dart';
 
 class ResponseCache<TItem extends Object> {
   final _onCleared = StreamController<void>.broadcast();
@@ -6,8 +6,9 @@ class ResponseCache<TItem extends Object> {
   int totalCount = 0;
   Map<int, ListResponse<TItem>> pageMap = {};
   List<GroupResult> groups = List<GroupResult>.empty(growable: true);
-  List<AggregateResult> aggregates =
-      List<AggregateResult>.empty(growable: true);
+  List<AggregateResult> aggregates = List<AggregateResult>.empty(
+    growable: true,
+  );
 
   List<TItem> _items = [];
 
@@ -19,11 +20,14 @@ class ResponseCache<TItem extends Object> {
   ) {
     List<TItem> result = _items;
     groups.forEach((g, val) {
-      final col =
-          columns.where((e) => e.fieldName == g.fieldName).firstOrDefault();
-      if (col == null)
+      final col = columns
+          .where((e) => e.fieldName == g.fieldName)
+          .firstOrDefault();
+      if (col == null) {
         throw UnsupportedError(
-            "The group must reference the same field name as a column.");
+          "The group must reference the same field name as a column.",
+        );
+      }
 
       result = result.where((e) => col.value(e)?.toString() == val).toList();
     });
@@ -55,27 +59,31 @@ class ResponseCache<TItem extends Object> {
       pageMap.addEntries({pageNumber: response}.entries);
     }
 
-    response.groups.forEach((g) {
-      final existing =
-          groups.where((e) => e.fieldName == g.fieldName).firstOrDefault();
+    for (var g in response.groups) {
+      final existing = groups
+          .where((e) => e.fieldName == g.fieldName)
+          .firstOrDefault();
       if (existing == null) {
         groups.add(g);
       } else {
         groups[groups.indexOf(existing)] = g;
       }
-    });
+    }
 
-    response.aggregates.forEach((agg) {
+    for (var agg in response.aggregates) {
       final existing = aggregates
-          .where((a) =>
-              a.fieldName == agg.fieldName && a.aggregation == agg.aggregation)
+          .where(
+            (a) =>
+                a.fieldName == agg.fieldName &&
+                a.aggregation == agg.aggregation,
+          )
           .firstOrDefault();
       if (existing != null) {
         aggregates[aggregates.indexOf(existing)] = agg;
       } else {
         aggregates.add(agg);
       }
-    });
+    }
 
     _items = pageMap.values.expand<TItem>((e) => e.items).toList();
   }

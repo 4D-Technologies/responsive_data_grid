@@ -1,4 +1,4 @@
-part of responsive_data_grid;
+part of '../../responsive_data_grid.dart';
 
 class PagerWidget extends StatelessWidget {
   final int totalCount;
@@ -7,7 +7,8 @@ class PagerWidget extends StatelessWidget {
   final FutureOr<void> Function(int pageNumber) setPage;
   final ThemeData theme;
 
-  PagerWidget({
+  const PagerWidget({
+    super.key,
     required this.pageNumber,
     required this.totalCount,
     required this.pageSize,
@@ -22,21 +23,12 @@ class PagerWidget extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        IconButton(
-          onPressed: () => setPage(1),
-          icon: Icon(
-            Icons.first_page,
-          ),
-        ),
+        IconButton(onPressed: () => setPage(1), icon: Icon(Icons.first_page)),
         IconButton(
           onPressed: pageNumber == 1
               ? null
-              : () => setPage(
-                    math.max(1, pageNumber - 1),
-                  ),
-          icon: Icon(
-            Icons.fast_rewind,
-          ),
+              : () => setPage(math.max(1, pageNumber - 1)),
+          icon: Icon(Icons.fast_rewind),
         ),
         Spacer(),
         Spacer(),
@@ -44,15 +36,11 @@ class PagerWidget extends StatelessWidget {
           onPressed: pageNumber == pageCount
               ? null
               : () => setPage(math.min(pageCount, pageNumber + 1)),
-          icon: Icon(
-            Icons.fast_forward,
-          ),
+          icon: Icon(Icons.fast_forward),
         ),
         IconButton(
           onPressed: () => setPage(pageCount),
-          icon: Icon(
-            Icons.last_page,
-          ),
+          icon: Icon(Icons.last_page),
         ),
       ],
     );

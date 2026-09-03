@@ -1,4 +1,4 @@
-part of responsive_data_grid;
+part of '../../responsive_data_grid.dart';
 
 class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
   final TItem item;
@@ -8,6 +8,7 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
   final EdgeInsets padding;
 
   DataGridRowWidget({
+    super.key,
     required this.item,
     required this.columns,
     required this.itemTapped,
@@ -19,8 +20,8 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final grid =
-        context.findAncestorWidgetOfExactType<ResponsiveDataGrid<TItem>>();
+    final grid = context
+        .findAncestorWidgetOfExactType<ResponsiveDataGrid<TItem>>();
 
     return InkWell(
       onTap: itemTapped == null
@@ -34,22 +35,22 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
       excludeFromSemantics: false,
       hoverColor:
           theme.dataTableTheme.dataRowColor?.resolve({WidgetState.hovered}) ??
-              theme.colorScheme.primary,
+          theme.colorScheme.primary,
       mouseCursor: itemTapped != null
           ? SystemMouseCursors.click
           : SystemMouseCursors.basic,
       child: Padding(
-        padding: this.padding,
+        padding: padding,
         child: BootstrapRow(
           alignment: WrapAlignment.start,
           runSpacing: grid!.rowSpacing,
           crossAxisAlignment:
               grid.rowCrossAxisAlignment == CrossAxisAlignment.start ||
-                      grid.rowCrossAxisAlignment == CrossAxisAlignment.stretch
-                  ? WrapCrossAlignment.start
-                  : grid.rowCrossAxisAlignment == CrossAxisAlignment.center
-                      ? WrapCrossAlignment.center
-                      : WrapCrossAlignment.end,
+                  grid.rowCrossAxisAlignment == CrossAxisAlignment.stretch
+              ? WrapCrossAlignment.start
+              : grid.rowCrossAxisAlignment == CrossAxisAlignment.center
+              ? WrapCrossAlignment.center
+              : WrapCrossAlignment.end,
           children: getColumns(context, grid, item),
           totalSegments: grid.reactiveSegments,
         ),
@@ -58,7 +59,10 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
   }
 
   List<BootstrapCol> getColumns(
-      BuildContext context, ResponsiveDataGrid<TItem> grid, TItem item) {
+    BuildContext context,
+    ResponsiveDataGrid<TItem> grid,
+    TItem item,
+  ) {
     return columns.map((c) {
       return BootstrapCol(
         child: Padding(
@@ -70,7 +74,8 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
         lg: c.largeCols ?? c.mediumCols ?? c.smallCols ?? c.xsCols ?? 12,
         md: c.mediumCols ?? c.smallCols ?? c.xsCols ?? 12,
         sm: c.smallCols ?? c.xsCols ?? 12,
-        xl: c.xlCols ??
+        xl:
+            c.xlCols ??
             c.largeCols ??
             c.mediumCols ??
             c.smallCols ??

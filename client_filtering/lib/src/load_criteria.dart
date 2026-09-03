@@ -1,4 +1,4 @@
-part of client_filtering;
+part of '../client_filtering.dart';
 
 class LoadCriteria with IJsonable {
   final int? skip;
@@ -15,22 +15,26 @@ class LoadCriteria with IJsonable {
     this.aggregates,
     List<FilterCriteria<dynamic>>? filterBy,
     List<OrderCriteria>? orderBy,
-  })  : this.filterBy =
-            filterBy ?? List<FilterCriteria<dynamic>>.empty(growable: true),
-        this.orderBy = orderBy ?? List<OrderCriteria>.empty(growable: true);
+  }) : filterBy =
+           filterBy ?? List<FilterCriteria<dynamic>>.empty(growable: true),
+       orderBy = orderBy ?? List<OrderCriteria>.empty(growable: true);
 
   factory LoadCriteria.fromJson(Map<String, dynamic> json) => LoadCriteria(
-        skip: json["skip"] as int?,
-        take: json["take"] as int?,
-        filterBy: (json["filterBy"] as List)
-            .map<FilterCriteria<dynamic>>((dynamic model) =>
-                FilterCriteria.fromJson<dynamic>(model as Map<String, dynamic>))
-            .toList(),
-        orderBy: (json["orderBy"] as List)
-            .map<OrderCriteria>((dynamic model) =>
-                OrderCriteria.fromJson(model as Map<String, dynamic>))
-            .toList(),
-      );
+    skip: json["skip"] as int?,
+    take: json["take"] as int?,
+    filterBy: (json["filterBy"] as List)
+        .map<FilterCriteria<dynamic>>(
+          (dynamic model) =>
+              FilterCriteria.fromJson<dynamic>(model as Map<String, dynamic>),
+        )
+        .toList(),
+    orderBy: (json["orderBy"] as List)
+        .map<OrderCriteria>(
+          (dynamic model) =>
+              OrderCriteria.fromJson(model as Map<String, dynamic>),
+        )
+        .toList(),
+  );
 
   @override
   bool operator ==(Object other) {
@@ -66,14 +70,16 @@ class LoadCriteria with IJsonable {
     );
   }
 
+  @override
   Map<String, dynamic> toJson() {
     // ignore: unnecessary_cast
     return {
-      'skip': skip,
-      'take': take,
-      'filterBy': filterBy.map((x) => x.toJson()).toList(),
-      'orderBy': orderBy.map((x) => x.toJson()).toList(),
-    } as Map<String, dynamic>;
+          'skip': skip,
+          'take': take,
+          'filterBy': filterBy.map((x) => x.toJson()).toList(),
+          'orderBy': orderBy.map((x) => x.toJson()).toList(),
+        }
+        as Map<String, dynamic>;
   }
 
   Iterable<T> filterItems<T>({
@@ -82,9 +88,10 @@ class LoadCriteria with IJsonable {
   }) {
     Iterable<T> items = List<T>.from(data);
 
-    this.filterBy.forEach((criteria) {
-      if (criteria.op == Operators.or)
+    for (final criteria in filterBy) {
+      if (criteria.op == Operators.or) {
         throw UnsupportedError("Or is not supported in Dart.");
+      }
 
       switch (criteria.logicalOperator) {
         case Logic.equals:
@@ -97,12 +104,14 @@ class LoadCriteria with IJsonable {
         case Logic.lessThan:
           items = items.where((e) {
             final dynamic value = getFieldValue(criteria.fieldName, e);
-            final dynamic cValue =
-                criteria.values.isEmpty ? null : criteria.values.first;
+            final dynamic cValue = criteria.values.isEmpty
+                ? null
+                : criteria.values.first;
             if (value == null || cValue == null) return false;
 
-            if (value is DateTime && cValue is DateTime)
+            if (value is DateTime && cValue is DateTime) {
               return value.compareTo(cValue) < 0;
+            }
 
             return (value < cValue) as bool;
           });
@@ -110,12 +119,14 @@ class LoadCriteria with IJsonable {
         case Logic.greaterThan:
           items = items.where((e) {
             final dynamic value = getFieldValue(criteria.fieldName, e);
-            final dynamic cValue =
-                criteria.values.isEmpty ? null : criteria.values.first;
+            final dynamic cValue = criteria.values.isEmpty
+                ? null
+                : criteria.values.first;
             if (value == null || cValue == null) return false;
 
-            if (value is DateTime && cValue is DateTime)
+            if (value is DateTime && cValue is DateTime) {
               return value.compareTo(cValue) > 0;
+            }
 
             return (value > cValue) as bool;
           }).toList();
@@ -124,12 +135,14 @@ class LoadCriteria with IJsonable {
         case Logic.lessThanOrEqualTo:
           items = items.where((e) {
             final dynamic value = getFieldValue(criteria.fieldName, e);
-            final dynamic cValue =
-                criteria.values.isEmpty ? null : criteria.values.first;
+            final dynamic cValue = criteria.values.isEmpty
+                ? null
+                : criteria.values.first;
             if (value == null || cValue == null) return false;
 
-            if (value is DateTime && cValue is DateTime)
+            if (value is DateTime && cValue is DateTime) {
               return value.compareTo(cValue) <= 0;
+            }
 
             return (value <= cValue) as bool;
           });
@@ -137,12 +150,14 @@ class LoadCriteria with IJsonable {
         case Logic.greaterThanOrEqualTo:
           items = items.where((e) {
             final dynamic value = getFieldValue(criteria.fieldName, e);
-            final dynamic cValue =
-                criteria.values.isEmpty ? null : criteria.values.first;
+            final dynamic cValue = criteria.values.isEmpty
+                ? null
+                : criteria.values.first;
             if (value == null || cValue == null) return false;
 
-            if (value is DateTime && cValue is DateTime)
+            if (value is DateTime && cValue is DateTime) {
               return value.compareTo(cValue) >= 0;
+            }
 
             return (value >= cValue) as bool;
           });
@@ -150,13 +165,16 @@ class LoadCriteria with IJsonable {
         case Logic.contains:
           items = items.where((e) {
             final dynamic value = getFieldValue(criteria.fieldName, e);
-            final dynamic cValue =
-                criteria.values.isEmpty ? null : criteria.values.first;
+            final dynamic cValue = criteria.values.isEmpty
+                ? null
+                : criteria.values.first;
 
             if (value == null ||
                 cValue == null ||
-                !(value is String) ||
-                !(cValue is String)) return false;
+                value is! String ||
+                cValue is! String) {
+              return false;
+            }
 
             return value.contains(cValue);
           });
@@ -164,13 +182,16 @@ class LoadCriteria with IJsonable {
         case Logic.notContains:
           items = items.where((e) {
             final dynamic value = getFieldValue(criteria.fieldName, e);
-            final dynamic cValue =
-                criteria.values.isEmpty ? null : criteria.values.first;
+            final dynamic cValue = criteria.values.isEmpty
+                ? null
+                : criteria.values.first;
 
             if (value == null ||
                 cValue == null ||
-                !(value is String) ||
-                !(cValue is String)) return false;
+                value is! String ||
+                cValue is! String) {
+              return false;
+            }
 
             return !value.contains(cValue);
           }).toList();
@@ -178,13 +199,16 @@ class LoadCriteria with IJsonable {
         case Logic.endsWidth:
           items = items.where((e) {
             final dynamic value = getFieldValue(criteria.fieldName, e);
-            final dynamic cValue =
-                criteria.values.isEmpty ? null : criteria.values.first;
+            final dynamic cValue = criteria.values.isEmpty
+                ? null
+                : criteria.values.first;
 
             if (value == null ||
                 cValue == null ||
-                !(value is String) ||
-                !(cValue is String)) return false;
+                value is! String ||
+                cValue is! String) {
+              return false;
+            }
 
             return value.endsWith(cValue);
           });
@@ -192,13 +216,16 @@ class LoadCriteria with IJsonable {
         case Logic.startsWith:
           items = items.where((e) {
             final dynamic value = getFieldValue(criteria.fieldName, e);
-            final dynamic cValue =
-                criteria.values.isEmpty ? null : criteria.values.first;
+            final dynamic cValue = criteria.values.isEmpty
+                ? null
+                : criteria.values.first;
 
             if (value == null ||
                 cValue == null ||
-                !(value is String) ||
-                !(cValue is String)) return false;
+                value is! String ||
+                cValue is! String) {
+              return false;
+            }
 
             return value.startsWith(cValue);
           }).toList();
@@ -212,12 +239,15 @@ class LoadCriteria with IJsonable {
         case Logic.notEndsWith:
           items = items.where((e) {
             final dynamic value = getFieldValue(criteria.fieldName, e);
-            final dynamic cValue =
-                criteria.values.isEmpty ? null : criteria.values.first;
+            final dynamic cValue = criteria.values.isEmpty
+                ? null
+                : criteria.values.first;
             if (value == null ||
                 cValue == null ||
-                !(value is String) ||
-                !(cValue is String)) return false;
+                value is! String ||
+                cValue is! String) {
+              return false;
+            }
 
             return !value.endsWith(cValue);
           });
@@ -225,12 +255,15 @@ class LoadCriteria with IJsonable {
         case Logic.notStartsWith:
           items = items.where((e) {
             final dynamic value = getFieldValue(criteria.fieldName, e);
-            final dynamic cValue =
-                criteria.values.isEmpty ? null : criteria.values.first;
+            final dynamic cValue = criteria.values.isEmpty
+                ? null
+                : criteria.values.first;
             if (value == null ||
                 cValue == null ||
-                !(value is String) ||
-                !(cValue is String)) return false;
+                value is! String ||
+                cValue is! String) {
+              return false;
+            }
 
             return !value.startsWith(cValue);
           });
@@ -238,18 +271,21 @@ class LoadCriteria with IJsonable {
         case Logic.between:
           items = items.where((e) {
             final dynamic value = getFieldValue(criteria.fieldName, e);
-            final dynamic cValue1 =
-                criteria.values.isEmpty ? null : criteria.values.first;
-            final dynamic cValue2 =
-                criteria.values.length > 1 ? criteria.values.last : null;
-            if (value == null || cValue1 == null || cValue2 == null)
+            final dynamic cValue1 = criteria.values.isEmpty
+                ? null
+                : criteria.values.first;
+            final dynamic cValue2 = criteria.values.length > 1
+                ? criteria.values.last
+                : null;
+            if (value == null || cValue1 == null || cValue2 == null) {
               return false;
+            }
 
             return (value >= cValue1) as bool && (value <= cValue2) as bool;
           });
           break;
       }
-    });
+    }
 
     return items;
   }
@@ -258,7 +294,7 @@ class LoadCriteria with IJsonable {
     required Iterable<T> items,
     required dynamic Function(String fieldName, T item) getFieldValue,
   }) {
-    final orderInfo = List<OrderCriteria>.from(this.orderBy, growable: true);
+    final orderInfo = List<OrderCriteria>.from(orderBy, growable: true);
 
     if (groupBy != null) {
       for (int j = groupBy!.length - 1; j >= 0; j--) {
@@ -325,7 +361,8 @@ class LoadCriteria with IJsonable {
         .toSet()
         .where(
           (e) => items.any(
-              (i) => getFieldValue(criteria.fieldName, i)?.toString() == e),
+            (i) => getFieldValue(criteria.fieldName, i)?.toString() == e,
+          ),
         );
 
     final nextGroupCriteria = groupBy!.last == criteria
@@ -344,11 +381,13 @@ class LoadCriteria with IJsonable {
 
       //Get group aggregates here
       final aggregates = criteria.aggregates
-          .map((e) => createAggregation(
-                items: allValueItems,
-                getFieldValue: getFieldValue,
-                criteria: e,
-              ))
+          .map(
+            (e) => createAggregation(
+              items: allValueItems,
+              getFieldValue: getFieldValue,
+              criteria: e,
+            ),
+          )
           .toList();
 
       return GroupResult(
@@ -373,31 +412,40 @@ class LoadCriteria with IJsonable {
     required AggregateCriteria criteria,
   }) {
     dynamic result;
-    final nonNullItems =
-        items.where((e) => getFieldValue(criteria.fieldName, e) != null);
+    final nonNullItems = items.where(
+      (e) => getFieldValue(criteria.fieldName, e) != null,
+    );
     switch (criteria.aggregation) {
       case Aggregations.sum:
         result = nonNullItems
-            .map((e) =>
-                num.parse(getFieldValue(criteria.fieldName, e)!.toString()))
+            .map(
+              (e) =>
+                  num.parse(getFieldValue(criteria.fieldName, e)!.toString()),
+            )
             .sum;
         break;
       case Aggregations.average:
         result = nonNullItems
-            .map((e) =>
-                num.parse(getFieldValue(criteria.fieldName, e)!.toString()))
+            .map(
+              (e) =>
+                  num.parse(getFieldValue(criteria.fieldName, e)!.toString()),
+            )
             .average;
         break;
       case Aggregations.maximum:
         result = nonNullItems
-            .map((e) =>
-                num.parse(getFieldValue(criteria.fieldName, e)!.toString()))
+            .map(
+              (e) =>
+                  num.parse(getFieldValue(criteria.fieldName, e)!.toString()),
+            )
             .maxOrNull;
         break;
       case Aggregations.minimum:
         result = nonNullItems
-            .map((e) =>
-                num.parse(getFieldValue(criteria.fieldName, e)!.toString()))
+            .map(
+              (e) =>
+                  num.parse(getFieldValue(criteria.fieldName, e)!.toString()),
+            )
             .minOrNull;
         break;
       case Aggregations.count:
