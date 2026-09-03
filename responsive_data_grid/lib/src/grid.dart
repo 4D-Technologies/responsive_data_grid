@@ -1,4 +1,4 @@
-part of responsive_data_grid;
+part of '../responsive_data_grid.dart';
 
 class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
   final Future<ListResponse<TItem>?> Function(LoadCriteria criteria)? loadData;
@@ -32,10 +32,10 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
   final bool allowGrouping;
   final bool allowAggregations;
 
-  ResponsiveDataGrid.serverSide({
+  const ResponsiveDataGrid.serverSide({
     GlobalKey<ResponsiveDataGridState<TItem>>? key,
     required Future<ListResponse<TItem>?> Function(LoadCriteria criteria)
-        loadData,
+    this.loadData,
     required this.columns,
     this.initialLoadCriteria,
     this.columnSpacing = 10,
@@ -58,13 +58,12 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
     this.pagingMode = PagingMode.auto,
     this.allowAggregations = false,
     this.maximumRows = 99999,
-  })  : this.items = null,
-        this.loadData = loadData,
-        super(key: key);
+  }) : items = null,
+       super(key: key);
 
-  ResponsiveDataGrid.clientSide({
+  const ResponsiveDataGrid.clientSide({
     GlobalKey<ResponsiveDataGridState<TItem>>? key,
-    required List<TItem> items,
+    required List<TItem> this.items,
     required this.columns,
     this.initialLoadCriteria,
     this.groupIndent = 15,
@@ -92,9 +91,8 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
     this.pagingMode = PagingMode.auto,
     this.allowAggregations = false,
     this.maximumRows = 99999,
-  })  : this.items = items,
-        this.loadData = null,
-        super(key: key);
+  }) : loadData = null,
+       super(key: key);
 
   @override
   State<StatefulWidget> createState() => ResponsiveDataGridState<TItem>();

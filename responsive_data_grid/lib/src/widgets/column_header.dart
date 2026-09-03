@@ -1,11 +1,11 @@
-part of responsive_data_grid;
+part of '../../responsive_data_grid.dart';
 
 class ColumnHeaderWidget<TItem extends Object, TValue extends dynamic>
     extends StatefulWidget {
   final GridColumn<TItem, TValue> definition;
   final ResponsiveDataGridState<TItem> gridState;
 
-  ColumnHeaderWidget(this.gridState, this.definition) {
+  ColumnHeaderWidget(this.gridState, this.definition, {super.key}) {
     assert(TItem != dynamic);
   }
 
@@ -41,14 +41,19 @@ class ColumnHeaderState<TItem extends Object, TValue extends dynamic>
       barrierDismissible: false,
       builder: (context) {
         return AlertDialog(
-          title: Row(children: [
-            Expanded(child: Text("Filter: ${widget.definition.header.text}")),
-            IconButton(
+          title: Row(
+            children: [
+              Expanded(child: Text("Filter: ${widget.definition.header.text}")),
+              IconButton(
                 icon: Icon(Icons.close),
-                onPressed: () => Navigator.of(context).pop())
-          ]),
-          content: widget.definition.filterRules
-              .showFilter(widget.definition, widget.gridState),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ],
+          ),
+          content: widget.definition.filterRules.showFilter(
+            widget.definition,
+            widget.gridState,
+          ),
         );
       },
     );
@@ -68,7 +73,8 @@ class ColumnHeaderState<TItem extends Object, TValue extends dynamic>
 
     final ColorScheme colorScheme = theme.colorScheme;
 
-    final foregroundColor = widget.definition.foregroundColor ??
+    final foregroundColor =
+        widget.definition.foregroundColor ??
         theme.dataTableTheme.headingTextStyle?.color ??
         (colorScheme.brightness == Brightness.dark
             ? colorScheme.onSurface
@@ -78,10 +84,12 @@ class ColumnHeaderState<TItem extends Object, TValue extends dynamic>
         widget.definition.accentColor ?? theme.colorScheme.secondary;
 
     final iconTheme = theme.iconTheme.copyWith(color: foregroundColor);
-    final accentIconTheme =
-        theme.iconTheme.copyWith(color: accentForegroundColor);
+    final accentIconTheme = theme.iconTheme.copyWith(
+      color: accentForegroundColor,
+    );
 
-    final textStyle = widget.definition.header.textStyle ??
+    final textStyle =
+        widget.definition.header.textStyle ??
         theme.dataTableTheme.headingTextStyle ??
         theme.primaryTextTheme.titleSmall!.copyWith(color: foregroundColor);
 
@@ -89,13 +97,16 @@ class ColumnHeaderState<TItem extends Object, TValue extends dynamic>
 
     if (widget.definition.header.text != null) {
       items.add(
-        Expanded(
+        Flexible(
           child: Align(
             alignment: header.alignment,
             child: Text(
               widget.definition.header.text!,
               textAlign: widget.definition.header.textAlign,
               style: textStyle,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+              softWrap: false,
             ),
           ),
         ),
@@ -116,15 +127,26 @@ class ColumnHeaderState<TItem extends Object, TValue extends dynamic>
           icon = Icons.sort;
           break;
       }
-      items.add(IconButton(
+      items.add(
+        IconButton(
+          visualDensity: VisualDensity.compact,
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
+          style: IconButton.styleFrom(
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            minimumSize: const Size(24, 24),
+            padding: EdgeInsets.zero,
+          ),
           icon: Icon(
             icon,
             color: widget.definition.sortDirection != OrderDirections.notSet
                 ? accentIconTheme.color
                 : iconTheme.color,
-            size: iconTheme.size,
+            size: iconTheme.size ?? 18,
           ),
-          onPressed: () => toggleOrder()));
+          onPressed: () => toggleOrder(),
+        ),
+      );
     }
 
     if (header.showFilter || header.showAggregations) {
@@ -140,9 +162,7 @@ class ColumnHeaderState<TItem extends Object, TValue extends dynamic>
     return Container(
       color: widget.definition.backgroundColor,
       alignment: header.alignment,
-      child: Row(
-        children: items,
-      ),
+      child: Row(children: items),
     );
   }
 }

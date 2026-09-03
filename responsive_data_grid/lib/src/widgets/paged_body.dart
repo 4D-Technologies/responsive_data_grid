@@ -1,11 +1,12 @@
-part of responsive_data_grid;
+part of '../../responsive_data_grid.dart';
 
 class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
     extends StatelessWidget {
   final ResponsiveDataGridState<TItem> gridState;
   final ThemeData theme;
 
-  ResponsiveDataGridPagedBodyWidget({
+  const ResponsiveDataGridPagedBodyWidget({
+    super.key,
     required this.gridState,
     required this.theme,
   });
@@ -15,11 +16,7 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
     Widget child;
     final pageData = gridState._dataCache.pageMap[gridState.pageNumber]!;
     if (pageData.groups.isNotEmpty) {
-      child = buildGroups(
-        pageData,
-        pageData.groups,
-        pageData.items,
-      );
+      child = buildGroups(pageData, pageData.groups, pageData.items);
     } else {
       child = getPage(pageData.items);
     }
@@ -27,10 +24,14 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
     return child;
   }
 
-  Widget buildGroups(ListResponse<TItem> response, List<GroupResult> groups,
-      List<TItem> items) {
-    final col = gridState.widget.columns
-        .firstWhere((c) => c.fieldName == groups.first.fieldName);
+  Widget buildGroups(
+    ListResponse<TItem> response,
+    List<GroupResult> groups,
+    List<TItem> items,
+  ) {
+    final col = gridState.widget.columns.firstWhere(
+      (c) => c.fieldName == groups.first.fieldName,
+    );
 
     return ListView.builder(
       itemBuilder: (context, index) {
@@ -43,21 +44,12 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            GridGroupHeader(
-              group: group,
-              theme: theme,
-            ),
+            GridGroupHeader(group: group, theme: theme),
             Padding(
               padding: EdgeInsets.only(left: 15),
               child: group.subGroups.isEmpty
-                  ? getPage(
-                      groupItems,
-                    )
-                  : buildGroups(
-                      response,
-                      group.subGroups,
-                      groupItems,
-                    ),
+                  ? getPage(groupItems)
+                  : buildGroups(response, group.subGroups, groupItems),
             ),
             GridGroupFooter<TItem>(
               group: group,
@@ -79,11 +71,9 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
     return ListView.separated(
       separatorBuilder: (context, index) =>
           gridState.widget.separatorThickness == null ||
-                  gridState.widget.separatorThickness == 0.0
-              ? Container()
-              : Divider(
-                  thickness: gridState.widget.separatorThickness,
-                ),
+              gridState.widget.separatorThickness == 0.0
+          ? Container()
+          : Divider(thickness: gridState.widget.separatorThickness),
       shrinkWrap: true,
       scrollDirection: Axis.vertical,
       physics: const NeverScrollableScrollPhysics(),

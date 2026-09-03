@@ -1,28 +1,21 @@
-part of responsive_data_grid;
+part of '../../responsive_data_grid.dart';
 
 class StringFilterRules<TItem extends Object>
     extends FilterRules<TItem, DataGridStringColumnFilter<TItem>, String> {
   final String hintText;
-  StringFilterRules({
-    String? hintText,
-    FilterCriteria<String>? criteria,
-  })  : this.hintText = hintText ?? LocalizedMessages.value,
-        super(
-          criteria: criteria,
-        );
+  StringFilterRules({String? hintText, super.criteria})
+    : hintText = hintText ?? LocalizedMessages.value;
 
   @override
   DataGridStringColumnFilter<TItem> showFilter(
-          GridColumn<TItem, String> definition,
-          ResponsiveDataGridState<TItem> grid) =>
-      DataGridStringColumnFilter(definition, grid);
+    GridColumn<TItem, String> definition,
+    ResponsiveDataGridState<TItem> grid,
+  ) => DataGridStringColumnFilter(definition, grid);
 }
 
 class DataGridStringColumnFilter<TItem extends Object>
     extends DataGridColumnFilter<TItem, String> {
-  DataGridStringColumnFilter(
-      GridColumn<TItem, String> definition, ResponsiveDataGridState<TItem> grid)
-      : super(definition, grid) {
+  DataGridStringColumnFilter(super.definition, super.grid, {super.key}) {
     assert(TItem != dynamic);
   }
 
@@ -43,8 +36,9 @@ class DataGridStringColumnFilterState<TItem extends Object>
     final criteria = widget.definition.filterRules.criteria;
     if (criteria != null) {
       op = criteria.logicalOperator;
-      searchText =
-          criteria.values.length > 0 ? criteria.values.first.toString() : null;
+      searchText = criteria.values.isNotEmpty
+          ? criteria.values.first.toString()
+          : null;
     }
     super.initState();
   }
@@ -55,55 +49,57 @@ class DataGridStringColumnFilterState<TItem extends Object>
       mainAxisSize: MainAxisSize.min,
       children: [
         DropdownButtonFormField<Logic?>(
-            elevation: 30,
-            items: [
-              DropdownMenuItem(
-                child: Text(LocalizedMessages.any),
-                value: null,
-              ),
-              DropdownMenuItem(
-                  child: Text(Logic.contains.toString()),
-                  value: Logic.contains),
-              DropdownMenuItem(
-                  child: Text(Logic.startsWith.toString()),
-                  value: Logic.startsWith),
-              DropdownMenuItem(
-                  child: Text(Logic.endsWidth.toString()),
-                  value: Logic.endsWidth),
-              DropdownMenuItem(
-                  child: Text(Logic.equals.toString()), value: Logic.equals),
-              DropdownMenuItem(
-                  child: Text(Logic.notEqual.toString()),
-                  value: Logic.notEqual),
-              DropdownMenuItem(
-                child: Text(Logic.notContains.toString()),
-                value: Logic.notContains,
-              ),
-              DropdownMenuItem(
-                child: Text(Logic.notStartsWith.toString()),
-                value: Logic.notStartsWith,
-              ),
-              DropdownMenuItem(
-                child: Text(Logic.notEndsWith.toString()),
-                value: Logic.notEndsWith,
-              ),
-            ],
-            value: op,
-            onChanged: (Logic? value) {
-              this.setState(() {
-                op = value;
-              });
-            }),
+          elevation: 30,
+          items: [
+            DropdownMenuItem(value: null, child: Text(LocalizedMessages.any)),
+            DropdownMenuItem(
+              value: Logic.contains,
+              child: Text(Logic.contains.toString()),
+            ),
+            DropdownMenuItem(
+              value: Logic.startsWith,
+              child: Text(Logic.startsWith.toString()),
+            ),
+            DropdownMenuItem(
+              value: Logic.endsWidth,
+              child: Text(Logic.endsWidth.toString()),
+            ),
+            DropdownMenuItem(
+              value: Logic.equals,
+              child: Text(Logic.equals.toString()),
+            ),
+            DropdownMenuItem(
+              value: Logic.notEqual,
+              child: Text(Logic.notEqual.toString()),
+            ),
+            DropdownMenuItem(
+              value: Logic.notContains,
+              child: Text(Logic.notContains.toString()),
+            ),
+            DropdownMenuItem(
+              value: Logic.notStartsWith,
+              child: Text(Logic.notStartsWith.toString()),
+            ),
+            DropdownMenuItem(
+              value: Logic.notEndsWith,
+              child: Text(Logic.notEndsWith.toString()),
+            ),
+          ],
+          initialValue: op,
+          onChanged: (Logic? value) {
+            setState(() {
+              op = value;
+            });
+          },
+        ),
         Visibility(
           visible: op != null,
           child: TextFormField(
             initialValue: searchText,
             decoration: InputDecoration(labelText: "value"),
-            onChanged: (value) => this.setState(
-              () {
-                searchText = value;
-              },
-            ),
+            onChanged: (value) => setState(() {
+              searchText = value;
+            }),
           ),
         ),
       ],

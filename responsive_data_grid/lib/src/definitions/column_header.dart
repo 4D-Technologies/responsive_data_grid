@@ -1,4 +1,4 @@
-part of responsive_data_grid;
+part of '../../responsive_data_grid.dart';
 
 class ColumnHeader {
   final bool empty;
@@ -78,10 +78,12 @@ class ColumnHeader {
       showFilter: showFilter == null ? this.showFilter : showFilter(),
       showOrderBy: showOrderBy == null ? this.showFilter : showOrderBy(),
       textStyle: textStyle == null ? this.textStyle : textStyle(),
-      backgroundColor:
-          backgroundColor == null ? this.backgroundColor : backgroundColor(),
-      foregroundColor:
-          foregroundColor == null ? this.foregroundColor : foregroundColor(),
+      backgroundColor: backgroundColor == null
+          ? this.backgroundColor
+          : backgroundColor(),
+      foregroundColor: foregroundColor == null
+          ? this.foregroundColor
+          : foregroundColor(),
     );
   }
 }

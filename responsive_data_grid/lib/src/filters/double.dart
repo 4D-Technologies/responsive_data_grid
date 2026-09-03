@@ -1,4 +1,4 @@
-part of responsive_data_grid;
+part of '../../responsive_data_grid.dart';
 
 class DoubleFilterRules<TItem extends Object>
     extends FilterRules<TItem, DataGridDoubleColumnFilter<TItem>, double> {
@@ -11,24 +11,19 @@ class DoubleFilterRules<TItem extends Object>
     this.minValue,
     this.maxValue,
     this.decimalPlaces = 2,
-    FilterCriteria<double>? criteria,
-  })  : this.hintText = hintText ?? LocalizedMessages.value,
-        super(
-          criteria: criteria,
-        );
+    super.criteria,
+  }) : hintText = hintText ?? LocalizedMessages.value;
 
   @override
   DataGridDoubleColumnFilter<TItem> showFilter(
-          GridColumn<TItem, double> definition,
-          ResponsiveDataGridState<TItem> grid) =>
-      DataGridDoubleColumnFilter(definition, grid);
+    GridColumn<TItem, double> definition,
+    ResponsiveDataGridState<TItem> grid,
+  ) => DataGridDoubleColumnFilter(definition, grid);
 }
 
 class DataGridDoubleColumnFilter<TItem extends Object>
     extends DataGridColumnFilter<TItem, double> {
-  DataGridDoubleColumnFilter(
-      GridColumn<TItem, double> definition, ResponsiveDataGridState<TItem> grid)
-      : super(definition, grid) {
+  DataGridDoubleColumnFilter(super.definition, super.grid, {super.key}) {
     assert(TItem != Object);
   }
 
@@ -56,7 +51,7 @@ class DataGridDoubleColumnFilterState<TItem extends Object>
 
     final criteria = filterRules.criteria;
     if (criteria != null) {
-      dValue = criteria.values.length > 0 ? criteria.values.first : null;
+      dValue = criteria.values.isNotEmpty ? criteria.values.first : null;
       tecValue1 = TextEditingController(text: dValue.toString());
       dValue2 = criteria.values.length > 1 ? criteria.values.last : null;
       tecValue2 = TextEditingController(text: dValue2.toString());
@@ -73,45 +68,50 @@ class DataGridDoubleColumnFilterState<TItem extends Object>
       mainAxisSize: MainAxisSize.min,
       children: [
         DropdownButton<Logic?>(
-            items: [
-              DropdownMenuItem<Logic?>(
-                child: Text(LocalizedMessages.any),
-                value: null,
-              ),
-              DropdownMenuItem<Logic?>(
-                  child: Text(Logic.greaterThan.toString()),
-                  value: Logic.greaterThan),
-              DropdownMenuItem<Logic?>(
-                  child: Text(Logic.greaterThanOrEqualTo.toString()),
-                  value: Logic.greaterThanOrEqualTo),
-              DropdownMenuItem<Logic?>(
-                child: Text(Logic.lessThan.toString()),
-                value: Logic.lessThan,
-              ),
-              DropdownMenuItem<Logic?>(
-                  child: Text(Logic.lessThanOrEqualTo.toString()),
-                  value: Logic.lessThanOrEqualTo),
-              DropdownMenuItem<Logic?>(
-                child: Text(Logic.between.toString()),
-                value: Logic.between,
-              ),
-              DropdownMenuItem<Logic?>(
-                child: Text(Logic.equals.toString()),
-                value: Logic.equals,
-              ),
-              DropdownMenuItem<Logic?>(
-                child: Text(Logic.notEqual.toString()),
-                value: Logic.notEqual,
-              ),
-            ],
-            value: op,
-            onChanged: (Logic? value) {
-              this.setState(() {
-                op = value;
-              });
-            }),
+          items: [
+            DropdownMenuItem<Logic?>(
+              value: null,
+              child: Text(LocalizedMessages.any),
+            ),
+            DropdownMenuItem<Logic?>(
+              value: Logic.greaterThan,
+              child: Text(Logic.greaterThan.toString()),
+            ),
+            DropdownMenuItem<Logic?>(
+              value: Logic.greaterThanOrEqualTo,
+              child: Text(Logic.greaterThanOrEqualTo.toString()),
+            ),
+            DropdownMenuItem<Logic?>(
+              value: Logic.lessThan,
+              child: Text(Logic.lessThan.toString()),
+            ),
+            DropdownMenuItem<Logic?>(
+              value: Logic.lessThanOrEqualTo,
+              child: Text(Logic.lessThanOrEqualTo.toString()),
+            ),
+            DropdownMenuItem<Logic?>(
+              value: Logic.between,
+              child: Text(Logic.between.toString()),
+            ),
+            DropdownMenuItem<Logic?>(
+              value: Logic.equals,
+              child: Text(Logic.equals.toString()),
+            ),
+            DropdownMenuItem<Logic?>(
+              value: Logic.notEqual,
+              child: Text(Logic.notEqual.toString()),
+            ),
+          ],
+          value: op,
+          onChanged: (Logic? value) {
+            setState(() {
+              op = value;
+            });
+          },
+        ),
         Visibility(
-          visible: op != null &&
+          visible:
+              op != null &&
               (op == Logic.greaterThan ||
                   op == Logic.greaterThanOrEqualTo ||
                   op == Logic.between ||
@@ -121,18 +121,21 @@ class DataGridDoubleColumnFilterState<TItem extends Object>
             decoration: InputDecoration(hintText: op?.toString()),
             keyboardType: TextInputType.numberWithOptions(decimal: true),
             inputFormatters: [
-              DecimalTextInputFormatter(decimalRange: filterRules.decimalPlaces)
+              DecimalTextInputFormatter(
+                decimalRange: filterRules.decimalPlaces,
+              ),
             ],
             controller: tecValue1,
             onChanged: (value) {
-              this.setState(() {
+              setState(() {
                 dValue = double.parse(value);
               });
             },
           ),
         ),
         Visibility(
-          visible: op != null &&
+          visible:
+              op != null &&
               (op == Logic.lessThan ||
                   op == Logic.lessThanOrEqualTo ||
                   op == Logic.between),
@@ -140,11 +143,13 @@ class DataGridDoubleColumnFilterState<TItem extends Object>
             decoration: InputDecoration(hintText: op?.toString()),
             keyboardType: TextInputType.numberWithOptions(decimal: true),
             inputFormatters: [
-              DecimalTextInputFormatter(decimalRange: filterRules.decimalPlaces)
+              DecimalTextInputFormatter(
+                decimalRange: filterRules.decimalPlaces,
+              ),
             ],
             controller: tecValue2,
             onChanged: (value) {
-              this.setState(() {
+              setState(() {
                 dValue2 = double.parse(value);
               });
             },

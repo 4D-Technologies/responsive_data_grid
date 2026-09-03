@@ -1,9 +1,9 @@
-part of responsive_data_grid;
+part of '../../responsive_data_grid.dart';
 
 class TitleRowWidget extends StatelessWidget {
   final TitleDefinition definition;
 
-  TitleRowWidget(this.definition);
+  const TitleRowWidget(this.definition, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -11,27 +11,27 @@ class TitleRowWidget extends StatelessWidget {
     final bannerTheme = MaterialBannerTheme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
 
-    final backgroundColor = definition.backgroundColor ??
+    final backgroundColor =
+        definition.backgroundColor ??
         bannerTheme.backgroundColor ??
         (colorScheme.brightness == Brightness.dark
             ? colorScheme.surface
             : colorScheme.primary);
 
-    final foregroundColor = definition.foregroundColor ??
+    final foregroundColor =
+        definition.foregroundColor ??
         (colorScheme.brightness == Brightness.dark
             ? colorScheme.onSurface
             : colorScheme.onPrimary);
 
-    final titleTextStyle = bannerTheme.contentTextStyle ??
+    final titleTextStyle =
+        bannerTheme.contentTextStyle ??
         theme.textTheme.titleSmall?.copyWith(color: foregroundColor);
 
     final overallIconTheme = theme.iconTheme.copyWith(color: foregroundColor);
 
     return ListTile(
-      title: Text(
-        definition.title,
-        style: titleTextStyle,
-      ),
+      title: Text(definition.title, style: titleTextStyle),
       leading: definition.icon == null
           ? null
           : IconTheme(data: overallIconTheme, child: definition.icon!),

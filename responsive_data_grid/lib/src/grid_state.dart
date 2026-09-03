@@ -1,4 +1,4 @@
-part of responsive_data_grid;
+part of '../responsive_data_grid.dart';
 
 class ResponsiveDataGridState<TItem extends Object>
     extends State<ResponsiveDataGrid<TItem>> {
@@ -7,18 +7,20 @@ class ResponsiveDataGridState<TItem extends Object>
 
   var isLoading = false;
 
-  var _dataCache = ResponseCache<TItem>();
+  final _dataCache = ResponseCache<TItem>();
 
   ResponsiveDataGridState() {
     //Validate that everything is setup correctly.
-    if (TItem == Object)
+    if (TItem == Object) {
       throw UnsupportedError("You must specify a generic type for the grid.");
+    }
   }
 
   @override
   initState() {
     super.initState();
-    criteria = widget.initialLoadCriteria?.copyWith(
+    criteria =
+        widget.initialLoadCriteria?.copyWith(
           take: () => widget.initialLoadCriteria!.take ?? widget.pageSize,
           groupBy: () =>
               widget.initialLoadCriteria!.groupBy ??
@@ -46,12 +48,11 @@ class ResponsiveDataGridState<TItem extends Object>
   }
 
   Future<void> updateFilterCriteria(
-      List<FilterCriteria<dynamic>> filterCriteria) async {
+    List<FilterCriteria<dynamic>> filterCriteria,
+  ) async {
     setState(() {
-      this.isLoading = true;
-      this.criteria = this.criteria.copyWith(
-            filterBy: () => filterCriteria,
-          );
+      isLoading = true;
+      criteria = criteria.copyWith(filterBy: () => filterCriteria);
 
       _dataCache.clear();
     });
@@ -75,10 +76,12 @@ class ResponsiveDataGridState<TItem extends Object>
             .toList(),
         orderBy: () => widget.columns
             .where((c) => c.sortDirection != OrderDirections.notSet)
-            .map((e) => OrderCriteria(
-                  fieldName: e.fieldName,
-                  direction: e.sortDirection,
-                ))
+            .map(
+              (e) => OrderCriteria(
+                fieldName: e.fieldName,
+                direction: e.sortDirection,
+              ),
+            )
             .toList(),
         aggregates: () => widget.columns
             .map((e) => e.aggregations)
@@ -104,15 +107,12 @@ class ResponsiveDataGridState<TItem extends Object>
 
   FutureOr<void> updateGroup(GroupCriteria group) async {
     //Must use the indexWhere because the group has changed so equality won't work.
-    final currentIndex =
-        criteria.groupBy!.indexWhere((g) => g.fieldName == group.fieldName);
+    final currentIndex = criteria.groupBy!.indexWhere(
+      (g) => g.fieldName == group.fieldName,
+    );
 
     if (currentIndex >= 0) {
-      criteria.groupBy!.replaceRange(
-        currentIndex,
-        currentIndex + 1,
-        [group],
-      );
+      criteria.groupBy!.replaceRange(currentIndex, currentIndex + 1, [group]);
     }
     await refreshData();
   }
@@ -139,10 +139,12 @@ class ResponsiveDataGridState<TItem extends Object>
           .toList(),
       orderBy: () => widget.columns
           .where((c) => c.sortDirection != OrderDirections.notSet)
-          .map((e) => OrderCriteria(
-                fieldName: e.fieldName,
-                direction: e.sortDirection,
-              ))
+          .map(
+            (e) => OrderCriteria(
+              fieldName: e.fieldName,
+              direction: e.sortDirection,
+            ),
+          )
           .toList(),
       aggregates: () => widget.columns
           .map((e) => e.aggregations)
@@ -150,19 +152,22 @@ class ResponsiveDataGridState<TItem extends Object>
           .toList(),
     );
 
-    await FetchPage(pageNumber, false);
+    await fetchPage(pageNumber, false);
 
     setState(() {
       isLoading = false;
     });
   }
 
-  Future<ListResponse<TItem>> FetchPage(
-      int pageNumber, bool updateState) async {
+  Future<ListResponse<TItem>> fetchPage(
+    int pageNumber,
+    bool updateState,
+  ) async {
     ListResponse<TItem> response;
 
-    if (_dataCache.pageMap.containsKey(pageNumber))
+    if (_dataCache.pageMap.containsKey(pageNumber)) {
       return _dataCache.pageMap[pageNumber]!;
+    }
 
     if (updateState) {
       setState(() => isLoading = true);
@@ -177,7 +182,8 @@ class ResponsiveDataGridState<TItem extends Object>
             .value(item),
       );
     } else if (widget.loadData != null) {
-      response = await widget.loadData!(
+      response =
+          await widget.loadData!(
             LoadCriteria(
               skip: (pageNumber - 1) * widget.pageSize,
               take: widget.pageSize,
@@ -188,8 +194,9 @@ class ResponsiveDataGridState<TItem extends Object>
           ) ??
           ListResponse(totalCount: 0, items: [], groups: [], aggregates: []);
     } else {
-      throw new UnsupportedError(
-          "Either the items must be specified OR the loadData function must be specified.");
+      throw UnsupportedError(
+        "Either the items must be specified OR the loadData function must be specified.",
+      );
     }
 
     if (updateState) {
@@ -215,7 +222,7 @@ class ResponsiveDataGridState<TItem extends Object>
         elevation: widget.elevation,
         child: Padding(
           padding: widget.padding,
-          child: Container(
+          child: SizedBox(
             height: widget.height,
             child: LayoutBuilder(
               builder: (context, constraints) {
@@ -230,30 +237,34 @@ class ResponsiveDataGridState<TItem extends Object>
                 }
 
                 if (pagingMode == PagingMode.infiniteScroll &&
-                    !constraints.hasBoundedHeight)
+                    !constraints.hasBoundedHeight) {
                   throw UnsupportedError(
-                      "The grid cannot be scrolled and as a result pagingModel = PagingMode.infiniteScroll cannot be supported. Please use auto or pager.");
+                    "The grid cannot be scrolled and as a result pagingModel = PagingMode.infiniteScroll cannot be supported. Please use auto or pager.",
+                  );
+                }
 
                 final parts = List<Widget>.empty(growable: true);
-                if (widget.title != null)
-                  parts.add(
-                    TitleRowWidget(widget.title!),
-                  );
+                if (widget.title != null) {
+                  parts.add(TitleRowWidget(widget.title!));
+                }
 
                 if (widget.allowGrouping) {
                   parts.add(
                     GridGroupChooser<TItem>(
-                        gridState: this,
-                        theme: theme,
-                        addGroup: addGroup,
-                        removeGroup: removeGroup,
-                        updateGroup: updateGroup),
+                      gridState: this,
+                      theme: theme,
+                      addGroup: addGroup,
+                      removeGroup: removeGroup,
+                      updateGroup: updateGroup,
+                    ),
                   );
                 }
 
                 parts.add(
                   ResponsiveDataGridHeaderRowWidget<TItem>(
-                      this, widget.columns),
+                    this,
+                    widget.columns,
+                  ),
                 );
 
                 if (isLoading) {
@@ -276,21 +287,21 @@ class ResponsiveDataGridState<TItem extends Object>
                   );
                 }
 
-                if (_dataCache.aggregates.isNotEmpty)
-                  parts.add(
-                    GridFooter(_dataCache, this, theme),
-                  );
+                if (_dataCache.aggregates.isNotEmpty) {
+                  parts.add(GridFooter(_dataCache, this, theme));
+                }
 
-                if (pagingMode == PagingMode.pager)
+                if (pagingMode == PagingMode.pager) {
                   parts.add(
                     PagerWidget(
-                      pageNumber: this.pageNumber,
+                      pageNumber: pageNumber,
                       totalCount: _dataCache.totalCount,
                       setPage: setPage,
                       theme: theme,
                       pageSize: widget.pageSize,
                     ),
                   );
+                }
 
                 return NotificationListener<GridCriteriaChangeNotification>(
                   onNotification: (notification) => false,
@@ -320,7 +331,7 @@ class ResponsiveDataGridState<TItem extends Object>
 
   void _updateAllRules() {
     criteria = LoadCriteria();
-    widget.columns.forEach((c) {
+    for (var c in widget.columns) {
       if (c.sortDirection != OrderDirections.notSet) {
         criteria.orderBy.add(
           OrderCriteria(fieldName: c.fieldName, direction: c.sortDirection),
@@ -330,20 +341,19 @@ class ResponsiveDataGridState<TItem extends Object>
       if (c.filterRules.criteria != null) {
         criteria.filterBy.add(c.filterRules.criteria!);
       }
-    });
+    }
 
     _rebuildAllChildren();
   }
 
   void _updateOrderByCriteria<TValue extends dynamic>(
-      GridColumn<TItem, TValue> col) {
+    GridColumn<TItem, TValue> col,
+  ) {
     if (widget.sortable == SortableOptions.single) {
       //Remove all other orders becuase only one is allowed at a time.
       widget.columns
           .where((c) => c != col && c.sortDirection != OrderDirections.notSet)
-          .forEach(
-            (c) => c.sortDirection = OrderDirections.notSet,
-          );
+          .forEach((c) => c.sortDirection = OrderDirections.notSet);
     }
 
     _updateAllRules();
@@ -377,6 +387,8 @@ class GridHeaderTheme {
   factory GridHeaderTheme.fromContext(BuildContext context) {
     final theme = Theme.of(context);
     return GridHeaderTheme(
-        backgroundColor: theme.primaryColorDark, color: theme.primaryColor);
+      backgroundColor: theme.primaryColorDark,
+      color: theme.primaryColor,
+    );
   }
 }

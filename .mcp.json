@@ -1,0 +1,37 @@
+{
+    "mcpServers": {
+        "flutter_agent_lens": {
+            "command": "flutter-agent-lens"
+        },
+        "flutter-skill": {
+            "command": "flutter_skill",
+            "args": [
+                "server"
+            ]
+        },
+        "chrome-devtools": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "chrome-devtools-mcp@latest"
+            ]
+        },
+        "markitdown": {
+            "command": "docker",
+            "args": [
+                "run",
+                "-i",
+                "--rm",
+                "-v",
+                "./.markitdown:/local-directory",
+                "mcp/markitdown"
+            ]
+        },
+        "playwright": {
+            "command": "npx",
+            "args": [
+                "@playwright/mcp@latest"
+            ]
+        }
+    }
+}

@@ -1,10 +1,6 @@
-part of responsive_data_grid;
+part of '../../responsive_data_grid.dart';
 
-enum FilterResults {
-  success,
-  cancel,
-  clear,
-}
+enum FilterResults { success, cancel, clear }
 
 class FilterResult<TValue extends dynamic> {
   final FilterCriteria<TValue>? criteria;

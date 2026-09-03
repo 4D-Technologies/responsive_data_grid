@@ -1,40 +1,38 @@
-part of client_filtering;
+part of '../client_filtering.dart';
 
 class ListResponse<T> extends SimpleListResponse<T> {
   final List<GroupResult> groups;
   final List<AggregateResult> aggregates;
 
   const ListResponse({
-    required int totalCount,
-    required List<T> items,
+    required super.totalCount,
+    required super.items,
     required this.groups,
     required this.aggregates,
-  }) : super(items: items, totalCount: totalCount);
+  });
 
   factory ListResponse.fromJson(
     Map<String, dynamic> json,
     T Function(Map<String, dynamic>) objectMapper,
-  ) =>
-      ListResponse(
-        totalCount: json["totalCount"] as int,
-        items: List<T>.from(
-          (json["items"] as List).map<T>(
-            (dynamic model) => objectMapper(model as Map<String, dynamic>),
-          ),
-        ),
-        groups: List<GroupResult>.from(
-          (json["groups"] as List).map<GroupResult>(
-            (dynamic model) =>
-                GroupResult.fromJson(model as Map<String, dynamic>),
-          ),
-        ),
-        aggregates: List<AggregateResult>.from(
-          (json["aggregates"] as List).map<AggregateResult>(
-            (dynamic model) =>
-                AggregateResult.fromJson(model as Map<String, dynamic>),
-          ),
-        ),
-      );
+  ) => ListResponse(
+    totalCount: json["totalCount"] as int,
+    items: List<T>.from(
+      (json["items"] as List).map<T>(
+        (dynamic model) => objectMapper(model as Map<String, dynamic>),
+      ),
+    ),
+    groups: List<GroupResult>.from(
+      (json["groups"] as List).map<GroupResult>(
+        (dynamic model) => GroupResult.fromJson(model as Map<String, dynamic>),
+      ),
+    ),
+    aggregates: List<AggregateResult>.from(
+      (json["aggregates"] as List).map<AggregateResult>(
+        (dynamic model) =>
+            AggregateResult.fromJson(model as Map<String, dynamic>),
+      ),
+    ),
+  );
 
   factory ListResponse.fromData({
     required List<T> data,
@@ -62,10 +60,11 @@ class ListResponse<T> extends SimpleListResponse<T> {
       groupResults = List<GroupResult>.empty();
     } else {
       groupResults = criteria.groupItems(
-          criteria: criteria.groupBy!.first,
-          items: pageItems,
-          allItems: items,
-          getFieldValue: getFieldValue);
+        criteria: criteria.groupBy!.first,
+        items: pageItems,
+        allItems: items,
+        getFieldValue: getFieldValue,
+      );
     }
 
     //Create overall aggregates
@@ -74,8 +73,13 @@ class ListResponse<T> extends SimpleListResponse<T> {
       aggregates = List<AggregateResult>.empty();
     } else {
       aggregates = criteria.aggregates!
-          .map((e) => criteria.createAggregation(
-              items: items, getFieldValue: getFieldValue, criteria: e))
+          .map(
+            (e) => criteria.createAggregation(
+              items: items,
+              getFieldValue: getFieldValue,
+              criteria: e,
+            ),
+          )
           .toList();
     }
 
@@ -92,7 +96,7 @@ class ListResponse<T> extends SimpleListResponse<T> {
     if (identical(this, other)) return true;
 
     return other is ListResponse<T> &&
-        other.totalCount == this.totalCount &&
+        other.totalCount == totalCount &&
         other.items == items &&
         other.groups == groups &&
         other.aggregates == aggregates;
@@ -100,8 +104,8 @@ class ListResponse<T> extends SimpleListResponse<T> {
 
   @override
   int get hashCode =>
-      this.totalCount.hashCode ^
-      this.items.hashCode ^
-      this.groups.hashCode ^
-      this.aggregates.hashCode;
+      totalCount.hashCode ^
+      items.hashCode ^
+      groups.hashCode ^
+      aggregates.hashCode;
 }

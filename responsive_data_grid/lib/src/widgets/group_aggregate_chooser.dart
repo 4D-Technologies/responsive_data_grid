@@ -1,4 +1,4 @@
-part of responsive_data_grid;
+part of '../../responsive_data_grid.dart';
 
 class GridGroupAggregateChooser<TItem extends Object> extends StatefulWidget {
   final ResponsiveDataGridState<TItem> gridState;
@@ -12,8 +12,8 @@ class GridGroupAggregateChooser<TItem extends Object> extends StatefulWidget {
   }) : super(key: ObjectKey(criteria));
 
   @override
-  _GridGroupAggregateChooserState createState() =>
-      _GridGroupAggregateChooserState<TItem>(criteria);
+  State<GridGroupAggregateChooser<TItem>> createState() =>
+      _GridGroupAggregateChooserState<TItem>();
 }
 
 class _GridGroupAggregateChooserState<TItem extends Object>
@@ -21,20 +21,22 @@ class _GridGroupAggregateChooserState<TItem extends Object>
   late List<bool> expansionStates;
   late List<GridColumn<TItem, dynamic>> columns;
 
-  final ObjectKey key;
+  late final ObjectKey key;
 
-  _GridGroupAggregateChooserState(GroupCriteria criteria)
-      : key = ObjectKey(criteria);
+  _GridGroupAggregateChooserState();
 
   @override
   void initState() {
+    key = ObjectKey(widget.criteria);
     columns = widget.gridState.widget.columns
         .where((c) => c.hasAggregations)
         .orderBy((c) => c.header.text ?? c.fieldName)
         .toList();
     expansionStates = columns
-        .map((e) =>
-            widget.criteria.aggregates.any((a) => a.fieldName == e.fieldName))
+        .map(
+          (e) =>
+              widget.criteria.aggregates.any((a) => a.fieldName == e.fieldName),
+        )
         .toList();
 
     super.initState();
@@ -44,9 +46,7 @@ class _GridGroupAggregateChooserState<TItem extends Object>
     if (selected) {
       if (widget.criteria.aggregates.any((a) => a == aggregation)) return;
 
-      widget.criteria.aggregates.add(
-        aggregation,
-      );
+      widget.criteria.aggregates.add(aggregation);
     } else {
       widget.criteria.aggregates.removeWhere((a) => a == aggregation);
     }
@@ -55,6 +55,7 @@ class _GridGroupAggregateChooserState<TItem extends Object>
   @override
   Widget build(BuildContext context) {
     return Visibility(
+      visible: columns.isNotEmpty,
       child: Column(
         children: [
           SizedBox(
@@ -70,41 +71,36 @@ class _GridGroupAggregateChooserState<TItem extends Object>
           ExpansionPanelList(
             key: key,
             expansionCallback: (panelIndex, isExpanded) {
-              print(isExpanded);
               setState(() {
                 expansionStates[panelIndex] = isExpanded ? false : true;
               });
             },
-            children: columns.map<ExpansionPanel>(
-              (e) {
-                final state = expansionStates[columns.indexOf(e)];
-                final aggViews = e.getAggregations(
-                  selected: widget.criteria.aggregates,
-                  update: updateAggregations,
-                );
+            children: columns.map<ExpansionPanel>((e) {
+              final state = expansionStates[columns.indexOf(e)];
+              final aggViews = e.getAggregations(
+                selected: widget.criteria.aggregates,
+                update: updateAggregations,
+              );
 
-                return ExpansionPanel(
-                  canTapOnHeader: false,
-                  isExpanded: state,
-                  headerBuilder: (context, isExpanded) => ListTile(
-                    title: Text(e.header.text ?? e.fieldName),
-                  ),
-                  body: ListView.builder(
-                    itemBuilder: (context, index) {
-                      final aggView = aggViews[index];
-                      return aggView;
-                    },
-                    itemCount: aggViews.length,
-                    shrinkWrap: true,
-                  ),
-                );
-              },
-            ).toList(),
+              return ExpansionPanel(
+                canTapOnHeader: false,
+                isExpanded: state,
+                headerBuilder: (context, isExpanded) =>
+                    ListTile(title: Text(e.header.text ?? e.fieldName)),
+                body: ListView.builder(
+                  itemBuilder: (context, index) {
+                    final aggView = aggViews[index];
+                    return aggView;
+                  },
+                  itemCount: aggViews.length,
+                  shrinkWrap: true,
+                ),
+              );
+            }).toList(),
           ),
           Divider(color: widget.theme.dividerColor),
         ],
       ),
-      visible: columns.isNotEmpty,
     );
   }
 }

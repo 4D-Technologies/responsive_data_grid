@@ -1,4 +1,4 @@
-part of client_filtering;
+part of '../client_filtering.dart';
 
 class GroupResult {
   final String fieldName;
@@ -19,12 +19,16 @@ class GroupResult {
       fieldName: json['fieldName'].toString(),
       value: json['value']?.toString(),
       aggregates: (json["aggregates"] as List)
-          .map<AggregateResult>((dynamic model) =>
-              AggregateResult.fromJson(model as Map<String, dynamic>))
+          .map<AggregateResult>(
+            (dynamic model) =>
+                AggregateResult.fromJson(model as Map<String, dynamic>),
+          )
           .toList(),
       subGroups: (json["subGroups"] as List)
-          .map<GroupResult>((dynamic model) =>
-              GroupResult.fromJson(model as Map<String, dynamic>))
+          .map<GroupResult>(
+            (dynamic model) =>
+                GroupResult.fromJson(model as Map<String, dynamic>),
+          )
           .toList(),
     );
   }

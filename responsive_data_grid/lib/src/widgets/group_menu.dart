@@ -1,4 +1,4 @@
-part of responsive_data_grid;
+part of '../../responsive_data_grid.dart';
 
 class GroupMenu<TItem extends Object> extends DropDownViewWidget {
   final FutureOr<void> Function(GroupCriteria) removeGroup;
@@ -7,26 +7,26 @@ class GroupMenu<TItem extends Object> extends DropDownViewWidget {
 
   GroupMenu({
     required this.removeGroup,
-    required ThemeData theme,
+    required super.theme,
     required this.group,
     required this.gridState,
-    Key? key,
+    super.key,
   }) : super(
-          dropDownWidth: 250,
-          icon: Icon(
-            Icons.menu,
-            color: group.aggregates.isNotEmpty
-                ? theme.colorScheme.secondary
-                : theme.iconTheme.color,
-            size: theme.iconTheme.size,
-          ),
-          theme: theme,
-          key: key,
-        );
+         dropDownWidth: 250,
+         icon: Icon(
+           Icons.menu,
+           color: group.aggregates.isNotEmpty
+               ? theme.colorScheme.secondary
+               : theme.iconTheme.color,
+           size: theme.iconTheme.size,
+         ),
+       );
 
   @override
   Widget build(
-      BuildContext context, void Function(BuildContext context) close) {
+    BuildContext context,
+    void Function(BuildContext context) close,
+  ) {
     return Column(
       children: [
         SizedBox(height: 5),
@@ -35,6 +35,7 @@ class GroupMenu<TItem extends Object> extends DropDownViewWidget {
           type: MaterialType.card,
           child: Container(
             padding: EdgeInsets.all(4),
+            width: dropDownWidth,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -45,6 +46,7 @@ class GroupMenu<TItem extends Object> extends DropDownViewWidget {
                   criteria: group,
                 ),
                 Padding(
+                  padding: EdgeInsets.only(top: 3, bottom: 3),
                   child: TextButton.icon(
                     label: Text(
                       "Apply",
@@ -52,16 +54,15 @@ class GroupMenu<TItem extends Object> extends DropDownViewWidget {
                     ),
                     onPressed: () async {
                       await gridState.updateGroup(group);
-                      close(context);
+                      if (context.mounted) {
+                        close(context);
+                      }
                     },
-                    icon: Icon(
-                      Icons.save,
-                      color: theme.colorScheme.onPrimary,
-                    ),
+                    icon: Icon(Icons.save, color: theme.colorScheme.onPrimary),
                   ),
-                  padding: EdgeInsets.only(top: 3, bottom: 3),
                 ),
                 Padding(
+                  padding: EdgeInsets.only(top: 3, bottom: 3),
                   child: TextButton.icon(
                     label: Text(
                       "Clear All",
@@ -70,14 +71,15 @@ class GroupMenu<TItem extends Object> extends DropDownViewWidget {
                     onPressed: () async {
                       group.aggregates.clear();
                       await gridState.updateGroup(group);
-                      close(context);
+                      if (context.mounted) {
+                        close(context);
+                      }
                     },
                     icon: Icon(
                       Icons.clear_all,
                       color: theme.colorScheme.onPrimary,
                     ),
                   ),
-                  padding: EdgeInsets.only(top: 3, bottom: 3),
                 ),
                 Divider(),
                 TextButton.icon(
@@ -86,14 +88,10 @@ class GroupMenu<TItem extends Object> extends DropDownViewWidget {
                     style: theme.primaryTextTheme.labelLarge,
                   ),
                   onPressed: () => removeGroup(group),
-                  icon: Icon(
-                    Icons.delete,
-                    color: theme.colorScheme.error,
-                  ),
+                  icon: Icon(Icons.delete, color: theme.colorScheme.error),
                 ),
               ],
             ),
-            width: dropDownWidth,
           ),
         ),
       ],

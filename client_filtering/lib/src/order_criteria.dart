@@ -1,4 +1,4 @@
-part of client_filtering;
+part of '../client_filtering.dart';
 
 class OrderCriteria with IJsonable {
   final String fieldName;
@@ -10,9 +10,9 @@ class OrderCriteria with IJsonable {
   });
 
   factory OrderCriteria.fromJson(Map<String, dynamic> json) => OrderCriteria(
-        fieldName: json['fieldName'].toString(),
-        direction: OrderDirections.fromInt(json['direction'] as int),
-      );
+    fieldName: json['fieldName'].toString(),
+    direction: OrderDirections.fromInt(json['direction'] as int),
+  );
 
   @override
   bool operator ==(Object other) {
@@ -36,11 +36,10 @@ class OrderCriteria with IJsonable {
     );
   }
 
+  @override
   Map<String, dynamic> toJson() {
     // ignore: unnecessary_cast
-    return {
-      'fieldName': fieldName,
-      'direction': direction.value,
-    } as Map<String, dynamic>;
+    return {'fieldName': fieldName, 'direction': direction.value}
+        as Map<String, dynamic>;
   }
 }

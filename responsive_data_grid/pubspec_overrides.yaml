@@ -1,0 +1,3 @@
+dependency_overrides:
+  client_filtering:
+    path: ../client_filtering

@@ -1,4 +1,4 @@
-part of client_filtering;
+part of '../client_filtering.dart';
 
 class AggregateResult {
   final String fieldName;
@@ -17,10 +17,9 @@ class AggregateResult {
         aggregation: Aggregations.fromInt(json["aggregation"] as int),
         result: json["result"] == null
             ? null
-            : !(json["result"].runtimeType is String)
-                ? json["result"]
-                : DateTime.tryParse(json["result"]!.toString()) ??
-                    json["result"],
+            : json["result"].runtimeType is! String
+            ? json["result"]
+            : DateTime.tryParse(json["result"]!.toString()) ?? json["result"],
       );
 
   @override
@@ -50,9 +49,7 @@ class AggregateResult {
 
         if (result is num) {
           format ??= "#.0#";
-          return intl.NumberFormat(format).format(
-            result,
-          );
+          return intl.NumberFormat(format).format(result);
         } else {
           return result.toString();
         }

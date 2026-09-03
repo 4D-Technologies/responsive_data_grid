@@ -1,12 +1,12 @@
-library client_filtering;
+library;
 
 import 'dart:convert';
 
+import 'package:collection/collection.dart';
 import 'package:darq/darq.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:collection/collection.dart';
 import 'package:intl/intl.dart' as intl;
+import 'package:material_ui/material_ui.dart' show TimeOfDay;
 
 part './src/enums.dart';
 part './src/filter_criteria.dart';
@@ -14,7 +14,7 @@ part './src/load_criteria.dart';
 part './src/order_criteria.dart';
 part './src/ijsonable.dart';
 part './src/group_criteria.dart';
-part './src//group_result.dart';
+part './src/group_result.dart';
 part './src/aggregate_criteria.dart';
 part './src/aggregate_result.dart';
 

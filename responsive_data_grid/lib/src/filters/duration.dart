@@ -1,9 +1,6 @@
-part of responsive_data_grid;
+part of '../../responsive_data_grid.dart';
 
-enum DurationFilterTypes {
-  all,
-  noMilliseconds,
-}
+enum DurationFilterTypes { all, noMilliseconds }
 
 class DurationFilterRules<TItem extends Object>
     extends FilterRules<TItem, DataGridDurationColumnFilter<TItem>, Duration> {
@@ -13,33 +10,28 @@ class DurationFilterRules<TItem extends Object>
 
   DurationFilterRules({
     this.filterType = DurationFilterTypes.all,
-    FilterCriteria<Duration>? criteria,
+    super.criteria,
     DateTime? firstDate,
     DateTime? lastDate,
-  })  : this.firstDate = firstDate ?? DateTime.parse("0001-01-01"),
-        this.lastDate = lastDate ?? DateTime.parse("3000-01-01"),
-        super(
-          criteria: criteria,
-        );
+  }) : firstDate = firstDate ?? DateTime.parse("0001-01-01"),
+       lastDate = lastDate ?? DateTime.parse("3000-01-01");
 
   @override
   DataGridDurationColumnFilter<TItem> showFilter(
-          GridColumn<TItem, Duration> definition,
-          ResponsiveDataGridState<TItem> grid) =>
-      DataGridDurationColumnFilter<TItem>(definition, grid);
+    GridColumn<TItem, Duration> definition,
+    ResponsiveDataGridState<TItem> grid,
+  ) => DataGridDurationColumnFilter<TItem>(definition, grid);
 }
 
 class DataGridDurationColumnFilter<TItem extends Object>
     extends DataGridColumnFilter<TItem, Duration> {
-  DataGridDurationColumnFilter(GridColumn<TItem, Duration> definition,
-      ResponsiveDataGridState<TItem> grid)
-      : super(definition, grid) {
+  DataGridDurationColumnFilter(super.definition, super.grid, {super.key}) {
     assert(TItem != Object);
   }
 
   @override
   State<StatefulWidget> createState() =>
-      DataGridDateTimeColumnFilterState<TItem>();
+      DataGridDurationColumnFilterState<TItem>();
 }
 
 class DataGridDurationColumnFilterState<TItem extends Object>
@@ -56,7 +48,7 @@ class DataGridDurationColumnFilterState<TItem extends Object>
 
     final criteria = filterRules.criteria;
     if (criteria != null) {
-      dValue1 = criteria.values.length > 0 ? criteria.values.first : null;
+      dValue1 = criteria.values.isNotEmpty ? criteria.values.first : null;
       dValue2 = criteria.values.length > 1 ? criteria.values.last : null;
       op = criteria.logicalOperator;
     }
@@ -69,50 +61,52 @@ class DataGridDurationColumnFilterState<TItem extends Object>
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        DropdownButtonFormField<Logic>(
-            items: [
-              DropdownMenuItem(
-                child: Text(LocalizedMessages.any),
-                value: null,
-              ),
-              DropdownMenuItem(
-                  child: Text(Logic.greaterThan.toString()),
-                  value: Logic.greaterThan),
-              DropdownMenuItem(
-                  child: Text(Logic.greaterThanOrEqualTo.toString()),
-                  value: Logic.greaterThanOrEqualTo),
-              DropdownMenuItem(
-                child: Text(Logic.equals.toString()),
-                value: Logic.equals,
-              ),
-              DropdownMenuItem(
-                child: Text(Logic.lessThan.toString()),
-                value: Logic.lessThan,
-              ),
-              DropdownMenuItem(
-                  child: Text(Logic.lessThanOrEqualTo.toString()),
-                  value: Logic.lessThanOrEqualTo),
-              DropdownMenuItem(
-                child: Text(Logic.between.toString()),
-                value: Logic.between,
-              ),
-              DropdownMenuItem(
-                child: Text(Logic.equals.toString()),
-                value: Logic.equals,
-              ),
-              DropdownMenuItem(
-                child: Text(Logic.notEqual.toString()),
-                value: Logic.notEqual,
-              ),
-            ],
-            value: op,
-            onChanged: (Logic? value) {
-              this.setState(() {
-                op = value;
-              });
-            }),
+        DropdownButtonFormField<Logic?>(
+          items: [
+            DropdownMenuItem(value: null, child: Text(LocalizedMessages.any)),
+            DropdownMenuItem(
+              value: Logic.greaterThan,
+              child: Text(Logic.greaterThan.toString()),
+            ),
+            DropdownMenuItem(
+              value: Logic.greaterThanOrEqualTo,
+              child: Text(Logic.greaterThanOrEqualTo.toString()),
+            ),
+            DropdownMenuItem(
+              value: Logic.equals,
+              child: Text(Logic.equals.toString()),
+            ),
+            DropdownMenuItem(
+              value: Logic.lessThan,
+              child: Text(Logic.lessThan.toString()),
+            ),
+            DropdownMenuItem(
+              value: Logic.lessThanOrEqualTo,
+              child: Text(Logic.lessThanOrEqualTo.toString()),
+            ),
+            DropdownMenuItem(
+              value: Logic.between,
+              child: Text(Logic.between.toString()),
+            ),
+            DropdownMenuItem(
+              value: Logic.equals,
+              child: Text(Logic.equals.toString()),
+            ),
+            DropdownMenuItem(
+              value: Logic.notEqual,
+              child: Text(Logic.notEqual.toString()),
+            ),
+          ],
+          initialValue: op,
+          onChanged: (Logic? value) {
+            setState(() {
+              op = value;
+            });
+          },
+        ),
         Visibility(
-          visible: op != null &&
+          visible:
+              op != null &&
               (op == Logic.greaterThan ||
                   op == Logic.greaterThanOrEqualTo ||
                   op == Logic.between ||
@@ -120,15 +114,11 @@ class DataGridDurationColumnFilterState<TItem extends Object>
                   op == Logic.notEqual ||
                   op == Logic.lessThan ||
                   op == Logic.lessThanOrEqualTo),
-          child: Row(
-            children: [],
-          ),
+          child: Row(children: []),
         ),
         Visibility(
           visible: op != null && (op == Logic.between),
-          child: Row(
-            children: [],
-          ),
+          child: Row(children: []),
         ),
       ],
     );

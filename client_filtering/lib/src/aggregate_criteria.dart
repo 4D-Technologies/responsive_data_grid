@@ -1,13 +1,10 @@
-part of client_filtering;
+part of '../client_filtering.dart';
 
 class AggregateCriteria with IJsonable {
   final String fieldName;
   final Aggregations aggregation;
 
-  const AggregateCriteria({
-    required this.fieldName,
-    required this.aggregation,
-  });
+  const AggregateCriteria({required this.fieldName, required this.aggregation});
 
   factory AggregateCriteria.fromJson(Map<String, dynamic> json) =>
       AggregateCriteria(
@@ -39,11 +36,10 @@ class AggregateCriteria with IJsonable {
     );
   }
 
+  @override
   Map<String, dynamic> toJson() {
     // ignore: unnecessary_cast
-    return {
-      'fieldName': fieldName,
-      'aggregation': aggregation.value,
-    } as Map<String, dynamic>;
+    return {'fieldName': fieldName, 'aggregation': aggregation.value}
+        as Map<String, dynamic>;
   }
 }

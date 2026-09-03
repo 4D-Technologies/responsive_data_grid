@@ -1,4 +1,4 @@
-part of responsive_data_grid;
+part of '../../responsive_data_grid.dart';
 
 enum DateTimeFilterTypes { DateOnly, TimeOnly, DateTime }
 
@@ -10,27 +10,22 @@ class DateTimeFilterRules<TItem extends Object>
 
   DateTimeFilterRules({
     required this.filterType,
-    FilterCriteria<DateTime>? criteria,
+    super.criteria,
     DateTime? firstDate,
     DateTime? lastDate,
-  })  : this.firstDate = firstDate ?? DateTime.parse("0001-01-01"),
-        this.lastDate = lastDate ?? DateTime.parse("3000-01-01"),
-        super(
-          criteria: criteria,
-        );
+  }) : firstDate = firstDate ?? DateTime.parse("0001-01-01"),
+       lastDate = lastDate ?? DateTime.parse("3000-01-01");
 
   @override
   DataGridDateTimeColumnFilter<TItem> showFilter(
-          GridColumn<TItem, DateTime> definition,
-          ResponsiveDataGridState<TItem> grid) =>
-      DataGridDateTimeColumnFilter(definition, grid);
+    GridColumn<TItem, DateTime> definition,
+    ResponsiveDataGridState<TItem> grid,
+  ) => DataGridDateTimeColumnFilter(definition, grid);
 }
 
 class DataGridDateTimeColumnFilter<TItem extends Object>
     extends DataGridColumnFilter<TItem, DateTime> {
-  DataGridDateTimeColumnFilter(GridColumn<TItem, DateTime> definition,
-      ResponsiveDataGridState<TItem> grid)
-      : super(definition, grid) {
+  DataGridDateTimeColumnFilter(super.definition, super.grid, {super.key}) {
     assert(TItem != Object);
   }
 
@@ -53,7 +48,7 @@ class DataGridDateTimeColumnFilterState<TItem extends Object>
 
     final criteria = filterRules.criteria;
     if (criteria != null) {
-      dtStart = criteria.values.length > 0 ? criteria.values.first : null;
+      dtStart = criteria.values.isNotEmpty ? criteria.values.first : null;
       dtEnd = criteria.values.length > 1 ? criteria.values.last : null;
       op = criteria.logicalOperator;
     }
@@ -66,45 +61,50 @@ class DataGridDateTimeColumnFilterState<TItem extends Object>
       mainAxisSize: MainAxisSize.min,
       children: [
         DropdownButtonFormField<Logic?>(
-            items: [
-              DropdownMenuItem<Logic?>(
-                child: Text(LocalizedMessages.any),
-                value: null,
-              ),
-              DropdownMenuItem<Logic?>(
-                  child: Text(Logic.greaterThan.toString()),
-                  value: Logic.greaterThan),
-              DropdownMenuItem<Logic?>(
-                  child: Text(Logic.greaterThanOrEqualTo.toString()),
-                  value: Logic.greaterThanOrEqualTo),
-              DropdownMenuItem<Logic?>(
-                child: Text(Logic.lessThan.toString()),
-                value: Logic.lessThan,
-              ),
-              DropdownMenuItem<Logic?>(
-                  child: Text(Logic.lessThanOrEqualTo.toString()),
-                  value: Logic.lessThanOrEqualTo),
-              DropdownMenuItem<Logic?>(
-                child: Text(Logic.between.toString()),
-                value: Logic.between,
-              ),
-              DropdownMenuItem<Logic?>(
-                child: Text(Logic.equals.toString()),
-                value: Logic.equals,
-              ),
-              DropdownMenuItem<Logic?>(
-                child: Text(Logic.notEqual.toString()),
-                value: Logic.notEqual,
-              ),
-            ],
-            value: op,
-            onChanged: (Logic? value) {
-              this.setState(() {
-                op = value;
-              });
-            }),
+          items: [
+            DropdownMenuItem<Logic?>(
+              value: null,
+              child: Text(LocalizedMessages.any),
+            ),
+            DropdownMenuItem<Logic?>(
+              value: Logic.greaterThan,
+              child: Text(Logic.greaterThan.toString()),
+            ),
+            DropdownMenuItem<Logic?>(
+              value: Logic.greaterThanOrEqualTo,
+              child: Text(Logic.greaterThanOrEqualTo.toString()),
+            ),
+            DropdownMenuItem<Logic?>(
+              value: Logic.lessThan,
+              child: Text(Logic.lessThan.toString()),
+            ),
+            DropdownMenuItem<Logic?>(
+              value: Logic.lessThanOrEqualTo,
+              child: Text(Logic.lessThanOrEqualTo.toString()),
+            ),
+            DropdownMenuItem<Logic?>(
+              value: Logic.between,
+              child: Text(Logic.between.toString()),
+            ),
+            DropdownMenuItem<Logic?>(
+              value: Logic.equals,
+              child: Text(Logic.equals.toString()),
+            ),
+            DropdownMenuItem<Logic?>(
+              value: Logic.notEqual,
+              child: Text(Logic.notEqual.toString()),
+            ),
+          ],
+          initialValue: op,
+          onChanged: (Logic? value) {
+            setState(() {
+              op = value;
+            });
+          },
+        ),
         Visibility(
-          visible: op != null &&
+          visible:
+              op != null &&
               (op == Logic.greaterThan ||
                   op == Logic.greaterThanOrEqualTo ||
                   op == Logic.between ||
@@ -114,12 +114,13 @@ class DataGridDateTimeColumnFilterState<TItem extends Object>
                   op == Logic.lessThanOrEqualTo),
           child: DateTimeField(
             decoration: InputDecoration(hintText: op?.toString()),
+            value: dtStart,
             lastDate: dtEnd ?? filterRules.lastDate,
             initialPickerDateTime: dtStart,
             firstDate: filterRules.firstDate,
             mode: _mapType(filterRules.filterType),
-            onChanged: (value) {
-              this.setState(() {
+            onChanged: (DateTime? value) {
+              setState(() {
                 dtStart = value;
               });
             },
@@ -129,12 +130,13 @@ class DataGridDateTimeColumnFilterState<TItem extends Object>
           visible: op != null && (op == Logic.between),
           child: DateTimeField(
             decoration: InputDecoration(hintText: op?.toString()),
+            value: dtEnd,
             firstDate: dtStart ?? filterRules.firstDate,
             lastDate: filterRules.lastDate,
             initialPickerDateTime: dtEnd,
             mode: _mapType(filterRules.filterType),
-            onChanged: (value) {
-              this.setState(() {
+            onChanged: (DateTime? value) {
+              setState(() {
                 dtEnd = value;
               });
             },

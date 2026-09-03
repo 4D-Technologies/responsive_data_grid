@@ -3,12 +3,12 @@ import 'package:odata_query/odata_query.dart';
 
 extension OrderbyCriteriaExtensions on OrderCriteria {
   OrderBy toOdata() {
-    switch (this.direction) {
+    switch (direction) {
       case OrderDirections.notSet:
       case OrderDirections.ascending:
-        return OrderBy.asc(this.fieldName);
+        return OrderBy.asc(fieldName);
       case OrderDirections.descending:
-        return OrderBy.desc(this.fieldName);
+        return OrderBy.desc(fieldName);
     }
   }
 }

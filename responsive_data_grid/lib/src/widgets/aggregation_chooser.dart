@@ -1,4 +1,4 @@
-part of responsive_data_grid;
+part of '../../responsive_data_grid.dart';
 
 class AggregationChooser<TItem extends Object> extends StatefulWidget {
   final GridColumn<TItem, dynamic> column;
@@ -6,7 +6,8 @@ class AggregationChooser<TItem extends Object> extends StatefulWidget {
   final Iterable<AggregateCriteria> selected;
   final void Function(AggregateCriteria aggregation, bool selected) update;
 
-  AggregationChooser({
+  const AggregationChooser({
+    super.key,
     required this.column,
     required this.aggregation,
     required this.selected,
@@ -24,9 +25,11 @@ class _AggregationChooserState<TItem extends Object>
 
   @override
   void initState() {
-    value = widget.selected.firstWhereOrDefault(
-            (value) => value.aggregation == widget.aggregation,
-            defaultValue: null) !=
+    value =
+        widget.selected.firstWhereOrDefault(
+          (value) => value.aggregation == widget.aggregation,
+          defaultValue: null,
+        ) !=
         null;
 
     super.initState();

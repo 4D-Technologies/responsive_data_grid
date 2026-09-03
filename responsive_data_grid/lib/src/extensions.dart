@@ -1,9 +1,9 @@
-part of responsive_data_grid;
+part of '../responsive_data_grid.dart';
 
 extension OrderCriteriaExtensions on List<OrderCriteria> {
   String toOdata() {
-    if (this.isEmpty) return "";
-    return this.map((e) {
+    if (isEmpty) return "";
+    return map((e) {
       if (e.direction == OrderDirections.descending) {
         return "${e.fieldName} desc";
       } else {
@@ -15,10 +15,10 @@ extension OrderCriteriaExtensions on List<OrderCriteria> {
 
 extension FilterCriteriaExtensions on List<FilterCriteria<dynamic>> {
   String toOdata() {
-    if (this.isEmpty) return "";
+    if (isEmpty) return "";
 
     String filter = '';
-    this.forEach((e) {
+    forEach((e) {
       if (filter.isNotEmpty) {
         if (e.op == Operators.or) {
           filter += " OR ";
@@ -74,13 +74,7 @@ extension FilterCriteriaExtensions on List<FilterCriteria<dynamic>> {
 
 extension TimeOfDayExtensions on TimeOfDay {
   DateTime toDateTime() {
-    final now = new DateTime.now();
-    return new DateTime(
-      now.year,
-      now.month,
-      now.day,
-      this.hour,
-      this.minute,
-    );
+    final now = DateTime.now();
+    return DateTime(now.year, now.month, now.day, hour, minute);
   }
 }

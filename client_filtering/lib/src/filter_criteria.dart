@@ -1,4 +1,4 @@
-part of client_filtering;
+part of '../client_filtering.dart';
 
 class FilterCriteria<TValue extends dynamic> with IJsonable {
   final String fieldName;
@@ -56,8 +56,9 @@ class FilterCriteria<TValue extends dynamic> with IJsonable {
     return FilterCriteria<TValue>(
       fieldName: fieldName == null ? this.fieldName : fieldName(),
       op: op == null ? this.op : op(),
-      logicalOperator:
-          logicalOperator == null ? this.logicalOperator : logicalOperator(),
+      logicalOperator: logicalOperator == null
+          ? this.logicalOperator
+          : logicalOperator(),
       values: values == null ? this.values : values(),
     );
   }
@@ -67,18 +68,21 @@ class FilterCriteria<TValue extends dynamic> with IJsonable {
     return 'FilterCriteria(fieldName: $fieldName, op: $op, logicalOperator: $logicalOperator, values: ${values.map((e) => _valueToString(e)).join("; ")}))';
   }
 
+  @override
   Map<String, dynamic> toJson() {
     // ignore: unnecessary_cast
     return {
-      'fieldName': fieldName,
-      'op': op.value,
-      'logicalOperator': logicalOperator.value,
-      'values': values.map((e) => _valueToString(e)).toList(),
-    } as Map<String, dynamic>;
+          'fieldName': fieldName,
+          'op': op.value,
+          'logicalOperator': logicalOperator.value,
+          'values': values.map((e) => _valueToString(e)).toList(),
+        }
+        as Map<String, dynamic>;
   }
 
   static FilterCriteria<TValue> fromJson<TValue extends dynamic>(
-      Map<String, dynamic> map) {
+    Map<String, dynamic> map,
+  ) {
     return FilterCriteria(
       fieldName: map['fieldName'].toString(),
       op: Operators.fromInt(map['op'] as int),
@@ -106,10 +110,12 @@ class FilterCriteria<TValue extends dynamic> with IJsonable {
             ? true as TValue
             : false as TValue;
       default:
-        if (TValue == TimeOfDay)
+        if (TValue == TimeOfDay) {
           return TimeOfDay.fromDateTime(DateTime.parse(value)) as TValue;
+        }
         throw UnsupportedError(
-            "The type ${TValue.toString()} is not supported for deserialization.");
+          "The type ${TValue.toString()} is not supported for deserialization.",
+        );
     }
   }
 
@@ -123,6 +129,9 @@ class FilterCriteria<TValue extends dynamic> with IJsonable {
       case IEnum:
         return value.value.toString();
       default:
+        if (value is Enum) {
+          return value.name;
+        }
         return value.toString();
     }
   }

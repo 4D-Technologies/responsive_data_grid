@@ -1,83 +1,64 @@
-part of responsive_data_grid;
+part of '../../../responsive_data_grid.dart';
 
 class DoubleColumn<TItem extends Object> extends GridColumn<TItem, double> {
   DoubleColumn({
-    required String fieldName,
+    required super.fieldName,
     ColumnHeader? header,
-    Widget? Function(TItem row)? customFieldWidget,
-    required double? Function(TItem row) value,
+    super.customFieldWidget,
+    required super.value,
     DoubleFilterRules<TItem>? filterRules,
-    OrderDirections sortDirection = OrderDirections.notSet,
-    List<AggregateCriteria>? aggregations,
+    super.sortDirection,
+    super.aggregations,
     intl.NumberFormat? format,
-    double? width,
-    double? minWidth,
-    double? maxWidth,
-    int? xlCols,
-    int? largeCols,
-    int? mediumCols,
-    int? smallCols,
-    int? xsCols,
-    TextStyle? textStyle,
-    Color? backgroundColor,
-    Color? foregroundColor,
-    Color? accentColor,
-    AlignmentGeometry alignment = Alignment.centerLeft,
+    super.width,
+    super.minWidth,
+    super.maxWidth,
+    super.xlCols,
+    super.largeCols,
+    super.mediumCols,
+    super.smallCols,
+    super.xsCols,
+    super.textStyle,
+    super.backgroundColor,
+    super.foregroundColor,
+    super.accentColor,
+    AlignmentGeometry super.alignment = Alignment.centerLeft,
   }) : super(
-          fieldName: fieldName,
-          value: value,
-          accentColor: accentColor,
-          alignment: alignment,
-          backgroundColor: backgroundColor,
-          customFieldWidget: customFieldWidget,
-          foregroundColor: foregroundColor,
-          format: (value) =>
-              format?.format(value) ?? intl.NumberFormat().format(value),
-          header: header ?? ColumnHeader(),
-          largeCols: largeCols,
-          maxWidth: maxWidth,
-          mediumCols: mediumCols,
-          minWidth: minWidth,
-          smallCols: smallCols,
-          textStyle: textStyle,
-          width: width,
-          xlCols: xlCols,
-          xsCols: xsCols,
-          filterRules: filterRules ?? DoubleFilterRules<TItem>(),
-          sortDirection: sortDirection,
-          aggregations: aggregations,
-        );
+         format: (value) =>
+             format?.format(value) ?? intl.NumberFormat().format(value),
+         header: header ?? ColumnHeader(),
+         filterRules: filterRules ?? DoubleFilterRules<TItem>(),
+       );
   @override
   List<AggregationChooser<TItem>> getAggregations({
     required Iterable<AggregateCriteria> selected,
     required void Function(AggregateCriteria aggregate, bool value) update,
-  }) =>
-      [
-        AggregationChooser(
-          column: this,
-          aggregation: Aggregations.average,
-          selected: selected,
-          update: update,
-        ),
-        AggregationChooser(
-          column: this,
-          aggregation: Aggregations.maximum,
-          selected: selected,
-          update: update,
-        ),
-        AggregationChooser(
-          column: this,
-          aggregation: Aggregations.minimum,
-          selected: selected,
-          update: update,
-        ),
-        AggregationChooser(
-          column: this,
-          aggregation: Aggregations.sum,
-          selected: selected,
-          update: update,
-        ),
-      ];
+  }) => [
+    AggregationChooser(
+      column: this,
+      aggregation: Aggregations.average,
+      selected: selected,
+      update: update,
+    ),
+    AggregationChooser(
+      column: this,
+      aggregation: Aggregations.maximum,
+      selected: selected,
+      update: update,
+    ),
+    AggregationChooser(
+      column: this,
+      aggregation: Aggregations.minimum,
+      selected: selected,
+      update: update,
+    ),
+    AggregationChooser(
+      column: this,
+      aggregation: Aggregations.sum,
+      selected: selected,
+      update: update,
+    ),
+  ];
 
   @override
   bool get hasAggregations => true;

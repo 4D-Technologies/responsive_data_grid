@@ -1,4 +1,4 @@
-part of responsive_data_grid;
+part of '../../responsive_data_grid.dart';
 
 abstract class GridColumn<TItem extends Object, TValue extends dynamic> {
   final String fieldName;
@@ -45,13 +45,13 @@ abstract class GridColumn<TItem extends Object, TValue extends dynamic> {
     required this.accentColor,
     required this.alignment,
     List<AggregateCriteria>? aggregations,
-  }) : this.aggregations =
-            aggregations ?? List<AggregateCriteria>.empty(growable: true) {
+  }) : aggregations =
+           aggregations ?? List<AggregateCriteria>.empty(growable: true) {
     assert(TItem != Object);
   }
 
   Widget getHeader(ResponsiveDataGridState<TItem> grid) {
-    if (this.header.empty) return SizedBox();
+    if (header.empty) return SizedBox();
 
     return ColumnHeaderWidget<TItem, TValue>(grid, this);
   }
