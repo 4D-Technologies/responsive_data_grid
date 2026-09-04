@@ -16,7 +16,11 @@ void main() {
     expect(find.text('Testing Title'), findsWidgets);
     expect(find.byType(MenuAnchor), findsWidgets);
 
-    await tester.tap(find.byIcon(Icons.menu).first);
+    final columnMenus = find.descendant(
+      of: find.byType(ResponsiveDataGridHeaderRowWidget<ExampleData>),
+      matching: find.byIcon(Icons.menu),
+    );
+    await tester.tap(columnMenus.first);
     await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);

@@ -70,18 +70,11 @@ class _DropDownViewState extends State<DropDownViewWidget> {
       menuChildren: [
         Builder(
           builder: (overlayContext) {
-            return ConstrainedBox(
-              constraints: BoxConstraints(
-                maxWidth: maxWidth,
-                maxHeight: maxHeight,
-              ),
-              child: SingleChildScrollView(
-                primary: false,
-                child: SizedBox(
-                  width: maxWidth,
-                  child: widget.build(overlayContext, close),
-                ),
-              ),
+            // MenuAnchor measures intrinsic width/height. A scroll viewport
+            // cannot report those, so the panel itself must be the scroller.
+            return SizedBox(
+              width: maxWidth,
+              child: widget.build(overlayContext, close),
             );
           },
         ),

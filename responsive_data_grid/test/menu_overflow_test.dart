@@ -44,8 +44,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 50));
 
     await tester.tap(find.byIcon(Icons.menu).first);
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 50));
+    await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);
     expect(find.text(LocalizedMessages.apply), findsOneWidget);
@@ -86,13 +85,11 @@ void main() {
     await tester.pump(const Duration(milliseconds: 50));
 
     await tester.tap(find.byIcon(Icons.menu).first);
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 50));
+    await tester.pumpAndSettle();
     expect(find.text(LocalizedMessages.apply), findsOneWidget);
 
     await tester.tap(find.text(LocalizedMessages.apply));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);
     expect(find.text(LocalizedMessages.apply), findsNothing);
