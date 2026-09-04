@@ -241,12 +241,9 @@ class ResponsiveDataGridState<TItem extends Object>
       } else if (widget.loadData != null) {
         response =
             await widget.loadData!(
-              LoadCriteria(
-                skip: _skipForPage(pageNumber),
-                take: _takeCount,
-                orderBy: criteria.orderBy,
-                filterBy: criteria.filterBy,
-                groupBy: criteria.groupBy,
+              criteria.copyWith(
+                skip: () => _skipForPage(pageNumber),
+                take: () => _takeCount,
               ),
             ) ??
             ListResponse(
