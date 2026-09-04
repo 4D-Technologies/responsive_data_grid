@@ -44,80 +44,78 @@ class ColumnMenu<T extends Object> extends DropDownViewWidget {
           )
         : <AggregationChooser<T>>[];
 
-    return Column(
-      children: [
-        SizedBox(height: 5),
-        Material(
-          elevation: 20,
-          type: MaterialType.card,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Visibility(
-                visible: aggregates.isNotEmpty,
-                child: SizedBox(
-                  width: 250,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(color: Colors.black38),
-                    child: Padding(
-                      padding: EdgeInsets.all(3),
-                      child: Text("Aggregates"),
+    return Material(
+      elevation: 4,
+      type: MaterialType.card,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (aggregates.isNotEmpty)
+            DecoratedBox(
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surfaceContainerHighest,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: Text(
+                  "Aggregates",
+                  style: theme.textTheme.labelLarge,
+                ),
+              ),
+            ),
+          ...aggregates,
+          DecoratedBox(
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surfaceContainerHighest,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: Text("Filter", style: theme.textTheme.labelLarge),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            child: column.filterRules.showFilter(column, gridState),
+          ),
+          const Divider(height: 1),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextButton.icon(
+                    onPressed: () {
+                      column.aggregations.clear();
+                      column.filterRules.criteria = null;
+                      close(context);
+                      gridState.refreshData();
+                    },
+                    icon: const Icon(Icons.clear_all),
+                    label: Text(
+                      LocalizedMessages.clear,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ),
-              ),
-              ...aggregates,
-              SizedBox(
-                width: 250,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(color: Colors.black38),
-                  child: Padding(
-                    padding: EdgeInsets.all(3),
-                    child: Text("Filter"),
+                Expanded(
+                  child: TextButton.icon(
+                    onPressed: () {
+                      close(context);
+                      gridState.refreshData();
+                    },
+                    icon: const Icon(Icons.save),
+                    label: Text(
+                      LocalizedMessages.apply,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ),
-              ),
-              column.filterRules.showFilter(column, gridState),
-              Divider(),
-              Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  TextButton.icon(
-                    onPressed: () async {
-                      final navigator = Navigator.of(
-                        context,
-                        rootNavigator: true,
-                      );
-                      final route = ModalRoute.of(context);
-                      column.aggregations.clear();
-                      column.filterRules.criteria = null;
-                      await gridState.refreshData();
-                      _popMenuIfCurrent(navigator, route);
-                    },
-                    icon: Icon(Icons.clear_all),
-                    label: Text(LocalizedMessages.clear),
-                  ),
-                  TextButton.icon(
-                    onPressed: () async {
-                      final navigator = Navigator.of(
-                        context,
-                        rootNavigator: true,
-                      );
-                      final route = ModalRoute.of(context);
-                      await gridState.refreshData();
-                      _popMenuIfCurrent(navigator, route);
-                    },
-                    icon: Icon(Icons.save),
-                    label: Text(LocalizedMessages.apply),
-                  ),
-                ],
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

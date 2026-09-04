@@ -52,14 +52,9 @@ class GroupMenu<TItem extends Object> extends DropDownViewWidget {
                       "Apply",
                       style: theme.gridLabelLarge,
                     ),
-                    onPressed: () async {
-                      final navigator = Navigator.of(
-                        context,
-                        rootNavigator: true,
-                      );
-                      final route = ModalRoute.of(context);
-                      await gridState.updateGroup(group);
-                      _popMenuIfCurrent(navigator, route);
+                    onPressed: () {
+                      close(context);
+                      gridState.updateGroup(group);
                     },
                     icon: Icon(Icons.save, color: theme.colorScheme.onPrimary),
                   ),
@@ -71,15 +66,10 @@ class GroupMenu<TItem extends Object> extends DropDownViewWidget {
                       "Clear All",
                       style: theme.gridLabelLarge,
                     ),
-                    onPressed: () async {
-                      final navigator = Navigator.of(
-                        context,
-                        rootNavigator: true,
-                      );
-                      final route = ModalRoute.of(context);
+                    onPressed: () {
                       group.aggregates.clear();
-                      await gridState.updateGroup(group);
-                      _popMenuIfCurrent(navigator, route);
+                      close(context);
+                      gridState.updateGroup(group);
                     },
                     icon: Icon(
                       Icons.clear_all,

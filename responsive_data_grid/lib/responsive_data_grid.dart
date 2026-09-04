@@ -42,6 +42,7 @@ part './src/rules/filter.dart';
 
 part './src/grid.dart';
 part './src/grid_state.dart';
+part './src/grid_layout.dart';
 part './src/extensions.dart';
 
 part './src/widgets/column_header.dart';

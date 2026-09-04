@@ -49,6 +49,7 @@ class DataGridStringColumnFilterState<TItem extends Object>
       mainAxisSize: MainAxisSize.min,
       children: [
         DropdownButtonFormField<Logic?>(
+          isExpanded: true,
           elevation: 30,
           items: [
             DropdownMenuItem(value: null, child: Text(LocalizedMessages.any)),
