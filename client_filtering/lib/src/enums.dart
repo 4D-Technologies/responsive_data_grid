@@ -67,12 +67,16 @@ enum Logic implements IEnum {
   greaterThanOrEqualTo(5),
   contains(6),
   notContains(7),
-  endsWidth(8),
+  endsWith(8),
   startsWith(9),
   notEqual(10),
   notEndsWith(12),
   notStartsWith(11),
   between(13);
+
+  /// Typo kept as a public alias so existing call sites keep compiling.
+  @Deprecated('Use Logic.endsWith')
+  static const Logic endsWidth = Logic.endsWith;
 
   @override
   final int value;
@@ -99,7 +103,7 @@ enum Logic implements IEnum {
         return ClientFilteringLocalizedMessages.contains;
       case Logic.notContains:
         return ClientFilteringLocalizedMessages.notContains;
-      case Logic.endsWidth:
+      case Logic.endsWith:
         return ClientFilteringLocalizedMessages.endsWith;
       case Logic.startsWith:
         return ClientFilteringLocalizedMessages.startsWith;

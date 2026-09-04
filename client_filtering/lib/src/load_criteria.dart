@@ -223,7 +223,7 @@ class LoadCriteria with IJsonable {
             return !value.contains(cValue);
           }).toList();
           break;
-        case Logic.endsWidth:
+        case Logic.endsWith:
           items = items.where((e) {
             final dynamic value = getFieldValue(criteria.fieldName, e);
             final dynamic cValue = criteria.values.isEmpty
