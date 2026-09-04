@@ -42,29 +42,52 @@ class ListResponse<T> extends SimpleListResponse<T> {
     var items = criteria.filterItems(data: data, getFieldValue: getFieldValue);
     items = criteria.orderItems(items: items, getFieldValue: getFieldValue);
 
-    //Create data page
+    //Create Groups from the full filtered set, then page groups (not rows)
+    // so a group is not split across pages.
     List<T> pageItems;
-    if (criteria.skip != null && criteria.take != null) {
-      pageItems = items.skip(criteria.skip!).take(criteria.take!).toList();
-    } else if (criteria.skip != null) {
-      pageItems = items.skip(criteria.skip!).toList();
-    } else if (criteria.take != null) {
-      pageItems = items.take(criteria.take!).toList();
-    } else {
-      pageItems = List<T>.from(items);
-    }
-
-    //Create Groups
     List<GroupResult> groupResults;
+    int totalCount;
     if (criteria.groupBy == null || criteria.groupBy!.isEmpty) {
       groupResults = List<GroupResult>.empty();
+      if (criteria.skip != null && criteria.take != null) {
+        pageItems = items.skip(criteria.skip!).take(criteria.take!).toList();
+      } else if (criteria.skip != null) {
+        pageItems = items.skip(criteria.skip!).toList();
+      } else if (criteria.take != null) {
+        pageItems = items.take(criteria.take!).toList();
+      } else {
+        pageItems = List<T>.from(items);
+      }
+      totalCount = items.length;
     } else {
-      groupResults = criteria.groupItems(
+      final allGroups = criteria.groupItems(
         criteria: criteria.groupBy!.first,
-        items: pageItems,
+        items: items,
         allItems: items,
         getFieldValue: getFieldValue,
       );
+      totalCount = allGroups.length;
+      if (criteria.skip != null && criteria.take != null) {
+        groupResults = allGroups
+            .skip(criteria.skip!)
+            .take(criteria.take!)
+            .toList();
+      } else if (criteria.skip != null) {
+        groupResults = allGroups.skip(criteria.skip!).toList();
+      } else if (criteria.take != null) {
+        groupResults = allGroups.take(criteria.take!).toList();
+      } else {
+        groupResults = allGroups;
+      }
+      final groupValues = groupResults.map((g) => g.value).toSet();
+      final groupField = criteria.groupBy!.first.fieldName;
+      pageItems = items
+          .where(
+            (e) => groupValues.contains(
+              getFieldValue(groupField, e)?.toString(),
+            ),
+          )
+          .toList();
     }
 
     //Create overall aggregates
@@ -84,7 +107,7 @@ class ListResponse<T> extends SimpleListResponse<T> {
     }
 
     return ListResponse<T>(
-      totalCount: items.length,
+      totalCount: totalCount,
       items: pageItems,
       groups: groupResults,
       aggregates: aggregates,
