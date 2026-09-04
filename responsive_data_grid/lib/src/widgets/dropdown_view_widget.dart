@@ -27,7 +27,10 @@ class _DropDownViewState extends State<DropDownViewWidget> {
   }
 
   void close(BuildContext context) {
-    Navigator.of(context).pop();
+    _popMenuIfCurrent(
+      Navigator.of(context, rootNavigator: true),
+      ModalRoute.of(context),
+    );
   }
 
   @override
@@ -43,7 +46,7 @@ class _DropDownViewState extends State<DropDownViewWidget> {
         padding: EdgeInsets.zero,
       ),
       icon: widget.icon,
-      color: widget.theme.buttonTheme.colorScheme!.primary,
+      color: widget.theme.gridPrimaryColor,
       onPressed: (() {
         showAlignedDialog<void>(
           avoidOverflow: true,
@@ -55,10 +58,16 @@ class _DropDownViewState extends State<DropDownViewWidget> {
           offset: Offset(32, 0),
           builder: (BuildContext ctx) => SizedBox(
             width: widget.dropDownWidth,
-            child: SingleChildScrollView(child: widget.build(context, close)),
+            child: SingleChildScrollView(child: widget.build(ctx, close)),
           ),
         );
       }),
     );
+  }
+}
+
+void _popMenuIfCurrent(NavigatorState navigator, Route<dynamic>? route) {
+  if (route != null && route.isCurrent && navigator.canPop()) {
+    navigator.pop();
   }
 }

@@ -50,13 +50,16 @@ class GroupMenu<TItem extends Object> extends DropDownViewWidget {
                   child: TextButton.icon(
                     label: Text(
                       "Apply",
-                      style: theme.primaryTextTheme.labelLarge,
+                      style: theme.gridLabelLarge,
                     ),
                     onPressed: () async {
+                      final navigator = Navigator.of(
+                        context,
+                        rootNavigator: true,
+                      );
+                      final route = ModalRoute.of(context);
                       await gridState.updateGroup(group);
-                      if (context.mounted) {
-                        close(context);
-                      }
+                      _popMenuIfCurrent(navigator, route);
                     },
                     icon: Icon(Icons.save, color: theme.colorScheme.onPrimary),
                   ),
@@ -66,14 +69,17 @@ class GroupMenu<TItem extends Object> extends DropDownViewWidget {
                   child: TextButton.icon(
                     label: Text(
                       "Clear All",
-                      style: theme.primaryTextTheme.labelLarge,
+                      style: theme.gridLabelLarge,
                     ),
                     onPressed: () async {
+                      final navigator = Navigator.of(
+                        context,
+                        rootNavigator: true,
+                      );
+                      final route = ModalRoute.of(context);
                       group.aggregates.clear();
                       await gridState.updateGroup(group);
-                      if (context.mounted) {
-                        close(context);
-                      }
+                      _popMenuIfCurrent(navigator, route);
                     },
                     icon: Icon(
                       Icons.clear_all,
@@ -85,7 +91,7 @@ class GroupMenu<TItem extends Object> extends DropDownViewWidget {
                 TextButton.icon(
                   label: Text(
                     "Remove Group",
-                    style: theme.primaryTextTheme.labelLarge,
+                    style: theme.gridLabelLarge,
                   ),
                   onPressed: () => removeGroup(group),
                   icon: Icon(Icons.delete, color: theme.colorScheme.error),

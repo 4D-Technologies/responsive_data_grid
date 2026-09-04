@@ -37,7 +37,7 @@ class GridGroupChooser<TItem> extends StatelessWidget {
                   padding: EdgeInsets.only(right: 4),
                   child: DecoratedBox(
                     decoration: BoxDecoration(
-                      color: theme.buttonTheme.colorScheme!.surface,
+                      color: theme.gridSurfaceColor,
                     ),
                     child: Padding(
                       padding: EdgeInsets.only(
@@ -113,7 +113,7 @@ class GridGroupChooser<TItem> extends StatelessWidget {
         padding: EdgeInsets.only(top: 4, bottom: 4),
         child: DecoratedBox(
           decoration: BoxDecoration(
-            color: theme.buttonTheme.colorScheme!.surface,
+            color: theme.gridSurfaceColor,
           ),
           child: Padding(
             padding: theme.buttonTheme.padding,

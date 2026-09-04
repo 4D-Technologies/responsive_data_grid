@@ -19,7 +19,7 @@ class GridGroupHeader extends StatelessWidget {
             // ),
             Text(
               group.value ?? LocalizedMessages.noEntry,
-              style: theme.primaryTextTheme.titleSmall,
+              style: theme.gridTitleSmall,
             ),
           ],
         ),

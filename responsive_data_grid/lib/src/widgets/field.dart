@@ -14,7 +14,7 @@ class DataGridFieldWidget<TItem extends Object, TValue extends dynamic>
     final effectiveDataTextStyle =
         definition.textStyle ??
         theme.dataTableTheme.dataTextStyle ??
-        theme.primaryTextTheme.bodyMedium!;
+        theme.gridBodyMedium;
 
     Widget? child;
     if (definition.customFieldWidget != null) {
