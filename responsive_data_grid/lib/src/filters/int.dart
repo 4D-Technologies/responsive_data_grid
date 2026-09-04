@@ -78,6 +78,13 @@ class DataGridIntColumnFilterState<TItem extends Object>
   }
 
   @override
+  void dispose() {
+    tecValue1.dispose();
+    tecValue2.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.max,
