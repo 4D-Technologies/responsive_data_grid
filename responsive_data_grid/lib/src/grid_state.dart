@@ -27,8 +27,53 @@ class ResponsiveDataGridState<TItem extends Object>
   @override
   initState() {
     super.initState();
-    criteria =
-        widget.initialLoadCriteria?.copyWith(
+    criteria = _criteriaFromInitial();
+
+    refreshData();
+  }
+
+  @override
+  void dispose() {
+    _dataCache.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant ResponsiveDataGrid<TItem> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (_parentRequiresReload(oldWidget)) {
+      if (oldWidget.initialLoadCriteria != widget.initialLoadCriteria) {
+        criteria = _criteriaFromInitial();
+      }
+      refreshData();
+    }
+  }
+
+  bool _parentRequiresReload(ResponsiveDataGrid<TItem> oldWidget) {
+    return !identical(oldWidget.items, widget.items) ||
+        oldWidget.loadData != widget.loadData ||
+        oldWidget.initialLoadCriteria != widget.initialLoadCriteria ||
+        oldWidget.pageSize != widget.pageSize ||
+        oldWidget.pagingMode != widget.pagingMode ||
+        oldWidget.maximumRows != widget.maximumRows ||
+        _columnsChanged(oldWidget.columns, widget.columns);
+  }
+
+  bool _columnsChanged(
+    List<GridColumn<TItem, dynamic>> oldColumns,
+    List<GridColumn<TItem, dynamic>> newColumns,
+  ) {
+    if (identical(oldColumns, newColumns)) return false;
+    if (oldColumns.length != newColumns.length) return true;
+    for (var i = 0; i < newColumns.length; i++) {
+      if (oldColumns[i].fieldName != newColumns[i].fieldName) return true;
+    }
+    return false;
+  }
+
+  LoadCriteria _criteriaFromInitial() {
+    return widget.initialLoadCriteria?.copyWith(
           take: () => widget.initialLoadCriteria!.take ?? _takeCount,
           groupBy: () =>
               widget.initialLoadCriteria!.groupBy ??
@@ -45,31 +90,20 @@ class ResponsiveDataGridState<TItem extends Object>
               .selectMany((element, index) => element)
               .toList(),
         );
-
-    refreshData();
-  }
-
-  @override
-  void dispose() {
-    _dataCache.dispose();
-    super.dispose();
   }
 
   Future<void> updateFilterCriteria(
     List<FilterCriteria<dynamic>> filterCriteria,
   ) async {
-    setState(() {
-      isLoading = true;
-      criteria = criteria.copyWith(filterBy: () => filterCriteria);
+    for (final filter in filterCriteria) {
+      for (final column in widget.columns) {
+        if (column.fieldName == filter.fieldName) {
+          column.filterRules.criteria = filter;
+        }
+      }
+    }
 
-      _dataCache.clear();
-    });
-
-    setState(() {
-      isLoading = false;
-
-      _rebuildAllChildren();
-    });
+    await refreshData();
   }
 
   FutureOr<void> refreshData() async {
@@ -362,7 +396,10 @@ class ResponsiveDataGridState<TItem extends Object>
                 }
 
                 return NotificationListener<GridCriteriaChangeNotification>(
-                  onNotification: (notification) => false,
+                  onNotification: (notification) {
+                    refreshData();
+                    return true;
+                  },
                   child: Column(
                     mainAxisSize: !constraints.hasBoundedHeight
                         ? MainAxisSize.min
@@ -388,20 +425,8 @@ class ResponsiveDataGridState<TItem extends Object>
   }
 
   void _updateAllRules() {
-    criteria = LoadCriteria();
-    for (var c in widget.columns) {
-      if (c.sortDirection != OrderDirections.notSet) {
-        criteria.orderBy.add(
-          OrderCriteria(fieldName: c.fieldName, direction: c.sortDirection),
-        );
-      }
-
-      if (c.filterRules.criteria != null) {
-        criteria.filterBy.add(c.filterRules.criteria!);
-      }
-    }
-
-    _rebuildAllChildren();
+    refreshData();
+    GridCriteriaChangeNotification().dispatch(context);
   }
 
   void _updateOrderByCriteria<TValue extends dynamic>(
