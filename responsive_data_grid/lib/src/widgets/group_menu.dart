@@ -57,10 +57,9 @@ class GroupMenu<TItem extends Object> extends DropDownViewWidget {
                         context,
                         rootNavigator: true,
                       );
+                      final route = ModalRoute.of(context);
                       await gridState.updateGroup(group);
-                      if (navigator.canPop()) {
-                        navigator.pop();
-                      }
+                      _popMenuIfCurrent(navigator, route);
                     },
                     icon: Icon(Icons.save, color: theme.colorScheme.onPrimary),
                   ),
@@ -77,11 +76,10 @@ class GroupMenu<TItem extends Object> extends DropDownViewWidget {
                         context,
                         rootNavigator: true,
                       );
+                      final route = ModalRoute.of(context);
                       group.aggregates.clear();
                       await gridState.updateGroup(group);
-                      if (navigator.canPop()) {
-                        navigator.pop();
-                      }
+                      _popMenuIfCurrent(navigator, route);
                     },
                     icon: Icon(
                       Icons.clear_all,

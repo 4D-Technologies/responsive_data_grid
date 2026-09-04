@@ -88,12 +88,11 @@ class ColumnMenu<T extends Object> extends DropDownViewWidget {
                         context,
                         rootNavigator: true,
                       );
+                      final route = ModalRoute.of(context);
                       column.aggregations.clear();
                       column.filterRules.criteria = null;
                       await gridState.refreshData();
-                      if (navigator.canPop()) {
-                        navigator.pop();
-                      }
+                      _popMenuIfCurrent(navigator, route);
                     },
                     icon: Icon(Icons.clear_all),
                     label: Text(LocalizedMessages.clear),
@@ -104,10 +103,9 @@ class ColumnMenu<T extends Object> extends DropDownViewWidget {
                         context,
                         rootNavigator: true,
                       );
+                      final route = ModalRoute.of(context);
                       await gridState.refreshData();
-                      if (navigator.canPop()) {
-                        navigator.pop();
-                      }
+                      _popMenuIfCurrent(navigator, route);
                     },
                     icon: Icon(Icons.save),
                     label: Text(LocalizedMessages.apply),

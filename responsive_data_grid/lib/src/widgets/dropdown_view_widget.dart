@@ -27,10 +27,10 @@ class _DropDownViewState extends State<DropDownViewWidget> {
   }
 
   void close(BuildContext context) {
-    final navigator = Navigator.of(context, rootNavigator: true);
-    if (navigator.canPop()) {
-      navigator.pop();
-    }
+    _popMenuIfCurrent(
+      Navigator.of(context, rootNavigator: true),
+      ModalRoute.of(context),
+    );
   }
 
   @override
@@ -63,5 +63,11 @@ class _DropDownViewState extends State<DropDownViewWidget> {
         );
       }),
     );
+  }
+}
+
+void _popMenuIfCurrent(NavigatorState navigator, Route<dynamic>? route) {
+  if (route != null && route.isCurrent && navigator.canPop()) {
+    navigator.pop();
   }
 }
