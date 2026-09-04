@@ -34,6 +34,22 @@ class LoadCriteria with IJsonable {
               OrderCriteria.fromJson(model as Map<String, dynamic>),
         )
         .toList(),
+    groupBy: json["groupBy"] == null
+        ? null
+        : (json["groupBy"] as List)
+              .map<GroupCriteria>(
+                (dynamic model) =>
+                    GroupCriteria.fromJson(model as Map<String, dynamic>),
+              )
+              .toList(),
+    aggregates: json["aggregates"] == null
+        ? null
+        : (json["aggregates"] as List)
+              .map<AggregateCriteria>(
+                (dynamic model) =>
+                    AggregateCriteria.fromJson(model as Map<String, dynamic>),
+              )
+              .toList(),
   );
 
   @override
@@ -44,12 +60,21 @@ class LoadCriteria with IJsonable {
         other.skip == skip &&
         other.take == take &&
         listEquals(other.filterBy, filterBy) &&
-        listEquals(other.orderBy, orderBy);
+        listEquals(other.orderBy, orderBy) &&
+        listEquals(other.groupBy ?? const [], groupBy ?? const []) &&
+        listEquals(other.aggregates ?? const [], aggregates ?? const []);
   }
 
   @override
   int get hashCode {
-    return skip.hashCode ^ take.hashCode ^ filterBy.hashCode ^ orderBy.hashCode;
+    return Object.hash(
+      skip,
+      take,
+      Object.hashAll(filterBy),
+      Object.hashAll(orderBy),
+      Object.hashAll(groupBy ?? const []),
+      Object.hashAll(aggregates ?? const []),
+    );
   }
 
   LoadCriteria copyWith({
@@ -78,6 +103,8 @@ class LoadCriteria with IJsonable {
           'take': take,
           'filterBy': filterBy.map((x) => x.toJson()).toList(),
           'orderBy': orderBy.map((x) => x.toJson()).toList(),
+          'groupBy': groupBy?.map((x) => x.toJson()).toList(),
+          'aggregates': aggregates?.map((x) => x.toJson()).toList(),
         }
         as Map<String, dynamic>;
   }

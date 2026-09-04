@@ -13,7 +13,9 @@ class GroupCriteria with IJsonable {
 
   factory GroupCriteria.fromJson(Map<String, dynamic> json) => GroupCriteria(
     fieldName: json['fieldName'].toString(),
-    direction: OrderDirections.fromInt(json['directions'] as int),
+    direction: OrderDirections.fromInt(
+      (json['direction'] ?? json['directions']) as int,
+    ),
     aggregates: (json["aggregates"] as List)
         .map<AggregateCriteria>(
           (dynamic model) =>
@@ -29,12 +31,12 @@ class GroupCriteria with IJsonable {
     return other is GroupCriteria &&
         other.fieldName == fieldName &&
         other.direction == direction &&
-        other.aggregates == aggregates;
+        listEquals(other.aggregates, aggregates);
   }
 
   @override
   int get hashCode {
-    return fieldName.hashCode ^ direction.hashCode ^ aggregates.hashCode;
+    return Object.hash(fieldName, direction, Object.hashAll(aggregates));
   }
 
   GroupCriteria copyWith({
