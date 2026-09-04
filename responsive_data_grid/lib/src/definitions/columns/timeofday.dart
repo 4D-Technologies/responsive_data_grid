@@ -57,12 +57,6 @@ class TimeOfDayColumn<TItem extends Object>
       selected: selected,
       update: update,
     ),
-    AggregationChooser(
-      column: this,
-      aggregation: Aggregations.sum,
-      selected: selected,
-      update: update,
-    ),
   ];
 
   @override

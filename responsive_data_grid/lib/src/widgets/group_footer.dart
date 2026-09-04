@@ -19,7 +19,9 @@ class GridGroupFooter<TItem extends Object> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
-      decoration: BoxDecoration(color: Colors.black26),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHigh,
+      ),
       child: Padding(
         padding: EdgeInsets.only(left: 3, top: 3, bottom: 3, right: 3),
         child: BootstrapRow(
@@ -50,8 +52,10 @@ class GridGroupFooter<TItem extends Object> extends StatelessWidget {
               .where((g) => g.fieldName == c.fieldName && g.result != null)
               .map(
                 (agg) => Text(
-                  "${agg.aggregation.toString()}: ${agg.formatResult(null)}",
-                  style: theme.textTheme.labelMedium,
+                  "${agg.aggregation}: ${agg.formatResult()}",
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: theme.colorScheme.onSurface,
+                  ),
                 ),
               )
               .toList(),

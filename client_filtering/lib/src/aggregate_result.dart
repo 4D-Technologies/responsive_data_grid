@@ -37,7 +37,7 @@ class AggregateResult {
     return fieldName.hashCode ^ aggregation.hashCode ^ result.hashCode;
   }
 
-  String? formatResult(String? format) {
+  String? formatResult([String? format]) {
     if (result == null) return "";
 
     switch (aggregation) {
