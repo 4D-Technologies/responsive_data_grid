@@ -36,6 +36,7 @@ class ColumnHeader {
         other.textAlign == textAlign &&
         other.showFilter == showFilter &&
         other.showOrderBy == showOrderBy &&
+        other.showAggregations == showAggregations &&
         other.textStyle == textStyle &&
         other.backgroundColor == backgroundColor &&
         other.foregroundColor == foregroundColor;
@@ -49,6 +50,7 @@ class ColumnHeader {
         textAlign.hashCode ^
         showFilter.hashCode ^
         showOrderBy.hashCode ^
+        showAggregations.hashCode ^
         textStyle.hashCode ^
         backgroundColor.hashCode ^
         foregroundColor.hashCode;
@@ -56,7 +58,7 @@ class ColumnHeader {
 
   @override
   String toString() {
-    return 'ColumnHeader(empty: $empty, text: $text, alignment: $alignment, textAlign: $textAlign, showMenu: $showMenu, textStyle: $textStyle, backgroundColor: $backgroundColor, foregroundColor: $foregroundColor)';
+    return 'ColumnHeader(empty: $empty, text: $text, alignment: $alignment, textAlign: $textAlign, showFilter: $showFilter, showOrderBy: $showOrderBy, showAggregations: $showAggregations, textStyle: $textStyle, backgroundColor: $backgroundColor, foregroundColor: $foregroundColor)';
   }
 
   ColumnHeader copyWith({
@@ -66,6 +68,7 @@ class ColumnHeader {
     TextAlign Function()? textAlign,
     bool Function()? showFilter,
     bool Function()? showOrderBy,
+    bool Function()? showAggregations,
     TextStyle? Function()? textStyle,
     Color? Function()? backgroundColor,
     Color? Function()? foregroundColor,
@@ -76,7 +79,10 @@ class ColumnHeader {
       alignment: alignment == null ? this.alignment : alignment(),
       textAlign: textAlign == null ? this.textAlign : textAlign(),
       showFilter: showFilter == null ? this.showFilter : showFilter(),
-      showOrderBy: showOrderBy == null ? this.showFilter : showOrderBy(),
+      showOrderBy: showOrderBy == null ? this.showOrderBy : showOrderBy(),
+      showAggregations: showAggregations == null
+          ? this.showAggregations
+          : showAggregations(),
       textStyle: textStyle == null ? this.textStyle : textStyle(),
       backgroundColor: backgroundColor == null
           ? this.backgroundColor

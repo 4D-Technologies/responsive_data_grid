@@ -149,7 +149,8 @@ class ColumnHeaderState<TItem extends Object, TValue extends dynamic>
       );
     }
 
-    if (header.showFilter || header.showAggregations) {
+    if (header.showFilter ||
+        (header.showAggregations && grid.widget.allowAggregations)) {
       items.add(
         ColumnMenu(
           column: widget.definition,

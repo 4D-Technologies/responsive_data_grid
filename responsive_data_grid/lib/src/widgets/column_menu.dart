@@ -37,10 +37,12 @@ class ColumnMenu<T extends Object> extends DropDownViewWidget {
     BuildContext context,
     void Function(BuildContext context) close,
   ) {
-    final aggregates = column.getAggregations(
-      selected: column.aggregations,
-      update: updateAggregations,
-    );
+    final aggregates = gridState.widget.allowAggregations
+        ? column.getAggregations(
+            selected: column.aggregations,
+            update: updateAggregations,
+          )
+        : <AggregationChooser<T>>[];
 
     return Column(
       children: [
