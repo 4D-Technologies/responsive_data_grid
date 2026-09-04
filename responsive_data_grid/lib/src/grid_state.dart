@@ -163,9 +163,8 @@ class ResponsiveDataGridState<TItem extends Object>
 
     try {
       await fetchPage(pageNumber, false);
-    } catch (error, stackTrace) {
+    } catch (error) {
       loadError = error;
-      widget.onLoadError?.call(error, stackTrace);
     } finally {
       if (mounted) {
         setState(() {
@@ -230,6 +229,9 @@ class ResponsiveDataGridState<TItem extends Object>
       }
 
       return response;
+    } catch (error, stackTrace) {
+      widget.onLoadError?.call(error, stackTrace);
+      rethrow;
     } finally {
       if (updateState && mounted) {
         setState(() => isLoading = false);
