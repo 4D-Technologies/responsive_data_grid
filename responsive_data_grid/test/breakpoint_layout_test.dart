@@ -80,39 +80,33 @@ void _expectSingleHeaderRow(WidgetTester tester) {
   final id = tester.getTopLeft(find.text('Id').first);
   for (final label in ['Name', 'Date of Birth', 'Accepted', 'Enum']) {
     final pos = tester.getTopLeft(find.text(label).first);
-    expect(pos.dy, closeTo(id.dy, 2), reason: '$label wrapped off the header row');
+    expect(
+      pos.dy,
+      closeTo(id.dy, 2),
+      reason: '$label wrapped off the header row',
+    );
   }
-  expect(tester.getTopLeft(find.text('Enum').first).dx, greaterThan(tester.getTopLeft(find.text('Id').first).dx));
+  expect(
+    tester.getTopLeft(find.text('Enum').first).dx,
+    greaterThan(tester.getTopLeft(find.text('Id').first).dx),
+  );
 }
 
 void main() {
-  testWidgets('xs 400: header stays one row', (tester) async {
-    await _pumpAt(tester, const Size(400, 700));
-    _expectSingleHeaderRow(tester);
-  });
+  // Bootstrap cutovers: xs<576, sm>=576, md>=768, lg>=992, xl>=1200, xxl>=1600.
+  const sizes = <String, Size>{
+    'xs 400': Size(400, 700),
+    'sm 600': Size(600, 700),
+    'md 800': Size(800, 700),
+    'lg 1000': Size(1000, 700),
+    'xl 1300': Size(1300, 800),
+    'xxl 1700': Size(1700, 900),
+  };
 
-  testWidgets('sm 600: header stays one row', (tester) async {
-    await _pumpAt(tester, const Size(600, 700));
-    _expectSingleHeaderRow(tester);
-  });
-
-  testWidgets('md 800: header stays one row', (tester) async {
-    await _pumpAt(tester, const Size(800, 700));
-    _expectSingleHeaderRow(tester);
-  });
-
-  testWidgets('lg 1000: header stays one row', (tester) async {
-    await _pumpAt(tester, const Size(1000, 700));
-    _expectSingleHeaderRow(tester);
-  });
-
-  testWidgets('xl 1300: header stays one row', (tester) async {
-    await _pumpAt(tester, const Size(1300, 800));
-    _expectSingleHeaderRow(tester);
-  });
-
-  testWidgets('xxl 1700: header stays one row', (tester) async {
-    await _pumpAt(tester, const Size(1700, 900));
-    _expectSingleHeaderRow(tester);
-  });
+  for (final entry in sizes.entries) {
+    testWidgets('${entry.key}: header stays one row', (tester) async {
+      await _pumpAt(tester, entry.value);
+      _expectSingleHeaderRow(tester);
+    });
+  }
 }
