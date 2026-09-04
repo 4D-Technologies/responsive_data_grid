@@ -22,17 +22,19 @@ class _ResponsiveGridInfiniteScrollBodyWidgetState<TItem extends Object>
     getNextPageKey: (state) => (state.keys?.last ?? 0) + 1,
     fetchPage: (pageKey) => _fetchPage(pageKey),
   );
+  late final StreamSubscription<void> _onClearedSub;
 
   @override
   void initState() {
     super.initState();
-    widget.gridState._dataCache.onCleared.listen((void v) {
+    _onClearedSub = widget.gridState._dataCache.onCleared.listen((void v) {
       _controller.refresh();
     });
   }
 
   @override
   void dispose() {
+    _onClearedSub.cancel();
     _controller.dispose();
     super.dispose();
   }
