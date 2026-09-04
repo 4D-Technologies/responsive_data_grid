@@ -6,6 +6,7 @@ class ResponsiveDataGridState<TItem extends Object>
   int pageNumber = 1;
 
   var isLoading = false;
+  Object? loadError;
 
   final _dataCache = ResponseCache<TItem>();
 
@@ -67,6 +68,7 @@ class ResponsiveDataGridState<TItem extends Object>
   FutureOr<void> refreshData() async {
     setState(() {
       isLoading = true;
+      loadError = null;
       criteria = criteria.copyWith(
         skip: () => (pageNumber - 1) * widget.pageSize,
         take: () => widget.pageSize,
@@ -92,11 +94,15 @@ class ResponsiveDataGridState<TItem extends Object>
       _dataCache.clear();
     });
 
-    await setPage(1);
-
-    setState(() {
-      isLoading = false;
-    });
+    try {
+      await setPage(1);
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
   }
 
   FutureOr<void> addGroup(GroupCriteria group) async {
@@ -126,7 +132,10 @@ class ResponsiveDataGridState<TItem extends Object>
   }
 
   FutureOr<void> setPage(int pageNumber) async {
-    setState(() => isLoading = true);
+    setState(() {
+      isLoading = true;
+      loadError = null;
+    });
 
     this.pageNumber = pageNumber;
 
@@ -152,11 +161,17 @@ class ResponsiveDataGridState<TItem extends Object>
           .toList(),
     );
 
-    await fetchPage(pageNumber, false);
-
-    setState(() {
-      isLoading = false;
-    });
+    try {
+      await fetchPage(pageNumber, false);
+    } catch (error) {
+      loadError = error;
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
   }
 
   Future<ListResponse<TItem>> fetchPage(
@@ -173,41 +188,55 @@ class ResponsiveDataGridState<TItem extends Object>
       setState(() => isLoading = true);
     }
 
-    if (widget.items != null) {
-      response = ListResponse.fromData(
-        data: widget.items!,
-        criteria: criteria,
-        getFieldValue: (fieldName, item) => widget.columns
-            .firstWhere((c) => c.fieldName == fieldName)
-            .value(item),
-      );
-    } else if (widget.loadData != null) {
-      response =
-          await widget.loadData!(
-            LoadCriteria(
-              skip: (pageNumber - 1) * widget.pageSize,
-              take: widget.pageSize,
-              orderBy: criteria.orderBy,
-              filterBy: criteria.filterBy,
-              groupBy: criteria.groupBy,
-            ),
-          ) ??
-          ListResponse(totalCount: 0, items: [], groups: [], aggregates: []);
-    } else {
-      throw UnsupportedError(
-        "Either the items must be specified OR the loadData function must be specified.",
-      );
-    }
+    try {
+      if (widget.items != null) {
+        response = ListResponse.fromData(
+          data: widget.items!,
+          criteria: criteria,
+          getFieldValue: (fieldName, item) => widget.columns
+              .firstWhere((c) => c.fieldName == fieldName)
+              .value(item),
+        );
+      } else if (widget.loadData != null) {
+        response =
+            await widget.loadData!(
+              LoadCriteria(
+                skip: (pageNumber - 1) * widget.pageSize,
+                take: widget.pageSize,
+                orderBy: criteria.orderBy,
+                filterBy: criteria.filterBy,
+                groupBy: criteria.groupBy,
+              ),
+            ) ??
+            ListResponse(
+              totalCount: 0,
+              items: [],
+              groups: [],
+              aggregates: [],
+            );
+      } else {
+        throw UnsupportedError(
+          "Either the items must be specified OR the loadData function must be specified.",
+        );
+      }
 
-    if (updateState) {
-      setState(() {
+      if (updateState) {
+        setState(() {
+          _dataCache.addPage(response, pageNumber);
+        });
+      } else {
         _dataCache.addPage(response, pageNumber);
-      });
-    } else {
-      _dataCache.addPage(response, pageNumber);
-    }
+      }
 
-    return response;
+      return response;
+    } catch (error, stackTrace) {
+      widget.onLoadError?.call(error, stackTrace);
+      rethrow;
+    } finally {
+      if (updateState && mounted) {
+        setState(() => isLoading = false);
+      }
+    }
   }
 
   @override
@@ -275,6 +304,28 @@ class ResponsiveDataGridState<TItem extends Object>
                     constraints.hasBoundedHeight
                         ? Expanded(child: spinner)
                         : spinner,
+                  );
+                } else if (loadError != null) {
+                  final errorView = Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(LocalizedMessages.loadFailed),
+                          const SizedBox(height: 8),
+                          TextButton(
+                            onPressed: () => refreshData(),
+                            child: Text(LocalizedMessages.retry),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                  parts.add(
+                    constraints.hasBoundedHeight
+                        ? Expanded(child: errorView)
+                        : errorView,
                   );
                 } else {
                   parts.add(

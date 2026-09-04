@@ -90,6 +90,8 @@ class LocalizedMessages {
   static var doesNotInclude = "Does Not Include";
   static var clear = "Clear";
   static var noEntry = "No Entry";
+  static var retry = "Retry";
+  static var loadFailed = "Unable to load data.";
 }
 
 class DecimalTextInputFormatter extends TextInputFormatter {
