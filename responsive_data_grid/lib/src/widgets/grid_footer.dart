@@ -14,7 +14,9 @@ class GridFooter<TItem extends Object> extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.only(top: 3),
       child: DecoratedBox(
-        decoration: BoxDecoration(color: Colors.black45),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surfaceContainerHighest,
+        ),
         child: Padding(
           padding: EdgeInsets.only(top: 3, bottom: 3),
           child: BootstrapRow(
@@ -53,8 +55,10 @@ class GridFooter<TItem extends Object> extends StatelessWidget {
                 .where((g) => g.fieldName == c.fieldName && g.result != null)
                 .map(
                   (agg) => Text(
-                    "${agg.aggregation.toString()}: ${agg.formatResult(null)}",
-                    style: theme.textTheme.labelLarge,
+                    "${agg.aggregation}: ${agg.formatResult()}",
+                    style: theme.textTheme.labelLarge?.copyWith(
+                      color: theme.colorScheme.onSurface,
+                    ),
                   ),
                 )
                 .toList(),

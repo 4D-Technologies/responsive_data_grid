@@ -58,12 +58,6 @@ class DateTimeColumn<TItem extends Object> extends GridColumn<TItem, DateTime> {
       selected: selected,
       update: update,
     ),
-    AggregationChooser(
-      column: this,
-      aggregation: Aggregations.sum,
-      selected: selected,
-      update: update,
-    ),
   ];
 
   @override
