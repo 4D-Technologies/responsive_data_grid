@@ -48,6 +48,10 @@ class DataGridBoolColumnFilterState<TItem extends Object>
           onChanged: (value) {
             setState(() {
               this.value = value;
+              writeCriteria(
+                value == null ? null : Logic.equals,
+                value == null ? const [] : [value],
+              );
             });
           },
           tristate: true,

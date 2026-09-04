@@ -113,6 +113,10 @@ class DataGridDoubleColumnFilterState<TItem extends Object>
           onChanged: (Logic? value) {
             setState(() {
               op = value;
+              writeCriteria(op, [
+                ?dValue,
+                ?dValue2,
+              ]);
             });
           },
         ),
@@ -135,7 +139,11 @@ class DataGridDoubleColumnFilterState<TItem extends Object>
             controller: tecValue1,
             onChanged: (value) {
               setState(() {
-                dValue = double.parse(value);
+                dValue = double.tryParse(value);
+                writeCriteria(op, [
+                  ?dValue,
+                  ?dValue2,
+                ]);
               });
             },
           ),
@@ -157,7 +165,11 @@ class DataGridDoubleColumnFilterState<TItem extends Object>
             controller: tecValue2,
             onChanged: (value) {
               setState(() {
-                dValue2 = double.parse(value);
+                dValue2 = double.tryParse(value);
+                writeCriteria(op, [
+                  ?dValue,
+                  ?dValue2,
+                ]);
               });
             },
           ),
