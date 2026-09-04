@@ -268,13 +268,13 @@ class ResponsiveDataGridState<TItem extends Object>
                 );
 
                 if (isLoading) {
+                  final spinner = const Center(
+                    child: CircularProgressIndicator(),
+                  );
                   parts.add(
-                    Column(
-                      mainAxisSize: MainAxisSize.max,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [CircularProgressIndicator()],
-                    ),
+                    constraints.hasBoundedHeight
+                        ? Expanded(child: spinner)
+                        : spinner,
                   );
                 } else {
                   parts.add(

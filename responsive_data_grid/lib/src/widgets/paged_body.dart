@@ -4,24 +4,25 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
     extends StatelessWidget {
   final ResponsiveDataGridState<TItem> gridState;
   final ThemeData theme;
+  final bool shrinkWrap;
 
   const ResponsiveDataGridPagedBodyWidget({
     super.key,
     required this.gridState,
     required this.theme,
+    this.shrinkWrap = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    Widget child;
-    final pageData = gridState._dataCache.pageMap[gridState.pageNumber]!;
-    if (pageData.groups.isNotEmpty) {
-      child = buildGroups(pageData, pageData.groups, pageData.items);
-    } else {
-      child = getPage(pageData.items);
+    final pageData = gridState._dataCache.pageMap[gridState.pageNumber];
+    if (pageData == null) {
+      return gridState.widget.noResults ?? const Text("No results found.");
     }
-
-    return child;
+    if (pageData.groups.isNotEmpty) {
+      return buildGroups(pageData, pageData.groups, pageData.items);
+    }
+    return getPage(pageData.items);
   }
 
   Widget buildGroups(
@@ -34,6 +35,8 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
     );
 
     return ListView.builder(
+      shrinkWrap: shrinkWrap,
+      physics: shrinkWrap ? const NeverScrollableScrollPhysics() : null,
       itemBuilder: (context, index) {
         final group = groups[index];
 
@@ -46,7 +49,9 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
           children: [
             GridGroupHeader(group: group, theme: theme),
             Padding(
-              padding: EdgeInsets.only(left: 15),
+              padding: EdgeInsets.only(
+                left: gridState.widget.groupIndent.toDouble(),
+              ),
               child: group.subGroups.isEmpty
                   ? getPage(groupItems)
                   : buildGroups(response, group.subGroups, groupItems),
