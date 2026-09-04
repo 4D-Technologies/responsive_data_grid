@@ -84,6 +84,10 @@ class DataGridTimeOfDayColumnFilterState<TItem extends Object>
           onChanged: (Logic? value) {
             setState(() {
               op = value;
+              writeCriteria(op, [
+                ?tStart,
+                ?tEnd,
+              ]);
             });
           },
         ),
@@ -102,6 +106,10 @@ class DataGridTimeOfDayColumnFilterState<TItem extends Object>
             onChanged: (DateTime? value) {
               setState(() {
                 tStart = value == null ? null : TimeOfDay.fromDateTime(value);
+                writeCriteria(op, [
+                  ?tStart,
+                  ?tEnd,
+                ]);
               });
             },
           ),
@@ -119,6 +127,10 @@ class DataGridTimeOfDayColumnFilterState<TItem extends Object>
             onChanged: (DateTime? value) {
               setState(() {
                 tEnd = value == null ? null : TimeOfDay.fromDateTime(value);
+                writeCriteria(op, [
+                  ?tStart,
+                  ?tEnd,
+                ]);
               });
             },
           ),

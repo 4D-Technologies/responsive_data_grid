@@ -89,6 +89,10 @@ class DataGridStringColumnFilterState<TItem extends Object>
           onChanged: (Logic? value) {
             setState(() {
               op = value;
+              writeCriteria(
+                op,
+                searchText == null || searchText!.isEmpty ? [] : [searchText!],
+              );
             });
           },
         ),
@@ -99,6 +103,10 @@ class DataGridStringColumnFilterState<TItem extends Object>
             decoration: InputDecoration(labelText: "value"),
             onChanged: (value) => setState(() {
               searchText = value;
+              writeCriteria(
+                op,
+                searchText == null || searchText!.isEmpty ? [] : [searchText!],
+              );
             }),
           ),
         ),

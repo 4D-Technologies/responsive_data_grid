@@ -62,8 +62,10 @@ class DataGridValuesColumnFilterState<
         SwitchListTile(
           value: op == Logic.notEqual,
           title: Text(LocalizedMessages.doesNotInclude),
-          onChanged: (value) =>
-              setState(() => value ? op = Logic.notEqual : op = Logic.equals),
+          onChanged: (value) => setState(() {
+            op = value ? Logic.notEqual : Logic.equals;
+            writeCriteria(op, values);
+          }),
         ),
         ...filterRules.valueMap.entries.map(
           (e) => CheckboxListTile(
@@ -76,6 +78,7 @@ class DataGridValuesColumnFilterState<
                 if (value == null || !value && values.contains(e.key)) {
                   values.remove(e.key);
                 }
+                writeCriteria(op, values);
               });
             },
             value: values.contains(e.key),

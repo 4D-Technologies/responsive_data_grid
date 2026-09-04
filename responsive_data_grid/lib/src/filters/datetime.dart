@@ -99,6 +99,10 @@ class DataGridDateTimeColumnFilterState<TItem extends Object>
           onChanged: (Logic? value) {
             setState(() {
               op = value;
+              writeCriteria(op, [
+                ?dtStart,
+                ?dtEnd,
+              ]);
             });
           },
         ),
@@ -122,6 +126,10 @@ class DataGridDateTimeColumnFilterState<TItem extends Object>
             onChanged: (DateTime? value) {
               setState(() {
                 dtStart = value;
+                writeCriteria(op, [
+                  ?dtStart,
+                  ?dtEnd,
+                ]);
               });
             },
           ),
@@ -138,6 +146,10 @@ class DataGridDateTimeColumnFilterState<TItem extends Object>
             onChanged: (DateTime? value) {
               setState(() {
                 dtEnd = value;
+                writeCriteria(op, [
+                  ?dtStart,
+                  ?dtEnd,
+                ]);
               });
             },
           ),

@@ -112,6 +112,10 @@ class DataGridNumColumnFilterState<TItem extends Object>
           onChanged: (Logic? value) {
             setState(() {
               op = value;
+              writeCriteria(op, [
+                ?nValue,
+                ?nValue2,
+              ]);
             });
           },
         ),
@@ -134,7 +138,11 @@ class DataGridNumColumnFilterState<TItem extends Object>
             controller: tecValue1,
             onChanged: (value) {
               setState(() {
-                nValue = num.parse(value);
+                nValue = num.tryParse(value);
+                writeCriteria(op, [
+                  ?nValue,
+                  ?nValue2,
+                ]);
               });
             },
           ),
@@ -156,7 +164,11 @@ class DataGridNumColumnFilterState<TItem extends Object>
             controller: tecValue2,
             onChanged: (value) {
               setState(() {
-                nValue2 = num.parse(value);
+                nValue2 = num.tryParse(value);
+                writeCriteria(op, [
+                  ?nValue,
+                  ?nValue2,
+                ]);
               });
             },
           ),

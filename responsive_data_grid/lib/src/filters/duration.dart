@@ -89,10 +89,6 @@ class DataGridDurationColumnFilterState<TItem extends Object>
               child: Text(Logic.between.toString()),
             ),
             DropdownMenuItem(
-              value: Logic.equals,
-              child: Text(Logic.equals.toString()),
-            ),
-            DropdownMenuItem(
               value: Logic.notEqual,
               child: Text(Logic.notEqual.toString()),
             ),
@@ -101,6 +97,10 @@ class DataGridDurationColumnFilterState<TItem extends Object>
           onChanged: (Logic? value) {
             setState(() {
               op = value;
+              writeCriteria(op, [
+                ?dValue1,
+                ?dValue2,
+              ]);
             });
           },
         ),
@@ -114,11 +114,37 @@ class DataGridDurationColumnFilterState<TItem extends Object>
                   op == Logic.notEqual ||
                   op == Logic.lessThan ||
                   op == Logic.lessThanOrEqualTo),
-          child: Row(children: []),
+          child: TextField(
+            decoration: const InputDecoration(hintText: 'minutes'),
+            keyboardType: TextInputType.number,
+            onChanged: (value) {
+              final minutes = int.tryParse(value);
+              setState(() {
+                dValue1 = minutes == null ? null : Duration(minutes: minutes);
+                writeCriteria(op, [
+                  ?dValue1,
+                  ?dValue2,
+                ]);
+              });
+            },
+          ),
         ),
         Visibility(
           visible: op != null && (op == Logic.between),
-          child: Row(children: []),
+          child: TextField(
+            decoration: const InputDecoration(hintText: 'minutes'),
+            keyboardType: TextInputType.number,
+            onChanged: (value) {
+              final minutes = int.tryParse(value);
+              setState(() {
+                dValue2 = minutes == null ? null : Duration(minutes: minutes);
+                writeCriteria(op, [
+                  ?dValue1,
+                  ?dValue2,
+                ]);
+              });
+            },
+          ),
         ),
       ],
     );
