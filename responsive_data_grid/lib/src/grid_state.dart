@@ -10,6 +10,13 @@ class ResponsiveDataGridState<TItem extends Object>
 
   final _dataCache = ResponseCache<TItem>();
 
+  int get _takeCount => widget.pagingMode == PagingMode.none
+      ? widget.maximumRows
+      : widget.pageSize;
+
+  int _skipForPage(int page) =>
+      widget.pagingMode == PagingMode.none ? 0 : (page - 1) * widget.pageSize;
+
   ResponsiveDataGridState() {
     //Validate that everything is setup correctly.
     if (TItem == Object) {
@@ -22,7 +29,7 @@ class ResponsiveDataGridState<TItem extends Object>
     super.initState();
     criteria =
         widget.initialLoadCriteria?.copyWith(
-          take: () => widget.initialLoadCriteria!.take ?? widget.pageSize,
+          take: () => widget.initialLoadCriteria!.take ?? _takeCount,
           groupBy: () =>
               widget.initialLoadCriteria!.groupBy ??
               List<GroupCriteria>.empty(growable: true),
@@ -32,7 +39,7 @@ class ResponsiveDataGridState<TItem extends Object>
         ) ??
         LoadCriteria(
           skip: 0,
-          take: widget.pageSize,
+          take: _takeCount,
           aggregates: widget.columns
               .map((e) => e.aggregations)
               .selectMany((element, index) => element)
@@ -70,8 +77,8 @@ class ResponsiveDataGridState<TItem extends Object>
       isLoading = true;
       loadError = null;
       criteria = criteria.copyWith(
-        skip: () => (pageNumber - 1) * widget.pageSize,
-        take: () => widget.pageSize,
+        skip: () => _skipForPage(pageNumber),
+        take: () => _takeCount,
         filterBy: () => widget.columns
             .where((c) => c.filterRules.criteria != null)
             .map((c) => c.filterRules.criteria!)
@@ -140,8 +147,8 @@ class ResponsiveDataGridState<TItem extends Object>
     this.pageNumber = pageNumber;
 
     criteria = criteria.copyWith(
-      skip: () => (pageNumber - 1) * widget.pageSize,
-      take: () => widget.pageSize,
+      skip: () => _skipForPage(pageNumber),
+      take: () => _takeCount,
       filterBy: () => widget.columns
           .where((c) => c.filterRules.criteria != null)
           .map((c) => c.filterRules.criteria!)
@@ -201,8 +208,8 @@ class ResponsiveDataGridState<TItem extends Object>
         response =
             await widget.loadData!(
               LoadCriteria(
-                skip: (pageNumber - 1) * widget.pageSize,
-                take: widget.pageSize,
+                skip: _skipForPage(pageNumber),
+                take: _takeCount,
                 orderBy: criteria.orderBy,
                 filterBy: criteria.filterBy,
                 groupBy: criteria.groupBy,
