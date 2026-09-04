@@ -54,14 +54,14 @@ void main() {
     await tester.tap(find.byIcon(Icons.menu).first);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
-    _ignoreOverflow(tester);
+    expect(tester.takeException(), isNull);
 
     await tester.tap(find.byType(DropdownButtonFormField<Logic?>));
     await tester.pumpAndSettle();
-    _ignoreOverflow(tester);
+    expect(tester.takeException(), isNull);
     await tester.tap(find.text(Logic.contains.toString()).last);
     await tester.pumpAndSettle();
-    _ignoreOverflow(tester);
+    expect(tester.takeException(), isNull);
 
     await tester.enterText(find.byType(TextFormField), 'Ada');
     await tester.pump();
@@ -69,15 +69,9 @@ void main() {
     await tester.tap(find.text(LocalizedMessages.apply));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
-    _ignoreOverflow(tester);
+    expect(tester.takeException(), isNull);
 
     expect(find.text('Ada'), findsWidgets);
     expect(find.text('Grace'), findsNothing);
   });
-}
-
-void _ignoreOverflow(WidgetTester tester) {
-  final error = tester.takeException();
-  if (error == null) return;
-  expect(error.toString(), contains('overflowed'));
 }

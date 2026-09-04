@@ -327,24 +327,19 @@ class ResponsiveDataGridState<TItem extends Object>
                   );
                 }
 
-                parts.add(
-                  ResponsiveDataGridHeaderRowWidget<TItem>(
-                    this,
-                    widget.columns,
-                  ),
+                final screenWidth = MediaQuery.sizeOf(context).width;
+                final metrics = gridTableMetrics<TItem>(
+                  columns: widget.columns,
+                  viewportWidth: constraints.maxWidth,
+                  reactiveSegments: widget.reactiveSegments,
+                  screenWidth: screenWidth,
                 );
 
+                Widget tableBody;
                 if (isLoading) {
-                  final spinner = const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                  parts.add(
-                    constraints.hasBoundedHeight
-                        ? Expanded(child: spinner)
-                        : spinner,
-                  );
+                  tableBody = const Center(child: CircularProgressIndicator());
                 } else if (loadError != null) {
-                  final errorView = Center(
+                  tableBody = Center(
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Column(
@@ -360,24 +355,64 @@ class ResponsiveDataGridState<TItem extends Object>
                       ),
                     ),
                   );
-                  parts.add(
-                    constraints.hasBoundedHeight
-                        ? Expanded(child: errorView)
-                        : errorView,
-                  );
                 } else {
-                  parts.add(
-                    GridBody<TItem>(
-                      gridState: this,
-                      constraints: constraints,
-                      pagingMode: pagingMode,
-                      gridTheme: theme,
-                    ),
+                  tableBody = GridBody<TItem>(
+                    gridState: this,
+                    constraints: constraints,
+                    pagingMode: pagingMode,
+                    gridTheme: theme,
                   );
                 }
 
-                if (_dataCache.aggregates.isNotEmpty) {
-                  parts.add(GridFooter(_dataCache, this, theme));
+                final table = GridTableLayout(
+                  contentWidth: metrics.contentWidth,
+                  totalSegments: metrics.totalSegments,
+                  child: Column(
+                    mainAxisSize: constraints.hasBoundedHeight
+                        ? MainAxisSize.max
+                        : MainAxisSize.min,
+                    children: [
+                      ResponsiveDataGridHeaderRowWidget<TItem>(
+                        this,
+                        widget.columns,
+                      ),
+                      if (constraints.hasBoundedHeight)
+                        Expanded(child: tableBody)
+                      else
+                        tableBody,
+                      if (_dataCache.aggregates.isNotEmpty)
+                        GridFooter(_dataCache, this, theme),
+                    ],
+                  ),
+                );
+
+                if (constraints.hasBoundedHeight) {
+                  parts.add(
+                    Expanded(
+                      child: LayoutBuilder(
+                        builder: (context, inner) {
+                          return SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: SizedBox(
+                              width: metrics.contentWidth,
+                              height: inner.maxHeight,
+                              child: table,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  );
+                } else {
+                  parts.add(
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: SizedBox(
+                        width: metrics.contentWidth,
+                        child: table,
+                      ),
+                    ),
+                  );
                 }
 
                 if (pagingMode == PagingMode.pager) {

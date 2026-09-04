@@ -32,7 +32,9 @@ class GridFooter<TItem extends Object> extends StatelessWidget {
                 ? WrapCrossAlignment.center
                 : WrapCrossAlignment.end,
             children: getColumns(context),
-            totalSegments: gridState.widget.reactiveSegments,
+            totalSegments:
+                GridTableLayout.maybeOf(context)?.totalSegments ??
+                gridState.widget.reactiveSegments,
           ),
         ),
       ),

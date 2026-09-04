@@ -18,11 +18,7 @@ class GridBody<TItem extends Object> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final body = getBody();
-    if (constraints.hasBoundedHeight) {
-      return Expanded(child: body);
-    }
-    return body;
+    return getBody();
   }
 
   Widget getBody() {

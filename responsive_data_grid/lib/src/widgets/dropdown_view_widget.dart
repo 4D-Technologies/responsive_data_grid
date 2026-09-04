@@ -21,53 +21,71 @@ abstract class DropDownViewWidget extends StatefulWidget {
 }
 
 class _DropDownViewState extends State<DropDownViewWidget> {
-  @override
-  void initState() {
-    super.initState();
-  }
+  final MenuController _controller = MenuController();
 
   void close(BuildContext context) {
-    _popMenuIfCurrent(
-      Navigator.of(context, rootNavigator: true),
-      ModalRoute.of(context),
-    );
+    _controller.close();
   }
 
   @override
   Widget build(BuildContext context) {
-    return IconButton(
-      key: widget.key,
-      visualDensity: VisualDensity.compact,
-      padding: EdgeInsets.zero,
-      constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
-      style: IconButton.styleFrom(
-        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        minimumSize: const Size(24, 24),
-        padding: EdgeInsets.zero,
-      ),
-      icon: widget.icon,
-      color: widget.theme.gridPrimaryColor,
-      onPressed: (() {
-        showAlignedDialog<void>(
-          avoidOverflow: true,
-          context: context,
-          barrierDismissible: true,
-          barrierColor: Colors.transparent,
-          followerAnchor: Alignment.topRight,
-          targetAnchor: Alignment.bottomLeft,
-          offset: Offset(32, 0),
-          builder: (BuildContext ctx) => SizedBox(
-            width: widget.dropDownWidth,
-            child: SingleChildScrollView(child: widget.build(ctx, close)),
-          ),
-        );
-      }),
+    final size = MediaQuery.sizeOf(context);
+    final maxWidth = math.min(
+      widget.dropDownWidth,
+      math.max(0.0, size.width - 16),
     );
-  }
-}
+    final maxHeight =
+        widget.dropDownHeight ?? math.max(120.0, size.height * 0.7);
 
-void _popMenuIfCurrent(NavigatorState navigator, Route<dynamic>? route) {
-  if (route != null && route.isCurrent && navigator.canPop()) {
-    navigator.pop();
+    return MenuAnchor(
+      controller: _controller,
+      alignmentOffset: const Offset(0, 4),
+      consumeOutsideTap: true,
+      style: MenuStyle(
+        padding: const WidgetStatePropertyAll(EdgeInsets.zero),
+        visualDensity: VisualDensity.compact,
+        maximumSize: WidgetStatePropertyAll(Size(maxWidth, maxHeight)),
+      ),
+      builder: (context, controller, child) {
+        return IconButton(
+          visualDensity: VisualDensity.compact,
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
+          style: IconButton.styleFrom(
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            minimumSize: const Size(24, 24),
+            padding: EdgeInsets.zero,
+          ),
+          icon: widget.icon,
+          color: widget.theme.gridPrimaryColor,
+          onPressed: () {
+            if (controller.isOpen) {
+              controller.close();
+            } else {
+              controller.open();
+            }
+          },
+        );
+      },
+      menuChildren: [
+        Builder(
+          builder: (overlayContext) {
+            return ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: maxWidth,
+                maxHeight: maxHeight,
+              ),
+              child: SingleChildScrollView(
+                primary: false,
+                child: SizedBox(
+                  width: maxWidth,
+                  child: widget.build(overlayContext, close),
+                ),
+              ),
+            );
+          },
+        ),
+      ],
+    );
   }
 }

@@ -52,7 +52,9 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
               ? WrapCrossAlignment.center
               : WrapCrossAlignment.end,
           children: getColumns(context, grid, item),
-          totalSegments: grid.reactiveSegments,
+          totalSegments:
+              GridTableLayout.maybeOf(context)?.totalSegments ??
+              grid.reactiveSegments,
         ),
       ),
     );

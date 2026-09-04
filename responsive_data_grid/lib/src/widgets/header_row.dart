@@ -48,7 +48,9 @@ class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
                 : grid.headerCrossAxisAlignment == CrossAxisAlignment.center
                 ? WrapCrossAlignment.center
                 : WrapCrossAlignment.end,
-            totalSegments: grid.reactiveSegments,
+            totalSegments:
+                GridTableLayout.maybeOf(context)?.totalSegments ??
+                grid.reactiveSegments,
           ),
         ),
       ),

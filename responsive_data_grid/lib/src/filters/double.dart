@@ -75,6 +75,7 @@ class DataGridDoubleColumnFilterState<TItem extends Object>
       mainAxisSize: MainAxisSize.min,
       children: [
         DropdownButton<Logic?>(
+          isExpanded: true,
           items: [
             DropdownMenuItem<Logic?>(
               value: null,

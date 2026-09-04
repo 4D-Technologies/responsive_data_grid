@@ -147,14 +147,6 @@ void main() {
   });
 }
 
-/// Overflow in the 250px column menu is #41. This issue only forbids theme
-/// force-unwrap / Navigator crashes.
 void _expectNoThemeCrash(WidgetTester tester) {
-  final error = tester.takeException();
-  if (error == null) return;
-  expect(
-    error.toString(),
-    contains('overflowed'),
-    reason: 'Unexpected exception: $error',
-  );
+  expect(tester.takeException(), isNull);
 }
