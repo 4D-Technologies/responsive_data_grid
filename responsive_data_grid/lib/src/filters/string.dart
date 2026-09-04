@@ -61,8 +61,8 @@ class DataGridStringColumnFilterState<TItem extends Object>
               child: Text(Logic.startsWith.toString()),
             ),
             DropdownMenuItem(
-              value: Logic.endsWidth,
-              child: Text(Logic.endsWidth.toString()),
+              value: Logic.endsWith,
+              child: Text(Logic.endsWith.toString()),
             ),
             DropdownMenuItem(
               value: Logic.equals,

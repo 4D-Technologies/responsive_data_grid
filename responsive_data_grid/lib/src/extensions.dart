@@ -17,56 +17,50 @@ extension FilterCriteriaExtensions on List<FilterCriteria<dynamic>> {
   String toOdata() {
     if (isEmpty) return "";
 
-    String filter = '';
-    forEach((e) {
-      if (filter.isNotEmpty) {
-        if (e.op == Operators.or) {
-          filter += " OR ";
-        } else {
-          filter += " AND ";
-        }
+    final buffer = StringBuffer();
+    for (final e in this) {
+      if (buffer.isNotEmpty) {
+        buffer.write(e.op == Operators.or ? ' OR ' : ' AND ');
       }
+      buffer.write(_odataClause(e));
+    }
+    return buffer.toString();
+  }
 
-      if (e.logicalOperator == Logic.endsWidth) {
-        filter +=
-            " endsWidth(${escapeFieldName(e.fieldName)}, '${e.values.first}')";
-      } else if (e.logicalOperator == Logic.contains) {
-        filter +=
-            " contains(${escapeFieldName(e.fieldName)}, '${e.values.first}')";
-      } else if (e.logicalOperator == Logic.notContains) {
-        filter +=
-            " not contains(${escapeFieldName(e.fieldName)}, '${e.values.first}')";
-      } else if (e.logicalOperator == Logic.startsWith) {
-        filter +=
-            " startsWith(${escapeFieldName(e.fieldName)}, '${e.values.first}')";
-      } else if (e.logicalOperator == Logic.between) {
-        filter += " ge ${e.values.first} and le ${e.values.last}";
-      } else {
-        filter += "${escapeFieldName(e.fieldName)} ";
-        switch (e.logicalOperator) {
-          case Logic.equals:
-            filter += "eq";
-            break;
-          case Logic.greaterThan:
-            filter += "gt";
-            break;
-          case Logic.greaterThanOrEqualTo:
-            filter += "ge";
-            break;
-          case Logic.lessThan:
-            filter += "lt";
-            break;
-          case Logic.lessThanOrEqualTo:
-            filter += "le";
-            break;
-          default:
-            throw UnimplementedError();
-        }
-        filter += " ${e.values.first}";
-      }
-    });
+  String _odataClause(FilterCriteria<dynamic> e) {
+    final field = escapeFieldName(e.fieldName);
+    final value = e.values.isEmpty ? '' : e.values.first;
+    final quoted = "'$value'";
 
-    return filter;
+    switch (e.logicalOperator) {
+      case Logic.equals:
+        return '$field eq $value';
+      case Logic.notEqual:
+        return '$field ne $value';
+      case Logic.greaterThan:
+        return '$field gt $value';
+      case Logic.greaterThanOrEqualTo:
+        return '$field ge $value';
+      case Logic.lessThan:
+        return '$field lt $value';
+      case Logic.lessThanOrEqualTo:
+        return '$field le $value';
+      case Logic.contains:
+        return 'contains($field, $quoted)';
+      case Logic.notContains:
+        return 'not contains($field, $quoted)';
+      case Logic.startsWith:
+        return 'startswith($field, $quoted)';
+      case Logic.endsWith:
+        return 'endswith($field, $quoted)';
+      case Logic.notStartsWith:
+        return 'not startswith($field, $quoted)';
+      case Logic.notEndsWith:
+        return 'not endswith($field, $quoted)';
+      case Logic.between:
+        final last = e.values.length > 1 ? e.values.last : value;
+        return '$field ge $value and $field le $last';
+    }
   }
 
   String escapeFieldName(String fieldName) => fieldName.replaceAll("'", "''");
