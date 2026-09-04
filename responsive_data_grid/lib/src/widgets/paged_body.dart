@@ -4,36 +4,49 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
     extends StatelessWidget {
   final ResponsiveDataGridState<TItem> gridState;
   final ThemeData theme;
+  final bool shrinkWrap;
 
   const ResponsiveDataGridPagedBodyWidget({
     super.key,
     required this.gridState,
     required this.theme,
+    this.shrinkWrap = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    Widget child;
-    final pageData = gridState._dataCache.pageMap[gridState.pageNumber]!;
-    if (pageData.groups.isNotEmpty) {
-      child = buildGroups(pageData, pageData.groups, pageData.items);
-    } else {
-      child = getPage(pageData.items);
+    final pageData = gridState._dataCache.pageMap[gridState.pageNumber];
+    if (pageData == null) {
+      return gridState.widget.noResults ?? const Text("No results found.");
     }
-
-    return child;
+    if (pageData.groups.isNotEmpty) {
+      return buildGroups(
+        pageData,
+        pageData.groups,
+        pageData.items,
+        nested: false,
+      );
+    }
+    return getPage(pageData.items);
   }
 
   Widget buildGroups(
     ListResponse<TItem> response,
     List<GroupResult> groups,
-    List<TItem> items,
-  ) {
+    List<TItem> items, {
+    required bool nested,
+  }) {
     final col = gridState.widget.columns.firstWhere(
       (c) => c.fieldName == groups.first.fieldName,
     );
 
+    // Nested group lists live inside a Column, so they must always shrink-wrap.
+    // Only the top-level groups list may scroll when the grid has a bounded height.
+    final wrap = nested || shrinkWrap;
+
     return ListView.builder(
+      shrinkWrap: wrap,
+      physics: wrap ? const NeverScrollableScrollPhysics() : null,
       itemBuilder: (context, index) {
         final group = groups[index];
 
@@ -46,10 +59,17 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
           children: [
             GridGroupHeader(group: group, theme: theme),
             Padding(
-              padding: EdgeInsets.only(left: 15),
+              padding: EdgeInsets.only(
+                left: gridState.widget.groupIndent.toDouble(),
+              ),
               child: group.subGroups.isEmpty
                   ? getPage(groupItems)
-                  : buildGroups(response, group.subGroups, groupItems),
+                  : buildGroups(
+                      response,
+                      group.subGroups,
+                      groupItems,
+                      nested: true,
+                    ),
             ),
             GridGroupFooter<TItem>(
               group: group,

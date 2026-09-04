@@ -18,7 +18,11 @@ class GridBody<TItem extends Object> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(child: getBody());
+    final body = getBody();
+    if (constraints.hasBoundedHeight) {
+      return Expanded(child: body);
+    }
+    return body;
   }
 
   Widget getBody() {
@@ -28,6 +32,7 @@ class GridBody<TItem extends Object> extends StatelessWidget {
       return ResponsiveDataGridPagedBodyWidget<TItem>(
         gridState: gridState,
         theme: gridTheme,
+        shrinkWrap: !constraints.hasBoundedHeight,
       );
     } else {
       return ResponsiveGridInfiniteScrollBodyWidget<TItem>(
