@@ -50,12 +50,16 @@ class GroupMenu<TItem extends Object> extends DropDownViewWidget {
                   child: TextButton.icon(
                     label: Text(
                       "Apply",
-                      style: theme.primaryTextTheme.labelLarge,
+                      style: theme.gridLabelLarge,
                     ),
                     onPressed: () async {
+                      final navigator = Navigator.of(
+                        context,
+                        rootNavigator: true,
+                      );
                       await gridState.updateGroup(group);
-                      if (context.mounted) {
-                        close(context);
+                      if (navigator.canPop()) {
+                        navigator.pop();
                       }
                     },
                     icon: Icon(Icons.save, color: theme.colorScheme.onPrimary),
@@ -66,13 +70,17 @@ class GroupMenu<TItem extends Object> extends DropDownViewWidget {
                   child: TextButton.icon(
                     label: Text(
                       "Clear All",
-                      style: theme.primaryTextTheme.labelLarge,
+                      style: theme.gridLabelLarge,
                     ),
                     onPressed: () async {
+                      final navigator = Navigator.of(
+                        context,
+                        rootNavigator: true,
+                      );
                       group.aggregates.clear();
                       await gridState.updateGroup(group);
-                      if (context.mounted) {
-                        close(context);
+                      if (navigator.canPop()) {
+                        navigator.pop();
                       }
                     },
                     icon: Icon(
@@ -85,7 +93,7 @@ class GroupMenu<TItem extends Object> extends DropDownViewWidget {
                 TextButton.icon(
                   label: Text(
                     "Remove Group",
-                    style: theme.primaryTextTheme.labelLarge,
+                    style: theme.gridLabelLarge,
                   ),
                   onPressed: () => removeGroup(group),
                   icon: Icon(Icons.delete, color: theme.colorScheme.error),

@@ -78,28 +78,35 @@ class ColumnMenu<T extends Object> extends DropDownViewWidget {
               ),
               column.filterRules.showFilter(column, gridState),
               Divider(),
-              Row(
-                mainAxisSize: MainAxisSize.max,
-                crossAxisAlignment: CrossAxisAlignment.end,
+              Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   TextButton.icon(
                     onPressed: () async {
+                      final navigator = Navigator.of(
+                        context,
+                        rootNavigator: true,
+                      );
                       column.aggregations.clear();
                       column.filterRules.criteria = null;
                       await gridState.refreshData();
-                      if (context.mounted) {
-                        close(context);
+                      if (navigator.canPop()) {
+                        navigator.pop();
                       }
                     },
                     icon: Icon(Icons.clear_all),
                     label: Text(LocalizedMessages.clear),
                   ),
-                  Spacer(flex: 2),
                   TextButton.icon(
                     onPressed: () async {
+                      final navigator = Navigator.of(
+                        context,
+                        rootNavigator: true,
+                      );
                       await gridState.refreshData();
-                      if (context.mounted) {
-                        close(context);
+                      if (navigator.canPop()) {
+                        navigator.pop();
                       }
                     },
                     icon: Icon(Icons.save),

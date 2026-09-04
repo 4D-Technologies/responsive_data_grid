@@ -91,7 +91,7 @@ class ColumnHeaderState<TItem extends Object, TValue extends dynamic>
     final textStyle =
         widget.definition.header.textStyle ??
         theme.dataTableTheme.headingTextStyle ??
-        theme.primaryTextTheme.titleSmall!.copyWith(color: foregroundColor);
+        theme.gridTitleSmall.copyWith(color: foregroundColor);
 
     final items = List<Widget>.empty(growable: true);
 

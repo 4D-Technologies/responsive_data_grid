@@ -78,3 +78,28 @@ extension TimeOfDayExtensions on TimeOfDay {
     return DateTime(now.year, now.month, now.day, hour, minute);
   }
 }
+
+/// Safe color/text lookups so Material 3 themes without `ButtonTheme.colorScheme`
+/// or empty `primaryTextTheme` do not crash grid chrome.
+extension GridThemeFallbacks on ThemeData {
+  Color get gridPrimaryColor =>
+      buttonTheme.colorScheme?.primary ?? colorScheme.primary;
+
+  Color get gridSurfaceColor =>
+      buttonTheme.colorScheme?.surface ?? colorScheme.surface;
+
+  TextStyle get gridTitleSmall =>
+      dataTableTheme.headingTextStyle ??
+      textTheme.titleSmall ??
+      primaryTextTheme.titleSmall ??
+      const TextStyle(fontSize: 14, fontWeight: FontWeight.w500);
+
+  TextStyle get gridBodyMedium =>
+      dataTableTheme.dataTextStyle ??
+      textTheme.bodyMedium ??
+      primaryTextTheme.bodyMedium ??
+      const TextStyle(fontSize: 14);
+
+  TextStyle? get gridLabelLarge =>
+      textTheme.labelLarge ?? primaryTextTheme.labelLarge;
+}
