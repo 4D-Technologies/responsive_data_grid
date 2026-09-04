@@ -20,7 +20,12 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
       return gridState.widget.noResults ?? const Text("No results found.");
     }
     if (pageData.groups.isNotEmpty) {
-      return buildGroups(pageData, pageData.groups, pageData.items);
+      return buildGroups(
+        pageData,
+        pageData.groups,
+        pageData.items,
+        nested: false,
+      );
     }
     return getPage(pageData.items);
   }
@@ -28,15 +33,20 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
   Widget buildGroups(
     ListResponse<TItem> response,
     List<GroupResult> groups,
-    List<TItem> items,
-  ) {
+    List<TItem> items, {
+    required bool nested,
+  }) {
     final col = gridState.widget.columns.firstWhere(
       (c) => c.fieldName == groups.first.fieldName,
     );
 
+    // Nested group lists live inside a Column, so they must always shrink-wrap.
+    // Only the top-level groups list may scroll when the grid has a bounded height.
+    final wrap = nested || shrinkWrap;
+
     return ListView.builder(
-      shrinkWrap: shrinkWrap,
-      physics: shrinkWrap ? const NeverScrollableScrollPhysics() : null,
+      shrinkWrap: wrap,
+      physics: wrap ? const NeverScrollableScrollPhysics() : null,
       itemBuilder: (context, index) {
         final group = groups[index];
 
@@ -54,7 +64,12 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
               ),
               child: group.subGroups.isEmpty
                   ? getPage(groupItems)
-                  : buildGroups(response, group.subGroups, groupItems),
+                  : buildGroups(
+                      response,
+                      group.subGroups,
+                      groupItems,
+                      nested: true,
+                    ),
             ),
             GridGroupFooter<TItem>(
               group: group,
