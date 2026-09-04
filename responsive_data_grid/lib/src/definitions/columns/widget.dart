@@ -2,7 +2,7 @@ part of '../../../responsive_data_grid.dart';
 
 class WidgetColumn<TItem extends Object> extends GridColumn<TItem, void> {
   WidgetColumn({
-    String? fieldName,
+    required super.fieldName,
     required Widget Function(TItem item) widget,
     super.aggregations,
     WidgetColumnHeader? header,
@@ -20,7 +20,6 @@ class WidgetColumn<TItem extends Object> extends GridColumn<TItem, void> {
     super.accentColor,
     AlignmentGeometry super.alignment = Alignment.centerLeft,
   }) : super(
-         fieldName: fieldName ?? math.Random().nextDouble().toString(),
          value: (item) {},
          customFieldWidget: widget,
          format: (value) => null,
@@ -33,17 +32,10 @@ class WidgetColumn<TItem extends Object> extends GridColumn<TItem, void> {
   List<AggregationChooser<TItem>> getAggregations({
     required Iterable<AggregateCriteria> selected,
     required void Function(AggregateCriteria aggregate, bool value) update,
-  }) => [
-    AggregationChooser(
-      column: this,
-      aggregation: Aggregations.count,
-      selected: selected,
-      update: update,
-    ),
-  ];
+  }) => const [];
 
   @override
-  bool get hasAggregations => true;
+  bool get hasAggregations => false;
 }
 
 class WidgetColumnHeader extends ColumnHeader {
