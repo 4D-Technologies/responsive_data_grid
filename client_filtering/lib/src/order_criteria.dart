@@ -10,8 +10,10 @@ class OrderCriteria with IJsonable {
   });
 
   factory OrderCriteria.fromJson(Map<String, dynamic> json) => OrderCriteria(
-    fieldName: json['fieldName'].toString(),
-    direction: OrderDirections.fromInt(json['direction'] as int),
+    fieldName: jsonValue(json, 'fieldName').toString(),
+    direction: OrderDirections.fromJson(
+      jsonValue(json, 'direction', ['directions']) ?? 1,
+    ),
   );
 
   @override

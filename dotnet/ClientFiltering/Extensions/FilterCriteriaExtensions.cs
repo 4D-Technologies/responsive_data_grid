@@ -186,6 +186,18 @@ public static class FilterCriteriaExtensions
                 if (criteria.Relation == RelationalOperators.NotEndsWith)
                     expression = Expression.Not(expression);
                 break;
+            case RelationalOperators.Between:
+                if (values.Length < 2)
+                {
+                    throw new InvalidOperationException(
+                        "Between requires two values."
+                    );
+                }
+                expression = Expression.AndAlso(
+                    Expression.GreaterThanOrEqual(property, values[0]),
+                    Expression.LessThanOrEqual(property, values[1])
+                );
+                break;
             default:
                 throw new ArgumentOutOfRangeException(
                     nameof(criteria),

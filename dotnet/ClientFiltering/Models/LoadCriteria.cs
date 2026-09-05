@@ -37,6 +37,7 @@ public record LoadCriteria
     /// </summary>
     /// <value></value>
     [DataMember]
+    [JsonConverter(typeof(GroupByJsonConverter))]
     public GroupCriteria? GroupBy { get; init; }
 
     /// <summary>

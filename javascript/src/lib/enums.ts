@@ -7,6 +7,7 @@ export enum Logic {
   Contains = 6,
   NotContains = 7,
   EndsWidth = 8,
+  EndsWith = 8,
   StartsWith = 9,
   NotEqual = 10,
   NotStartsWith = 11,

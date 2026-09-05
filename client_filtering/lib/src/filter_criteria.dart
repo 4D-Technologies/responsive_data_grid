@@ -36,7 +36,7 @@ class FilterCriteria<TValue extends dynamic> with IJsonable {
         other.fieldName == fieldName &&
         other.op == op &&
         other.logicalOperator == logicalOperator &&
-        other.values == values;
+        listEquals(other.values, values);
   }
 
   @override
@@ -84,11 +84,13 @@ class FilterCriteria<TValue extends dynamic> with IJsonable {
     Map<String, dynamic> map,
   ) {
     return FilterCriteria(
-      fieldName: map['fieldName'].toString(),
-      op: Operators.fromInt(map['op'] as int),
-      logicalOperator: Logic.fromInt(map['logicalOperator'] as int),
-      values: (map['values'] as List)
-          .map((dynamic e) => _parseValue<TValue>(e as String))
+      fieldName: jsonValue(map, 'fieldName').toString(),
+      op: Operators.fromJson(jsonValue(map, 'op') ?? 1),
+      logicalOperator: Logic.fromJson(
+        jsonValue(map, 'logicalOperator', ['relation']),
+      ),
+      values: jsonList(jsonValue(map, 'values'))
+          .map((dynamic e) => _parseValue<TValue>(e.toString()))
           .toList(growable: true),
     );
   }
@@ -113,9 +115,7 @@ class FilterCriteria<TValue extends dynamic> with IJsonable {
         if (TValue == TimeOfDay) {
           return TimeOfDay.fromDateTime(DateTime.parse(value)) as TValue;
         }
-        throw UnsupportedError(
-          "The type ${TValue.toString()} is not supported for deserialization.",
-        );
+        return value as TValue;
     }
   }
 

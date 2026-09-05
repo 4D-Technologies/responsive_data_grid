@@ -38,4 +38,7 @@ public enum RelationalOperators
 
     [EnumMember]
     NotEndsWith = 12,
+
+    [EnumMember]
+    Between = 13,
 }

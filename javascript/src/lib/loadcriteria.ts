@@ -1,5 +1,7 @@
 import { FilterCriteria } from "./filtercriteria";
 import { OrderCriteria } from "./ordercriteria";
+import { GroupCriteria } from "./groupcriteria";
+import { AggregateCriteria } from "./aggregatecriteria";
 
 export class LoadCriteria {
   /// <summary>
@@ -18,4 +20,6 @@ export class LoadCriteria {
   /// Any ordering criteria to apply to the results
   /// </summary>
   public OrderBy: OrderCriteria[] = [];
+  public GroupBy?: GroupCriteria[];
+  public Aggregates?: AggregateCriteria[];
 }

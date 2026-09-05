@@ -9,6 +9,7 @@ import 'package:intl/intl.dart' as intl;
 import 'package:material_ui/material_ui.dart' show TimeOfDay;
 
 part './src/enums.dart';
+part './src/json_util.dart';
 part './src/filter_criteria.dart';
 part './src/load_criteria.dart';
 part './src/order_criteria.dart';

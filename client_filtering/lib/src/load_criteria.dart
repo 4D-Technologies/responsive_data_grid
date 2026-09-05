@@ -20,34 +20,24 @@ class LoadCriteria with IJsonable {
        orderBy = orderBy ?? List<OrderCriteria>.empty(growable: true);
 
   factory LoadCriteria.fromJson(Map<String, dynamic> json) => LoadCriteria(
-    skip: json["skip"] as int?,
-    take: json["take"] as int?,
-    filterBy: (json["filterBy"] as List)
+    skip: (jsonValue(json, 'skip') as num?)?.toInt(),
+    take: (jsonValue(json, 'take') as num?)?.toInt(),
+    filterBy: jsonList(jsonValue(json, 'filterBy'))
         .map<FilterCriteria<dynamic>>(
-          (dynamic model) =>
-              FilterCriteria.fromJson<dynamic>(model as Map<String, dynamic>),
+          (dynamic model) => FilterCriteria.fromJson<dynamic>(jsonMap(model)),
         )
         .toList(),
-    orderBy: (json["orderBy"] as List)
+    orderBy: jsonList(jsonValue(json, 'orderBy'))
         .map<OrderCriteria>(
-          (dynamic model) =>
-              OrderCriteria.fromJson(model as Map<String, dynamic>),
+          (dynamic model) => OrderCriteria.fromJson(jsonMap(model)),
         )
         .toList(),
-    groupBy: json["groupBy"] == null
+    groupBy: groupByFromJson(jsonValue(json, 'groupBy')),
+    aggregates: jsonValue(json, 'aggregates') == null
         ? null
-        : (json["groupBy"] as List)
-              .map<GroupCriteria>(
-                (dynamic model) =>
-                    GroupCriteria.fromJson(model as Map<String, dynamic>),
-              )
-              .toList(),
-    aggregates: json["aggregates"] == null
-        ? null
-        : (json["aggregates"] as List)
+        : jsonList(jsonValue(json, 'aggregates'))
               .map<AggregateCriteria>(
-                (dynamic model) =>
-                    AggregateCriteria.fromJson(model as Map<String, dynamic>),
+                (dynamic model) => AggregateCriteria.fromJson(jsonMap(model)),
               )
               .toList(),
   );
