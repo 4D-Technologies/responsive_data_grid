@@ -7,7 +7,7 @@ public record GroupCriteria
     public required string FieldName { get; init; }
 
     [DataMember]
-    [JsonConverter(typeof(JsonStringEnumConverter))]
+    [JsonConverter(typeof(FlexibleEnumConverter<OrderDirections>))]
     public required OrderDirections Direction { get; init; }
 
     [DataMember]

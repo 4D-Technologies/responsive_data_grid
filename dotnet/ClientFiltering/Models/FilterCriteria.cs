@@ -1,6 +1,7 @@
 namespace ClientFiltering.Models;
 
 [DataContract]
+[JsonConverter(typeof(FilterCriteriaJsonConverter))]
 public record FilterCriteria
 {
     /// <summary>
@@ -13,14 +14,15 @@ public record FilterCriteria
     /// The operator
     /// </summary>
     [DataMember]
-    [JsonConverter(typeof(JsonStringEnumConverter))]
+    [JsonConverter(typeof(FlexibleEnumConverter<LogicalOperators>))]
     public LogicalOperators Op { get; init; } = LogicalOperators.And;
 
     /// <summary>
-    /// The logical operator for the function
+    /// The comparison operator. Serialized as <c>logicalOperator</c>.
     /// </summary>
     [DataMember]
-    [JsonConverter(typeof(JsonStringEnumConverter))]
+    [JsonPropertyName("logicalOperator")]
+    [JsonConverter(typeof(FlexibleEnumConverter<RelationalOperators>))]
     public RelationalOperators Relation { get; init; }
 
     /// <summary>

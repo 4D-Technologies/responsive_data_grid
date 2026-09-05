@@ -16,6 +16,6 @@ public record OrderCriteria
     /// The direction to order it
     /// </summary>
     [DataMember]
-    [JsonConverter(typeof(JsonStringEnumConverter))]
+    [JsonConverter(typeof(FlexibleEnumConverter<OrderDirections>))]
     public required OrderDirections Direction { get; init; }
 }

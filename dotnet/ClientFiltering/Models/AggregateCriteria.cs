@@ -6,6 +6,6 @@ public record AggregateCriteria
     public required string FieldName { get; init; }
 
     [DataMember]
-    [JsonConverter(typeof(JsonStringEnumConverter))]
+    [JsonConverter(typeof(FlexibleEnumConverter<Aggregations>))]
     public required Aggregations Aggregation { get; init; }
 }

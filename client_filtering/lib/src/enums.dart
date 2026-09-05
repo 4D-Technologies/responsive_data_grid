@@ -19,6 +19,19 @@ enum Aggregations implements IEnum {
   factory Aggregations.fromInt(num i) =>
       Aggregations.values.firstWhere((x) => x.value == i);
 
+  factory Aggregations.fromJson(dynamic value) => parseWireEnum(
+    value: value,
+    fromInt: Aggregations.fromInt,
+    typeName: 'Aggregations',
+    names: {
+      'sum': Aggregations.sum,
+      'average': Aggregations.average,
+      'maximum': Aggregations.maximum,
+      'minimum': Aggregations.minimum,
+      'count': Aggregations.count,
+    },
+  );
+
   @override
   String toString() {
     switch (this) {
@@ -47,6 +60,13 @@ enum Operators implements IEnum {
 
   factory Operators.fromInt(num i) =>
       Operators.values.firstWhere((x) => x.value == i);
+
+  factory Operators.fromJson(dynamic value) => parseWireEnum(
+    value: value,
+    fromInt: Operators.fromInt,
+    typeName: 'Operators',
+    names: {'and': Operators.and, 'or': Operators.or},
+  );
 
   @override
   String toString() {
@@ -83,6 +103,28 @@ enum Logic implements IEnum {
   const Logic(this.value);
 
   factory Logic.fromInt(num i) => Logic.values.firstWhere((x) => x.value == i);
+
+  factory Logic.fromJson(dynamic value) => parseWireEnum(
+    value: value,
+    fromInt: Logic.fromInt,
+    typeName: 'Logic',
+    names: {
+      'equals': Logic.equals,
+      'lessthan': Logic.lessThan,
+      'greaterthan': Logic.greaterThan,
+      'lessthanorequalto': Logic.lessThanOrEqualTo,
+      'greaterthanorequalto': Logic.greaterThanOrEqualTo,
+      'contains': Logic.contains,
+      'notcontains': Logic.notContains,
+      'endswith': Logic.endsWith,
+      'endswidth': Logic.endsWith,
+      'startswith': Logic.startsWith,
+      'notequal': Logic.notEqual,
+      'notstartswith': Logic.notStartsWith,
+      'notendswith': Logic.notEndsWith,
+      'between': Logic.between,
+    },
+  );
 
   @override
   String toString() {
@@ -129,6 +171,17 @@ enum OrderDirections implements IEnum {
 
   factory OrderDirections.fromInt(num i) =>
       OrderDirections.values.firstWhere((x) => x.value == i);
+
+  factory OrderDirections.fromJson(dynamic value) => parseWireEnum(
+    value: value,
+    fromInt: OrderDirections.fromInt,
+    typeName: 'OrderDirections',
+    names: {
+      'notset': OrderDirections.notSet,
+      'ascending': OrderDirections.ascending,
+      'descending': OrderDirections.descending,
+    },
+  );
 
   @override
   String toString() {

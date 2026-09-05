@@ -8,8 +8,8 @@ class AggregateCriteria with IJsonable {
 
   factory AggregateCriteria.fromJson(Map<String, dynamic> json) =>
       AggregateCriteria(
-        fieldName: json['fieldName'].toString(),
-        aggregation: Aggregations.fromInt(json["aggregation"] as int),
+        fieldName: jsonValue(json, 'fieldName').toString(),
+        aggregation: Aggregations.fromJson(jsonValue(json, 'aggregation')),
       );
 
   @override
