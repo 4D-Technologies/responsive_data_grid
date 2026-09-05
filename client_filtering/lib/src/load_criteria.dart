@@ -113,208 +113,90 @@ class LoadCriteria with IJsonable {
     required Iterable<T> data,
     required dynamic Function(String fieldName, T item) getFieldValue,
   }) {
-    Iterable<T> items = List<T>.from(data);
-
-    for (final criteria in filterBy) {
-      if (criteria.op == Operators.or) {
-        throw UnsupportedError("Or is not supported in Dart.");
-      }
-
-      switch (criteria.logicalOperator) {
-        case Logic.equals:
-          items = items.where((e) {
-            final dynamic value = getFieldValue(criteria.fieldName, e);
-
-            return criteria.values.contains(value);
-          });
-          break;
-        case Logic.lessThan:
-          items = items.where((e) {
-            final dynamic value = getFieldValue(criteria.fieldName, e);
-            final dynamic cValue = criteria.values.isEmpty
-                ? null
-                : criteria.values.first;
-            if (value == null || cValue == null) return false;
-
-            if (value is DateTime && cValue is DateTime) {
-              return value.compareTo(cValue) < 0;
-            }
-
-            return (value < cValue) as bool;
-          });
-          break;
-        case Logic.greaterThan:
-          items = items.where((e) {
-            final dynamic value = getFieldValue(criteria.fieldName, e);
-            final dynamic cValue = criteria.values.isEmpty
-                ? null
-                : criteria.values.first;
-            if (value == null || cValue == null) return false;
-
-            if (value is DateTime && cValue is DateTime) {
-              return value.compareTo(cValue) > 0;
-            }
-
-            return (value > cValue) as bool;
-          }).toList();
-
-          break;
-        case Logic.lessThanOrEqualTo:
-          items = items.where((e) {
-            final dynamic value = getFieldValue(criteria.fieldName, e);
-            final dynamic cValue = criteria.values.isEmpty
-                ? null
-                : criteria.values.first;
-            if (value == null || cValue == null) return false;
-
-            if (value is DateTime && cValue is DateTime) {
-              return value.compareTo(cValue) <= 0;
-            }
-
-            return (value <= cValue) as bool;
-          });
-          break;
-        case Logic.greaterThanOrEqualTo:
-          items = items.where((e) {
-            final dynamic value = getFieldValue(criteria.fieldName, e);
-            final dynamic cValue = criteria.values.isEmpty
-                ? null
-                : criteria.values.first;
-            if (value == null || cValue == null) return false;
-
-            if (value is DateTime && cValue is DateTime) {
-              return value.compareTo(cValue) >= 0;
-            }
-
-            return (value >= cValue) as bool;
-          });
-          break;
-        case Logic.contains:
-          items = items.where((e) {
-            final dynamic value = getFieldValue(criteria.fieldName, e);
-            final dynamic cValue = criteria.values.isEmpty
-                ? null
-                : criteria.values.first;
-
-            if (value == null ||
-                cValue == null ||
-                value is! String ||
-                cValue is! String) {
-              return false;
-            }
-
-            return value.contains(cValue);
-          });
-          break;
-        case Logic.notContains:
-          items = items.where((e) {
-            final dynamic value = getFieldValue(criteria.fieldName, e);
-            final dynamic cValue = criteria.values.isEmpty
-                ? null
-                : criteria.values.first;
-
-            if (value == null ||
-                cValue == null ||
-                value is! String ||
-                cValue is! String) {
-              return false;
-            }
-
-            return !value.contains(cValue);
-          }).toList();
-          break;
-        case Logic.endsWith:
-          items = items.where((e) {
-            final dynamic value = getFieldValue(criteria.fieldName, e);
-            final dynamic cValue = criteria.values.isEmpty
-                ? null
-                : criteria.values.first;
-
-            if (value == null ||
-                cValue == null ||
-                value is! String ||
-                cValue is! String) {
-              return false;
-            }
-
-            return value.endsWith(cValue);
-          });
-          break;
-        case Logic.startsWith:
-          items = items.where((e) {
-            final dynamic value = getFieldValue(criteria.fieldName, e);
-            final dynamic cValue = criteria.values.isEmpty
-                ? null
-                : criteria.values.first;
-
-            if (value == null ||
-                cValue == null ||
-                value is! String ||
-                cValue is! String) {
-              return false;
-            }
-
-            return value.startsWith(cValue);
-          }).toList();
-          break;
-        case Logic.notEqual:
-          items = items.where((e) {
-            final dynamic value = getFieldValue(criteria.fieldName, e);
-            return !criteria.values.contains(value);
-          });
-          break;
-        case Logic.notEndsWith:
-          items = items.where((e) {
-            final dynamic value = getFieldValue(criteria.fieldName, e);
-            final dynamic cValue = criteria.values.isEmpty
-                ? null
-                : criteria.values.first;
-            if (value == null ||
-                cValue == null ||
-                value is! String ||
-                cValue is! String) {
-              return false;
-            }
-
-            return !value.endsWith(cValue);
-          });
-          break;
-        case Logic.notStartsWith:
-          items = items.where((e) {
-            final dynamic value = getFieldValue(criteria.fieldName, e);
-            final dynamic cValue = criteria.values.isEmpty
-                ? null
-                : criteria.values.first;
-            if (value == null ||
-                cValue == null ||
-                value is! String ||
-                cValue is! String) {
-              return false;
-            }
-
-            return !value.startsWith(cValue);
-          });
-          break;
-        case Logic.between:
-          items = items.where((e) {
-            final dynamic value = getFieldValue(criteria.fieldName, e);
-            final dynamic cValue1 = criteria.values.isEmpty
-                ? null
-                : criteria.values.first;
-            final dynamic cValue2 = criteria.values.length > 1
-                ? criteria.values.last
-                : null;
-            if (value == null || cValue1 == null || cValue2 == null) {
-              return false;
-            }
-
-            return (value >= cValue1) as bool && (value <= cValue2) as bool;
-          });
-          break;
-      }
+    if (filterBy.isEmpty) {
+      return List<T>.from(data);
     }
 
-    return items;
+    // Match .NET ApplyFilterPredicates: first clause is the seed, each
+    // following clause joins with that clause's Operators (AND/OR).
+    return data.where((item) {
+      var result = _matches(filterBy.first, item, getFieldValue);
+      for (final criteria in filterBy.skip(1)) {
+        final matched = _matches(criteria, item, getFieldValue);
+        result = criteria.op == Operators.or
+            ? result || matched
+            : result && matched;
+      }
+      return result;
+    });
+  }
+
+  bool _matches<T>(
+    FilterCriteria<dynamic> criteria,
+    T item,
+    dynamic Function(String fieldName, T item) getFieldValue,
+  ) {
+    final dynamic value = getFieldValue(criteria.fieldName, item);
+    final values = criteria.values;
+    final dynamic first = values.isEmpty ? null : values.first;
+    final dynamic last = values.length > 1 ? values.last : null;
+
+    switch (criteria.logicalOperator) {
+      case Logic.equals:
+        return values.contains(value);
+      case Logic.notEqual:
+        return !values.contains(value);
+      case Logic.lessThan:
+        final lt = _compare(value, first);
+        return lt != null && lt < 0;
+      case Logic.lessThanOrEqualTo:
+        final lte = _compare(value, first);
+        return lte != null && lte <= 0;
+      case Logic.greaterThan:
+        final gt = _compare(value, first);
+        return gt != null && gt > 0;
+      case Logic.greaterThanOrEqualTo:
+        final gte = _compare(value, first);
+        return gte != null && gte >= 0;
+      case Logic.between:
+        final lo = _compare(value, first);
+        final hi = _compare(value, last);
+        return lo != null && hi != null && lo >= 0 && hi <= 0;
+      case Logic.contains:
+        return value is String && first is String && value.contains(first);
+      case Logic.notContains:
+        return value is String && first is String && !value.contains(first);
+      case Logic.startsWith:
+        return value is String && first is String && value.startsWith(first);
+      case Logic.notStartsWith:
+        return value is String && first is String && !value.startsWith(first);
+      case Logic.endsWith:
+        return value is String && first is String && value.endsWith(first);
+      case Logic.notEndsWith:
+        return value is String && first is String && !value.endsWith(first);
+    }
+  }
+
+  int? _compare(dynamic left, dynamic right) {
+    if (left == null || right == null) {
+      return null;
+    }
+    if (left is DateTime && right is DateTime) {
+      return left.compareTo(right);
+    }
+    if (left is TimeOfDay && right is TimeOfDay) {
+      return (left.hour * 60 + left.minute).compareTo(
+        right.hour * 60 + right.minute,
+      );
+    }
+    if (left is Comparable && right is Comparable) {
+      try {
+        return left.compareTo(right);
+      } on TypeError {
+        return null;
+      }
+    }
+    return null;
   }
 
   Iterable<T> orderItems<T>({
