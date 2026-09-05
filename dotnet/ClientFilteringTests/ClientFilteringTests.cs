@@ -265,4 +265,50 @@ public class Tests
         results.Should().HaveCount(1);
         results.First().Name.Should().BeEquivalentTo("Test User");
     }
+
+    [Fact]
+    public void FilterByOrUnionsPredicates()
+    {
+        var contacts = new List<Contact>
+        {
+            new Contact(
+                Id: Guid.NewGuid().ToString(),
+                Name: "Ada",
+                DateOfBirth: new DateTime(1977, 6, 17)
+            ),
+            new Contact(
+                Id: Guid.NewGuid().ToString(),
+                Name: "Grace",
+                DateOfBirth: new DateTime(1985, 1, 2)
+            ),
+            new Contact(
+                Id: Guid.NewGuid().ToString(),
+                Name: "Alan",
+                DateOfBirth: new DateTime(1912, 6, 23)
+            ),
+        };
+
+        var criteria = new LoadCriteria
+        {
+            FilterBy = new[]
+            {
+                new FilterCriteria
+                {
+                    FieldName = nameof(Contact.Name),
+                    Relation = RelationalOperators.Equals,
+                    Values = new[] { "Ada" },
+                },
+                new FilterCriteria
+                {
+                    FieldName = nameof(Contact.Name),
+                    Op = LogicalOperators.Or,
+                    Relation = RelationalOperators.Equals,
+                    Values = new[] { "Alan" },
+                },
+            },
+        };
+
+        var results = contacts.AsQueryable().ApplyLoadCriteria(criteria).ToArray();
+        results.Select(c => c.Name).Should().BeEquivalentTo("Ada", "Alan");
+    }
 }
