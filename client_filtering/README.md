@@ -1,5 +1,7 @@
 # client_filtering
 
+[![CI](https://github.com/4D-Technologies/responsive_data_grid/actions/workflows/ci.yml/badge.svg)](https://github.com/4D-Technologies/responsive_data_grid/actions/workflows/ci.yml)
+
 Client Filtering works hand in hand with responsive_data_grid but can be used in other projects as well.
 
 This project holds the models and enums required to do complex client side filtering similar to what oData or Kendo Data Grid does. This allows for advanced filtering scenarios for data grids, and other options that you might implement in your REST/GRPC API.
