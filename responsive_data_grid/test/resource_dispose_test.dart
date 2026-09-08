@@ -97,7 +97,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
 
-    await tester.tap(find.byIcon(Icons.menu).first);
+    await tester.tap(find.byIcon(Icons.more_vert).first);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
 

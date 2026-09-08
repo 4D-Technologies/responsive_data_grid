@@ -18,7 +18,7 @@ void main() {
 
     final columnMenus = find.descendant(
       of: find.byType(ResponsiveDataGridHeaderRowWidget<ExampleData>),
-      matching: find.byIcon(Icons.menu),
+      matching: find.byIcon(Icons.more_vert),
     );
     await tester.tap(columnMenus.first);
     await tester.pumpAndSettle();

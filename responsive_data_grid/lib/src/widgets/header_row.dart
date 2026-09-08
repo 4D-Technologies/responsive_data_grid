@@ -11,13 +11,11 @@ class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
 
   @override
   Widget build(BuildContext context) {
-    final grid = this.grid.widget;
-
-    final theme = Theme.of(context);
     final gridTheme = ResponsiveDataGridTheme.of(context);
 
-    final iconTheme = theme.iconTheme.copyWith(
+    final iconTheme = IconTheme.of(context).copyWith(
       color: gridTheme.headerForeground,
+      size: gridTheme.headerIconSize,
     );
 
     return IconTheme(
@@ -34,22 +32,21 @@ class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
               ),
             ),
           ),
-          child: Padding(
-            padding: gridTheme.resolvePadding(grid.contentPadding),
-            child: BootstrapRow(
-              children: getColumnHeaders(context, grid),
-              crossAxisAlignment:
-                  grid.headerCrossAxisAlignment == CrossAxisAlignment.start ||
-                      grid.headerCrossAxisAlignment ==
-                          CrossAxisAlignment.stretch
-                  ? WrapCrossAlignment.start
-                  : grid.headerCrossAxisAlignment == CrossAxisAlignment.center
-                  ? WrapCrossAlignment.center
-                  : WrapCrossAlignment.end,
-              totalSegments:
-                  GridTableLayout.maybeOf(context)?.totalSegments ??
-                  grid.reactiveSegments,
-            ),
+          child: BootstrapRow(
+            children: getColumnHeaders(context, grid.widget, gridTheme),
+            crossAxisAlignment:
+                grid.widget.headerCrossAxisAlignment ==
+                        CrossAxisAlignment.start ||
+                    grid.widget.headerCrossAxisAlignment ==
+                        CrossAxisAlignment.stretch
+                ? WrapCrossAlignment.start
+                : grid.widget.headerCrossAxisAlignment ==
+                      CrossAxisAlignment.center
+                ? WrapCrossAlignment.center
+                : WrapCrossAlignment.end,
+            totalSegments:
+                GridTableLayout.maybeOf(context)?.totalSegments ??
+                grid.widget.reactiveSegments,
           ),
         ),
       ),
@@ -59,29 +56,47 @@ class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
   List<BootstrapCol> getColumnHeaders(
     BuildContext context,
     ResponsiveDataGrid<TItem> grid,
+    ResponsiveDataGridTheme gridTheme,
   ) {
-    return columns
-        .map(
-          (c) => BootstrapCol(
-            child: Padding(
-              padding: EdgeInsets.only(
-                left: columns.indexOf(c) == 0 ? 0 : grid.columnSpacing,
+    return [
+      for (var i = 0; i < columns.length; i++)
+        BootstrapCol(
+          child: DecoratedBox(
+            key: ValueKey('rdg-header-cell-${columns[i].fieldName}'),
+            decoration: BoxDecoration(
+              border: Border(
+                right:
+                    i == columns.length - 1 || gridTheme.headerDividerWidth <= 0
+                    ? BorderSide.none
+                    : BorderSide(
+                        color: gridTheme.headerDividerColor,
+                        width: gridTheme.headerDividerWidth,
+                      ),
               ),
-              child: c.getHeader(this.grid),
             ),
-            lg: c.largeCols ?? c.mediumCols ?? c.smallCols ?? c.xsCols ?? 12,
-            md: c.mediumCols ?? c.smallCols ?? c.xsCols ?? 12,
-            sm: c.smallCols ?? c.xsCols ?? 12,
-            xl:
-                c.xlCols ??
-                c.largeCols ??
-                c.mediumCols ??
-                c.smallCols ??
-                c.xsCols ??
-                12,
-            xs: c.xsCols ?? 12,
+            child: columns[i].getHeader(this.grid),
           ),
-        )
-        .toList();
+          lg:
+              columns[i].largeCols ??
+              columns[i].mediumCols ??
+              columns[i].smallCols ??
+              columns[i].xsCols ??
+              12,
+          md:
+              columns[i].mediumCols ??
+              columns[i].smallCols ??
+              columns[i].xsCols ??
+              12,
+          sm: columns[i].smallCols ?? columns[i].xsCols ?? 12,
+          xl:
+              columns[i].xlCols ??
+              columns[i].largeCols ??
+              columns[i].mediumCols ??
+              columns[i].smallCols ??
+              columns[i].xsCols ??
+              12,
+          xs: columns[i].xsCols ?? 12,
+        ),
+    ];
   }
 }

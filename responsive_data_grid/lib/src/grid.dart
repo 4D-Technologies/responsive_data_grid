@@ -30,6 +30,8 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
 
   final int groupIndent;
   final bool allowGrouping;
+  final GroupPanelDisplay groupPanel;
+  final String? groupPanelHint;
   final bool allowAggregations;
   final void Function(Object error, StackTrace stackTrace)? onLoadError;
 
@@ -49,6 +51,8 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
     this.noResults,
     this.groupIndent = 15,
     this.allowGrouping = false,
+    this.groupPanel = GroupPanelDisplay.collapsed,
+    this.groupPanelHint,
     this.rowCrossAxisAlignment = CrossAxisAlignment.center,
     this.headerCrossAxisAlignment = CrossAxisAlignment.center,
     this.reactiveSegments = 12,
@@ -70,6 +74,8 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
     this.initialLoadCriteria,
     this.groupIndent = 15,
     this.allowGrouping = false,
+    this.groupPanel = GroupPanelDisplay.collapsed,
+    this.groupPanelHint,
     this.itemTapped,
     this.separatorThickness,
     this.pageSize = 50,

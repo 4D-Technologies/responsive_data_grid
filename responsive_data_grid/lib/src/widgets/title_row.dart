@@ -7,36 +7,42 @@ class TitleRowWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final bannerTheme = MaterialBannerTheme.of(context);
-    final ColorScheme colorScheme = theme.colorScheme;
+    final gridTheme = ResponsiveDataGridTheme.of(context);
 
     final backgroundColor =
-        definition.backgroundColor ??
-        bannerTheme.backgroundColor ??
-        (colorScheme.brightness == Brightness.dark
-            ? colorScheme.surface
-            : colorScheme.primary);
-
+        definition.backgroundColor ?? gridTheme.titleBackground;
     final foregroundColor =
-        definition.foregroundColor ??
-        (colorScheme.brightness == Brightness.dark
-            ? colorScheme.onSurface
-            : colorScheme.onPrimary);
-
+        definition.foregroundColor ?? gridTheme.titleForeground;
     final titleTextStyle =
-        bannerTheme.contentTextStyle ??
-        theme.textTheme.titleSmall?.copyWith(color: foregroundColor);
+        definition.textStyle?.copyWith(color: foregroundColor) ??
+        gridTheme.titleTextStyle.copyWith(color: foregroundColor);
 
-    final overallIconTheme = theme.iconTheme.copyWith(color: foregroundColor);
-
-    return ListTile(
-      title: Text(definition.title, style: titleTextStyle),
-      leading: definition.icon == null
-          ? null
-          : IconTheme(data: overallIconTheme, child: definition.icon!),
-      visualDensity: VisualDensity.compact,
-      tileColor: backgroundColor,
+    return ColoredBox(
+      color: backgroundColor,
+      child: Padding(
+        padding: gridTheme.resolvePadding(
+          const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        ),
+        child: Row(
+          children: [
+            if (definition.icon != null) ...[
+              IconTheme(
+                data: IconThemeData(color: foregroundColor, size: 20),
+                child: definition.icon!,
+              ),
+              const SizedBox(width: 8),
+            ],
+            Expanded(
+              child: Text(
+                definition.title,
+                style: titleTextStyle,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

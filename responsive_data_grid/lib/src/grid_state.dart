@@ -147,8 +147,10 @@ class ResponsiveDataGridState<TItem extends Object>
   }
 
   FutureOr<void> addGroup(GroupCriteria group) async {
-    criteria.groupBy!.add(group);
-
+    final current = List<GroupCriteria>.from(
+      criteria.groupBy ?? const <GroupCriteria>[],
+    )..add(group);
+    criteria = criteria.copyWith(groupBy: () => current);
     await refreshData();
   }
 
@@ -274,170 +276,175 @@ class ResponsiveDataGridState<TItem extends Object>
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final gridTheme = theme;
+    return wrapGridHost(
+      context: context,
+      child: Builder(
+        builder: (context) {
+          final theme = Theme.of(context);
+          return Card(
+            borderOnForeground: false,
+            elevation: widget.elevation,
+            child: Padding(
+              padding: widget.padding,
+              child: SizedBox(
+                height: widget.height,
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    late PagingMode pagingMode;
 
-    return Theme(
-      data: gridTheme,
-      child: Card(
-        borderOnForeground: false,
-        elevation: widget.elevation,
-        child: Padding(
-          padding: widget.padding,
-          child: SizedBox(
-            height: widget.height,
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                late PagingMode pagingMode;
+                    if (widget.pagingMode == PagingMode.auto) {
+                      pagingMode = constraints.hasBoundedHeight
+                          ? PagingMode.infiniteScroll
+                          : PagingMode.pager;
+                    } else {
+                      pagingMode = widget.pagingMode;
+                    }
 
-                if (widget.pagingMode == PagingMode.auto) {
-                  pagingMode = constraints.hasBoundedHeight
-                      ? PagingMode.infiniteScroll
-                      : PagingMode.pager;
-                } else {
-                  pagingMode = widget.pagingMode;
-                }
+                    if (pagingMode == PagingMode.infiniteScroll &&
+                        !constraints.hasBoundedHeight) {
+                      throw UnsupportedError(
+                        "The grid cannot be scrolled and as a result pagingModel = PagingMode.infiniteScroll cannot be supported. Please use auto or pager.",
+                      );
+                    }
 
-                if (pagingMode == PagingMode.infiniteScroll &&
-                    !constraints.hasBoundedHeight) {
-                  throw UnsupportedError(
-                    "The grid cannot be scrolled and as a result pagingModel = PagingMode.infiniteScroll cannot be supported. Please use auto or pager.",
-                  );
-                }
+                    final parts = List<Widget>.empty(growable: true);
+                    if (widget.title != null) {
+                      parts.add(TitleRowWidget(widget.title!));
+                    }
 
-                final parts = List<Widget>.empty(growable: true);
-                if (widget.title != null) {
-                  parts.add(TitleRowWidget(widget.title!));
-                }
+                    if (widget.allowGrouping &&
+                        widget.groupPanel != GroupPanelDisplay.hidden) {
+                      parts.add(
+                        GridGroupChooser<TItem>(
+                          gridState: this,
+                          theme: theme,
+                          addGroup: addGroup,
+                          removeGroup: removeGroup,
+                          updateGroup: updateGroup,
+                        ),
+                      );
+                    }
 
-                if (widget.allowGrouping) {
-                  parts.add(
-                    GridGroupChooser<TItem>(
-                      gridState: this,
-                      theme: theme,
-                      addGroup: addGroup,
-                      removeGroup: removeGroup,
-                      updateGroup: updateGroup,
-                    ),
-                  );
-                }
+                    final screenWidth = MediaQuery.sizeOf(context).width;
+                    final metrics = gridTableMetrics<TItem>(
+                      columns: widget.columns,
+                      viewportWidth: constraints.maxWidth,
+                      reactiveSegments: widget.reactiveSegments,
+                      screenWidth: screenWidth,
+                    );
 
-                final screenWidth = MediaQuery.sizeOf(context).width;
-                final metrics = gridTableMetrics<TItem>(
-                  columns: widget.columns,
-                  viewportWidth: constraints.maxWidth,
-                  reactiveSegments: widget.reactiveSegments,
-                  screenWidth: screenWidth,
-                );
-
-                Widget tableBody;
-                if (isLoading) {
-                  tableBody = const Center(child: CircularProgressIndicator());
-                } else if (loadError != null) {
-                  tableBody = Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(LocalizedMessages.loadFailed),
-                          const SizedBox(height: 8),
-                          TextButton(
-                            onPressed: () => refreshData(),
-                            child: Text(LocalizedMessages.retry),
+                    Widget tableBody;
+                    if (isLoading) {
+                      tableBody = const Center(
+                        child: CircularProgressIndicator.adaptive(),
+                      );
+                    } else if (loadError != null) {
+                      tableBody = Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(LocalizedMessages.loadFailed),
+                              const SizedBox(height: 8),
+                              TextButton(
+                                onPressed: () => refreshData(),
+                                child: Text(LocalizedMessages.retry),
+                              ),
+                            ],
                           ),
+                        ),
+                      );
+                    } else {
+                      tableBody = GridBody<TItem>(
+                        gridState: this,
+                        constraints: constraints,
+                        pagingMode: pagingMode,
+                        gridTheme: theme,
+                      );
+                    }
+
+                    final table = GridTableLayout(
+                      contentWidth: metrics.contentWidth,
+                      totalSegments: metrics.totalSegments,
+                      child: Column(
+                        mainAxisSize: constraints.hasBoundedHeight
+                            ? MainAxisSize.max
+                            : MainAxisSize.min,
+                        children: [
+                          ResponsiveDataGridHeaderRowWidget<TItem>(
+                            this,
+                            widget.columns,
+                          ),
+                          if (constraints.hasBoundedHeight)
+                            Expanded(child: tableBody)
+                          else
+                            tableBody,
+                          if (_dataCache.aggregates.isNotEmpty)
+                            GridFooter(_dataCache, this, theme),
                         ],
                       ),
-                    ),
-                  );
-                } else {
-                  tableBody = GridBody<TItem>(
-                    gridState: this,
-                    constraints: constraints,
-                    pagingMode: pagingMode,
-                    gridTheme: theme,
-                  );
-                }
+                    );
 
-                final table = GridTableLayout(
-                  contentWidth: metrics.contentWidth,
-                  totalSegments: metrics.totalSegments,
-                  child: Column(
-                    mainAxisSize: constraints.hasBoundedHeight
-                        ? MainAxisSize.max
-                        : MainAxisSize.min,
-                    children: [
-                      ResponsiveDataGridHeaderRowWidget<TItem>(
-                        this,
-                        widget.columns,
+                    if (constraints.hasBoundedHeight) {
+                      parts.add(
+                        Expanded(
+                          child: LayoutBuilder(
+                            builder: (context, inner) {
+                              return SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: SizedBox(
+                                  width: metrics.contentWidth,
+                                  height: inner.maxHeight,
+                                  child: table,
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      );
+                    } else {
+                      parts.add(
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: SizedBox(
+                            width: metrics.contentWidth,
+                            child: table,
+                          ),
+                        ),
+                      );
+                    }
+
+                    if (pagingMode == PagingMode.pager) {
+                      parts.add(
+                        PagerWidget(
+                          pageNumber: pageNumber,
+                          totalCount: _dataCache.totalCount,
+                          setPage: setPage,
+                          theme: theme,
+                          pageSize: widget.pageSize,
+                        ),
+                      );
+                    }
+
+                    return NotificationListener<GridCriteriaChangeNotification>(
+                      onNotification: (notification) {
+                        refreshData();
+                        return true;
+                      },
+                      child: Column(
+                        mainAxisSize: !constraints.hasBoundedHeight
+                            ? MainAxisSize.min
+                            : MainAxisSize.max,
+                        children: parts,
                       ),
-                      if (constraints.hasBoundedHeight)
-                        Expanded(child: tableBody)
-                      else
-                        tableBody,
-                      if (_dataCache.aggregates.isNotEmpty)
-                        GridFooter(_dataCache, this, theme),
-                    ],
-                  ),
-                );
-
-                if (constraints.hasBoundedHeight) {
-                  parts.add(
-                    Expanded(
-                      child: LayoutBuilder(
-                        builder: (context, inner) {
-                          return SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: SizedBox(
-                              width: metrics.contentWidth,
-                              height: inner.maxHeight,
-                              child: table,
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  );
-                } else {
-                  parts.add(
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: SizedBox(
-                        width: metrics.contentWidth,
-                        child: table,
-                      ),
-                    ),
-                  );
-                }
-
-                if (pagingMode == PagingMode.pager) {
-                  parts.add(
-                    PagerWidget(
-                      pageNumber: pageNumber,
-                      totalCount: _dataCache.totalCount,
-                      setPage: setPage,
-                      theme: theme,
-                      pageSize: widget.pageSize,
-                    ),
-                  );
-                }
-
-                return NotificationListener<GridCriteriaChangeNotification>(
-                  onNotification: (notification) {
-                    refreshData();
-                    return true;
+                    );
                   },
-                  child: Column(
-                    mainAxisSize: !constraints.hasBoundedHeight
-                        ? MainAxisSize.min
-                        : MainAxisSize.max,
-                    children: parts,
-                  ),
-                );
-              },
+                ),
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }

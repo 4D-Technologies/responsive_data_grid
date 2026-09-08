@@ -11,6 +11,10 @@ class ColumnHeader {
   final TextStyle? textStyle;
   final Color? backgroundColor;
   final Color? foregroundColor;
+  final EdgeInsets? padding;
+  final double? iconSize;
+  final Color? sortColor;
+  final Color? menuColor;
 
   const ColumnHeader({
     this.empty = false,
@@ -23,6 +27,10 @@ class ColumnHeader {
     this.backgroundColor,
     this.foregroundColor,
     this.textStyle,
+    this.padding,
+    this.iconSize,
+    this.sortColor,
+    this.menuColor,
   });
 
   @override
@@ -39,7 +47,11 @@ class ColumnHeader {
         other.showAggregations == showAggregations &&
         other.textStyle == textStyle &&
         other.backgroundColor == backgroundColor &&
-        other.foregroundColor == foregroundColor;
+        other.foregroundColor == foregroundColor &&
+        other.padding == padding &&
+        other.iconSize == iconSize &&
+        other.sortColor == sortColor &&
+        other.menuColor == menuColor;
   }
 
   @override
@@ -53,12 +65,16 @@ class ColumnHeader {
         showAggregations.hashCode ^
         textStyle.hashCode ^
         backgroundColor.hashCode ^
-        foregroundColor.hashCode;
+        foregroundColor.hashCode ^
+        padding.hashCode ^
+        iconSize.hashCode ^
+        sortColor.hashCode ^
+        menuColor.hashCode;
   }
 
   @override
   String toString() {
-    return 'ColumnHeader(empty: $empty, text: $text, alignment: $alignment, textAlign: $textAlign, showFilter: $showFilter, showOrderBy: $showOrderBy, showAggregations: $showAggregations, textStyle: $textStyle, backgroundColor: $backgroundColor, foregroundColor: $foregroundColor)';
+    return 'ColumnHeader(empty: $empty, text: $text, alignment: $alignment, textAlign: $textAlign, showFilter: $showFilter, showOrderBy: $showOrderBy, showAggregations: $showAggregations, textStyle: $textStyle, backgroundColor: $backgroundColor, foregroundColor: $foregroundColor, padding: $padding, iconSize: $iconSize, sortColor: $sortColor, menuColor: $menuColor)';
   }
 
   ColumnHeader copyWith({
@@ -72,6 +88,10 @@ class ColumnHeader {
     TextStyle? Function()? textStyle,
     Color? Function()? backgroundColor,
     Color? Function()? foregroundColor,
+    EdgeInsets? Function()? padding,
+    double? Function()? iconSize,
+    Color? Function()? sortColor,
+    Color? Function()? menuColor,
   }) {
     return ColumnHeader(
       empty: empty == null ? this.empty : empty(),
@@ -90,6 +110,10 @@ class ColumnHeader {
       foregroundColor: foregroundColor == null
           ? this.foregroundColor
           : foregroundColor(),
+      padding: padding == null ? this.padding : padding(),
+      iconSize: iconSize == null ? this.iconSize : iconSize(),
+      sortColor: sortColor == null ? this.sortColor : sortColor(),
+      menuColor: menuColor == null ? this.menuColor : menuColor(),
     );
   }
 }

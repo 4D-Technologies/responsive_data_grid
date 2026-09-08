@@ -9,6 +9,7 @@ import 'package:date_field/date_field.dart';
 import 'package:flutter/services.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart' as intl;
+import 'package:cupertino_ui/cupertino_ui.dart' as cupertino;
 import 'package:material_ui/material_ui.dart';
 
 import 'responsive_data_grid.dart';
@@ -46,6 +47,7 @@ part './src/grid_layout.dart';
 part './src/theme.dart';
 part './src/extensions.dart';
 
+part './src/widgets/chrome_icon_button.dart';
 part './src/widgets/column_header.dart';
 part './src/widgets/paged_body.dart';
 part './src/widgets/infinite_scroll_body.dart';
@@ -94,6 +96,11 @@ class LocalizedMessages {
   static var noEntry = "No Entry";
   static var retry = "Retry";
   static var loadFailed = "Unable to load data.";
+  static var groupBy = "Group by";
+  static var groupPanelHint = "Select a column to group by";
+  static var addGrouping = "Add grouping";
+  static var ungroup = "Ungroup";
+  static var groupColumn = "Group column";
 }
 
 class DecimalTextInputFormatter extends TextInputFormatter {
@@ -131,6 +138,19 @@ class DecimalTextInputFormatter extends TextInputFormatter {
       composing: TextRange.empty,
     );
   }
+}
+
+/// How the grouping UI is presented when [ResponsiveDataGrid.allowGrouping]
+/// is true.
+enum GroupPanelDisplay {
+  /// Always show the labeled group panel (Kendo groupable area).
+  always,
+
+  /// Compact "Group by" control that expands to the full panel.
+  collapsed,
+
+  /// No panel. Group and ungroup only from the column menu.
+  hidden,
 }
 
 enum PagingMode {

@@ -1,4 +1,5 @@
 import 'package:client_filtering/client_filtering.dart';
+import 'package:cupertino_ui/cupertino_ui.dart' as cupertino;
 import 'package:intl/intl.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:responsive_data_grid/responsive_data_grid.dart';
@@ -8,6 +9,19 @@ void main() {
 }
 
 enum DemoPalette { light, dark, branded }
+
+enum DemoDesign { material, cupertino }
+
+String _paletteLabel(DemoPalette palette) {
+  switch (palette) {
+    case DemoPalette.light:
+      return 'Light';
+    case DemoPalette.dark:
+      return 'Dark';
+    case DemoPalette.branded:
+      return 'Branded';
+  }
+}
 
 ThemeData _demoTheme(DemoPalette palette) {
   final brightness = palette == DemoPalette.dark
@@ -27,6 +41,19 @@ ThemeData _demoTheme(DemoPalette palette) {
   );
 }
 
+cupertino.CupertinoThemeData _demoCupertinoTheme(DemoPalette palette) {
+  final brightness = palette == DemoPalette.dark
+      ? Brightness.dark
+      : Brightness.light;
+  final primary = palette == DemoPalette.branded
+      ? const Color(0xFF0F766E)
+      : cupertino.CupertinoColors.systemBlue;
+  return cupertino.CupertinoThemeData(
+    brightness: brightness,
+    primaryColor: primary,
+  );
+}
+
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
@@ -36,17 +63,28 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   DemoPalette _palette = DemoPalette.light;
+  DemoDesign _design = DemoDesign.material;
 
   @override
   Widget build(BuildContext context) {
+    final home = MyHomePage(
+      title: 'Responsive Data Grid',
+      palette: _palette,
+      design: _design,
+      onPalette: (value) => setState(() => _palette = value),
+      onDesign: (value) => setState(() => _design = value),
+    );
+    if (_design == DemoDesign.cupertino) {
+      return cupertino.CupertinoApp(
+        title: 'Responsive Data Grid',
+        theme: _demoCupertinoTheme(_palette),
+        home: home,
+      );
+    }
     return MaterialApp(
       title: 'Responsive Data Grid',
       theme: _demoTheme(_palette),
-      home: MyHomePage(
-        title: 'Responsive Data Grid',
-        palette: _palette,
-        onPalette: (value) => setState(() => _palette = value),
-      ),
+      home: home,
     );
   }
 }
@@ -94,7 +132,9 @@ class MyHomePage extends StatefulWidget {
     super.key,
     required this.title,
     required this.palette,
+    required this.design,
     required this.onPalette,
+    required this.onDesign,
   });
 
   // This widget is the home page of your application. It is stateful, meaning
@@ -108,147 +148,192 @@ class MyHomePage extends StatefulWidget {
 
   final String title;
   final DemoPalette palette;
+  final DemoDesign design;
   final ValueChanged<DemoPalette> onPalette;
+  final ValueChanged<DemoDesign> onDesign;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  void _cycleDesign() {
+    widget.onDesign(
+      widget.design == DemoDesign.material
+          ? DemoDesign.cupertino
+          : DemoDesign.material,
+    );
+  }
+
+  void _cyclePalette() {
+    const values = DemoPalette.values;
+    widget.onPalette(values[(widget.palette.index + 1) % values.length]);
+  }
+
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
+    if (widget.design == DemoDesign.cupertino) {
+      return cupertino.CupertinoPageScaffold(
+        navigationBar: cupertino.CupertinoNavigationBar(
+          middle: Text(widget.title),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              cupertino.CupertinoButton(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                onPressed: _cycleDesign,
+                child: const Text('Cupertino'),
+              ),
+              cupertino.CupertinoButton(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                onPressed: _cyclePalette,
+                child: Text(_paletteLabel(widget.palette)),
+              ),
+            ],
+          ),
+        ),
+        child: SafeArea(child: _grid()),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        actionsPadding: const EdgeInsets.only(right: 56),
         actions: [
+          TextButton(onPressed: _cycleDesign, child: const Text('Material')),
           PopupMenuButton<DemoPalette>(
-            icon: const Icon(Icons.palette_outlined),
             tooltip: 'Theme',
             initialValue: widget.palette,
             onSelected: widget.onPalette,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Row(
+                children: [
+                  const Icon(Icons.palette_outlined),
+                  const SizedBox(width: 4),
+                  Text(_paletteLabel(widget.palette)),
+                ],
+              ),
+            ),
             itemBuilder: (context) => const [
               PopupMenuItem(value: DemoPalette.light, child: Text('Light')),
               PopupMenuItem(value: DemoPalette.dark, child: Text('Dark')),
-              PopupMenuItem(
-                value: DemoPalette.branded,
-                child: Text('Branded'),
-              ),
+              PopupMenuItem(value: DemoPalette.branded, child: Text('Branded')),
             ],
           ),
         ],
       ),
-      body: ResponsiveDataGrid<ExampleData>.clientSide(
-        title: TitleDefinition(title: "Testing Title", icon: Icon(Icons.help)),
-        items: widget.exampleData,
-        itemTapped: (row) {},
-        pageSize: 20,
-        pagingMode: PagingMode.pager,
-        allowAggregations: true,
-        allowGrouping: true,
-        initialLoadCriteria: LoadCriteria(
-          groupBy: [
-            GroupCriteria(
-              fieldName: "name",
-              direction: OrderDirections.ascending,
-              aggregates: [
-                AggregateCriteria(
-                  fieldName: "name",
-                  aggregation: Aggregations.count,
-                ),
-              ],
-            ),
-          ],
-        ),
-        columns: [
-          WidgetColumn(
-            widget: (item) => Icon(Icons.check, color: Colors.green),
-            xsCols: 1,
-            fieldName: "Selected",
-          ),
-          IntColumn(
-            xsCols: 2,
-            fieldName: "id",
-            header: ColumnHeader(
-              text: "Id",
-              showFilter: true,
-              showOrderBy: true,
-              showAggregations: true,
-            ),
-            value: (row) => row.id,
-          ),
-          StringColumn(
-            xsCols: 5,
-            mediumCols: 2,
+      body: _grid(),
+    );
+  }
+
+  Widget _grid() {
+    return ResponsiveDataGrid<ExampleData>.clientSide(
+      title: TitleDefinition(title: "Testing Title", icon: Icon(Icons.help)),
+      items: widget.exampleData,
+      itemTapped: (row) {},
+      pageSize: 20,
+      pagingMode: PagingMode.pager,
+      allowAggregations: true,
+      allowGrouping: true,
+      initialLoadCriteria: LoadCriteria(
+        groupBy: [
+          GroupCriteria(
             fieldName: "name",
-            sortDirection: OrderDirections.ascending,
-            filterRules: StringFilterRules(hintText: "Name"),
-            header: ColumnHeader(
-              text: "Name",
-              showFilter: true,
-              showOrderBy: true,
-            ),
-            value: (row) => row.name,
-            aggregations: [
+            direction: OrderDirections.ascending,
+            aggregates: [
               AggregateCriteria(
                 fieldName: "name",
                 aggregation: Aggregations.count,
               ),
             ],
           ),
-          DateTimeColumn(
-            xsCols: 4,
-            mediumCols: 3,
-            fieldName: "dob",
-            filterRules: DateTimeFilterRules(
-              filterType: DateTimeFilterTypes.DateOnly,
-            ),
-            header: ColumnHeader(
-              text: "Date of Birth",
-              showFilter: true,
-              showOrderBy: true,
-            ),
-            value: (row) => row.dob,
-            format: DateFormat.yMd(),
-          ),
-          BoolColumn(
-            xsCols: 3,
-            mediumCols: 2,
-            fieldName: "accepted",
-            header: ColumnHeader(
-              text: "Accepted",
-              showFilter: true,
-              showOrderBy: true,
-              showAggregations: true,
-            ),
-            value: (row) => row.accepted,
-            trueText: "Yes",
-            falseText: "No",
-          ),
-          EnumColumn<ExampleData, ExampleEnum>(
-            values: ExampleEnum.values,
-            fieldName: "exampleEnum",
-            valueText: (value) => value == ExampleEnum.one
-                ? "one"
-                : value == ExampleEnum.two
-                ? "two"
-                : "three",
-            value: (row) => row.exampleEnum,
-            header: ColumnHeader(
-              showFilter: true,
-              showOrderBy: true,
-              text: "Enum",
-            ),
-            xsCols: 4,
-            mediumCols: 2,
-          ),
         ],
       ),
+      columns: [
+        WidgetColumn(
+          widget: (item) => Icon(Icons.check, color: Colors.green),
+          xsCols: 1,
+          fieldName: "Selected",
+        ),
+        IntColumn(
+          xsCols: 2,
+          fieldName: "id",
+          header: ColumnHeader(
+            text: "Id",
+            showFilter: true,
+            showOrderBy: true,
+            showAggregations: true,
+          ),
+          value: (row) => row.id,
+        ),
+        StringColumn(
+          xsCols: 5,
+          mediumCols: 2,
+          fieldName: "name",
+          sortDirection: OrderDirections.ascending,
+          filterRules: StringFilterRules(hintText: "Name"),
+          header: ColumnHeader(
+            text: "Name",
+            showFilter: true,
+            showOrderBy: true,
+          ),
+          value: (row) => row.name,
+          aggregations: [
+            AggregateCriteria(
+              fieldName: "name",
+              aggregation: Aggregations.count,
+            ),
+          ],
+        ),
+        DateTimeColumn(
+          xsCols: 4,
+          mediumCols: 3,
+          fieldName: "dob",
+          filterRules: DateTimeFilterRules(
+            filterType: DateTimeFilterTypes.DateOnly,
+          ),
+          header: ColumnHeader(
+            text: "Date of Birth",
+            showFilter: true,
+            showOrderBy: true,
+          ),
+          value: (row) => row.dob,
+          format: DateFormat.yMd(),
+        ),
+        BoolColumn(
+          xsCols: 3,
+          mediumCols: 2,
+          fieldName: "accepted",
+          header: ColumnHeader(
+            text: "Accepted",
+            showFilter: true,
+            showOrderBy: true,
+            showAggregations: true,
+          ),
+          value: (row) => row.accepted,
+          trueText: "Yes",
+          falseText: "No",
+        ),
+        EnumColumn<ExampleData, ExampleEnum>(
+          values: ExampleEnum.values,
+          fieldName: "exampleEnum",
+          valueText: (value) => value == ExampleEnum.one
+              ? "one"
+              : value == ExampleEnum.two
+              ? "two"
+              : "three",
+          value: (row) => row.exampleEnum,
+          header: ColumnHeader(
+            showFilter: true,
+            showOrderBy: true,
+            text: "Enum",
+          ),
+          xsCols: 4,
+          mediumCols: 2,
+        ),
+      ],
     );
   }
 }

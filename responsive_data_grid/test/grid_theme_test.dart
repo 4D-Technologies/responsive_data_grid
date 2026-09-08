@@ -139,4 +139,73 @@ void main() {
     );
     expect((headerBox.decoration as BoxDecoration).color, heading);
   });
+
+  for (final brightness in [Brightness.light, Brightness.dark]) {
+    testWidgets('header and footer text contrast in $brightness mode', (
+      tester,
+    ) async {
+      final theme = ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.indigo,
+          brightness: brightness,
+        ),
+      );
+      await _pump(tester, theme: theme);
+
+      final gridTheme = ResponsiveDataGridTheme.fromTheme(theme);
+      expect(
+        contrastRatio(gridTheme.headerBackground, gridTheme.headerForeground),
+        greaterThanOrEqualTo(4.5),
+        reason: 'header $brightness',
+      );
+      expect(
+        contrastRatio(gridTheme.footerBackground, gridTheme.footerForeground),
+        greaterThanOrEqualTo(4.5),
+        reason: 'footer $brightness',
+      );
+      expect(
+        contrastRatio(
+          gridTheme.groupHeaderBackground,
+          gridTheme.groupHeaderForeground,
+        ),
+        greaterThanOrEqualTo(4.5),
+        reason: 'group header $brightness',
+      );
+      expect(
+        contrastRatio(
+          gridTheme.groupFooterBackground,
+          gridTheme.groupFooterForeground,
+        ),
+        greaterThanOrEqualTo(4.5),
+        reason: 'group footer $brightness',
+      );
+
+      final headerText = tester.widget<Text>(
+        find
+            .descendant(
+              of: find.byType(ResponsiveDataGridHeaderRowWidget<_Person>),
+              matching: find.text('Name'),
+            )
+            .first,
+      );
+      expect(
+        headerText.style?.color,
+        gridTheme.headerForeground,
+        reason: 'column header text should use grid theme, not onPrimary',
+      );
+      expect(
+        contrastRatio(gridTheme.headerBackground, headerText.style!.color!),
+        greaterThanOrEqualTo(4.5),
+      );
+    });
+  }
+}
+
+double contrastRatio(Color a, Color b) {
+  final l1 = a.computeLuminance();
+  final l2 = b.computeLuminance();
+  final lighter = l1 > l2 ? l1 : l2;
+  final darker = l1 > l2 ? l2 : l1;
+  return (lighter + 0.05) / (darker + 0.05);
 }

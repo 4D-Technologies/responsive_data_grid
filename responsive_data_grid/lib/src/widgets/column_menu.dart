@@ -9,18 +9,10 @@ class ColumnMenu<T extends Object> extends DropDownViewWidget {
     required this.column,
     required super.theme,
     required this.gridState,
-  }) : super(
-         icon: Icon(
-           Icons.menu,
-           color:
-               column.aggregations.isNotEmpty ||
-                   column.filterRules.criteria != null
-               ? theme.colorScheme.secondary
-               : theme.iconTheme.color,
-           size: theme.iconTheme.size,
-         ),
-         dropDownWidth: 250,
-       );
+    required super.icon,
+    super.iconColor,
+    super.iconSize,
+  }) : super(dropDownWidth: 250);
 
   void updateAggregations(AggregateCriteria aggregation, bool selected) {
     if (selected) {
@@ -43,14 +35,65 @@ class ColumnMenu<T extends Object> extends DropDownViewWidget {
             update: updateAggregations,
           )
         : <AggregationChooser<T>>[];
+    final grouped =
+        gridState.widget.allowGrouping &&
+        (gridState.criteria.groupBy?.any(
+              (g) => g.fieldName == column.fieldName,
+            ) ??
+            false);
 
     return Material(
-      elevation: 4,
+      elevation: ResponsiveDataGridTheme.of(context).menuElevation,
       type: MaterialType.card,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          if (gridState.widget.allowGrouping) ...[
+            DecoratedBox(
+              decoration: BoxDecoration(
+                color: ResponsiveDataGridTheme.of(
+                  context,
+                ).menuSectionBackground,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: Text(
+                  LocalizedMessages.groupBy,
+                  style: theme.textTheme.labelLarge,
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+              child: TextButton.icon(
+                onPressed: () {
+                  close(context);
+                  if (grouped) {
+                    final current = gridState.criteria.groupBy!.firstWhere(
+                      (g) => g.fieldName == column.fieldName,
+                    );
+                    gridState.removeGroup(current);
+                  } else {
+                    gridState.addGroup(
+                      GroupCriteria(
+                        fieldName: column.fieldName,
+                        aggregates: [],
+                        direction: OrderDirections.ascending,
+                      ),
+                    );
+                  }
+                },
+                icon: Icon(grouped ? Icons.link_off : Icons.account_tree),
+                label: Text(
+                  grouped
+                      ? LocalizedMessages.ungroup
+                      : LocalizedMessages.groupColumn,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ),
+          ],
           if (aggregates.isNotEmpty)
             DecoratedBox(
               decoration: BoxDecoration(
