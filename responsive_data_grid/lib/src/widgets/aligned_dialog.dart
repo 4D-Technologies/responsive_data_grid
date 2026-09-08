@@ -41,7 +41,7 @@ Future<T?> showAlignedDialog<T>({
       position: position,
       context: context,
       builder: builder,
-      barrierColor: barrierColor,
+      barrierColor: barrierColor ?? Colors.transparent,
       barrierDismissible: barrierDismissible,
       barrierLabel: barrierLabel,
       useSafeArea: isGlobal == true,

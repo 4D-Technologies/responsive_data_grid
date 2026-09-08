@@ -60,7 +60,12 @@ class GridFooter<TItem extends Object> extends StatelessWidget {
                 .map(
                   (agg) => Text(
                     "${agg.aggregation}: ${agg.formatResult()}",
-                    style: ResponsiveDataGridTheme.of(context).footerTextStyle,
+                    style: ResponsiveDataGridTheme.of(context).footerTextStyle
+                        .copyWith(
+                          color: ResponsiveDataGridTheme.of(
+                            context,
+                          ).footerForeground,
+                        ),
                   ),
                 )
                 .toList(),

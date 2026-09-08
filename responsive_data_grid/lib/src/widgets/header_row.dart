@@ -22,30 +22,34 @@ class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
 
     return IconTheme(
       data: iconTheme,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: gridTheme.headerBackground,
-          border: Border(
-            bottom: BorderSide(
-              color: gridTheme.borderColor,
-              width: gridTheme.borderWidth,
+      child: DefaultTextStyle(
+        style: gridTheme.headerTextStyle,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: gridTheme.headerBackground,
+            border: Border(
+              bottom: BorderSide(
+                color: gridTheme.borderColor,
+                width: gridTheme.borderWidth,
+              ),
             ),
           ),
-        ),
-        child: Padding(
-          padding: gridTheme.resolvePadding(grid.contentPadding),
-          child: BootstrapRow(
-            children: getColumnHeaders(context, grid),
-            crossAxisAlignment:
-                grid.headerCrossAxisAlignment == CrossAxisAlignment.start ||
-                    grid.headerCrossAxisAlignment == CrossAxisAlignment.stretch
-                ? WrapCrossAlignment.start
-                : grid.headerCrossAxisAlignment == CrossAxisAlignment.center
-                ? WrapCrossAlignment.center
-                : WrapCrossAlignment.end,
-            totalSegments:
-                GridTableLayout.maybeOf(context)?.totalSegments ??
-                grid.reactiveSegments,
+          child: Padding(
+            padding: gridTheme.resolvePadding(grid.contentPadding),
+            child: BootstrapRow(
+              children: getColumnHeaders(context, grid),
+              crossAxisAlignment:
+                  grid.headerCrossAxisAlignment == CrossAxisAlignment.start ||
+                      grid.headerCrossAxisAlignment ==
+                          CrossAxisAlignment.stretch
+                  ? WrapCrossAlignment.start
+                  : grid.headerCrossAxisAlignment == CrossAxisAlignment.center
+                  ? WrapCrossAlignment.center
+                  : WrapCrossAlignment.end,
+              totalSegments:
+                  GridTableLayout.maybeOf(context)?.totalSegments ??
+                  grid.reactiveSegments,
+            ),
           ),
         ),
       ),

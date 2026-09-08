@@ -18,7 +18,10 @@ class PagerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final int pageCount = (totalCount.toDouble() / pageSize.toDouble()).ceil();
+    final int pageCount = math.max(
+      1,
+      (totalCount.toDouble() / pageSize.toDouble()).ceil(),
+    );
 
     final gridTheme = ResponsiveDataGridTheme.of(context);
     return DecoratedBox(

@@ -48,8 +48,7 @@ class ResponsiveDataGridTheme extends ThemeExtension<ResponsiveDataGridTheme> {
     final table = theme.dataTableTheme;
     final divider = theme.dividerTheme;
     final headerBg =
-        table.headingRowColor?.resolve(const {WidgetState.selected}) ??
-        table.headingRowColor?.resolve({}) ??
+        table.headingRowColor?.resolve(const {}) ??
         scheme.surfaceContainerHighest;
     final headerFg = table.headingTextStyle?.color ?? scheme.onSurface;
     final headerStyle =
