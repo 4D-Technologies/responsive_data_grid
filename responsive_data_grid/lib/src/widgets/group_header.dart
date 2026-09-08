@@ -7,20 +7,19 @@ class GridGroupHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final gridTheme = ResponsiveDataGridTheme.of(context);
     return DecoratedBox(
-      decoration: BoxDecoration(color: Color.fromARGB(255, 48, 48, 48)),
+      decoration: BoxDecoration(color: gridTheme.groupHeaderBackground),
       child: Padding(
-        padding: EdgeInsets.all(3),
+        padding: gridTheme.resolvePadding(const EdgeInsets.all(3)),
         child: Row(
           children: [
-            // IconButton(
-            //   onPressed: () {},
-            //   icon: Icon(Icons.arrow_drop_down),
-            // ),
             PinToHorizontalViewport(
               child: Text(
                 group.value ?? LocalizedMessages.noEntry,
-                style: theme.gridTitleSmall,
+                style: gridTheme.groupHeaderTextStyle.copyWith(
+                  color: gridTheme.groupHeaderForeground,
+                ),
               ),
             ),
           ],

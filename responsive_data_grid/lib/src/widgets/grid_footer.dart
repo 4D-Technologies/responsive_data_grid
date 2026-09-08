@@ -15,7 +15,7 @@ class GridFooter<TItem extends Object> extends StatelessWidget {
       padding: EdgeInsets.only(top: 3),
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: theme.colorScheme.surfaceContainerHighest,
+          color: ResponsiveDataGridTheme.of(context).footerBackground,
         ),
         child: Padding(
           padding: EdgeInsets.only(top: 3, bottom: 3),
@@ -60,9 +60,7 @@ class GridFooter<TItem extends Object> extends StatelessWidget {
                 .map(
                   (agg) => Text(
                     "${agg.aggregation}: ${agg.formatResult()}",
-                    style: theme.textTheme.labelLarge?.copyWith(
-                      color: theme.colorScheme.onSurface,
-                    ),
+                    style: ResponsiveDataGridTheme.of(context).footerTextStyle,
                   ),
                 )
                 .toList(),

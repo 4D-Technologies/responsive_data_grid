@@ -20,29 +20,53 @@ class PagerWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final int pageCount = (totalCount.toDouble() / pageSize.toDouble()).ceil();
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        IconButton(onPressed: () => setPage(1), icon: Icon(Icons.first_page)),
-        IconButton(
-          onPressed: pageNumber == 1
-              ? null
-              : () => setPage(math.max(1, pageNumber - 1)),
-          icon: Icon(Icons.fast_rewind),
+    final gridTheme = ResponsiveDataGridTheme.of(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: gridTheme.footerBackground,
+        border: Border(
+          top: BorderSide(
+            color: gridTheme.borderColor,
+            width: gridTheme.borderWidth,
+          ),
         ),
-        Spacer(),
-        Spacer(),
-        IconButton(
-          onPressed: pageNumber == pageCount
-              ? null
-              : () => setPage(math.min(pageCount, pageNumber + 1)),
-          icon: Icon(Icons.fast_forward),
+      ),
+      child: Padding(
+        padding: gridTheme.resolvePadding(
+          const EdgeInsets.symmetric(horizontal: 4),
         ),
-        IconButton(
-          onPressed: () => setPage(pageCount),
-          icon: Icon(Icons.last_page),
+        child: Row(
+          children: [
+            IconButton(
+              onPressed: () => setPage(1),
+              icon: const Icon(Icons.first_page),
+            ),
+            IconButton(
+              onPressed: pageNumber == 1
+                  ? null
+                  : () => setPage(math.max(1, pageNumber - 1)),
+              icon: const Icon(Icons.chevron_left),
+            ),
+            Expanded(
+              child: Text(
+                '$pageNumber / $pageCount',
+                textAlign: TextAlign.center,
+                style: gridTheme.footerTextStyle,
+              ),
+            ),
+            IconButton(
+              onPressed: pageNumber == pageCount
+                  ? null
+                  : () => setPage(math.min(pageCount, pageNumber + 1)),
+              icon: const Icon(Icons.chevron_right),
+            ),
+            IconButton(
+              onPressed: () => setPage(pageCount),
+              icon: const Icon(Icons.last_page),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }

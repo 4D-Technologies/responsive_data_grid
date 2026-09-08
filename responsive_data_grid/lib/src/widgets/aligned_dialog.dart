@@ -4,7 +4,7 @@ Future<T?> showAlignedDialog<T>({
   required BuildContext context,
   required WidgetBuilder builder,
   bool barrierDismissible = true,
-  Color? barrierColor = Colors.black54,
+  Color? barrierColor,
   String? barrierLabel,
   bool useRootNavigator = true,
   RouteSettings? routeSettings,

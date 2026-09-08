@@ -4,34 +4,49 @@ import 'package:material_ui/material_ui.dart';
 import 'package:responsive_data_grid/responsive_data_grid.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+enum DemoPalette { light, dark, branded }
+
+ThemeData _demoTheme(DemoPalette palette) {
+  final brightness = palette == DemoPalette.dark
+      ? Brightness.dark
+      : Brightness.light;
+  final seed = palette == DemoPalette.branded
+      ? const Color(0xFF0F766E)
+      : const Color(0xFF3949AB);
+  final base = ThemeData(
+    useMaterial3: true,
+    colorScheme: ColorScheme.fromSeed(seedColor: seed, brightness: brightness),
+  );
+  return base.copyWith(
+    extensions: <ThemeExtension<dynamic>>[
+      ResponsiveDataGridTheme.fromTheme(base),
+    ],
+  );
+}
+
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  DemoPalette _palette = DemoPalette.light;
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
-        brightness: Brightness.dark,
-        dataTableTheme: Theme.of(context).dataTableTheme.copyWith(
-          headingRowColor: WidgetStateProperty.all(Colors.black54),
-        ),
+      title: 'Responsive Data Grid',
+      theme: _demoTheme(_palette),
+      home: MyHomePage(
+        title: 'Responsive Data Grid',
+        palette: _palette,
+        onPalette: (value) => setState(() => _palette = value),
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
@@ -75,7 +90,12 @@ class MyHomePage extends StatefulWidget {
     ExampleData(35, "Jane Doe", DateTime(1977, 6, 17), true, ExampleEnum.two),
   ]);
 
-  MyHomePage({super.key, required this.title});
+  MyHomePage({
+    super.key,
+    required this.title,
+    required this.palette,
+    required this.onPalette,
+  });
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -87,6 +107,8 @@ class MyHomePage extends StatefulWidget {
   // always marked "final".
 
   final String title;
+  final DemoPalette palette;
+  final ValueChanged<DemoPalette> onPalette;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -103,9 +125,21 @@ class _MyHomePageState extends State<MyHomePage> {
     // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
+        actions: [
+          PopupMenuButton<DemoPalette>(
+            initialValue: widget.palette,
+            onSelected: widget.onPalette,
+            itemBuilder: (context) => const [
+              PopupMenuItem(value: DemoPalette.light, child: Text('Light')),
+              PopupMenuItem(value: DemoPalette.dark, child: Text('Dark')),
+              PopupMenuItem(
+                value: DemoPalette.branded,
+                child: Text('Branded'),
+              ),
+            ],
+          ),
+        ],
       ),
       body: ResponsiveDataGrid<ExampleData>.clientSide(
         title: TitleDefinition(title: "Testing Title", icon: Icon(Icons.help)),

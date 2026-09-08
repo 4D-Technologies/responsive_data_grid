@@ -14,31 +14,26 @@ class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
     final grid = this.grid.widget;
 
     final theme = Theme.of(context);
-    final ColorScheme colorScheme = theme.colorScheme;
+    final gridTheme = ResponsiveDataGridTheme.of(context);
 
-    final backgroundColor =
-        theme.dataTableTheme.headingRowColor?.resolve(
-          WidgetState.values.toSet(),
-        ) ??
-        (colorScheme.brightness == Brightness.dark
-            ? colorScheme.secondary
-            : colorScheme.secondaryContainer);
-
-    final foregroundColor =
-        theme.dataTableTheme.headingTextStyle?.color ??
-        (colorScheme.brightness == Brightness.dark
-            ? colorScheme.onSurface
-            : colorScheme.onPrimary);
-
-    final iconTheme = theme.iconTheme.copyWith(color: foregroundColor);
+    final iconTheme = theme.iconTheme.copyWith(
+      color: gridTheme.headerForeground,
+    );
 
     return IconTheme(
       data: iconTheme,
-      child: Container(
-        color: backgroundColor,
-        margin: grid.padding,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: gridTheme.headerBackground,
+          border: Border(
+            bottom: BorderSide(
+              color: gridTheme.borderColor,
+              width: gridTheme.borderWidth,
+            ),
+          ),
+        ),
         child: Padding(
-          padding: grid.contentPadding,
+          padding: gridTheme.resolvePadding(grid.contentPadding),
           child: BootstrapRow(
             children: getColumnHeaders(context, grid),
             crossAxisAlignment:

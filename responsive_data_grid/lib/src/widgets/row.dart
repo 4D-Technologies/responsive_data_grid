@@ -33,14 +33,12 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
             },
       enableFeedback: true,
       excludeFromSemantics: false,
-      hoverColor:
-          theme.dataTableTheme.dataRowColor?.resolve({WidgetState.hovered}) ??
-          theme.colorScheme.primary,
+      hoverColor: ResponsiveDataGridTheme.of(context).rowHoverColor,
       mouseCursor: itemTapped != null
           ? SystemMouseCursors.click
           : SystemMouseCursors.basic,
       child: Padding(
-        padding: padding,
+        padding: ResponsiveDataGridTheme.of(context).resolvePadding(padding),
         child: BootstrapRow(
           alignment: WrapAlignment.start,
           runSpacing: grid!.rowSpacing,
