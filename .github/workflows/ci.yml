@@ -64,6 +64,8 @@ jobs:
   dotnet:
     name: ClientFiltering (.NET)
     runs-on: ubuntu-latest
+    env:
+      DOTNET_ROLL_FORWARD: LatestMajor
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
