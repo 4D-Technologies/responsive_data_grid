@@ -67,103 +67,130 @@ class ColumnHeaderState<TItem extends Object, TValue extends dynamic>
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final gridTheme = ResponsiveDataGridTheme.of(context);
     final grid = widget.gridState;
     final header = widget.definition.header;
 
-    final ColorScheme colorScheme = theme.colorScheme;
-
     final foregroundColor =
+        header.foregroundColor ??
         widget.definition.foregroundColor ??
-        theme.dataTableTheme.headingTextStyle?.color ??
-        (colorScheme.brightness == Brightness.dark
-            ? colorScheme.onSurface
-            : colorScheme.onPrimary);
-
-    final accentForegroundColor =
-        widget.definition.accentColor ?? theme.colorScheme.secondary;
-
-    final iconTheme = theme.iconTheme.copyWith(color: foregroundColor);
-    final accentIconTheme = theme.iconTheme.copyWith(
-      color: accentForegroundColor,
-    );
+        gridTheme.headerForeground;
 
     final textStyle =
-        widget.definition.header.textStyle ??
-        theme.dataTableTheme.headingTextStyle ??
-        theme.gridTitleSmall.copyWith(color: foregroundColor);
+        header.textStyle?.copyWith(color: foregroundColor) ??
+        gridTheme.headerTextStyle.copyWith(color: foregroundColor);
 
-    final items = List<Widget>.empty(growable: true);
+    final padding = gridTheme.resolvePadding(
+      header.padding ?? gridTheme.headerCellPadding,
+    );
+    final iconSize = header.iconSize ?? gridTheme.headerIconSize;
+    final sorted = widget.definition.sortDirection != OrderDirections.notSet;
+    final menuActive =
+        widget.definition.aggregations.isNotEmpty ||
+        widget.definition.filterRules.criteria != null;
 
-    if (widget.definition.header.text != null) {
-      items.add(
-        Flexible(
-          child: Align(
-            alignment: header.alignment,
-            child: Text(
-              widget.definition.header.text!,
-              textAlign: widget.definition.header.textAlign,
-              style: textStyle,
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1,
-              softWrap: false,
-            ),
-          ),
-        ),
-      );
+    final showSort =
+        widget.definition.header.showOrderBy &&
+        grid.widget.sortable != SortableOptions.none;
+    final showMenu =
+        header.showFilter ||
+        (header.showAggregations && grid.widget.allowAggregations) ||
+        (grid.widget.allowGrouping && !header.empty);
+
+    IconData sortIcon;
+    switch (widget.definition.sortDirection) {
+      case OrderDirections.ascending:
+        sortIcon = gridTheme.sortAscendingIcon;
+        break;
+      case OrderDirections.descending:
+        sortIcon = gridTheme.sortDescendingIcon;
+        break;
+      default:
+        sortIcon = gridTheme.sortUnsetIcon;
+        break;
     }
 
-    if (widget.definition.header.showOrderBy &&
-        grid.widget.sortable != SortableOptions.none) {
-      IconData icon;
-      switch (widget.definition.sortDirection) {
-        case OrderDirections.ascending:
-          icon = Icons.arrow_upward;
-          break;
-        case OrderDirections.descending:
-          icon = Icons.arrow_downward;
-          break;
-        default:
-          icon = Icons.sort;
-          break;
-      }
-      items.add(
-        IconButton(
-          visualDensity: VisualDensity.compact,
-          padding: EdgeInsets.zero,
-          constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
-          style: IconButton.styleFrom(
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            minimumSize: const Size(24, 24),
-            padding: EdgeInsets.zero,
-          ),
-          icon: Icon(
-            icon,
-            color: widget.definition.sortDirection != OrderDirections.notSet
-                ? accentIconTheme.color
-                : iconTheme.color,
-            size: iconTheme.size ?? 18,
-          ),
-          onPressed: () => toggleOrder(),
-        ),
-      );
-    }
+    final sortButton = GridChromeIconButton(
+      key: ValueKey('rdg-header-sort-${widget.definition.fieldName}'),
+      icon: Icon(sortIcon),
+      color:
+          header.sortColor ??
+          (sorted
+              ? gridTheme.headerSortActiveColor
+              : gridTheme.headerSortColor),
+      size: iconSize,
+      extent: gridTheme.headerActionExtent,
+      tooltip: 'Sort',
+      onPressed: toggleOrder,
+    );
+    final menuButton = ColumnMenu(
+      key: ValueKey('rdg-header-menu-${widget.definition.fieldName}'),
+      column: widget.definition,
+      theme: Theme.of(context),
+      gridState: widget.gridState,
+      icon: gridTheme.menuIcon,
+      iconColor:
+          header.menuColor ??
+          (menuActive
+              ? gridTheme.headerMenuActiveColor
+              : gridTheme.headerMenuColor),
+      iconSize: iconSize,
+    );
 
-    if (header.showFilter ||
-        (header.showAggregations && grid.widget.allowAggregations)) {
-      items.add(
-        ColumnMenu(
-          column: widget.definition,
-          theme: theme,
-          gridState: widget.gridState,
-        ),
-      );
-    }
-
-    return Container(
-      color: widget.definition.backgroundColor,
+    final title = Align(
       alignment: header.alignment,
-      child: Row(children: items),
+      child: Text(
+        header.text ?? '',
+        textAlign: header.textAlign,
+        style: textStyle,
+        overflow: TextOverflow.ellipsis,
+        maxLines: 1,
+        softWrap: false,
+      ),
+    );
+    final actions = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (showSort) sortButton,
+        if (showSort && showMenu) SizedBox(width: gridTheme.headerActionGap),
+        if (showMenu) menuButton,
+      ],
+    );
+
+    return ColoredBox(
+      color:
+          header.backgroundColor ??
+          widget.definition.backgroundColor ??
+          const Color(0x00000000),
+      child: Padding(
+        padding: padding,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            if (!showSort && !showMenu) {
+              return title;
+            }
+            final actionExtent =
+                (showSort ? gridTheme.headerActionExtent : 0.0) +
+                (showMenu ? gridTheme.headerActionExtent : 0.0) +
+                (showSort && showMenu ? gridTheme.headerActionGap : 0.0);
+            final maxActions = math.max(0.0, constraints.maxWidth * 0.65);
+            final actionsWidth = math.min(actionExtent, maxActions);
+            return Row(
+              children: [
+                Expanded(child: title),
+                SizedBox(
+                  width: actionsWidth,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerRight,
+                    child: actions,
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
     );
   }
 }

@@ -22,7 +22,7 @@ class GridGroupFooter<TItem extends Object> extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(color: gridTheme.groupFooterBackground),
       child: Padding(
-        padding: EdgeInsets.only(left: 3, top: 3, bottom: 3, right: 3),
+        padding: gridTheme.resolvePadding(gridTheme.footerPadding),
         child: BootstrapRow(
           crossAxisAlignment:
               gridState.widget.rowCrossAxisAlignment ==
@@ -54,7 +54,12 @@ class GridGroupFooter<TItem extends Object> extends StatelessWidget {
               .map(
                 (agg) => Text(
                   "${agg.aggregation}: ${agg.formatResult()}",
-                  style: ResponsiveDataGridTheme.of(context).footerTextStyle,
+                  style: ResponsiveDataGridTheme.of(context).footerTextStyle
+                      .copyWith(
+                        color: ResponsiveDataGridTheme.of(
+                          context,
+                        ).groupFooterForeground,
+                      ),
                 ),
               )
               .toList(),

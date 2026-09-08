@@ -78,7 +78,7 @@ void main() {
       expect(calls.first.groupBy, isNotEmpty);
       expect(calls.first.orderBy, isEmpty);
 
-      await tester.tap(find.byIcon(Icons.sort));
+      await tester.tap(find.byIcon(Icons.unfold_more));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 50));
 

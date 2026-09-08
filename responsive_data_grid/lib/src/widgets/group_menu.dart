@@ -10,17 +10,10 @@ class GroupMenu<TItem extends Object> extends DropDownViewWidget {
     required super.theme,
     required this.group,
     required this.gridState,
+    super.iconColor,
+    super.iconSize,
     super.key,
-  }) : super(
-         dropDownWidth: 250,
-         icon: Icon(
-           Icons.menu,
-           color: group.aggregates.isNotEmpty
-               ? theme.colorScheme.secondary
-               : theme.iconTheme.color,
-           size: theme.iconTheme.size,
-         ),
-       );
+  }) : super(dropDownWidth: 250, icon: Icons.more_vert);
 
   @override
   Widget build(
@@ -48,10 +41,7 @@ class GroupMenu<TItem extends Object> extends DropDownViewWidget {
                 Padding(
                   padding: EdgeInsets.only(top: 3, bottom: 3),
                   child: TextButton.icon(
-                    label: Text(
-                      "Apply",
-                      style: theme.gridLabelLarge,
-                    ),
+                    label: Text("Apply", style: theme.gridLabelLarge),
                     onPressed: () {
                       close(context);
                       gridState.updateGroup(group);
@@ -62,10 +52,7 @@ class GroupMenu<TItem extends Object> extends DropDownViewWidget {
                 Padding(
                   padding: EdgeInsets.only(top: 3, bottom: 3),
                   child: TextButton.icon(
-                    label: Text(
-                      "Clear All",
-                      style: theme.gridLabelLarge,
-                    ),
+                    label: Text("Clear All", style: theme.gridLabelLarge),
                     onPressed: () {
                       group.aggregates.clear();
                       close(context);
@@ -79,10 +66,7 @@ class GroupMenu<TItem extends Object> extends DropDownViewWidget {
                 ),
                 Divider(),
                 TextButton.icon(
-                  label: Text(
-                    "Remove Group",
-                    style: theme.gridLabelLarge,
-                  ),
+                  label: Text("Remove Group", style: theme.gridLabelLarge),
                   onPressed: () => removeGroup(group),
                   icon: Icon(Icons.delete, color: theme.colorScheme.error),
                 ),

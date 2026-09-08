@@ -1,5 +1,12 @@
 # Change Log
 
+## Unreleased
+
+- Header cells use Kendo-like padding, compact sort/menu actions, and a column divider so the next label does not collide with the menu.
+- `ResponsiveDataGridTheme` adds per-element tokens (header actions, dividers, title, pager, footer padding) and `ColumnHeader` can override padding, icon size, and action colors.
+- The grid resolves chrome under both `MaterialApp` (`fromTheme`) and `CupertinoApp` (`fromCupertino`) via `material_ui` / `cupertino_ui`.
+- Grouping UI is a labeled Kendo-style "Group by" panel (`GroupPanelDisplay.always`, `.collapsed`, or `.hidden`) with contrasting chips; grouping is also available from the column menu.
+
 ## [1.0.3] - September 3rd, 2026
 
 - Fix date/time filters after `date_field` 7.

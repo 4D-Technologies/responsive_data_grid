@@ -11,14 +11,21 @@ class GridFooter<TItem extends Object> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final gridTheme = ResponsiveDataGridTheme.of(context);
     return Padding(
       padding: EdgeInsets.only(top: 3),
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: ResponsiveDataGridTheme.of(context).footerBackground,
+          color: gridTheme.footerBackground,
+          border: Border(
+            top: BorderSide(
+              color: gridTheme.borderColor,
+              width: gridTheme.borderWidth,
+            ),
+          ),
         ),
         child: Padding(
-          padding: EdgeInsets.only(top: 3, bottom: 3),
+          padding: gridTheme.resolvePadding(gridTheme.footerPadding),
           child: PinToHorizontalViewport(
             child: BootstrapRow(
               horizontalSpacing: gridState.widget.columnSpacing,

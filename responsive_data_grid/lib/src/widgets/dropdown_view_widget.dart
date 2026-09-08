@@ -1,7 +1,9 @@
 part of '../../responsive_data_grid.dart';
 
 abstract class DropDownViewWidget extends StatefulWidget {
-  final Icon icon;
+  final IconData icon;
+  final Color? iconColor;
+  final double? iconSize;
   final ThemeData theme;
   final double dropDownWidth;
   final double? dropDownHeight;
@@ -9,6 +11,8 @@ abstract class DropDownViewWidget extends StatefulWidget {
   const DropDownViewWidget({
     super.key,
     required this.icon,
+    this.iconColor,
+    this.iconSize,
     required this.theme,
     required this.dropDownWidth,
     this.dropDownHeight,
@@ -47,17 +51,13 @@ class _DropDownViewState extends State<DropDownViewWidget> {
         maximumSize: WidgetStatePropertyAll(Size(maxWidth, maxHeight)),
       ),
       builder: (context, controller, child) {
-        return IconButton(
-          visualDensity: VisualDensity.compact,
-          padding: EdgeInsets.zero,
-          constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
-          style: IconButton.styleFrom(
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            minimumSize: const Size(24, 24),
-            padding: EdgeInsets.zero,
-          ),
-          icon: widget.icon,
-          color: widget.theme.gridPrimaryColor,
+        final gridTheme = ResponsiveDataGridTheme.of(context);
+        return GridChromeIconButton(
+          icon: Icon(widget.icon),
+          color: widget.iconColor ?? gridTheme.headerMenuColor,
+          size: widget.iconSize ?? gridTheme.headerIconSize,
+          extent: gridTheme.headerActionExtent,
+          tooltip: 'Column menu',
           onPressed: () {
             if (controller.isOpen) {
               controller.close();
