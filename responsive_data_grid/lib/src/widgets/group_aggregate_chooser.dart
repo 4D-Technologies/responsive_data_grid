@@ -61,7 +61,11 @@ class _GridGroupAggregateChooserState<TItem extends Object>
           SizedBox(
             width: 250,
             child: DecoratedBox(
-              decoration: BoxDecoration(color: Colors.black38),
+              decoration: BoxDecoration(
+                color: ResponsiveDataGridTheme.of(
+                  context,
+                ).menuSectionBackground,
+              ),
               child: Padding(
                 padding: EdgeInsets.all(3),
                 child: Text("Aggregates"),

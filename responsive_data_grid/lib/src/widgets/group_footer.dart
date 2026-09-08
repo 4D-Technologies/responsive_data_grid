@@ -18,10 +18,9 @@ class GridGroupFooter<TItem extends Object> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final gridTheme = ResponsiveDataGridTheme.of(context);
     return DecoratedBox(
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHigh,
-      ),
+      decoration: BoxDecoration(color: gridTheme.groupFooterBackground),
       child: Padding(
         padding: EdgeInsets.only(left: 3, top: 3, bottom: 3, right: 3),
         child: BootstrapRow(
@@ -55,9 +54,7 @@ class GridGroupFooter<TItem extends Object> extends StatelessWidget {
               .map(
                 (agg) => Text(
                   "${agg.aggregation}: ${agg.formatResult()}",
-                  style: theme.textTheme.labelMedium?.copyWith(
-                    color: theme.colorScheme.onSurface,
-                  ),
+                  style: ResponsiveDataGridTheme.of(context).footerTextStyle,
                 ),
               )
               .toList(),

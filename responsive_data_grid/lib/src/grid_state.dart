@@ -246,12 +246,7 @@ class ResponsiveDataGridState<TItem extends Object>
                 take: () => _takeCount,
               ),
             ) ??
-            ListResponse(
-              totalCount: 0,
-              items: [],
-              groups: [],
-              aggregates: [],
-            );
+            ListResponse(totalCount: 0, items: [], groups: [], aggregates: []);
       } else {
         throw UnsupportedError(
           "Either the items must be specified OR the loadData function must be specified.",
@@ -476,34 +471,5 @@ class ResponsiveDataGridState<TItem extends Object>
 
   void reload() {
     _rebuildAllChildren();
-  }
-}
-
-class GridTheme {
-  final GridHeaderTheme header;
-
-  GridTheme({required this.header});
-
-  factory GridTheme.fromContext(BuildContext context) {
-    return GridTheme(header: GridHeaderTheme.fromContext(context));
-  }
-
-  ThemeData getThemeData() {
-    return ThemeData();
-  }
-}
-
-class GridHeaderTheme {
-  final Color backgroundColor;
-  final Color color;
-
-  GridHeaderTheme({required this.backgroundColor, required this.color});
-
-  factory GridHeaderTheme.fromContext(BuildContext context) {
-    final theme = Theme.of(context);
-    return GridHeaderTheme(
-      backgroundColor: theme.primaryColorDark,
-      color: theme.primaryColor,
-    );
   }
 }

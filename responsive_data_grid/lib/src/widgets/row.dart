@@ -22,39 +22,44 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
   Widget build(BuildContext context) {
     final grid = context
         .findAncestorWidgetOfExactType<ResponsiveDataGrid<TItem>>();
+    final gridTheme = ResponsiveDataGridTheme.of(context);
 
-    return InkWell(
-      onTap: itemTapped == null
-          ? null
-          : () {
-              if (itemTapped != null) {
-                itemTapped!(item);
-              }
-            },
-      enableFeedback: true,
-      excludeFromSemantics: false,
-      hoverColor:
-          theme.dataTableTheme.dataRowColor?.resolve({WidgetState.hovered}) ??
-          theme.colorScheme.primary,
-      mouseCursor: itemTapped != null
-          ? SystemMouseCursors.click
-          : SystemMouseCursors.basic,
-      child: Padding(
-        padding: padding,
-        child: BootstrapRow(
-          alignment: WrapAlignment.start,
-          runSpacing: grid!.rowSpacing,
-          crossAxisAlignment:
-              grid.rowCrossAxisAlignment == CrossAxisAlignment.start ||
-                  grid.rowCrossAxisAlignment == CrossAxisAlignment.stretch
-              ? WrapCrossAlignment.start
-              : grid.rowCrossAxisAlignment == CrossAxisAlignment.center
-              ? WrapCrossAlignment.center
-              : WrapCrossAlignment.end,
-          children: getColumns(context, grid, item),
-          totalSegments:
-              GridTableLayout.maybeOf(context)?.totalSegments ??
-              grid.reactiveSegments,
+    return ColoredBox(
+      color: gridTheme.rowBackground,
+      child: InkWell(
+        onTap: itemTapped == null
+            ? null
+            : () {
+                if (itemTapped != null) {
+                  itemTapped!(item);
+                }
+              },
+        enableFeedback: true,
+        excludeFromSemantics: false,
+        hoverColor: gridTheme.rowHoverColor,
+        mouseCursor: itemTapped != null
+            ? SystemMouseCursors.click
+            : SystemMouseCursors.basic,
+        child: DefaultTextStyle(
+          style: gridTheme.bodyTextStyle,
+          child: Padding(
+            padding: gridTheme.resolvePadding(padding),
+            child: BootstrapRow(
+              alignment: WrapAlignment.start,
+              runSpacing: grid!.rowSpacing,
+              crossAxisAlignment:
+                  grid.rowCrossAxisAlignment == CrossAxisAlignment.start ||
+                      grid.rowCrossAxisAlignment == CrossAxisAlignment.stretch
+                  ? WrapCrossAlignment.start
+                  : grid.rowCrossAxisAlignment == CrossAxisAlignment.center
+                  ? WrapCrossAlignment.center
+                  : WrapCrossAlignment.end,
+              children: getColumns(context, grid, item),
+              totalSegments:
+                  GridTableLayout.maybeOf(context)?.totalSegments ??
+                  grid.reactiveSegments,
+            ),
+          ),
         ),
       ),
     );

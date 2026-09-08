@@ -90,10 +90,7 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
     }
     return ListView.separated(
       separatorBuilder: (context, index) =>
-          gridState.widget.separatorThickness == null ||
-              gridState.widget.separatorThickness == 0.0
-          ? Container()
-          : Divider(thickness: gridState.widget.separatorThickness),
+          gridRowSeparator(context, gridState.widget.separatorThickness),
       shrinkWrap: true,
       scrollDirection: Axis.vertical,
       physics: const NeverScrollableScrollPhysics(),

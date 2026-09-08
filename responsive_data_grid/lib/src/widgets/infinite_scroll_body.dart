@@ -80,13 +80,10 @@ class _ResponsiveGridInfiniteScrollBodyWidgetState<TItem extends Object>
             child: PagedListView<int, TItem>.separated(
               state: state,
               fetchNextPage: fetchNextPage,
-              separatorBuilder: (context, index) =>
-                  widget.gridState.widget.separatorThickness == null ||
-                      widget.gridState.widget.separatorThickness == 0.0
-                  ? Container()
-                  : Divider(
-                      thickness: widget.gridState.widget.separatorThickness,
-                    ),
+              separatorBuilder: (context, index) => gridRowSeparator(
+                context,
+                widget.gridState.widget.separatorThickness,
+              ),
               shrinkWrap: false,
               scrollDirection: Axis.vertical,
               padding: widget.gridState.widget.padding.copyWith(

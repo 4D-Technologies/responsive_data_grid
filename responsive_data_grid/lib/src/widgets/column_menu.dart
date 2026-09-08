@@ -54,20 +54,19 @@ class ColumnMenu<T extends Object> extends DropDownViewWidget {
           if (aggregates.isNotEmpty)
             DecoratedBox(
               decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainerHighest,
+                color: ResponsiveDataGridTheme.of(
+                  context,
+                ).menuSectionBackground,
               ),
               child: Padding(
                 padding: const EdgeInsets.all(8),
-                child: Text(
-                  "Aggregates",
-                  style: theme.textTheme.labelLarge,
-                ),
+                child: Text("Aggregates", style: theme.textTheme.labelLarge),
               ),
             ),
           ...aggregates,
           DecoratedBox(
             decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainerHighest,
+              color: ResponsiveDataGridTheme.of(context).menuSectionBackground,
             ),
             child: Padding(
               padding: const EdgeInsets.all(8),
