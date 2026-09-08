@@ -1,0 +1,91 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  client-filtering:
+    name: client_filtering
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: client_filtering
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: dart analyze
+      - run: flutter test
+
+  responsive-data-grid:
+    name: responsive_data_grid
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: responsive_data_grid
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: dart analyze
+      - run: flutter test
+
+  example:
+    name: example
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: responsive_data_grid/example
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test
+
+  dotnet:
+    name: ClientFiltering (.NET)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "7.0.x"
+      - uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('dotnet/**/*.csproj') }}
+          restore-keys: ${{ runner.os }}-nuget-
+      - run: dotnet test ClientFiltering.sln --configuration Release
+        working-directory: dotnet
+
+  javascript:
+    name: clientfiltering (JS)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: javascript
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: npx --yes tsx --test test/contract.test.ts
