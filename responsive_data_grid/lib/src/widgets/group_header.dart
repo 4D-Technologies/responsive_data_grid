@@ -17,9 +17,11 @@ class GridGroupHeader extends StatelessWidget {
             //   onPressed: () {},
             //   icon: Icon(Icons.arrow_drop_down),
             // ),
-            Text(
-              group.value ?? LocalizedMessages.noEntry,
-              style: theme.gridTitleSmall,
+            PinToHorizontalViewport(
+              child: Text(
+                group.value ?? LocalizedMessages.noEntry,
+                style: theme.gridTitleSmall,
+              ),
             ),
           ],
         ),

@@ -66,7 +66,8 @@ int gridColumnSegments<TItem extends Object>(
   return value ?? 12;
 }
 
-({double contentWidth, int totalSegments}) gridTableMetrics<TItem extends Object>({
+({double contentWidth, int totalSegments})
+gridTableMetrics<TItem extends Object>({
   required List<GridColumn<TItem, dynamic>> columns,
   required double viewportWidth,
   required int reactiveSegments,
@@ -84,4 +85,32 @@ int gridColumnSegments<TItem extends Object>(
     contentWidth: viewportWidth * used / reactiveSegments,
     totalSegments: used,
   );
+}
+
+/// Keeps [child] in the horizontal viewport while its ancestors scroll.
+///
+/// Group titles and full-width aggregate labels live inside the table's
+/// horizontal scroll so they stay as wide as the columns. Translating by the
+/// current scroll offset pins the label without breaking column alignment.
+class PinToHorizontalViewport extends StatelessWidget {
+  final Widget child;
+
+  const PinToHorizontalViewport({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    final scrollable = Scrollable.maybeOf(context, axis: Axis.horizontal);
+    if (scrollable == null) {
+      return child;
+    }
+
+    return AnimatedBuilder(
+      animation: scrollable.position,
+      builder: (context, child) {
+        final offset = scrollable.position.pixels;
+        return Transform.translate(offset: Offset(offset, 0), child: child);
+      },
+      child: child,
+    );
+  }
 }
