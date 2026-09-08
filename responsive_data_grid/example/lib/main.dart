@@ -128,6 +128,8 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
         actions: [
           PopupMenuButton<DemoPalette>(
+            icon: const Icon(Icons.palette_outlined),
+            tooltip: 'Theme',
             initialValue: widget.palette,
             onSelected: widget.onPalette,
             itemBuilder: (context) => const [
