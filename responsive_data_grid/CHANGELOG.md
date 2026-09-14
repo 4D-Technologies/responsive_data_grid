@@ -3,7 +3,7 @@
 ## Unreleased
 
 - Empty grids show themed "No records available." chrome (`GridNoRecords`); `noResults` remains the full template override. Empty-state text uses the body color, not header foreground.
-- Replacing `initialLoadCriteria.orderBy` no longer keeps stale column sorts.
+- Replacing or clearing `initialLoadCriteria.orderBy` no longer keeps stale column sorts; filter-only criteria updates keep extra clicked sorts.
 - `SortableOptions.multiColumn` keeps click order in `orderBy`, uses `thenBy` for later columns, and shows 1-based sort indexes when two or more columns are sorted.
 - Header cells use Kendo-like padding, compact sort/menu actions, and a column divider so the next label does not collide with the menu.
 - `ResponsiveDataGridTheme` adds per-element tokens (header actions, dividers, title, pager, footer padding) and `ColumnHeader` can override padding, icon size, and action colors.
