@@ -28,6 +28,7 @@ class ResponsiveDataGridState<TItem extends Object>
   initState() {
     super.initState();
     criteria = _criteriaFromInitial();
+    _applyOrderByToColumns(criteria.orderBy);
 
     refreshData();
   }
@@ -45,6 +46,7 @@ class ResponsiveDataGridState<TItem extends Object>
     if (_parentRequiresReload(oldWidget)) {
       if (oldWidget.initialLoadCriteria != widget.initialLoadCriteria) {
         criteria = _criteriaFromInitial();
+        _applyOrderByToColumns(criteria.orderBy);
       }
       refreshData();
     }
@@ -117,15 +119,7 @@ class ResponsiveDataGridState<TItem extends Object>
             .where((c) => c.filterRules.criteria != null)
             .map((c) => c.filterRules.criteria!)
             .toList(),
-        orderBy: () => widget.columns
-            .where((c) => c.sortDirection != OrderDirections.notSet)
-            .map(
-              (e) => OrderCriteria(
-                fieldName: e.fieldName,
-                direction: e.sortDirection,
-              ),
-            )
-            .toList(),
+        orderBy: () => _orderByFromColumns(),
         aggregates: () => widget.columns
             .map((e) => e.aggregations)
             .selectMany((element, index) => element)
@@ -189,15 +183,7 @@ class ResponsiveDataGridState<TItem extends Object>
           .where((c) => c.filterRules.criteria != null)
           .map((c) => c.filterRules.criteria!)
           .toList(),
-      orderBy: () => widget.columns
-          .where((c) => c.sortDirection != OrderDirections.notSet)
-          .map(
-            (e) => OrderCriteria(
-              fieldName: e.fieldName,
-              direction: e.sortDirection,
-            ),
-          )
-          .toList(),
+      orderBy: () => _orderByFromColumns(),
       aggregates: () => widget.columns
           .map((e) => e.aggregations)
           .selectMany((element, index) => element)
@@ -474,6 +460,55 @@ class ResponsiveDataGridState<TItem extends Object>
     }
 
     _updateAllRules();
+  }
+
+  void _applyOrderByToColumns(List<OrderCriteria> orderBy) {
+    for (final order in orderBy) {
+      for (final column in widget.columns) {
+        if (column.fieldName == order.fieldName) {
+          column.sortDirection = order.direction;
+        }
+      }
+    }
+  }
+
+  List<OrderCriteria> _orderByFromColumns() {
+    final remaining = widget.columns
+        .where((c) => c.sortDirection != OrderDirections.notSet)
+        .toList();
+    final result = <OrderCriteria>[];
+
+    for (final existing in criteria.orderBy) {
+      final index = remaining.indexWhere(
+        (c) => c.fieldName == existing.fieldName,
+      );
+      if (index >= 0) {
+        final column = remaining.removeAt(index);
+        result.add(
+          OrderCriteria(
+            fieldName: column.fieldName,
+            direction: column.sortDirection,
+          ),
+        );
+      }
+    }
+
+    for (final column in remaining) {
+      result.add(
+        OrderCriteria(
+          fieldName: column.fieldName,
+          direction: column.sortDirection,
+        ),
+      );
+    }
+    return result;
+  }
+
+  int? sortIndexFor(String fieldName) {
+    if (widget.sortable != SortableOptions.multiColumn) return null;
+    if (criteria.orderBy.length < 2) return null;
+    final index = criteria.orderBy.indexWhere((o) => o.fieldName == fieldName);
+    return index < 0 ? null : index + 1;
   }
 
   void reload() {

@@ -110,6 +110,9 @@ class ColumnHeaderState<TItem extends Object, TValue extends dynamic>
         break;
     }
 
+    final sortIndex = widget.gridState.sortIndexFor(
+      widget.definition.fieldName,
+    );
     final sortButton = GridChromeIconButton(
       key: ValueKey('rdg-header-sort-${widget.definition.fieldName}'),
       icon: Icon(sortIcon),
@@ -123,6 +126,29 @@ class ColumnHeaderState<TItem extends Object, TValue extends dynamic>
       tooltip: 'Sort',
       onPressed: toggleOrder,
     );
+    final sortControl = sortIndex == null
+        ? sortButton
+        : Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              sortButton,
+              Padding(
+                padding: const EdgeInsets.only(left: 1),
+                child: Text(
+                  '$sortIndex',
+                  key: ValueKey(
+                    'rdg-header-sort-index-${widget.definition.fieldName}',
+                  ),
+                  style: textStyle.copyWith(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    height: 1,
+                    color: header.sortColor ?? gridTheme.headerSortActiveColor,
+                  ),
+                ),
+              ),
+            ],
+          );
     final menuButton = ColumnMenu(
       key: ValueKey('rdg-header-menu-${widget.definition.fieldName}'),
       column: widget.definition,
@@ -151,7 +177,7 @@ class ColumnHeaderState<TItem extends Object, TValue extends dynamic>
     final actions = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (showSort) sortButton,
+        if (showSort) sortControl,
         if (showSort && showMenu) SizedBox(width: gridTheme.headerActionGap),
         if (showMenu) menuButton,
       ],
@@ -171,6 +197,7 @@ class ColumnHeaderState<TItem extends Object, TValue extends dynamic>
             }
             final actionExtent =
                 (showSort ? gridTheme.headerActionExtent : 0.0) +
+                (showSort && sortIndex != null ? 10.0 : 0.0) +
                 (showMenu ? gridTheme.headerActionExtent : 0.0) +
                 (showSort && showMenu ? gridTheme.headerActionGap : 0.0);
             final maxActions = math.max(0.0, constraints.maxWidth * 0.65);

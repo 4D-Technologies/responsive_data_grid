@@ -17,7 +17,7 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
   Widget build(BuildContext context) {
     final pageData = gridState._dataCache.pageMap[gridState.pageNumber];
     if (pageData == null) {
-      return gridState.widget.noResults ?? const Text("No results found.");
+      return gridNoRecordsBody(gridState);
     }
     if (pageData.groups.isNotEmpty) {
       return buildGroups(
@@ -86,7 +86,7 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
 
   Widget getPage(List<TItem> items) {
     if (items.isEmpty) {
-      return gridState.widget.noResults ?? Text("No results found.");
+      return gridNoRecordsBody(gridState);
     }
     return ListView.separated(
       separatorBuilder: (context, index) =>

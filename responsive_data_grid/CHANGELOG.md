@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Empty grids show themed "No records available." chrome (`GridNoRecords`); `noResults` remains the full template override.
+- `SortableOptions.multiColumn` keeps click order in `orderBy`, uses `thenBy` for later columns, and shows 1-based sort indexes when two or more columns are sorted.
 - Header cells use Kendo-like padding, compact sort/menu actions, and a column divider so the next label does not collide with the menu.
 - `ResponsiveDataGridTheme` adds per-element tokens (header actions, dividers, title, pager, footer padding) and `ColumnHeader` can override padding, icon size, and action colors.
 - The grid resolves chrome under both `MaterialApp` (`fromTheme`) and `CupertinoApp` (`fromCupertino`) via `material_ui` / `cupertino_ui`.
