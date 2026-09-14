@@ -281,4 +281,78 @@ void main() {
     expect(calls.first.orderBy[1].fieldName, 'name');
     expect(calls.first.orderBy[1].direction, OrderDirections.ascending);
   });
+
+  testWidgets(
+    'replacing initialLoadCriteria.orderBy drops stale column sorts',
+    (tester) async {
+      final calls = <LoadCriteria>[];
+      final columns = _columns();
+      var orderBy = const [
+        OrderCriteria(fieldName: 'name', direction: OrderDirections.ascending),
+      ];
+
+      tester.view.physicalSize = const Size(900, 700);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SizedBox(
+              width: 900,
+              height: 600,
+              child: StatefulBuilder(
+                builder: (context, setState) {
+                  return Column(
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          setState(() {
+                            orderBy = const [
+                              OrderCriteria(
+                                fieldName: 'age',
+                                direction: OrderDirections.ascending,
+                              ),
+                            ];
+                          });
+                        },
+                        child: const Text('switch-sort'),
+                      ),
+                      Expanded(
+                        child: ResponsiveDataGrid<_Person>.serverSide(
+                          height: 500,
+                          pagingMode: PagingMode.pager,
+                          sortable: SortableOptions.multiColumn,
+                          initialLoadCriteria: LoadCriteria(orderBy: orderBy),
+                          loadData: (criteria) async {
+                            calls.add(criteria);
+                            return _response(const [_Person('Ada', 2)]);
+                          },
+                          columns: columns,
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+
+      expect(calls, isNotEmpty);
+      expect(calls.last.orderBy, hasLength(1));
+      expect(calls.last.orderBy.single.fieldName, 'name');
+
+      await tester.tap(find.text('switch-sort'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+
+      expect(calls.last.orderBy, hasLength(1));
+      expect(calls.last.orderBy.single.fieldName, 'age');
+    },
+  );
 }

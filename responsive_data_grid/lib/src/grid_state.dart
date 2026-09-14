@@ -463,6 +463,14 @@ class ResponsiveDataGridState<TItem extends Object>
   }
 
   void _applyOrderByToColumns(List<OrderCriteria> orderBy) {
+    if (orderBy.isNotEmpty) {
+      final fields = {for (final order in orderBy) order.fieldName};
+      for (final column in widget.columns) {
+        if (!fields.contains(column.fieldName)) {
+          column.sortDirection = OrderDirections.notSet;
+        }
+      }
+    }
     for (final order in orderBy) {
       for (final column in widget.columns) {
         if (column.fieldName == order.fieldName) {
