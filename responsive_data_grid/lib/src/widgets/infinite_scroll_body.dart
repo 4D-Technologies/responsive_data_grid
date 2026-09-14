@@ -91,15 +91,8 @@ class _ResponsiveGridInfiniteScrollBodyWidgetState<TItem extends Object>
                 bottom: 0,
               ),
               builderDelegate: PagedChildBuilderDelegate(
-                noItemsFoundIndicatorBuilder: (context) => Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    widget.gridState.widget.noResults ??
-                        Text("No results found."),
-                  ],
-                ),
+                noItemsFoundIndicatorBuilder: (context) =>
+                    gridNoRecordsBody(widget.gridState),
                 itemBuilder: (context, item, index) {
                   return DataGridRowWidget<TItem>(
                     item: item,

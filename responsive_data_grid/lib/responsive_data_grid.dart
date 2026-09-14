@@ -51,6 +51,7 @@ part './src/widgets/chrome_icon_button.dart';
 part './src/widgets/column_header.dart';
 part './src/widgets/paged_body.dart';
 part './src/widgets/infinite_scroll_body.dart';
+part './src/widgets/no_records.dart';
 part './src/widgets/field.dart';
 part './src/widgets/header_row.dart';
 part './src/widgets/title_row.dart';
@@ -96,6 +97,7 @@ class LocalizedMessages {
   static var noEntry = "No Entry";
   static var retry = "Retry";
   static var loadFailed = "Unable to load data.";
+  static var noRecords = "No records available.";
   static var groupBy = "Group by";
   static var groupPanelHint = "Select a column to group by";
   static var addGrouping = "Add grouping";
