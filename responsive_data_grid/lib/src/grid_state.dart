@@ -45,8 +45,15 @@ class ResponsiveDataGridState<TItem extends Object>
 
     if (_parentRequiresReload(oldWidget)) {
       if (oldWidget.initialLoadCriteria != widget.initialLoadCriteria) {
+        final previousInitialOrderBy =
+            oldWidget.initialLoadCriteria?.orderBy ?? const <OrderCriteria>[];
         criteria = _criteriaFromInitial();
-        _applyOrderByToColumns(criteria.orderBy);
+        if (!_sameOrderBy(previousInitialOrderBy, criteria.orderBy)) {
+          _applyOrderByToColumns(
+            criteria.orderBy,
+            previousInitialOrderBy: previousInitialOrderBy,
+          );
+        }
       }
       refreshData();
     }
@@ -462,7 +469,26 @@ class ResponsiveDataGridState<TItem extends Object>
     _updateAllRules();
   }
 
-  void _applyOrderByToColumns(List<OrderCriteria> orderBy) {
+  void _applyOrderByToColumns(
+    List<OrderCriteria> orderBy, {
+    List<OrderCriteria> previousInitialOrderBy = const [],
+  }) {
+    if (orderBy.isNotEmpty) {
+      final fields = {for (final order in orderBy) order.fieldName};
+      for (final column in widget.columns) {
+        if (!fields.contains(column.fieldName)) {
+          column.sortDirection = OrderDirections.notSet;
+        }
+      }
+    } else {
+      for (final order in previousInitialOrderBy) {
+        for (final column in widget.columns) {
+          if (column.fieldName == order.fieldName) {
+            column.sortDirection = OrderDirections.notSet;
+          }
+        }
+      }
+    }
     for (final order in orderBy) {
       for (final column in widget.columns) {
         if (column.fieldName == order.fieldName) {
@@ -470,6 +496,14 @@ class ResponsiveDataGridState<TItem extends Object>
         }
       }
     }
+  }
+
+  bool _sameOrderBy(List<OrderCriteria> left, List<OrderCriteria> right) {
+    if (left.length != right.length) return false;
+    for (var i = 0; i < left.length; i++) {
+      if (left[i] != right[i]) return false;
+    }
+    return true;
   }
 
   List<OrderCriteria> _orderByFromColumns() {

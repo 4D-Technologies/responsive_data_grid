@@ -281,4 +281,232 @@ void main() {
     expect(calls.first.orderBy[1].fieldName, 'name');
     expect(calls.first.orderBy[1].direction, OrderDirections.ascending);
   });
+
+  testWidgets(
+    'replacing initialLoadCriteria.orderBy drops stale column sorts',
+    (tester) async {
+      final calls = <LoadCriteria>[];
+      final columns = _columns();
+      var orderBy = const [
+        OrderCriteria(fieldName: 'name', direction: OrderDirections.ascending),
+      ];
+
+      tester.view.physicalSize = const Size(900, 700);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SizedBox(
+              width: 900,
+              height: 600,
+              child: StatefulBuilder(
+                builder: (context, setState) {
+                  return Column(
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          setState(() {
+                            orderBy = const [
+                              OrderCriteria(
+                                fieldName: 'age',
+                                direction: OrderDirections.ascending,
+                              ),
+                            ];
+                          });
+                        },
+                        child: const Text('switch-sort'),
+                      ),
+                      Expanded(
+                        child: ResponsiveDataGrid<_Person>.serverSide(
+                          height: 500,
+                          pagingMode: PagingMode.pager,
+                          sortable: SortableOptions.multiColumn,
+                          initialLoadCriteria: LoadCriteria(orderBy: orderBy),
+                          loadData: (criteria) async {
+                            calls.add(criteria);
+                            return _response(const [_Person('Ada', 2)]);
+                          },
+                          columns: columns,
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+
+      expect(calls, isNotEmpty);
+      expect(calls.last.orderBy, hasLength(1));
+      expect(calls.last.orderBy.single.fieldName, 'name');
+
+      await tester.tap(find.text('switch-sort'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+
+      expect(calls.last.orderBy, hasLength(1));
+      expect(calls.last.orderBy.single.fieldName, 'age');
+    },
+  );
+
+  testWidgets(
+    'clearing initialLoadCriteria.orderBy drops previously applied sorts',
+    (tester) async {
+      final calls = <LoadCriteria>[];
+      final columns = _columns();
+      var orderBy = const [
+        OrderCriteria(fieldName: 'name', direction: OrderDirections.ascending),
+      ];
+
+      tester.view.physicalSize = const Size(900, 700);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SizedBox(
+              width: 900,
+              height: 600,
+              child: StatefulBuilder(
+                builder: (context, setState) {
+                  return Column(
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          setState(() {
+                            orderBy = const [];
+                          });
+                        },
+                        child: const Text('clear-sort'),
+                      ),
+                      Expanded(
+                        child: ResponsiveDataGrid<_Person>.serverSide(
+                          height: 500,
+                          pagingMode: PagingMode.pager,
+                          sortable: SortableOptions.multiColumn,
+                          initialLoadCriteria: LoadCriteria(orderBy: orderBy),
+                          loadData: (criteria) async {
+                            calls.add(criteria);
+                            return _response(const [_Person('Ada', 2)]);
+                          },
+                          columns: columns,
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+
+      expect(calls.last.orderBy, hasLength(1));
+      expect(calls.last.orderBy.single.fieldName, 'name');
+
+      await tester.tap(find.text('clear-sort'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+
+      expect(calls.last.orderBy, isEmpty);
+    },
+  );
+
+  testWidgets(
+    'filter-only initialLoadCriteria change keeps extra clicked sorts',
+    (tester) async {
+      final calls = <LoadCriteria>[];
+      final columns = _columns();
+      var initial = LoadCriteria(
+        orderBy: const [
+          OrderCriteria(fieldName: 'age', direction: OrderDirections.ascending),
+        ],
+      );
+
+      tester.view.physicalSize = const Size(900, 700);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SizedBox(
+              width: 900,
+              height: 600,
+              child: StatefulBuilder(
+                builder: (context, setState) {
+                  return Column(
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          setState(() {
+                            initial = LoadCriteria(
+                              orderBy: const [
+                                OrderCriteria(
+                                  fieldName: 'age',
+                                  direction: OrderDirections.ascending,
+                                ),
+                              ],
+                              filterBy: const [
+                                FilterCriteria<String>(
+                                  fieldName: 'name',
+                                  op: Operators.and,
+                                  logicalOperator: Logic.equals,
+                                  values: ['Ada'],
+                                ),
+                              ],
+                            );
+                          });
+                        },
+                        child: const Text('add-filter'),
+                      ),
+                      Expanded(
+                        child: ResponsiveDataGrid<_Person>.serverSide(
+                          height: 500,
+                          pagingMode: PagingMode.pager,
+                          sortable: SortableOptions.multiColumn,
+                          initialLoadCriteria: initial,
+                          loadData: (criteria) async {
+                            calls.add(criteria);
+                            return _response(const [_Person('Ada', 2)]);
+                          },
+                          columns: columns,
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+
+      await tester.tap(find.byKey(const ValueKey('rdg-header-sort-name')));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+
+      expect(calls.last.orderBy.map((o) => o.fieldName), ['age', 'name']);
+
+      await tester.tap(find.text('add-filter'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+
+      expect(calls.last.orderBy.map((o) => o.fieldName), ['age', 'name']);
+    },
+  );
 }

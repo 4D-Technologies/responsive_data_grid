@@ -14,7 +14,10 @@ class GridNoRecords extends StatelessWidget {
           LocalizedMessages.noRecords,
           textAlign: TextAlign.center,
           style: gridTheme.bodyTextStyle.copyWith(
-            color: gridTheme.headerForeground.withValues(alpha: 0.72),
+            color:
+                (gridTheme.bodyTextStyle.color ??
+                        DefaultTextStyle.of(context).style.color)
+                    ?.withValues(alpha: 0.72),
           ),
         ),
       ),
