@@ -56,6 +56,7 @@ class ResponsiveDataGridState<TItem extends Object>
       }
     }
     setState(() {});
+    _notifyState();
   }
 
   void setColumnSort<TValue>(
@@ -107,6 +108,7 @@ class ResponsiveDataGridState<TItem extends Object>
       }
     }
     setState(() {});
+    _notifyState();
   }
 
   void setColumnWidth(String fieldName, double width) {
@@ -124,6 +126,7 @@ class ResponsiveDataGridState<TItem extends Object>
       }
     }
     setState(() {});
+    _notifyState();
   }
 
   void reorderColumnByField(String fromField, String toField) {
@@ -138,6 +141,82 @@ class ResponsiveDataGridState<TItem extends Object>
     final name = _columnOrder.removeAt(from);
     _columnOrder.insert(clampedTo, name);
     setState(() {});
+    _notifyState();
+  }
+
+  GridStateSnapshot captureState() {
+    return GridStateSnapshot(
+      pageNumber: pageNumber,
+      pageSize: _pageSize,
+      criteria: criteria,
+      columns: [
+        for (final name in _columnOrder)
+          for (final column in widget.columns)
+            if (column.fieldName == name)
+              GridColumnSnapshot(
+                fieldName: name,
+                visible: column.visible,
+                frozen: column.frozen,
+                width: column.width,
+              ),
+      ],
+    );
+  }
+
+  void restoreState(GridStateSnapshot snapshot) {
+    _applySnapshot(snapshot, notify: false);
+    setState(() {
+      isLoading = true;
+      loadError = null;
+      _dataCache.clear();
+      _loadId++;
+    });
+    Future(() async {
+      await setPage(pageNumber);
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
+      _notifyState();
+    });
+  }
+
+  void _applySnapshot(GridStateSnapshot snapshot, {required bool notify}) {
+    pageNumber = snapshot.pageNumber < 1 ? 1 : snapshot.pageNumber;
+    if (snapshot.pageSize > 0) {
+      _pageSize = snapshot.pageSize;
+    }
+    criteria = snapshot.criteria;
+    if (snapshot.columns.isNotEmpty) {
+      _columnOrder = [
+        for (final column in snapshot.columns) column.fieldName,
+      ];
+      for (final snap in snapshot.columns) {
+        for (final column in widget.columns) {
+          if (column.fieldName == snap.fieldName) {
+            column.visible = snap.visible;
+            column.frozen = snap.frozen;
+            column.width = snap.width;
+            break;
+          }
+        }
+      }
+    }
+    _applyOrderByToColumns(criteria.orderBy);
+    for (final filter in criteria.filterBy) {
+      for (final column in widget.columns) {
+        if (column.fieldName == filter.fieldName) {
+          column.filterRules.criteria = filter;
+        }
+      }
+    }
+    if (notify) {
+      setState(() {});
+      _notifyState();
+    }
+  }
+
+  void _notifyState() {
+    widget.onStateChanged?.call(captureState());
   }
 
   ResponsiveDataGridState() {
@@ -154,6 +233,9 @@ class ResponsiveDataGridState<TItem extends Object>
     _columnOrder = [for (final c in widget.columns) c.fieldName];
     criteria = _criteriaFromInitial();
     _applyOrderByToColumns(criteria.orderBy);
+    if (widget.initialState != null) {
+      _applySnapshot(widget.initialState!, notify: false);
+    }
 
     refreshData();
   }

@@ -8,6 +8,8 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
 
   final List<GridColumn<TItem, dynamic>> columns;
   final LoadCriteria? initialLoadCriteria;
+  final GridStateSnapshot? initialState;
+  final void Function(GridStateSnapshot state)? onStateChanged;
   final int pageSize;
   final List<int> pageSizeOptions;
   final double? height;
@@ -44,6 +46,8 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
     this.loadData,
     required this.columns,
     this.initialLoadCriteria,
+    this.initialState,
+    this.onStateChanged,
     this.columnSpacing = 10,
     this.rowSpacing = 2,
     this.itemTapped,
@@ -78,6 +82,8 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
     required List<TItem> this.items,
     required this.columns,
     this.initialLoadCriteria,
+    this.initialState,
+    this.onStateChanged,
     this.groupIndent = 15,
     this.allowGrouping = false,
     this.groupPanel = GroupPanelDisplay.collapsed,
