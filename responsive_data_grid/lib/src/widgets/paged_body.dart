@@ -59,9 +59,11 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
           children: [
             GridGroupHeader(group: group, theme: theme),
             Padding(
-              padding: EdgeInsets.only(
-                left: gridState.widget.groupIndent.toDouble(),
-              ),
+              padding: gridState.widget.layoutMode == GridLayoutMode.table
+                  ? EdgeInsets.zero
+                  : EdgeInsets.only(
+                      left: gridState.widget.groupIndent.toDouble(),
+                    ),
               child: group.subGroups.isEmpty
                   ? getPage(groupItems, nested: true)
                   : buildGroups(
@@ -95,13 +97,15 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
       shrinkWrap: wrap,
       scrollDirection: Axis.vertical,
       physics: wrap ? const NeverScrollableScrollPhysics() : null,
-      padding: gridState.widget.padding.copyWith(top: 0, bottom: 0),
+      padding: gridState.widget.layoutMode == GridLayoutMode.table
+          ? EdgeInsets.zero
+          : gridState.widget.padding.copyWith(top: 0, bottom: 0),
       itemCount: items.length,
       itemBuilder: (context, index) {
         final item = items[index];
         return DataGridRowWidget<TItem>(
           item: item,
-          columns: gridState.widget.columns,
+          columns: gridState.layoutColumns,
           itemTapped: gridState.widget.itemTapped,
           theme: theme,
           padding: gridState.widget.contentPadding,

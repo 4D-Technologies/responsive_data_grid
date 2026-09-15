@@ -8,9 +8,11 @@ abstract class GridColumn<TItem extends Object, TValue extends dynamic> {
   FilterRules<TItem, DataGridColumnFilter<TItem, TValue>, TValue> filterRules;
   OrderDirections sortDirection;
   List<AggregateCriteria> aggregations;
-  final double? width;
+  double? width;
   final double? minWidth;
   final double? maxWidth;
+  bool visible;
+  bool frozen;
   final int? xlCols;
   final int? largeCols;
   final int? mediumCols;
@@ -34,6 +36,8 @@ abstract class GridColumn<TItem extends Object, TValue extends dynamic> {
     required this.width,
     required this.minWidth,
     required this.maxWidth,
+    this.visible = true,
+    this.frozen = false,
     required this.xlCols,
     required this.largeCols,
     required this.mediumCols,
