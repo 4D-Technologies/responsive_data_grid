@@ -254,6 +254,16 @@ class GridLocalizations {
     ClientFilteringLocalizedMessages.notEndsWith = spanish
         ? 'No termina con'
         : 'Does Not End With';
+    ClientFilteringLocalizedMessages.isNull = spanish ? 'Es nulo' : 'Is Null';
+    ClientFilteringLocalizedMessages.isNotNull = spanish
+        ? 'No es nulo'
+        : 'Is Not Null';
+    ClientFilteringLocalizedMessages.isEmpty = spanish
+        ? 'Está vacío'
+        : 'Is Empty';
+    ClientFilteringLocalizedMessages.isNotEmpty = spanish
+        ? 'No está vacío'
+        : 'Is Not Empty';
     ClientFilteringLocalizedMessages.and = spanish ? 'Y' : 'And';
     ClientFilteringLocalizedMessages.or = spanish ? 'O' : 'Or';
     ClientFilteringLocalizedMessages.sum = spanish ? 'Suma' : 'Sum';

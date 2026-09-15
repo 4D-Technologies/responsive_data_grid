@@ -51,44 +51,7 @@ class DataGridStringColumnFilterState<TItem extends Object>
         DropdownButtonFormField<Logic?>(
           isExpanded: true,
           elevation: 30,
-          items: [
-            DropdownMenuItem(
-              value: null,
-              child: Text(GridLocalizations.of(context).any),
-            ),
-            DropdownMenuItem(
-              value: Logic.contains,
-              child: Text(Logic.contains.toString()),
-            ),
-            DropdownMenuItem(
-              value: Logic.startsWith,
-              child: Text(Logic.startsWith.toString()),
-            ),
-            DropdownMenuItem(
-              value: Logic.endsWith,
-              child: Text(Logic.endsWith.toString()),
-            ),
-            DropdownMenuItem(
-              value: Logic.equals,
-              child: Text(Logic.equals.toString()),
-            ),
-            DropdownMenuItem(
-              value: Logic.notEqual,
-              child: Text(Logic.notEqual.toString()),
-            ),
-            DropdownMenuItem(
-              value: Logic.notContains,
-              child: Text(Logic.notContains.toString()),
-            ),
-            DropdownMenuItem(
-              value: Logic.notStartsWith,
-              child: Text(Logic.notStartsWith.toString()),
-            ),
-            DropdownMenuItem(
-              value: Logic.notEndsWith,
-              child: Text(Logic.notEndsWith.toString()),
-            ),
-          ],
+          items: gridFilterLogicItems(context, gridStringFilterLogics),
           initialValue: op,
           onChanged: (Logic? value) {
             setState(() {
@@ -101,7 +64,7 @@ class DataGridStringColumnFilterState<TItem extends Object>
           },
         ),
         Visibility(
-          visible: op != null,
+          visible: op != null && gridLogicRequiresValue(op!),
           child: TextFormField(
             initialValue: searchText,
             decoration: InputDecoration(

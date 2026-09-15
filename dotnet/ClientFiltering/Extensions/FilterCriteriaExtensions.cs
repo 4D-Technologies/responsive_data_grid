@@ -100,7 +100,16 @@ public static class FilterCriteriaExtensions
 
         var values = criteria.Values.Select(v => Helpers.GetConstantValue(property, v)).ToArray();
 
-        if (!values.Any())
+        if (
+            !values.Any()
+            && criteria.Relation
+                is not (
+                    RelationalOperators.IsNull
+                    or RelationalOperators.IsNotNull
+                    or RelationalOperators.IsEmpty
+                    or RelationalOperators.IsNotEmpty
+                )
+        )
         {
             throw new InvalidOperationException(
                 "There must be at least a single value passed in a filter."
@@ -185,6 +194,52 @@ public static class FilterCriteriaExtensions
                 );
                 if (criteria.Relation == RelationalOperators.NotEndsWith)
                     expression = Expression.Not(expression);
+                break;
+            case RelationalOperators.IsNull:
+            {
+                var nullType =
+                    property.Type.IsValueType
+                    && Nullable.GetUnderlyingType(property.Type) == null
+                        ? typeof(Nullable<>).MakeGenericType(property.Type)
+                        : property.Type;
+                Expression converted =
+                    property.Type == nullType
+                        ? property
+                        : Expression.Convert(property, nullType);
+                expression = Expression.Equal(
+                    converted,
+                    Expression.Constant(null, nullType)
+                );
+                break;
+            }
+            case RelationalOperators.IsNotNull:
+            {
+                var nullType =
+                    property.Type.IsValueType
+                    && Nullable.GetUnderlyingType(property.Type) == null
+                        ? typeof(Nullable<>).MakeGenericType(property.Type)
+                        : property.Type;
+                Expression converted =
+                    property.Type == nullType
+                        ? property
+                        : Expression.Convert(property, nullType);
+                expression = Expression.NotEqual(
+                    converted,
+                    Expression.Constant(null, nullType)
+                );
+                break;
+            }
+            case RelationalOperators.IsEmpty:
+                expression = Expression.Equal(property, Expression.Constant(""));
+                break;
+            case RelationalOperators.IsNotEmpty:
+                expression = Expression.AndAlso(
+                    Expression.NotEqual(
+                        property,
+                        Expression.Constant(null, property.Type)
+                    ),
+                    Expression.NotEqual(property, Expression.Constant(""))
+                );
                 break;
             case RelationalOperators.Between:
                 if (values.Length < 2)

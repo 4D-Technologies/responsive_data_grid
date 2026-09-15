@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+- `Logic` adds `isNull`, `isNotNull`, `isEmpty`, and `isNotEmpty`.
+
 ## [0.0.29] - September 3rd, 2026
 
 - Use `material_ui` for `TimeOfDay` serialization instead of `package:flutter/material.dart`.

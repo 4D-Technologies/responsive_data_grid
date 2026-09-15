@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Filter menus show type-appropriate operators including null/empty. Multiple column filters combine with AND unless a clause sets `Operators.or`.
 - Column menu adds sort, pin left, hide, and autosize alongside filter/aggregates, and scrolls on small screens.
 - Grid chrome uses `GridLocalizations` (English and Spanish). Hosts add `GridLocalizations.delegate` and can switch locale; dates/numbers follow `Intl.defaultLocale`.
 - Columns can be hidden (`visible`), frozen (`frozen`), resized (`width` / `setColumnWidth`), and reordered (`reorderColumn`). Frozen columns stay in view while the rest of the table scrolls.

@@ -13,6 +13,10 @@ export enum Logic {
   NotStartsWith = 11,
   NotEndsWith = 12,
   Between = 13,
+  IsNull = 14,
+  IsNotNull = 15,
+  IsEmpty = 16,
+  IsNotEmpty = 17,
 }
 
 export enum Operators {

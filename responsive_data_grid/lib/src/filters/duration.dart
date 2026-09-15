@@ -63,40 +63,7 @@ class DataGridDurationColumnFilterState<TItem extends Object>
       children: [
         DropdownButtonFormField<Logic?>(
           isExpanded: true,
-          items: [
-            DropdownMenuItem(
-              value: null,
-              child: Text(GridLocalizations.of(context).any),
-            ),
-            DropdownMenuItem(
-              value: Logic.greaterThan,
-              child: Text(Logic.greaterThan.toString()),
-            ),
-            DropdownMenuItem(
-              value: Logic.greaterThanOrEqualTo,
-              child: Text(Logic.greaterThanOrEqualTo.toString()),
-            ),
-            DropdownMenuItem(
-              value: Logic.equals,
-              child: Text(Logic.equals.toString()),
-            ),
-            DropdownMenuItem(
-              value: Logic.lessThan,
-              child: Text(Logic.lessThan.toString()),
-            ),
-            DropdownMenuItem(
-              value: Logic.lessThanOrEqualTo,
-              child: Text(Logic.lessThanOrEqualTo.toString()),
-            ),
-            DropdownMenuItem(
-              value: Logic.between,
-              child: Text(Logic.between.toString()),
-            ),
-            DropdownMenuItem(
-              value: Logic.notEqual,
-              child: Text(Logic.notEqual.toString()),
-            ),
-          ],
+          items: gridFilterLogicItems(context, gridComparableFilterLogics),
           initialValue: op,
           onChanged: (Logic? value) {
             setState(() {

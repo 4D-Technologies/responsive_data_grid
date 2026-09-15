@@ -74,4 +74,47 @@ void main() {
     expect(find.text('Ada'), findsWidgets);
     expect(find.text('Grace'), findsNothing);
   });
+
+  testWidgets('string filter lists null and empty operators', (tester) async {
+    tester.view.physicalSize = const Size(900, 700);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SizedBox(
+            width: 900,
+            height: 600,
+            child: ResponsiveDataGrid<_Person>.clientSide(
+              height: 600,
+              pagingMode: PagingMode.pager,
+              items: const [_Person('Ada', true)],
+              columns: [
+                StringColumn<_Person>(
+                  fieldName: 'name',
+                  header: const ColumnHeader(text: 'Name', showFilter: true),
+                  value: (row) => row.name,
+                  xsCols: 12,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 50));
+
+    await tester.tap(find.byIcon(Icons.more_vert).first);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 50));
+    await tester.tap(find.byType(DropdownButtonFormField<Logic?>));
+    await tester.pumpAndSettle();
+
+    expect(find.text(Logic.isNull.toString()).last, findsOneWidget);
+    expect(find.text(Logic.isEmpty.toString()).last, findsOneWidget);
+    expect(find.text(Logic.greaterThan.toString()), findsNothing);
+  });
 }

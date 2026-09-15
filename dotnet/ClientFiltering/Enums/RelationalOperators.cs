@@ -41,4 +41,16 @@ public enum RelationalOperators
 
     [EnumMember]
     Between = 13,
+
+    [EnumMember]
+    IsNull = 14,
+
+    [EnumMember]
+    IsNotNull = 15,
+
+    [EnumMember]
+    IsEmpty = 16,
+
+    [EnumMember]
+    IsNotEmpty = 17,
 }
