@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Table layout is the default (`GridLayoutMode.table`): one shared column geometry, sticky header while the body scrolls, and horizontal scroll that moves header, body, and footers together. `GridLayoutMode.reflow` restores bootstrap wrapping for card/form layouts.
 - Empty grids show themed "No records available." chrome (`GridNoRecords`); `noResults` remains the full template override. Empty-state text uses the body color, not header foreground.
 - Replacing or clearing `initialLoadCriteria.orderBy` no longer keeps stale column sorts; filter-only criteria updates keep extra clicked sorts.
 - `SortableOptions.multiColumn` keeps click order in `orderBy`, uses `thenBy` for later columns, and shows 1-based sort indexes when two or more columns are sorted.

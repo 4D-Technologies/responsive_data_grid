@@ -26,24 +26,22 @@ class GridFooter<TItem extends Object> extends StatelessWidget {
         ),
         child: Padding(
           padding: gridTheme.resolvePadding(gridTheme.footerPadding),
-          child: PinToHorizontalViewport(
-            child: BootstrapRow(
-              horizontalSpacing: gridState.widget.columnSpacing,
-              crossAxisAlignment:
-                  gridState.widget.rowCrossAxisAlignment ==
-                          CrossAxisAlignment.start ||
-                      gridState.widget.rowCrossAxisAlignment ==
-                          CrossAxisAlignment.stretch
-                  ? WrapCrossAlignment.start
-                  : gridState.widget.rowCrossAxisAlignment ==
-                        CrossAxisAlignment.center
-                  ? WrapCrossAlignment.center
-                  : WrapCrossAlignment.end,
-              children: getColumns(context),
-              totalSegments:
-                  GridTableLayout.maybeOf(context)?.totalSegments ??
-                  gridState.widget.reactiveSegments,
-            ),
+          child: BootstrapRow(
+            horizontalSpacing: gridState.widget.columnSpacing,
+            crossAxisAlignment:
+                gridState.widget.rowCrossAxisAlignment ==
+                        CrossAxisAlignment.start ||
+                    gridState.widget.rowCrossAxisAlignment ==
+                        CrossAxisAlignment.stretch
+                ? WrapCrossAlignment.start
+                : gridState.widget.rowCrossAxisAlignment ==
+                      CrossAxisAlignment.center
+                ? WrapCrossAlignment.center
+                : WrapCrossAlignment.end,
+            children: getColumns(context),
+            totalSegments:
+                GridTableLayout.maybeOf(context)?.totalSegments ??
+                gridState.widget.reactiveSegments,
           ),
         ),
       ),

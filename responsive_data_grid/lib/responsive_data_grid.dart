@@ -155,6 +155,17 @@ enum GroupPanelDisplay {
   hidden,
 }
 
+/// How columns are laid out across the grid width.
+enum GridLayoutMode {
+  /// One non-wrapping row of columns. Extra columns scroll horizontally.
+  /// Header, body, and footer share the same column geometry.
+  table,
+
+  /// Bootstrap-style wrapping when column segments exceed 12. Use this for
+  /// card/form layouts; [table] is the default spreadsheet mode.
+  reflow,
+}
+
 enum PagingMode {
   ///If In a scrollable control, will use a pager, if not, will use infinite scroll.
   auto,

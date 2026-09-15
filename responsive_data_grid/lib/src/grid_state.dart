@@ -324,6 +324,7 @@ class ResponsiveDataGridState<TItem extends Object>
                       viewportWidth: constraints.maxWidth,
                       reactiveSegments: widget.reactiveSegments,
                       screenWidth: screenWidth,
+                      layoutMode: widget.layoutMode,
                     );
 
                     Widget tableBody;

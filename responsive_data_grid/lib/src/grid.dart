@@ -19,6 +19,7 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
   final CrossAxisAlignment rowCrossAxisAlignment;
   final CrossAxisAlignment headerCrossAxisAlignment;
   final int reactiveSegments;
+  final GridLayoutMode layoutMode;
   final TitleDefinition? title;
   final EdgeInsets padding;
   final EdgeInsets contentPadding;
@@ -56,6 +57,7 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
     this.rowCrossAxisAlignment = CrossAxisAlignment.center,
     this.headerCrossAxisAlignment = CrossAxisAlignment.center,
     this.reactiveSegments = 12,
+    this.layoutMode = GridLayoutMode.table,
     this.title,
     this.padding = const EdgeInsets.all(5),
     this.contentPadding = const EdgeInsets.all(3),
@@ -85,6 +87,7 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
     this.rowCrossAxisAlignment = CrossAxisAlignment.center,
     this.headerCrossAxisAlignment = CrossAxisAlignment.center,
     this.reactiveSegments = 12,
+    this.layoutMode = GridLayoutMode.table,
     this.title,
     this.padding = const EdgeInsets.all(5),
     this.contentPadding = const EdgeInsets.only(
