@@ -29,7 +29,9 @@ class ResponseCache<TItem extends Object> {
         );
       }
 
-      result = result.where((e) => col.value(e)?.toString() == val).toList();
+      result = result
+          .where((e) => gridMatchesGroupValue(col.value(e), val))
+          .toList();
     });
 
     return result;

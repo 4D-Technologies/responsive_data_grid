@@ -1,5 +1,23 @@
 part of '../responsive_data_grid.dart';
 
+bool gridMatchesGroupValue(dynamic fieldValue, String? groupValue) {
+  if (fieldValue == null) {
+    return groupValue == null || groupValue.isEmpty || groupValue == 'null';
+  }
+  if (fieldValue is DateTime) {
+    return fieldValue.toIso8601String() == groupValue ||
+        fieldValue.toString() == groupValue;
+  }
+  if (fieldValue is Enum) {
+    return fieldValue.name == groupValue || fieldValue.toString() == groupValue;
+  }
+  if (fieldValue is num) {
+    final parsed = num.tryParse(groupValue ?? '');
+    return parsed == fieldValue || fieldValue.toString() == groupValue;
+  }
+  return fieldValue.toString() == groupValue;
+}
+
 extension OrderCriteriaExtensions on List<OrderCriteria> {
   String toOdata() {
     if (isEmpty) return "";

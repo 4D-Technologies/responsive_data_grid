@@ -25,6 +25,7 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
         pageData.groups,
         pageData.items,
         nested: false,
+        depth: 0,
       );
     }
     return getPage(pageData.items);
@@ -35,6 +36,8 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
     List<GroupResult> groups,
     List<TItem> items, {
     required bool nested,
+    required int depth,
+    String path = '',
   }) {
     final col = gridState.widget.columns.firstWhere(
       (c) => c.fieldName == groups.first.fieldName,
@@ -51,34 +54,41 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
         final group = groups[index];
 
         final groupItems = items
-            .where((e) => col.value(e)?.toString() == group.value)
+            .where((e) => gridMatchesGroupValue(col.value(e), group.value))
             .toList();
+        final collapsed = gridState.isGroupCollapsed(group, path: path);
+        final nextPath = gridState.groupCollapseKey(group, path: path);
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            GridGroupHeader(group: group, theme: theme),
-            Padding(
-              padding: gridState.widget.layoutMode == GridLayoutMode.table
-                  ? EdgeInsets.zero
-                  : EdgeInsets.only(
-                      left: gridState.widget.groupIndent.toDouble(),
-                    ),
-              child: group.subGroups.isEmpty
+            GridGroupHeader(
+              group: group,
+              theme: theme,
+              depth: depth,
+              indent: gridState.widget.groupIndent,
+              collapsed: collapsed,
+              onToggle: () =>
+                  gridState.toggleGroupCollapsed(group, path: path),
+            ),
+            if (!collapsed)
+              (group.subGroups.isEmpty
                   ? getPage(groupItems, nested: true)
                   : buildGroups(
                       response,
                       group.subGroups,
                       groupItems,
                       nested: true,
-                    ),
-            ),
-            GridGroupFooter<TItem>(
-              group: group,
-              gridState: gridState,
-              theme: theme,
-              groupCount: response.groups.length,
-            ),
+                      depth: depth + 1,
+                      path: nextPath,
+                    )),
+            if (!collapsed)
+              GridGroupFooter<TItem>(
+                group: group,
+                gridState: gridState,
+                theme: theme,
+                groupCount: response.groups.length,
+              ),
           ],
         );
       },

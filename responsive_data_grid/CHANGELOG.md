@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Groups expand/collapse, nested headers indent with `groupIndent`, and group membership matches DateTime/enum/num values without relying only on `toString()`.
 - `FilterableMode` adds an always-visible filter row (`row` / `menuAndRow`) that shares `FilterCriteria` with the column menu.
 - Filter menus show type-appropriate operators including null/empty. Multiple column filters combine with AND unless a clause sets `Operators.or`.
 - Column menu adds sort, pin left, hide, and autosize alongside filter/aggregates, and scrolls on small screens.
