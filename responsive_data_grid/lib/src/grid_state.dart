@@ -20,6 +20,7 @@ class ResponsiveDataGridState<TItem extends Object>
       widget.pagingMode == PagingMode.none ? 0 : (page - 1) * _pageSize;
 
   late List<String> _columnOrder;
+  GridDensity density = GridDensity.standard;
   final Set<String> _collapsedGroups = <String>{};
 
   String groupCollapseKey(GroupResult group, {String path = ''}) =>
@@ -223,6 +224,35 @@ class ResponsiveDataGridState<TItem extends Object>
     if (!mounted) return;
     widget.onStateChanged?.call(captureState());
     widget.controller?._emit();
+  }
+
+  void cycleDensity() {
+    setState(() {
+      density = GridDensity
+          .values[(density.index + 1) % GridDensity.values.length];
+    });
+    _notifyState();
+  }
+
+  Future<void> setSearch(String query) async {
+    final trimmed = query.trim();
+    StringColumn<TItem>? target;
+    for (final column in widget.columns) {
+      if (column is StringColumn<TItem>) {
+        target = column;
+        break;
+      }
+    }
+    if (target == null) return;
+    target.filterRules.criteria = trimmed.isEmpty
+        ? null
+        : FilterCriteria<String>(
+            fieldName: target.fieldName,
+            op: Operators.and,
+            logicalOperator: Logic.contains,
+            values: [trimmed],
+          );
+    await refreshData();
   }
 
   Future<void> clearFilters() async {
@@ -606,11 +636,21 @@ class ResponsiveDataGridState<TItem extends Object>
                       parts.add(
                         TitleRowWidget(
                           widget.title!,
-                          onRefresh: widget.controller == null
-                              ? null
-                              : () {
+                          onRefresh:
+                              widget.toolbar == null &&
+                                  widget.controller != null
+                              ? () {
                                   widget.controller!.refresh();
-                                },
+                                }
+                              : null,
+                        ),
+                      );
+                    }
+                    if (widget.toolbar != null && !widget.toolbar!.isEmpty) {
+                      parts.add(
+                        GridToolbarRow<TItem>(
+                          grid: this,
+                          toolbar: widget.toolbar!,
                         ),
                       );
                     }

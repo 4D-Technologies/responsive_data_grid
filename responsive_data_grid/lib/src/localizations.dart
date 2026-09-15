@@ -16,6 +16,10 @@ class GridLocalizations {
   final String noEntry;
   final String retry;
   final String refresh;
+  final String search;
+  final String columns;
+  final String density;
+  final String export;
   final String loadFailed;
   final String noRecords;
   final String groupBy;
@@ -71,6 +75,10 @@ class GridLocalizations {
     required this.noEntry,
     required this.retry,
     required this.refresh,
+    required this.search,
+    required this.columns,
+    required this.density,
+    required this.export,
     required this.loadFailed,
     required this.noRecords,
     required this.groupBy,
@@ -122,6 +130,10 @@ class GridLocalizations {
     noEntry: 'No Entry',
     retry: 'Retry',
     refresh: 'Refresh',
+    search: 'Search',
+    columns: 'Columns',
+    density: 'Density',
+    export: 'Export',
     loadFailed: 'Unable to load data.',
     noRecords: 'No records available.',
     groupBy: 'Group by',
@@ -173,6 +185,10 @@ class GridLocalizations {
     noEntry: 'Sin valor',
     retry: 'Reintentar',
     refresh: 'Actualizar',
+    search: 'Buscar',
+    columns: 'Columnas',
+    density: 'Densidad',
+    export: 'Exportar',
     loadFailed: 'No se pudieron cargar los datos.',
     noRecords: 'No hay registros.',
     groupBy: 'Agrupar por',
