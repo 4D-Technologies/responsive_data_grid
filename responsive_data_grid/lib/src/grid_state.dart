@@ -32,6 +32,57 @@ class ResponsiveDataGridState<TItem extends Object>
     return [...frozen, ...rest];
   }
 
+  void setColumnFrozen(String fieldName, bool frozen) {
+    for (final column in widget.columns) {
+      if (column.fieldName == fieldName) {
+        column.frozen = frozen;
+        break;
+      }
+    }
+    setState(() {});
+  }
+
+  void setColumnSort<TValue>(
+    GridColumn<TItem, TValue> column,
+    OrderDirections direction,
+  ) {
+    if (widget.sortable == SortableOptions.none) return;
+    column.sortDirection = direction;
+    _updateOrderByCriteria(column);
+  }
+
+  void autosizeColumn(String fieldName, {required TextStyle style}) {
+    GridColumn<TItem, dynamic>? column;
+    for (final candidate in widget.columns) {
+      if (candidate.fieldName == fieldName) {
+        column = candidate;
+        break;
+      }
+    }
+    if (column == null) return;
+    final painter = TextPainter(
+      textDirection: Directionality.maybeOf(context) ?? TextDirection.ltr,
+      maxLines: 1,
+      textScaler: MediaQuery.textScalerOf(context),
+    );
+    var width = 48.0;
+    void measure(String text) {
+      painter.text = TextSpan(text: text, style: style);
+      painter.layout();
+      if (painter.width > width) width = painter.width;
+    }
+
+    measure(column.header.text ?? fieldName);
+    final page = _dataCache.pageMap[pageNumber];
+    if (page != null) {
+      for (final item in page.items) {
+        measure(column.getFormattedValue(item) ?? '');
+      }
+    }
+    painter.dispose();
+    setColumnWidth(fieldName, width + 48);
+  }
+
   void setColumnVisible(String fieldName, bool visible) {
     for (final column in widget.columns) {
       if (column.fieldName == fieldName) {

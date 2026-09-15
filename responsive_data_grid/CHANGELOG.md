@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Column menu adds sort, pin left, hide, and autosize alongside filter/aggregates, and scrolls on small screens.
 - Grid chrome uses `GridLocalizations` (English and Spanish). Hosts add `GridLocalizations.delegate` and can switch locale; dates/numbers follow `Intl.defaultLocale`.
 - Columns can be hidden (`visible`), frozen (`frozen`), resized (`width` / `setColumnWidth`), and reordered (`reorderColumn`). Frozen columns stay in view while the rest of the table scrolls.
 - Pager shows compact page numbers that collapse with width, `1–50 of N` range text, and an optional page-size selector (`pageSizeOptions`). First/last stay disabled on empty data and never navigate to page 0.

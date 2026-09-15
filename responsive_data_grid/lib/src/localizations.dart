@@ -32,6 +32,13 @@ class GridLocalizations {
   final String clearAll;
   final String removeGroup;
   final String minutes;
+  final String sortAscending;
+  final String sortDescending;
+  final String clearSort;
+  final String pinLeft;
+  final String unpin;
+  final String hideColumn;
+  final String autosizeColumn;
   final String firstPage;
   final String previousPage;
   final String nextPage;
@@ -76,6 +83,13 @@ class GridLocalizations {
     required this.clearAll,
     required this.removeGroup,
     required this.minutes,
+    required this.sortAscending,
+    required this.sortDescending,
+    required this.clearSort,
+    required this.pinLeft,
+    required this.unpin,
+    required this.hideColumn,
+    required this.autosizeColumn,
     required this.firstPage,
     required this.previousPage,
     required this.nextPage,
@@ -116,6 +130,13 @@ class GridLocalizations {
     clearAll: 'Clear All',
     removeGroup: 'Remove Group',
     minutes: 'minutes',
+    sortAscending: 'Sort ascending',
+    sortDescending: 'Sort descending',
+    clearSort: 'Clear sort',
+    pinLeft: 'Pin left',
+    unpin: 'Unpin',
+    hideColumn: 'Hide column',
+    autosizeColumn: 'Autosize',
     firstPage: 'First page',
     previousPage: 'Previous page',
     nextPage: 'Next page',
@@ -156,6 +177,13 @@ class GridLocalizations {
     clearAll: 'Borrar todo',
     removeGroup: 'Quitar grupo',
     minutes: 'minutos',
+    sortAscending: 'Ordenar ascendente',
+    sortDescending: 'Ordenar descendente',
+    clearSort: 'Quitar orden',
+    pinLeft: 'Fijar a la izquierda',
+    unpin: 'Desfijar',
+    hideColumn: 'Ocultar columna',
+    autosizeColumn: 'Ajustar ancho',
     firstPage: 'Primera página',
     previousPage: 'Página anterior',
     nextPage: 'Página siguiente',

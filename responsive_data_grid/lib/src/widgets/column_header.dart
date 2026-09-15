@@ -99,10 +99,7 @@ class ColumnHeaderState<TItem extends Object, TValue extends dynamic>
     final showSort =
         widget.definition.header.showOrderBy &&
         grid.widget.sortable != SortableOptions.none;
-    final showMenu =
-        header.showFilter ||
-        (header.showAggregations && grid.widget.allowAggregations) ||
-        (grid.widget.allowGrouping && !header.empty);
+    final showMenu = !header.empty;
 
     IconData sortIcon;
     switch (widget.definition.sortDirection) {
