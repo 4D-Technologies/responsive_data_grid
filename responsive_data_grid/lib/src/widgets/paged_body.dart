@@ -63,7 +63,7 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
                 left: gridState.widget.groupIndent.toDouble(),
               ),
               child: group.subGroups.isEmpty
-                  ? getPage(groupItems)
+                  ? getPage(groupItems, nested: true)
                   : buildGroups(
                       response,
                       group.subGroups,
@@ -84,16 +84,17 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
     );
   }
 
-  Widget getPage(List<TItem> items) {
+  Widget getPage(List<TItem> items, {bool nested = false}) {
     if (items.isEmpty) {
       return gridNoRecordsBody(gridState);
     }
+    final wrap = nested || shrinkWrap;
     return ListView.separated(
       separatorBuilder: (context, index) =>
           gridRowSeparator(context, gridState.widget.separatorThickness),
-      shrinkWrap: true,
+      shrinkWrap: wrap,
       scrollDirection: Axis.vertical,
-      physics: const NeverScrollableScrollPhysics(),
+      physics: wrap ? const NeverScrollableScrollPhysics() : null,
       padding: gridState.widget.padding.copyWith(top: 0, bottom: 0),
       itemCount: items.length,
       itemBuilder: (context, index) {

@@ -113,7 +113,7 @@ Finder _horizontalScroll() {
 
 void main() {
   testWidgets(
-    'group title and count footer stay in the viewport after horizontal scroll',
+    'group title stays in the viewport and Count footer tracks its column',
     (tester) async {
       await _pumpNarrowGroupedGrid(tester);
 
@@ -130,7 +130,7 @@ void main() {
 
       expect(tester.getTopLeft(groupTitle).dx, greaterThanOrEqualTo(0));
 
-      await tester.drag(_horizontalScroll(), const Offset(-240, 0));
+      await tester.drag(_horizontalScroll(), const Offset(-40, 0));
       await tester.pumpAndSettle();
 
       final groupAfter = tester.getTopLeft(groupTitle);
@@ -141,13 +141,20 @@ void main() {
       );
       expect(groupAfter.dx, lessThan(400));
 
-      final countAfter = tester.getTopLeft(countFooter.first);
-      expect(
-        countAfter.dx,
-        greaterThanOrEqualTo(-1),
-        reason: 'Count footer scrolled off the left edge',
+      final nameHeader = tester.getRect(
+        find.byKey(const ValueKey('rdg-header-cell-name')),
       );
-      expect(countAfter.dx, lessThan(400));
+      final countAfter = tester.getRect(countFooter.first);
+      expect(
+        countAfter.left,
+        greaterThanOrEqualTo(nameHeader.left - 2),
+        reason: 'Count footer should travel with the Name column',
+      );
+      expect(
+        countAfter.right,
+        lessThanOrEqualTo(nameHeader.right + 24),
+        reason: 'Count footer should travel with the Name column',
+      );
     },
   );
 }

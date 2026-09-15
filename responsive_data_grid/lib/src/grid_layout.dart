@@ -72,7 +72,11 @@ gridTableMetrics<TItem extends Object>({
   required double viewportWidth,
   required int reactiveSegments,
   required double screenWidth,
+  GridLayoutMode layoutMode = GridLayoutMode.table,
 }) {
+  if (layoutMode == GridLayoutMode.reflow) {
+    return (contentWidth: viewportWidth, totalSegments: reactiveSegments);
+  }
   var used = 0;
   for (final column in columns) {
     used += gridColumnSegments(column, screenWidth);
