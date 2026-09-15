@@ -87,7 +87,7 @@ void main() {
       'Ada',
     );
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 80));
+    await tester.pump(const Duration(milliseconds: 300));
 
     expect(find.text('Ada'), findsWidgets);
     expect(find.text('Grace'), findsNothing);
@@ -98,7 +98,7 @@ void main() {
       '',
     );
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 80));
+    await tester.pump(const Duration(milliseconds: 300));
 
     expect(find.text('Grace'), findsOneWidget);
     expect(find.text('Alan'), findsOneWidget);
@@ -112,14 +112,14 @@ void main() {
       '2',
     );
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 80));
+    await tester.pump(const Duration(milliseconds: 300));
 
     expect(find.text('Grace'), findsOneWidget);
     expect(find.text('Ada'), findsNothing);
 
     await tester.enterText(find.byKey(const ValueKey('rdg-filter-row-id')), '');
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 80));
+    await tester.pump(const Duration(milliseconds: 300));
 
     expect(find.text('Ada'), findsWidgets);
     expect(find.text('Grace'), findsOneWidget);

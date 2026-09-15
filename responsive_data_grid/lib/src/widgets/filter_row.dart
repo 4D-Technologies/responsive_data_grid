@@ -15,9 +15,10 @@ class GridFilterRow<TItem extends Object> extends StatelessWidget {
     final gridTheme = ResponsiveDataGridTheme.of(context);
     final layout = GridTableLayout.maybeOf(context);
     final cells = [
-      for (var i = 0; i < columns.length; i++)
+      for (final column in columns)
         GridFilterRowCell<TItem>(
-          column: columns[i],
+          key: ValueKey('rdg-filter-row-cell-${column.fieldName}'),
+          column: column,
           grid: grid,
         ),
     ];
@@ -86,27 +87,39 @@ class GridFilterRowCell<TItem extends Object> extends StatefulWidget {
 class _GridFilterRowCellState<TItem extends Object>
     extends State<GridFilterRowCell<TItem>> {
   late final TextEditingController _controller;
+  Timer? _debounce;
 
   @override
   void initState() {
     super.initState();
-    final criteria = widget.column.filterRules.criteria;
-    _controller = TextEditingController(
-      text: criteria != null && criteria.values.isNotEmpty
-          ? criteria.values.first.toString()
-          : '',
-    );
+    _controller = TextEditingController(text: _textFromCriteria());
+  }
+
+  @override
+  void didUpdateWidget(covariant GridFilterRowCell<TItem> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final next = _textFromCriteria();
+    if (_controller.text != next) {
+      _controller.text = next;
+    }
   }
 
   @override
   void dispose() {
+    _debounce?.cancel();
     _controller.dispose();
     super.dispose();
   }
 
+  String _textFromCriteria() {
+    final criteria = widget.column.filterRules.criteria;
+    if (criteria == null || criteria.values.isEmpty) return '';
+    return criteria.values.first.toString();
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (!widget.column.header.showFilter) {
+    if (!widget.column.header.showFilter || !_supportsRowEditor) {
       return const SizedBox.shrink();
     }
     final l10n = GridLocalizations.of(context);
@@ -130,7 +143,7 @@ class _GridFilterRowCellState<TItem extends Object>
       keyboardType: _isNumeric ? TextInputType.number : TextInputType.text,
       onChanged: (value) {
         setState(() {});
-        _commit(value);
+        _scheduleCommit(value);
       },
     );
   }
@@ -140,7 +153,11 @@ class _GridFilterRowCellState<TItem extends Object>
       widget.column is DoubleColumn<TItem> ||
       widget.column is NumColumn<TItem>;
 
+  bool get _supportsRowEditor =>
+      widget.column is StringColumn<TItem> || _isNumeric;
+
   void _apply(String raw) {
+    _debounce?.cancel();
     if (_controller.text != raw) {
       _controller.text = raw;
     }
@@ -148,40 +165,50 @@ class _GridFilterRowCellState<TItem extends Object>
     _commit(raw);
   }
 
+  void _scheduleCommit(String raw) {
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 250), () {
+      if (!mounted) return;
+      _commit(raw);
+    });
+  }
+
   void _commit(String raw) {
     final column = widget.column;
     if (raw.isEmpty) {
-      column.filterRules.criteria = null;
-      widget.grid.refreshData();
+      if (column.filterRules.criteria != null) {
+        column.filterRules.criteria = null;
+        widget.grid.refreshData();
+      }
       return;
     }
     if (column is IntColumn<TItem>) {
       final parsed = int.tryParse(raw);
-      column.filterRules.criteria = parsed == null
-          ? null
-          : FilterCriteria<int>(
-              fieldName: column.fieldName,
-              op: Operators.and,
-              logicalOperator: Logic.equals,
-              values: [parsed],
-            );
+      if (parsed == null) return;
+      column.filterRules.criteria = FilterCriteria<int>(
+        fieldName: column.fieldName,
+        op: Operators.and,
+        logicalOperator: Logic.equals,
+        values: [parsed],
+      );
     } else if (column is DoubleColumn<TItem> || column is NumColumn<TItem>) {
       final parsed = num.tryParse(raw);
-      column.filterRules.criteria = parsed == null
-          ? null
-          : FilterCriteria<num>(
-              fieldName: column.fieldName,
-              op: Operators.and,
-              logicalOperator: Logic.equals,
-              values: [parsed],
-            );
-    } else {
+      if (parsed == null) return;
+      column.filterRules.criteria = FilterCriteria<num>(
+        fieldName: column.fieldName,
+        op: Operators.and,
+        logicalOperator: Logic.equals,
+        values: [parsed],
+      );
+    } else if (column is StringColumn<TItem>) {
       column.filterRules.criteria = FilterCriteria<String>(
         fieldName: column.fieldName,
         op: Operators.and,
         logicalOperator: Logic.contains,
         values: [raw],
       );
+    } else {
+      return;
     }
     widget.grid.refreshData();
   }
