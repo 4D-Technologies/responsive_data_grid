@@ -4,18 +4,20 @@ class ResponsiveDataGridState<TItem extends Object>
     extends State<ResponsiveDataGrid<TItem>> {
   late LoadCriteria criteria;
   int pageNumber = 1;
+  late int _pageSize;
 
   var isLoading = false;
   Object? loadError;
+  int _loadId = 0;
 
   final _dataCache = ResponseCache<TItem>();
 
   int get _takeCount => widget.pagingMode == PagingMode.none
       ? widget.maximumRows
-      : widget.pageSize;
+      : _pageSize;
 
   int _skipForPage(int page) =>
-      widget.pagingMode == PagingMode.none ? 0 : (page - 1) * widget.pageSize;
+      widget.pagingMode == PagingMode.none ? 0 : (page - 1) * _pageSize;
 
   ResponsiveDataGridState() {
     //Validate that everything is setup correctly.
@@ -27,6 +29,7 @@ class ResponsiveDataGridState<TItem extends Object>
   @override
   initState() {
     super.initState();
+    _pageSize = widget.pageSize;
     criteria = _criteriaFromInitial();
     _applyOrderByToColumns(criteria.orderBy);
 
@@ -42,6 +45,10 @@ class ResponsiveDataGridState<TItem extends Object>
   @override
   void didUpdateWidget(covariant ResponsiveDataGrid<TItem> oldWidget) {
     super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.pageSize != widget.pageSize) {
+      _pageSize = widget.pageSize;
+    }
 
     if (_parentRequiresReload(oldWidget)) {
       if (oldWidget.initialLoadCriteria != widget.initialLoadCriteria) {
@@ -134,6 +141,7 @@ class ResponsiveDataGridState<TItem extends Object>
       );
 
       _dataCache.clear();
+      _loadId++;
     });
 
     try {
@@ -175,7 +183,27 @@ class ResponsiveDataGridState<TItem extends Object>
     await refreshData();
   }
 
+  FutureOr<void> setPageSize(int pageSize) async {
+    if (pageSize <= 0 || pageSize == _pageSize) return;
+    _pageSize = pageSize;
+    pageNumber = 1;
+    _dataCache.clear();
+    _loadId++;
+    await refreshData();
+  }
+
   FutureOr<void> setPage(int pageNumber) async {
+    if (pageNumber < 1) return;
+    final pageCount = pagerPageCount(
+      totalCount: _dataCache.totalCount,
+      pageSize: _pageSize,
+    );
+    if (pageCount == 0) {
+      if (pageNumber != 1) return;
+    } else if (pageNumber > pageCount) {
+      return;
+    }
+
     setState(() {
       isLoading = true;
       loadError = null;
@@ -224,6 +252,8 @@ class ResponsiveDataGridState<TItem extends Object>
       setState(() => isLoading = true);
     }
 
+    final loadId = _loadId;
+
     try {
       if (widget.items != null) {
         response = ListResponse.fromData(
@@ -242,10 +272,23 @@ class ResponsiveDataGridState<TItem extends Object>
               ),
             ) ??
             ListResponse(totalCount: 0, items: [], groups: [], aggregates: []);
+        if (loadId != _loadId) {
+          return _dataCache.pageMap[pageNumber] ??
+              ListResponse(
+                totalCount: 0,
+                items: [],
+                groups: [],
+                aggregates: [],
+              );
+        }
       } else {
         throw UnsupportedError(
           "Either the items must be specified OR the loadData function must be specified.",
         );
+      }
+
+      if (loadId != _loadId) {
+        return _dataCache.pageMap[pageNumber] ?? response;
       }
 
       if (updateState) {
@@ -415,8 +458,10 @@ class ResponsiveDataGridState<TItem extends Object>
                           pageNumber: pageNumber,
                           totalCount: _dataCache.totalCount,
                           setPage: setPage,
+                          setPageSize: isLoading ? null : setPageSize,
                           theme: theme,
-                          pageSize: widget.pageSize,
+                          pageSize: _pageSize,
+                          pageSizeOptions: widget.pageSizeOptions,
                         ),
                       );
                     }
