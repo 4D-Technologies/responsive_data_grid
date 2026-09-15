@@ -197,14 +197,15 @@ public static class FilterCriteriaExtensions
                 break;
             case RelationalOperators.IsNull:
             {
-                var nullType = property.Type.IsValueType
-                    ? typeof(Nullable<>).MakeGenericType(
-                        Nullable.GetUnderlyingType(property.Type) ?? property.Type
-                    )
-                    : property.Type;
-                var converted = property.Type == nullType
-                    ? property
-                    : Expression.Convert(property, nullType);
+                var nullType =
+                    property.Type.IsValueType
+                    && Nullable.GetUnderlyingType(property.Type) == null
+                        ? typeof(Nullable<>).MakeGenericType(property.Type)
+                        : property.Type;
+                Expression converted =
+                    property.Type == nullType
+                        ? property
+                        : Expression.Convert(property, nullType);
                 expression = Expression.Equal(
                     converted,
                     Expression.Constant(null, nullType)
@@ -213,14 +214,15 @@ public static class FilterCriteriaExtensions
             }
             case RelationalOperators.IsNotNull:
             {
-                var nullType = property.Type.IsValueType
-                    ? typeof(Nullable<>).MakeGenericType(
-                        Nullable.GetUnderlyingType(property.Type) ?? property.Type
-                    )
-                    : property.Type;
-                var converted = property.Type == nullType
-                    ? property
-                    : Expression.Convert(property, nullType);
+                var nullType =
+                    property.Type.IsValueType
+                    && Nullable.GetUnderlyingType(property.Type) == null
+                        ? typeof(Nullable<>).MakeGenericType(property.Type)
+                        : property.Type;
+                Expression converted =
+                    property.Type == nullType
+                        ? property
+                        : Expression.Convert(property, nullType);
                 expression = Expression.NotEqual(
                     converted,
                     Expression.Constant(null, nullType)
