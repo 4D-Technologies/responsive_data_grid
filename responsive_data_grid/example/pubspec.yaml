@@ -20,7 +20,6 @@ dependencies:
   cupertino_icons: ">=1.0.8 <2.0.0"
   material_ui: ">=1.1.0 <2.0.0"
   cupertino_ui: ">=1.0.0 <2.0.0"
-  flutter_skill: ^0.9.37
 
 dependency_overrides:
   client_filtering:

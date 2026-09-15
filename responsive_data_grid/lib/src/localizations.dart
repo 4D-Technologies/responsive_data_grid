@@ -25,6 +25,13 @@ class GridLocalizations {
   final String aggregates;
   final String filter;
   final String sort;
+  final String columnMenu;
+  final String showGroupPanel;
+  final String hideGroupPanel;
+  final String sortGroup;
+  final String clearAll;
+  final String removeGroup;
+  final String minutes;
   final String firstPage;
   final String previousPage;
   final String nextPage;
@@ -62,6 +69,13 @@ class GridLocalizations {
     required this.aggregates,
     required this.filter,
     required this.sort,
+    required this.columnMenu,
+    required this.showGroupPanel,
+    required this.hideGroupPanel,
+    required this.sortGroup,
+    required this.clearAll,
+    required this.removeGroup,
+    required this.minutes,
     required this.firstPage,
     required this.previousPage,
     required this.nextPage,
@@ -95,6 +109,13 @@ class GridLocalizations {
     aggregates: 'Aggregates',
     filter: 'Filter',
     sort: 'Sort',
+    columnMenu: 'Column menu',
+    showGroupPanel: 'Show group panel',
+    hideGroupPanel: 'Hide group panel',
+    sortGroup: 'Sort group',
+    clearAll: 'Clear All',
+    removeGroup: 'Remove Group',
+    minutes: 'minutes',
     firstPage: 'First page',
     previousPage: 'Previous page',
     nextPage: 'Next page',
@@ -128,6 +149,13 @@ class GridLocalizations {
     aggregates: 'Agregados',
     filter: 'Filtro',
     sort: 'Ordenar',
+    columnMenu: 'Menú de columna',
+    showGroupPanel: 'Mostrar panel de agrupación',
+    hideGroupPanel: 'Ocultar panel de agrupación',
+    sortGroup: 'Ordenar grupo',
+    clearAll: 'Borrar todo',
+    removeGroup: 'Quitar grupo',
+    minutes: 'minutos',
     firstPage: 'Primera página',
     previousPage: 'Página anterior',
     nextPage: 'Página siguiente',

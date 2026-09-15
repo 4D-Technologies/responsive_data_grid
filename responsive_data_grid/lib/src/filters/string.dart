@@ -104,7 +104,9 @@ class DataGridStringColumnFilterState<TItem extends Object>
           visible: op != null,
           child: TextFormField(
             initialValue: searchText,
-            decoration: InputDecoration(labelText: "value"),
+            decoration: InputDecoration(
+              labelText: GridLocalizations.of(context).value,
+            ),
             onChanged: (value) => setState(() {
               searchText = value;
               writeCriteria(

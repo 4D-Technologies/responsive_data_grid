@@ -113,7 +113,7 @@ class _GridGroupChooserState<TItem extends Object>
         if (_availableColumns.isNotEmpty) _addMenu(gridTheme, compact: true),
         GridChromeIconButton(
           key: const ValueKey('rdg-group-panel-expand'),
-          tooltip: 'Show group panel',
+          tooltip: GridLocalizations.of(context).showGroupPanel,
           icon: const Icon(Icons.expand_more),
           color: gridTheme.chooserForeground,
           size: 20,
@@ -148,7 +148,7 @@ class _GridGroupChooserState<TItem extends Object>
                 GroupPanelDisplay.collapsed)
               GridChromeIconButton(
                 key: const ValueKey('rdg-group-panel-collapse'),
-                tooltip: 'Hide group panel',
+                tooltip: GridLocalizations.of(context).hideGroupPanel,
                 icon: const Icon(Icons.expand_less),
                 color: gridTheme.chooserForeground,
                 size: 20,
@@ -231,7 +231,7 @@ class _GridGroupChooserState<TItem extends Object>
               ),
             ),
             GridChromeIconButton(
-              tooltip: 'Sort group',
+              tooltip: GridLocalizations.of(context).sortGroup,
               icon: Icon(sortIcon),
               color: gridTheme.chooserChipForeground,
               size: 16,

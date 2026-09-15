@@ -119,7 +119,9 @@ class DataGridDurationColumnFilterState<TItem extends Object>
                   op == Logic.lessThan ||
                   op == Logic.lessThanOrEqualTo),
           child: TextField(
-            decoration: const InputDecoration(hintText: 'minutes'),
+            decoration: InputDecoration(
+              hintText: GridLocalizations.of(context).minutes,
+            ),
             keyboardType: TextInputType.number,
             onChanged: (value) {
               final minutes = int.tryParse(value);
@@ -136,7 +138,9 @@ class DataGridDurationColumnFilterState<TItem extends Object>
         Visibility(
           visible: op != null && (op == Logic.between),
           child: TextField(
-            decoration: const InputDecoration(hintText: 'minutes'),
+            decoration: InputDecoration(
+              hintText: GridLocalizations.of(context).minutes,
+            ),
             keyboardType: TextInputType.number,
             onChanged: (value) {
               final minutes = int.tryParse(value);
