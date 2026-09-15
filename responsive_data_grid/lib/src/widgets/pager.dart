@@ -7,10 +7,14 @@ List<int?> compactPagerPages({
   required int maxSlots,
 }) {
   if (pageCount <= 0 || maxSlots <= 0) return const [];
-  final current = currentPage.clamp(1, pageCount);
+  final current = currentPage < 1
+      ? 1
+      : (currentPage > pageCount ? pageCount : currentPage);
   if (pageCount <= maxSlots) {
     return [for (var i = 1; i <= pageCount; i++) i];
   }
+  if (maxSlots == 1) return [current];
+  if (maxSlots == 2) return [1, pageCount];
 
   final selected = <int>{1, pageCount, current};
 
@@ -55,6 +59,16 @@ List<int?> compactPagerPages({
       result.add(null);
     }
     result.add(sorted[i]);
+  }
+  while (result.length > maxSlots) {
+    final ellipsisAt = result.lastIndexOf(null);
+    if (ellipsisAt == -1) break;
+    result.removeAt(ellipsisAt);
+  }
+  if (result.length > maxSlots) {
+    if (maxSlots == 1) return [current];
+    if (maxSlots == 2) return [1, pageCount];
+    return [current];
   }
   return result;
 }
@@ -113,13 +127,11 @@ class PagerWidget extends StatelessWidget {
       canRequestFocus: true,
       onKeyEvent: (node, event) {
         if (event is! KeyDownEvent) return KeyEventResult.ignored;
-        if (event.logicalKey == LogicalKeyboardKey.arrowLeft ||
-            event.logicalKey == LogicalKeyboardKey.arrowDown) {
+        if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
           if (!atStart) setPage(pageNumber - 1);
           return KeyEventResult.handled;
         }
-        if (event.logicalKey == LogicalKeyboardKey.arrowRight ||
-            event.logicalKey == LogicalKeyboardKey.arrowUp) {
+        if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
           if (!atEnd) setPage(pageNumber + 1);
           return KeyEventResult.handled;
         }
@@ -133,7 +145,12 @@ class PagerWidget extends StatelessWidget {
         }
         return KeyEventResult.ignored;
       },
-      child: IconTheme(
+      child: Builder(
+        builder: (context) {
+          final focused = Focus.of(context).hasFocus;
+          return GestureDetector(
+            onTap: () => Focus.of(context).requestFocus(),
+            child: IconTheme(
         data: IconThemeData(
           color: gridTheme.pagerIconColor,
           size: gridTheme.headerIconSize + 4,
@@ -143,8 +160,10 @@ class PagerWidget extends StatelessWidget {
             color: gridTheme.footerBackground,
             border: Border(
               top: BorderSide(
-                color: gridTheme.borderColor,
-                width: gridTheme.borderWidth,
+                color: focused
+                    ? gridTheme.headerSortActiveColor
+                    : gridTheme.borderColor,
+                width: focused ? gridTheme.borderWidth + 1 : gridTheme.borderWidth,
               ),
             ),
           ),
@@ -190,26 +209,38 @@ class PagerWidget extends StatelessWidget {
                       size: gridTheme.headerIconSize + 4,
                       extent: iconExtent,
                     ),
-                    for (final page in pages)
-                      if (page == null)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 2),
-                          child: Text(
-                            '…',
-                            style: gridTheme.footerTextStyle.copyWith(
-                              color: gridTheme.footerForeground,
-                            ),
-                          ),
-                        )
-                      else
-                        _PagerPageButton(
-                          page: page,
-                          selected: page == pageNumber,
-                          gridTheme: gridTheme,
-                          onPressed: page == pageNumber
-                              ? null
-                              : () => setPage(page),
+                    Flexible(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            for (final page in pages)
+                              if (page == null)
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 2,
+                                  ),
+                                  child: Text(
+                                    '…',
+                                    style: gridTheme.footerTextStyle.copyWith(
+                                      color: gridTheme.footerForeground,
+                                    ),
+                                  ),
+                                )
+                              else
+                                _PagerPageButton(
+                                  page: page,
+                                  selected: page == pageNumber,
+                                  gridTheme: gridTheme,
+                                  onPressed: page == pageNumber
+                                      ? null
+                                      : () => setPage(page),
+                                ),
+                          ],
                         ),
+                      ),
+                    ),
                     GridChromeIconButton(
                       tooltip: 'Next page',
                       onPressed: atEnd
@@ -230,10 +261,10 @@ class PagerWidget extends StatelessWidget {
                       size: gridTheme.headerIconSize + 4,
                       extent: iconExtent,
                     ),
-                    Expanded(
+                    Flexible(
                       child: Text(
                         rangeLabel,
-                        textAlign: TextAlign.right,
+                        textAlign: TextAlign.end,
                         overflow: TextOverflow.ellipsis,
                         style: gridTheme.footerTextStyle.copyWith(
                           color: gridTheme.footerForeground,
@@ -245,6 +276,7 @@ class PagerWidget extends StatelessWidget {
                       PopupMenuButton<int>(
                         key: const ValueKey('rdg-pager-page-size'),
                         tooltip: 'Page size',
+                        enabled: setPageSize != null,
                         initialValue: pageSize,
                         onSelected: setPageSize,
                         child: Padding(
@@ -274,6 +306,9 @@ class PagerWidget extends StatelessWidget {
             ),
           ),
         ),
+            ),
+          );
+      },
       ),
     );
   }

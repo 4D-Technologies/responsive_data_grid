@@ -112,6 +112,21 @@ void main() {
         [1, null, 16, 17, 18, 19, 20],
       );
     });
+
+    test('never returns more items than maxSlots', () {
+      expect(
+        compactPagerPages(pageCount: 20, currentPage: 10, maxSlots: 1),
+        [10],
+      );
+      expect(
+        compactPagerPages(pageCount: 20, currentPage: 10, maxSlots: 3).length,
+        lessThanOrEqualTo(3),
+      );
+      expect(
+        compactPagerPages(pageCount: 20, currentPage: 10, maxSlots: 3),
+        contains(10),
+      );
+    });
   });
 
   group('pagerRangeLabel', () {

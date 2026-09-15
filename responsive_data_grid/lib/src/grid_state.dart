@@ -8,6 +8,7 @@ class ResponsiveDataGridState<TItem extends Object>
 
   var isLoading = false;
   Object? loadError;
+  int _loadId = 0;
 
   final _dataCache = ResponseCache<TItem>();
 
@@ -140,6 +141,7 @@ class ResponsiveDataGridState<TItem extends Object>
       );
 
       _dataCache.clear();
+      _loadId++;
     });
 
     try {
@@ -186,6 +188,7 @@ class ResponsiveDataGridState<TItem extends Object>
     _pageSize = pageSize;
     pageNumber = 1;
     _dataCache.clear();
+    _loadId++;
     await refreshData();
   }
 
@@ -249,6 +252,8 @@ class ResponsiveDataGridState<TItem extends Object>
       setState(() => isLoading = true);
     }
 
+    final loadId = _loadId;
+
     try {
       if (widget.items != null) {
         response = ListResponse.fromData(
@@ -267,10 +272,23 @@ class ResponsiveDataGridState<TItem extends Object>
               ),
             ) ??
             ListResponse(totalCount: 0, items: [], groups: [], aggregates: []);
+        if (loadId != _loadId) {
+          return _dataCache.pageMap[pageNumber] ??
+              ListResponse(
+                totalCount: 0,
+                items: [],
+                groups: [],
+                aggregates: [],
+              );
+        }
       } else {
         throw UnsupportedError(
           "Either the items must be specified OR the loadData function must be specified.",
         );
+      }
+
+      if (loadId != _loadId) {
+        return _dataCache.pageMap[pageNumber] ?? response;
       }
 
       if (updateState) {
@@ -440,7 +458,7 @@ class ResponsiveDataGridState<TItem extends Object>
                           pageNumber: pageNumber,
                           totalCount: _dataCache.totalCount,
                           setPage: setPage,
-                          setPageSize: setPageSize,
+                          setPageSize: isLoading ? null : setPageSize,
                           theme: theme,
                           pageSize: _pageSize,
                           pageSizeOptions: widget.pageSizeOptions,
