@@ -39,8 +39,22 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
     required int depth,
     String path = '',
   }) {
+    if (!nested && !shrinkWrap) {
+      return CustomScrollView(
+        slivers: [
+          for (final group in groups)
+            ..._stickyGroupSlivers(
+              response: response,
+              group: group,
+              items: items,
+              depth: depth,
+              path: path,
+            ),
+        ],
+      );
+    }
+
     // Nested group lists live inside a Column, so they must always shrink-wrap.
-    // Only the top-level groups list may scroll when the grid has a bounded height.
     final wrap = nested || shrinkWrap;
 
     return ListView.builder(
@@ -59,6 +73,51 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
       },
       itemCount: groups.length,
     );
+  }
+
+  List<Widget> _stickyGroupSlivers({
+    required ListResponse<TItem> response,
+    required GroupResult group,
+    required List<TItem> items,
+    required int depth,
+    required String path,
+  }) {
+    final collapsed = gridState.isGroupCollapsed(group, path: path);
+    return [
+      SliverMainAxisGroup(
+        slivers: [
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: GridStickyGroupHeaderDelegate(
+              child: GridGroupHeader(
+                group: group,
+                theme: theme,
+                depth: depth,
+                indent: gridState.widget.groupIndent,
+                collapsed: collapsed,
+                onToggle: () =>
+                    gridState.toggleGroupCollapsed(group, path: path),
+              ),
+            ),
+          ),
+          if (!collapsed)
+            SliverList.list(
+              children: [
+                GridGroupSection<TItem>(
+                  response: response,
+                  group: group,
+                  items: items,
+                  depth: depth,
+                  path: path,
+                  gridState: gridState,
+                  theme: theme,
+                  showHeader: false,
+                ),
+              ],
+            ),
+        ],
+      ),
+    ];
   }
 
   Widget getPage(List<TItem> items, {bool nested = false}) {

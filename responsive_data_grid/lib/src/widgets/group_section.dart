@@ -1,5 +1,32 @@
 part of '../../responsive_data_grid.dart';
 
+class GridStickyGroupHeaderDelegate extends SliverPersistentHeaderDelegate {
+  final Widget child;
+  final double height;
+
+  GridStickyGroupHeaderDelegate({required this.child, this.height = 40});
+
+  @override
+  double get minExtent => height;
+
+  @override
+  double get maxExtent => height;
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return SizedBox(height: height, width: double.infinity, child: child);
+  }
+
+  @override
+  bool shouldRebuild(covariant GridStickyGroupHeaderDelegate oldDelegate) {
+    return oldDelegate.child != child || oldDelegate.height != height;
+  }
+}
+
 class GridGroupSection<TItem extends Object> extends StatelessWidget {
   final ListResponse<TItem> response;
   final GroupResult group;
@@ -8,6 +35,7 @@ class GridGroupSection<TItem extends Object> extends StatelessWidget {
   final String path;
   final ResponsiveDataGridState<TItem> gridState;
   final ThemeData theme;
+  final bool showHeader;
 
   const GridGroupSection({
     super.key,
@@ -18,6 +46,7 @@ class GridGroupSection<TItem extends Object> extends StatelessWidget {
     required this.path,
     required this.gridState,
     required this.theme,
+    this.showHeader = true,
   });
 
   @override
@@ -34,14 +63,15 @@ class GridGroupSection<TItem extends Object> extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        GridGroupHeader(
-          group: group,
-          theme: theme,
-          depth: depth,
-          indent: gridState.widget.groupIndent,
-          collapsed: collapsed,
-          onToggle: () => gridState.toggleGroupCollapsed(group, path: path),
-        ),
+        if (showHeader)
+          GridGroupHeader(
+            group: group,
+            theme: theme,
+            depth: depth,
+            indent: gridState.widget.groupIndent,
+            collapsed: collapsed,
+            onToggle: () => gridState.toggleGroupCollapsed(group, path: path),
+          ),
         if (!collapsed)
           group.subGroups.isEmpty
               ? gridGroupedRows<TItem>(

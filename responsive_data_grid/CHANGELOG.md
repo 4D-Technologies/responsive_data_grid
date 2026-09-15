@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Grouped pager bodies pin the current group header while its rows scroll; the next group header replaces it.
 - Infinite scroll keeps group headers, nested groups, and group footers. Grouped pages load incrementally (client-side groups are paged as groups; servers should return the same).
 - Groups expand/collapse, nested headers indent with `groupIndent`, and group membership matches DateTime/enum/num values without relying only on `toString()`.
 - `FilterableMode` adds an always-visible filter row (`row` / `menuAndRow`) that shares `FilterCriteria` with the column menu.
