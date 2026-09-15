@@ -196,24 +196,47 @@ public static class FilterCriteriaExtensions
                     expression = Expression.Not(expression);
                 break;
             case RelationalOperators.IsNull:
+            {
+                var nullType = property.Type.IsValueType
+                    ? typeof(Nullable<>).MakeGenericType(
+                        Nullable.GetUnderlyingType(property.Type) ?? property.Type
+                    )
+                    : property.Type;
+                var converted = property.Type == nullType
+                    ? property
+                    : Expression.Convert(property, nullType);
                 expression = Expression.Equal(
-                    property,
-                    Expression.Constant(null, property.Type)
+                    converted,
+                    Expression.Constant(null, nullType)
                 );
                 break;
+            }
             case RelationalOperators.IsNotNull:
+            {
+                var nullType = property.Type.IsValueType
+                    ? typeof(Nullable<>).MakeGenericType(
+                        Nullable.GetUnderlyingType(property.Type) ?? property.Type
+                    )
+                    : property.Type;
+                var converted = property.Type == nullType
+                    ? property
+                    : Expression.Convert(property, nullType);
                 expression = Expression.NotEqual(
-                    property,
-                    Expression.Constant(null, property.Type)
+                    converted,
+                    Expression.Constant(null, nullType)
                 );
                 break;
+            }
             case RelationalOperators.IsEmpty:
                 expression = Expression.Equal(property, Expression.Constant(""));
                 break;
             case RelationalOperators.IsNotEmpty:
-                expression = Expression.NotEqual(
-                    property,
-                    Expression.Constant("")
+                expression = Expression.AndAlso(
+                    Expression.NotEqual(
+                        property,
+                        Expression.Constant(null, property.Type)
+                    ),
+                    Expression.NotEqual(property, Expression.Constant(""))
                 );
                 break;
             case RelationalOperators.Between:
