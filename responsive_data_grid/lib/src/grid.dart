@@ -10,6 +10,7 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
   final LoadCriteria? initialLoadCriteria;
   final GridStateSnapshot? initialState;
   final void Function(GridStateSnapshot state)? onStateChanged;
+  final ResponsiveDataGridController<TItem>? controller;
   final int pageSize;
   final List<int> pageSizeOptions;
   final double? height;
@@ -48,6 +49,7 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
     this.initialLoadCriteria,
     this.initialState,
     this.onStateChanged,
+    this.controller,
     this.columnSpacing = 10,
     this.rowSpacing = 2,
     this.itemTapped,
@@ -84,6 +86,7 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
     this.initialLoadCriteria,
     this.initialState,
     this.onStateChanged,
+    this.controller,
     this.groupIndent = 15,
     this.allowGrouping = false,
     this.groupPanel = GroupPanelDisplay.collapsed,

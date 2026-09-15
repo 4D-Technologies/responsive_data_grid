@@ -181,6 +181,14 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final _gridController = ResponsiveDataGridController<ExampleData>();
+
+  @override
+  void dispose() {
+    _gridController.dispose();
+    super.dispose();
+  }
+
   void _cycleDesign() {
     widget.onDesign(
       widget.design == DemoDesign.material
@@ -271,6 +279,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget _grid() {
     return ResponsiveDataGrid<ExampleData>.clientSide(
+      controller: _gridController,
       title: TitleDefinition(title: "Testing Title", icon: Icon(Icons.help)),
       items: widget.exampleData,
       itemTapped: (row) {},

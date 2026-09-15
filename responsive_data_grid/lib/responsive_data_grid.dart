@@ -44,6 +44,7 @@ part './src/rules/filter.dart';
 
 part './src/grid.dart';
 part './src/grid_state.dart';
+part './src/grid_controller.dart';
 part './src/grid_state_snapshot.dart';
 part './src/grid_layout.dart';
 part './src/theme.dart';
