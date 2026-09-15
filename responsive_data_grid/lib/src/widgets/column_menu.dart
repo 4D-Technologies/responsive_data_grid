@@ -74,7 +74,8 @@ class ColumnMenu<T extends Object> extends DropDownViewWidget {
     }
 
     final actions = <Widget>[
-              if (column.header.showFilter) ...[
+              if (column.header.showFilter &&
+                  gridState.widget.filterable.usesMenu) ...[
                 section(l10n.filter),
                 Padding(
                   padding: const EdgeInsets.symmetric(

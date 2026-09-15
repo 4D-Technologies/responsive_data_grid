@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- `FilterableMode` adds an always-visible filter row (`row` / `menuAndRow`) that shares `FilterCriteria` with the column menu.
 - Filter menus show type-appropriate operators including null/empty. Multiple column filters combine with AND unless a clause sets `Operators.or`.
 - Column menu adds sort, pin left, hide, and autosize alongside filter/aggregates, and scrolls on small screens.
 - Grid chrome uses `GridLocalizations` (English and Spanish). Hosts add `GridLocalizations.delegate` and can switch locale; dates/numbers follow `Intl.defaultLocale`.

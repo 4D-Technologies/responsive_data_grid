@@ -32,7 +32,15 @@ class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
               ),
             ),
           ),
-          child: _headerCells(context, gridTheme),
+          child: grid.widget.filterable.usesRow
+              ? Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _headerCells(context, gridTheme),
+                    GridFilterRow<TItem>(grid: grid, columns: columns),
+                  ],
+                )
+              : _headerCells(context, gridTheme),
         ),
       ),
     );

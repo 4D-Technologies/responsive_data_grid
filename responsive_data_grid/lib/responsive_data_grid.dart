@@ -55,6 +55,7 @@ part './src/widgets/infinite_scroll_body.dart';
 part './src/widgets/no_records.dart';
 part './src/widgets/field.dart';
 part './src/widgets/header_row.dart';
+part './src/widgets/filter_row.dart';
 part './src/widgets/title_row.dart';
 part './src/widgets/row.dart';
 part './src/widgets/pager.dart';
@@ -166,6 +167,28 @@ enum GridLayoutMode {
   /// Bootstrap-style wrapping when column segments exceed 12. Use this for
   /// card/form layouts; [table] is the default spreadsheet mode.
   reflow,
+}
+
+/// Where column filters are shown.
+enum FilterableMode {
+  /// No filter UI.
+  none,
+
+  /// Filters only in the column menu (default).
+  menu,
+
+  /// Always-visible editors under the header row.
+  row,
+
+  /// Column menu and filter row together.
+  menuAndRow,
+}
+
+extension FilterableModeX on FilterableMode {
+  bool get usesMenu =>
+      this == FilterableMode.menu || this == FilterableMode.menuAndRow;
+  bool get usesRow =>
+      this == FilterableMode.row || this == FilterableMode.menuAndRow;
 }
 
 enum PagingMode {
