@@ -52,19 +52,31 @@ class _DropDownViewState extends State<DropDownViewWidget> {
       ),
       builder: (context, controller, child) {
         final gridTheme = ResponsiveDataGridTheme.of(context);
-        return GridChromeIconButton(
-          icon: Icon(widget.icon),
-          color: widget.iconColor ?? gridTheme.headerMenuColor,
-          size: widget.iconSize ?? gridTheme.headerIconSize,
-          extent: gridTheme.headerActionExtent,
-          tooltip: GridLocalizations.of(context).columnMenu,
-          onPressed: () {
-            if (controller.isOpen) {
-              controller.close();
-            } else {
-              controller.open();
-            }
+        void toggle() {
+          if (controller.isOpen) {
+            controller.close();
+          } else {
+            controller.open();
+          }
+        }
+
+        return FocusableActionDetector(
+          actions: {
+            ActivateIntent: CallbackAction<ActivateIntent>(
+              onInvoke: (_) {
+                toggle();
+                return null;
+              },
+            ),
           },
+          child: GridChromeIconButton(
+            icon: Icon(widget.icon),
+            color: widget.iconColor ?? gridTheme.headerMenuColor,
+            size: widget.iconSize ?? gridTheme.headerIconSize,
+            extent: gridTheme.headerActionExtent,
+            tooltip: GridLocalizations.of(context).columnMenu,
+            onPressed: toggle,
+          ),
         );
       },
       menuChildren: [

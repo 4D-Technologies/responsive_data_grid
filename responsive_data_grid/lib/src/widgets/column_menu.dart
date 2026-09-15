@@ -43,7 +43,9 @@ class ColumnMenu<T extends Object> extends DropDownViewWidget {
               (g) => g.fieldName == column.fieldName,
             ) ??
             false);
-    final sortable = gridState.widget.sortable != SortableOptions.none;
+    final sortable =
+        column.header.showOrderBy &&
+        gridState.widget.sortable != SortableOptions.none;
     final canHide = gridState.layoutColumns.length > 1;
 
     Widget section(String title) {
@@ -178,11 +180,14 @@ class ColumnMenu<T extends Object> extends DropDownViewWidget {
     return Material(
       elevation: gridTheme.menuElevation,
       type: MaterialType.card,
-      child: SizedBox(
-        height: math.min(360, MediaQuery.sizeOf(context).height * 0.6),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: math.min(360, MediaQuery.sizeOf(context).height * 0.6),
+        ),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Expanded(
+            Flexible(
               child: SingleChildScrollView(
                 primary: false,
                 child: Column(

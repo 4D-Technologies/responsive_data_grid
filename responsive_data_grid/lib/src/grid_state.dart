@@ -60,7 +60,11 @@ class ResponsiveDataGridState<TItem extends Object>
       }
     }
     if (column == null) return;
-    final painter = TextPainter(textDirection: TextDirection.ltr, maxLines: 1);
+    final painter = TextPainter(
+      textDirection: Directionality.maybeOf(context) ?? TextDirection.ltr,
+      maxLines: 1,
+      textScaler: MediaQuery.textScalerOf(context),
+    );
     var width = 48.0;
     void measure(String text) {
       painter.text = TextSpan(text: text, style: style);
@@ -75,6 +79,7 @@ class ResponsiveDataGridState<TItem extends Object>
         measure(column.getFormattedValue(item) ?? '');
       }
     }
+    painter.dispose();
     setColumnWidth(fieldName, width + 48);
   }
 
