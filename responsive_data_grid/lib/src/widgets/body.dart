@@ -22,8 +22,6 @@ class GridBody<TItem extends Object> extends StatelessWidget {
   }
 
   Widget getBody() {
-    //It would be nice if these two could be integrated.
-    //The issue is rendering the groups and rows is the same in both, but one handles loads the other is just stupid about it.
     if (pagingMode == PagingMode.pager || pagingMode == PagingMode.none) {
       return ResponsiveDataGridPagedBodyWidget<TItem>(
         gridState: gridState,

@@ -383,7 +383,10 @@ class ResponsiveDataGridState<TItem extends Object>
       if (widget.items != null) {
         response = ListResponse.fromData(
           data: widget.items!,
-          criteria: criteria,
+          criteria: criteria.copyWith(
+            skip: () => _skipForPage(pageNumber),
+            take: () => _takeCount,
+          ),
           getFieldValue: (fieldName, item) => widget.columns
               .firstWhere((c) => c.fieldName == fieldName)
               .value(item),
