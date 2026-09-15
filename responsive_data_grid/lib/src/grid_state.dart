@@ -720,35 +720,48 @@ class ResponsiveDataGridState<TItem extends Object>
                         .takeWhile((column) => column.frozen)
                         .length;
 
-                    Widget tableBody;
-                    if (isLoading) {
-                      tableBody = const Center(
-                        child: CircularProgressIndicator.adaptive(),
-                      );
-                    } else if (loadError != null) {
-                      tableBody = Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(GridLocalizations.of(context).loadFailed),
-                              const SizedBox(height: 8),
-                              TextButton(
-                                onPressed: () => refreshData(),
-                                child: Text(GridLocalizations.of(context).retry),
+                    Widget tableBody = _dataCache.pageMap.isEmpty
+                        ? const SizedBox.expand()
+                        : GridBody<TItem>(
+                            gridState: this,
+                            constraints: constraints,
+                            pagingMode: pagingMode,
+                            gridTheme: theme,
+                          );
+                    if (isLoading || loadError != null) {
+                      final overlay = loadError != null
+                          ? Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      GridLocalizations.of(context).loadFailed,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    TextButton(
+                                      onPressed: () => refreshData(),
+                                      child: Text(
+                                        GridLocalizations.of(context).retry,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ],
-                          ),
-                        ),
-                      );
-                    } else {
-                      tableBody = GridBody<TItem>(
-                        gridState: this,
-                        constraints: constraints,
-                        pagingMode: pagingMode,
-                        gridTheme: theme,
-                      );
+                            )
+                          : const ColoredBox(
+                              color: Color(0x33000000),
+                              child: Center(
+                                child: CircularProgressIndicator.adaptive(),
+                              ),
+                            );
+                      tableBody = constraints.hasBoundedHeight
+                          ? Stack(
+                              fit: StackFit.expand,
+                              children: [tableBody, overlay],
+                            )
+                          : overlay;
                     }
 
                     final table = GridTableLayout(

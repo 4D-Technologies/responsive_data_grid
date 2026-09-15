@@ -135,9 +135,7 @@ class _ResponsiveGridInfiniteScrollBodyWidgetState<TItem extends Object>
       return PagingListener(
         controller: _groupController,
         builder: (context, state, fetchNextPage) =>
-            // ignore: deprecated_member_use
-            MaterialUiCompatibilityBridge(
-              child: PagedListView<int, _GroupedInfiniteEntry<TItem>>(
+            PagedListView<int, _GroupedInfiniteEntry<TItem>>(
                 state: state,
                 fetchNextPage: fetchNextPage,
                 shrinkWrap: false,
@@ -165,16 +163,13 @@ class _ResponsiveGridInfiniteScrollBodyWidgetState<TItem extends Object>
                       },
                     ),
               ),
-            ),
       );
     }
 
     return PagingListener(
       controller: _rowController,
       builder: (context, state, fetchNextPage) =>
-          // ignore: deprecated_member_use
-          MaterialUiCompatibilityBridge(
-            child: PagedListView<int, TItem>.separated(
+          PagedListView<int, TItem>.separated(
               state: state,
               fetchNextPage: fetchNextPage,
               separatorBuilder: (context, index) => gridRowSeparator(
@@ -203,7 +198,6 @@ class _ResponsiveGridInfiniteScrollBodyWidgetState<TItem extends Object>
                 },
               ),
             ),
-          ),
     );
   }
 }
