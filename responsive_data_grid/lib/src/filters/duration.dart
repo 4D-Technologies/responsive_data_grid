@@ -64,7 +64,10 @@ class DataGridDurationColumnFilterState<TItem extends Object>
         DropdownButtonFormField<Logic?>(
           isExpanded: true,
           items: [
-            DropdownMenuItem(value: null, child: Text(LocalizedMessages.any)),
+            DropdownMenuItem(
+              value: null,
+              child: Text(GridLocalizations.of(context).any),
+            ),
             DropdownMenuItem(
               value: Logic.greaterThan,
               child: Text(Logic.greaterThan.toString()),

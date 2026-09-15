@@ -53,7 +53,7 @@ class _GridGroupChooserState<TItem extends Object>
     final gridTheme = ResponsiveDataGridTheme.of(context);
     final hint =
         widget.gridState.widget.groupPanelHint ??
-        LocalizedMessages.groupPanelHint;
+        GridLocalizations.of(context).groupPanelHint;
 
     return DecoratedBox(
       key: const ValueKey('rdg-group-panel'),
@@ -83,7 +83,7 @@ class _GridGroupChooserState<TItem extends Object>
         Icon(Icons.account_tree, size: 18, color: gridTheme.chooserForeground),
         const SizedBox(width: 8),
         Text(
-          LocalizedMessages.groupBy,
+          GridLocalizations.of(context).groupBy,
           style: gridTheme.chooserTextStyle.copyWith(
             fontWeight: FontWeight.w600,
             color: gridTheme.chooserForeground,
@@ -137,7 +137,7 @@ class _GridGroupChooserState<TItem extends Object>
             ),
             const SizedBox(width: 8),
             Text(
-              LocalizedMessages.groupBy,
+              GridLocalizations.of(context).groupBy,
               style: gridTheme.chooserTextStyle.copyWith(
                 fontWeight: FontWeight.w600,
                 color: gridTheme.chooserForeground,
@@ -268,7 +268,7 @@ class _GridGroupChooserState<TItem extends Object>
                 iconSize: 16,
               ),
             GridChromeIconButton(
-              tooltip: LocalizedMessages.ungroup,
+              tooltip: GridLocalizations.of(context).ungroup,
               icon: const Icon(Icons.close),
               color: gridTheme.chooserChipForeground,
               size: 16,
@@ -296,7 +296,7 @@ class _GridGroupChooserState<TItem extends Object>
 
         if (compact) {
           return GridChromeIconButton(
-            tooltip: LocalizedMessages.addGrouping,
+            tooltip: GridLocalizations.of(context).addGrouping,
             icon: const Icon(Icons.add),
             color: gridTheme.chooserForeground,
             size: 20,
@@ -308,7 +308,7 @@ class _GridGroupChooserState<TItem extends Object>
           onPressed: toggle,
           icon: Icon(Icons.add, size: 18, color: gridTheme.chooserForeground),
           label: Text(
-            LocalizedMessages.addGrouping,
+            GridLocalizations.of(context).addGrouping,
             style: gridTheme.chooserTextStyle.copyWith(
               color: gridTheme.chooserForeground,
             ),

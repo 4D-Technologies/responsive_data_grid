@@ -458,11 +458,11 @@ class ResponsiveDataGridState<TItem extends Object>
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text(LocalizedMessages.loadFailed),
+                              Text(GridLocalizations.of(context).loadFailed),
                               const SizedBox(height: 8),
                               TextButton(
                                 onPressed: () => refreshData(),
-                                child: Text(LocalizedMessages.retry),
+                                child: Text(GridLocalizations.of(context).retry),
                               ),
                             ],
                           ),

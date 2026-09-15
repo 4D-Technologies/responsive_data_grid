@@ -68,7 +68,7 @@ class _GridGroupAggregateChooserState<TItem extends Object>
               ),
               child: Padding(
                 padding: EdgeInsets.all(3),
-                child: Text("Aggregates"),
+                child: Text(GridLocalizations.of(context).aggregates),
               ),
             ),
           ),

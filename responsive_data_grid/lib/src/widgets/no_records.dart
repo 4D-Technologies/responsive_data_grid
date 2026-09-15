@@ -11,7 +11,7 @@ class GridNoRecords extends StatelessWidget {
       child: Padding(
         padding: gridTheme.resolvePadding(gridTheme.footerPadding),
         child: Text(
-          LocalizedMessages.noRecords,
+          GridLocalizations.of(context).noRecords,
           textAlign: TextAlign.center,
           style: gridTheme.bodyTextStyle.copyWith(
             color:

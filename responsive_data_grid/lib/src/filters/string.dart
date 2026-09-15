@@ -52,7 +52,10 @@ class DataGridStringColumnFilterState<TItem extends Object>
           isExpanded: true,
           elevation: 30,
           items: [
-            DropdownMenuItem(value: null, child: Text(LocalizedMessages.any)),
+            DropdownMenuItem(
+              value: null,
+              child: Text(GridLocalizations.of(context).any),
+            ),
             DropdownMenuItem(
               value: Logic.contains,
               child: Text(Logic.contains.toString()),

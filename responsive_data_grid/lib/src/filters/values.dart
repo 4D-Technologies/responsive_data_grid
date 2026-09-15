@@ -61,7 +61,7 @@ class DataGridValuesColumnFilterState<
       children: [
         SwitchListTile(
           value: op == Logic.notEqual,
-          title: Text(LocalizedMessages.doesNotInclude),
+          title: Text(GridLocalizations.of(context).doesNotInclude),
           onChanged: (value) => setState(() {
             op = value ? Logic.notEqual : Logic.equals;
             writeCriteria(op, values);

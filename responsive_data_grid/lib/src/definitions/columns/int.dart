@@ -27,7 +27,10 @@ class IntColumn<TItem extends Object> extends GridColumn<TItem, int> {
     AlignmentGeometry super.alignment = Alignment.centerLeft,
   }) : super(
          format: (value) =>
-             format?.format(value) ?? intl.NumberFormat().format(value),
+             format?.format(value) ??
+             intl.NumberFormat.decimalPattern(
+               intl.Intl.defaultLocale,
+             ).format(value),
          header: header ?? ColumnHeader(),
          filterRules: filterRules ?? IntFilterRules<TItem>(),
        );

@@ -59,7 +59,7 @@ class ColumnMenu<T extends Object> extends DropDownViewWidget {
               child: Padding(
                 padding: const EdgeInsets.all(8),
                 child: Text(
-                  LocalizedMessages.groupBy,
+                  GridLocalizations.of(context).groupBy,
                   style: theme.textTheme.labelLarge,
                 ),
               ),
@@ -87,8 +87,8 @@ class ColumnMenu<T extends Object> extends DropDownViewWidget {
                 icon: Icon(grouped ? Icons.link_off : Icons.account_tree),
                 label: Text(
                   grouped
-                      ? LocalizedMessages.ungroup
-                      : LocalizedMessages.groupColumn,
+                      ? GridLocalizations.of(context).ungroup
+                      : GridLocalizations.of(context).groupColumn,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -103,7 +103,10 @@ class ColumnMenu<T extends Object> extends DropDownViewWidget {
               ),
               child: Padding(
                 padding: const EdgeInsets.all(8),
-                child: Text("Aggregates", style: theme.textTheme.labelLarge),
+                child: Text(
+                  GridLocalizations.of(context).aggregates,
+                  style: theme.textTheme.labelLarge,
+                ),
               ),
             ),
           ...aggregates,
@@ -113,7 +116,10 @@ class ColumnMenu<T extends Object> extends DropDownViewWidget {
             ),
             child: Padding(
               padding: const EdgeInsets.all(8),
-              child: Text("Filter", style: theme.textTheme.labelLarge),
+              child: Text(
+                GridLocalizations.of(context).filter,
+                style: theme.textTheme.labelLarge,
+              ),
             ),
           ),
           Padding(
@@ -135,7 +141,7 @@ class ColumnMenu<T extends Object> extends DropDownViewWidget {
                     },
                     icon: const Icon(Icons.clear_all),
                     label: Text(
-                      LocalizedMessages.clear,
+                      GridLocalizations.of(context).clear,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
@@ -148,7 +154,7 @@ class ColumnMenu<T extends Object> extends DropDownViewWidget {
                     },
                     icon: const Icon(Icons.save),
                     label: Text(
-                      LocalizedMessages.apply,
+                      GridLocalizations.of(context).apply,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),

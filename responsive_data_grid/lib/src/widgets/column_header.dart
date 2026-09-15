@@ -43,7 +43,14 @@ class ColumnHeaderState<TItem extends Object, TValue extends dynamic>
         return AlertDialog(
           title: Row(
             children: [
-              Expanded(child: Text("Filter: ${widget.definition.header.text}")),
+              Expanded(
+                child: Text(
+                  GridLocalizations.of(context).filterTitle(
+                    widget.definition.header.text ??
+                        widget.definition.fieldName,
+                  ),
+                ),
+              ),
               IconButton(
                 icon: Icon(Icons.close),
                 onPressed: () => Navigator.of(context).pop(),
@@ -123,7 +130,7 @@ class ColumnHeaderState<TItem extends Object, TValue extends dynamic>
               : gridTheme.headerSortColor),
       size: iconSize,
       extent: gridTheme.headerActionExtent,
-      tooltip: 'Sort',
+      tooltip: GridLocalizations.of(context).sort,
       onPressed: toggleOrder,
     );
     final sortControl = sortIndex == null

@@ -6,6 +6,7 @@ import 'package:bootstrap_grid/bootstrap_grid.dart';
 import 'package:client_filtering/client_filtering.dart';
 import 'package:darq/darq.dart';
 import 'package:date_field/date_field.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart' as intl;
@@ -82,27 +83,28 @@ part './src/definitions/columns/num.dart';
 part './src/definitions/columns/widget.dart';
 
 part './src/notifications/criteriachange.dart';
+part './src/localizations.dart';
 
 class LocalizedMessages {
-  static var applicationError = "Application Error";
-  static var ok = "OK";
-  static var between = "Between";
-  static var apply = "Apply";
-  static var cancel = "Cancel";
-  static var state = "State";
-  static var value = "Value";
-  static var any = "(Any)";
-  static var doesNotInclude = "Does Not Include";
-  static var clear = "Clear";
-  static var noEntry = "No Entry";
-  static var retry = "Retry";
-  static var loadFailed = "Unable to load data.";
-  static var noRecords = "No records available.";
-  static var groupBy = "Group by";
-  static var groupPanelHint = "Select a column to group by";
-  static var addGrouping = "Add grouping";
-  static var ungroup = "Ungroup";
-  static var groupColumn = "Group column";
+  static String get applicationError => GridLocalizations.en.applicationError;
+  static String get ok => GridLocalizations.en.ok;
+  static String get between => 'Between';
+  static String get apply => GridLocalizations.en.apply;
+  static String get cancel => GridLocalizations.en.cancel;
+  static String get state => GridLocalizations.en.state;
+  static String get value => GridLocalizations.en.value;
+  static String get any => GridLocalizations.en.any;
+  static String get doesNotInclude => GridLocalizations.en.doesNotInclude;
+  static String get clear => GridLocalizations.en.clear;
+  static String get noEntry => GridLocalizations.en.noEntry;
+  static String get retry => GridLocalizations.en.retry;
+  static String get loadFailed => GridLocalizations.en.loadFailed;
+  static String get noRecords => GridLocalizations.en.noRecords;
+  static String get groupBy => GridLocalizations.en.groupBy;
+  static String get groupPanelHint => GridLocalizations.en.groupPanelHint;
+  static String get addGrouping => GridLocalizations.en.addGrouping;
+  static String get ungroup => GridLocalizations.en.ungroup;
+  static String get groupColumn => GridLocalizations.en.groupColumn;
 }
 
 class DecimalTextInputFormatter extends TextInputFormatter {
