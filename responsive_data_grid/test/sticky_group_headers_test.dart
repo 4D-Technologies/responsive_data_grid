@@ -93,12 +93,6 @@ void main() {
       ],
     );
 
-    final ada = find.descendant(
-      of: find.byType(GridGroupHeader),
-      matching: find.text('Ada'),
-    );
-    final pinY = tester.getTopLeft(ada).dy;
-
     final scrollable = find.descendant(
       of: find.byType(CustomScrollView),
       matching: find.byType(Scrollable),
