@@ -13,6 +13,8 @@ class IntColumn<TItem extends Object> extends GridColumn<TItem, int> {
     super.width,
     super.minWidth,
     super.maxWidth,
+    super.visible,
+    super.frozen,
     super.xlCols,
     super.largeCols,
     super.mediumCols,

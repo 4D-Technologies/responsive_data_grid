@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Columns can be hidden (`visible`), frozen (`frozen`), resized (`width` / `setColumnWidth`), and reordered (`reorderColumn`). Frozen columns stay in view while the rest of the table scrolls.
 - Pager shows compact page numbers that collapse with width, `1–50 of N` range text, and an optional page-size selector (`pageSizeOptions`). First/last stay disabled on empty data and never navigate to page 0.
 - Table layout is the default (`GridLayoutMode.table`): one shared column geometry, sticky header while the body scrolls, and horizontal scroll that moves header, body, and footers together. `GridLayoutMode.reflow` restores bootstrap wrapping for card/form layouts.
 - Empty grids show themed "No records available." chrome (`GridNoRecords`); `noResults` remains the full template override. Empty-state text uses the body color, not header foreground.

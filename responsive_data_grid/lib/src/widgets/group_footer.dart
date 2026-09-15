@@ -44,7 +44,7 @@ class GridGroupFooter<TItem extends Object> extends StatelessWidget {
   }
 
   List<BootstrapCol> getColumns(BuildContext context) {
-    return gridState.widget.columns.map((c) {
+    return gridState.layoutColumns.map((c) {
       return BootstrapCol(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,

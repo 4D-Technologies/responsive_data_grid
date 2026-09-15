@@ -19,6 +19,60 @@ class ResponsiveDataGridState<TItem extends Object>
   int _skipForPage(int page) =>
       widget.pagingMode == PagingMode.none ? 0 : (page - 1) * _pageSize;
 
+  late List<String> _columnOrder;
+
+  List<GridColumn<TItem, dynamic>> get layoutColumns {
+    final byName = {for (final c in widget.columns) c.fieldName: c};
+    final ordered = <GridColumn<TItem, dynamic>>[
+      for (final name in _columnOrder)
+        if (byName.containsKey(name) && byName[name]!.visible) byName[name]!,
+    ];
+    final frozen = ordered.where((c) => c.frozen).toList();
+    final rest = ordered.where((c) => !c.frozen).toList();
+    return [...frozen, ...rest];
+  }
+
+  void setColumnVisible(String fieldName, bool visible) {
+    for (final column in widget.columns) {
+      if (column.fieldName == fieldName) {
+        column.visible = visible;
+        break;
+      }
+    }
+    setState(() {});
+  }
+
+  void setColumnWidth(String fieldName, double width) {
+    for (final column in widget.columns) {
+      if (column.fieldName == fieldName) {
+        var next = width;
+        if (column.minWidth != null && next < column.minWidth!) {
+          next = column.minWidth!;
+        }
+        if (column.maxWidth != null && next > column.maxWidth!) {
+          next = column.maxWidth!;
+        }
+        column.width = next;
+        break;
+      }
+    }
+    setState(() {});
+  }
+
+  void reorderColumnByField(String fromField, String toField) {
+    reorderColumn(_columnOrder.indexOf(fromField), _columnOrder.indexOf(toField));
+  }
+
+  void reorderColumn(int from, int to) {
+    if (from < 0 || to < 0 || from >= _columnOrder.length) return;
+    final last = _columnOrder.length - 1;
+    final clampedTo = to < 0 ? 0 : (to > last ? last : to);
+    if (from == clampedTo) return;
+    final name = _columnOrder.removeAt(from);
+    _columnOrder.insert(clampedTo, name);
+    setState(() {});
+  }
+
   ResponsiveDataGridState() {
     //Validate that everything is setup correctly.
     if (TItem == Object) {
@@ -30,6 +84,7 @@ class ResponsiveDataGridState<TItem extends Object>
   initState() {
     super.initState();
     _pageSize = widget.pageSize;
+    _columnOrder = [for (final c in widget.columns) c.fieldName];
     criteria = _criteriaFromInitial();
     _applyOrderByToColumns(criteria.orderBy);
 
@@ -48,6 +103,9 @@ class ResponsiveDataGridState<TItem extends Object>
 
     if (oldWidget.pageSize != widget.pageSize) {
       _pageSize = widget.pageSize;
+    }
+    if (_columnsChanged(oldWidget.columns, widget.columns)) {
+      _columnOrder = [for (final c in widget.columns) c.fieldName];
     }
 
     if (_parentRequiresReload(oldWidget)) {
@@ -362,13 +420,31 @@ class ResponsiveDataGridState<TItem extends Object>
                     }
 
                     final screenWidth = MediaQuery.sizeOf(context).width;
+                    final columns = layoutColumns;
                     final metrics = gridTableMetrics<TItem>(
-                      columns: widget.columns,
+                      columns: columns,
                       viewportWidth: constraints.maxWidth,
                       reactiveSegments: widget.reactiveSegments,
                       screenWidth: screenWidth,
                       layoutMode: widget.layoutMode,
                     );
+                    final columnWidths = gridColumnPixelWidths<TItem>(
+                      columns: columns,
+                      contentWidth: metrics.contentWidth,
+                      totalSegments: metrics.totalSegments,
+                      screenWidth: screenWidth,
+                    );
+                    final widthSum = columnWidths.fold<double>(
+                      0,
+                      (sum, width) => sum + width,
+                    );
+                    final contentWidth = math.max(
+                      metrics.contentWidth,
+                      widthSum,
+                    );
+                    final frozenCount = columns
+                        .takeWhile((column) => column.frozen)
+                        .length;
 
                     Widget tableBody;
                     if (isLoading) {
@@ -402,8 +478,11 @@ class ResponsiveDataGridState<TItem extends Object>
                     }
 
                     final table = GridTableLayout(
-                      contentWidth: metrics.contentWidth,
+                      contentWidth: contentWidth,
                       totalSegments: metrics.totalSegments,
+                      columnWidths: columnWidths,
+                      frozenCount: frozenCount,
+                      layoutMode: widget.layoutMode,
                       child: Column(
                         mainAxisSize: constraints.hasBoundedHeight
                             ? MainAxisSize.max
@@ -411,7 +490,7 @@ class ResponsiveDataGridState<TItem extends Object>
                         children: [
                           ResponsiveDataGridHeaderRowWidget<TItem>(
                             this,
-                            widget.columns,
+                            columns,
                           ),
                           if (constraints.hasBoundedHeight)
                             Expanded(child: tableBody)
@@ -431,7 +510,7 @@ class ResponsiveDataGridState<TItem extends Object>
                               return SingleChildScrollView(
                                 scrollDirection: Axis.horizontal,
                                 child: SizedBox(
-                                  width: metrics.contentWidth,
+                                  width: contentWidth,
                                   height: inner.maxHeight,
                                   child: table,
                                 ),
@@ -445,7 +524,7 @@ class ResponsiveDataGridState<TItem extends Object>
                         SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
                           child: SizedBox(
-                            width: metrics.contentWidth,
+                            width: contentWidth,
                             child: table,
                           ),
                         ),

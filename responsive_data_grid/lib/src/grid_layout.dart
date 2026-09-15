@@ -6,11 +6,17 @@ part of '../responsive_data_grid.dart';
 class GridTableLayout extends InheritedWidget {
   final double contentWidth;
   final int totalSegments;
+  final List<double> columnWidths;
+  final int frozenCount;
+  final GridLayoutMode layoutMode;
 
   const GridTableLayout({
     super.key,
     required this.contentWidth,
     required this.totalSegments,
+    this.columnWidths = const [],
+    this.frozenCount = 0,
+    this.layoutMode = GridLayoutMode.table,
     required super.child,
   });
 
@@ -27,7 +33,88 @@ class GridTableLayout extends InheritedWidget {
   @override
   bool updateShouldNotify(GridTableLayout oldWidget) {
     return contentWidth != oldWidget.contentWidth ||
-        totalSegments != oldWidget.totalSegments;
+        totalSegments != oldWidget.totalSegments ||
+        frozenCount != oldWidget.frozenCount ||
+        layoutMode != oldWidget.layoutMode ||
+        !_sameWidths(columnWidths, oldWidget.columnWidths);
+  }
+
+  static bool _sameWidths(List<double> a, List<double> b) {
+    if (a.length != b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+    return true;
+  }
+}
+
+double clampColumnWidth(double width, double? minWidth, double? maxWidth) {
+  var next = width;
+  if (minWidth != null && next < minWidth) next = minWidth;
+  if (maxWidth != null && next > maxWidth) next = maxWidth;
+  return next;
+}
+
+List<double> gridColumnPixelWidths<TItem extends Object>({
+  required List<GridColumn<TItem, dynamic>> columns,
+  required double contentWidth,
+  required int totalSegments,
+  required double screenWidth,
+}) {
+  if (columns.isEmpty) return const [];
+  final segments = [
+    for (final column in columns) gridColumnSegments(column, screenWidth),
+  ];
+  final used = segments.fold<int>(0, (sum, value) => sum + value);
+  final denom = used <= 0 ? totalSegments : used;
+  return [
+    for (var i = 0; i < columns.length; i++)
+      clampColumnWidth(
+        columns[i].width ?? contentWidth * segments[i] / denom,
+        columns[i].minWidth,
+        columns[i].maxWidth,
+      ),
+  ];
+}
+
+class GridTableRow extends StatelessWidget {
+  final List<Widget> cells;
+  final List<double> widths;
+  final int frozenCount;
+  final Color? frozenBackground;
+
+  const GridTableRow({
+    super.key,
+    required this.cells,
+    required this.widths,
+    this.frozenCount = 0,
+    this.frozenBackground,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (var i = 0; i < cells.length; i++)
+          _wrapFrozen(
+            frozen: i < frozenCount,
+            child: SizedBox(
+              width: i < widths.length ? widths[i] : 0,
+              child: cells[i],
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _wrapFrozen({required bool frozen, required Widget child}) {
+    if (!frozen) return child;
+    return PinToHorizontalViewport(
+      child: frozenBackground == null
+          ? child
+          : ColoredBox(color: frozenBackground!, child: child),
+    );
   }
 }
 

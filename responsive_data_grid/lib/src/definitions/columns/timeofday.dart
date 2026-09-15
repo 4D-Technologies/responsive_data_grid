@@ -13,6 +13,8 @@ class TimeOfDayColumn<TItem extends Object>
     super.width,
     super.minWidth,
     super.maxWidth,
+    super.visible,
+    super.frozen,
     super.xlCols,
     super.largeCols,
     super.mediumCols,

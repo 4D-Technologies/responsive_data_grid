@@ -43,25 +43,57 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
         child: DefaultTextStyle(
           style: gridTheme.bodyTextStyle,
           child: Padding(
-            padding: gridTheme.resolvePadding(padding),
-            child: BootstrapRow(
-              alignment: WrapAlignment.start,
-              runSpacing: grid!.rowSpacing,
-              crossAxisAlignment:
-                  grid.rowCrossAxisAlignment == CrossAxisAlignment.start ||
-                      grid.rowCrossAxisAlignment == CrossAxisAlignment.stretch
-                  ? WrapCrossAlignment.start
-                  : grid.rowCrossAxisAlignment == CrossAxisAlignment.center
-                  ? WrapCrossAlignment.center
-                  : WrapCrossAlignment.end,
-              children: getColumns(context, grid, item),
-              totalSegments:
-                  GridTableLayout.maybeOf(context)?.totalSegments ??
-                  grid.reactiveSegments,
-            ),
+            padding: _tablePadding(context, gridTheme, padding),
+            child: _rowCells(context, grid!, item, gridTheme),
           ),
         ),
       ),
+    );
+  }
+
+  EdgeInsets _tablePadding(
+    BuildContext context,
+    ResponsiveDataGridTheme gridTheme,
+    EdgeInsets padding,
+  ) {
+    final resolved = gridTheme.resolvePadding(padding);
+    final layout = GridTableLayout.maybeOf(context);
+    if (layout != null && layout.layoutMode == GridLayoutMode.table) {
+      return EdgeInsets.only(top: resolved.top, bottom: resolved.bottom);
+    }
+    return resolved;
+  }
+
+  Widget _rowCells(
+    BuildContext context,
+    ResponsiveDataGrid<TItem> grid,
+    TItem item,
+    ResponsiveDataGridTheme gridTheme,
+  ) {
+    final layout = GridTableLayout.maybeOf(context);
+    if (layout != null && layout.layoutMode == GridLayoutMode.table) {
+      return GridTableRow(
+        cells: [
+          for (final column in columns)
+            DataGridFieldWidget<TItem, dynamic>(column, item),
+        ],
+        widths: layout.columnWidths,
+        frozenCount: layout.frozenCount,
+        frozenBackground: gridTheme.rowBackground,
+      );
+    }
+    return BootstrapRow(
+      alignment: WrapAlignment.start,
+      runSpacing: grid.rowSpacing,
+      crossAxisAlignment:
+          grid.rowCrossAxisAlignment == CrossAxisAlignment.start ||
+              grid.rowCrossAxisAlignment == CrossAxisAlignment.stretch
+          ? WrapCrossAlignment.start
+          : grid.rowCrossAxisAlignment == CrossAxisAlignment.center
+          ? WrapCrossAlignment.center
+          : WrapCrossAlignment.end,
+      children: getColumns(context, grid, item),
+      totalSegments: layout?.totalSegments ?? grid.reactiveSegments,
     );
   }
 
