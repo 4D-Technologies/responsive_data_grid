@@ -9,6 +9,7 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
   final List<GridColumn<TItem, dynamic>> columns;
   final LoadCriteria? initialLoadCriteria;
   final int pageSize;
+  final List<int> pageSizeOptions;
   final double? height;
   final double? separatorThickness;
 
@@ -47,6 +48,7 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
     this.itemTapped,
     this.separatorThickness,
     this.pageSize = 50,
+    this.pageSizeOptions = const [10, 25, 50, 100],
     this.height,
     this.sortable = SortableOptions.single,
     this.noResults,
@@ -81,6 +83,7 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
     this.itemTapped,
     this.separatorThickness,
     this.pageSize = 50,
+    this.pageSizeOptions = const [10, 25, 50, 100],
     this.height,
     this.sortable = SortableOptions.single,
     this.noResults,
