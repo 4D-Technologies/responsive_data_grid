@@ -1,5 +1,12 @@
 part of '../../responsive_data_grid.dart';
 
+class _GroupedInfiniteEntry<TItem extends Object> {
+  final GroupResult group;
+  final ListResponse<TItem> page;
+
+  const _GroupedInfiniteEntry({required this.group, required this.page});
+}
+
 class ResponsiveGridInfiniteScrollBodyWidget<TItem extends Object>
     extends StatefulWidget {
   final ResponsiveDataGridState<TItem> gridState;
@@ -18,50 +25,102 @@ class ResponsiveGridInfiniteScrollBodyWidget<TItem extends Object>
 
 class _ResponsiveGridInfiniteScrollBodyWidgetState<TItem extends Object>
     extends State<ResponsiveGridInfiniteScrollBodyWidget<TItem>> {
-  late final PagingController<int, TItem> _controller = PagingController(
-    getNextPageKey: (state) => (state.keys?.last ?? 0) + 1,
-    fetchPage: (pageKey) => _fetchPage(pageKey),
-  );
+  late final PagingController<int, TItem> _rowController;
+  late final PagingController<int, _GroupedInfiniteEntry<TItem>>
+  _groupController;
   late final StreamSubscription<void> _onClearedSub;
+  late bool _grouped;
+
+  bool get _isGrouped =>
+      widget.gridState.criteria.groupBy?.isNotEmpty == true;
 
   @override
   void initState() {
     super.initState();
+    _grouped = _isGrouped;
+    _rowController = PagingController(
+      getNextPageKey: (state) => (state.keys?.last ?? 0) + 1,
+      fetchPage: _fetchRows,
+    );
+    _groupController = PagingController(
+      getNextPageKey: (state) => (state.keys?.last ?? 0) + 1,
+      fetchPage: _fetchGroups,
+    );
     _onClearedSub = widget.gridState._dataCache.onCleared.listen((void v) {
-      _controller.refresh();
+      _rowController.refresh();
+      _groupController.refresh();
     });
+  }
+
+  @override
+  void didUpdateWidget(
+    covariant ResponsiveGridInfiniteScrollBodyWidget<TItem> oldWidget,
+  ) {
+    super.didUpdateWidget(oldWidget);
+    final grouped = _isGrouped;
+    if (grouped != _grouped) {
+      _grouped = grouped;
+      _rowController.refresh();
+      _groupController.refresh();
+    }
   }
 
   @override
   void dispose() {
     _onClearedSub.cancel();
-    _controller.dispose();
+    _rowController.dispose();
+    _groupController.dispose();
     super.dispose();
   }
 
-  FutureOr<List<TItem>> _fetchPage(int page) async {
+  int _pageCount() {
+    final total = widget.gridState._dataCache.totalCount;
+    final size = widget.gridState.widget.pageSize;
+    if (size <= 0) return 0;
+    return (total / size).ceil();
+  }
+
+  Future<List<TItem>> _fetchRows(int page) async {
     try {
-      _controller.value = _controller.value.copyWith(
+      _rowController.value = _rowController.value.copyWith(
         error: null,
         isLoading: true,
       );
-
       final response = await widget.gridState.fetchPage(page, false);
-
-      final pageCount =
-          (widget.gridState._dataCache.totalCount.toDouble() /
-                  widget.gridState.widget.pageSize.toDouble())
-              .ceil();
-
-      _controller.value = _controller.value.copyWith(
+      _rowController.value = _rowController.value.copyWith(
         error: null,
-        hasNextPage: page < pageCount,
+        hasNextPage: page < _pageCount(),
         isLoading: false,
       );
-
       return response.items;
     } catch (error) {
-      _controller.value = _controller.value.copyWith(
+      _rowController.value = _rowController.value.copyWith(
+        error: error,
+        isLoading: false,
+        hasNextPage: false,
+      );
+      return [];
+    }
+  }
+
+  Future<List<_GroupedInfiniteEntry<TItem>>> _fetchGroups(int page) async {
+    try {
+      _groupController.value = _groupController.value.copyWith(
+        error: null,
+        isLoading: true,
+      );
+      final response = await widget.gridState.fetchPage(page, false);
+      _groupController.value = _groupController.value.copyWith(
+        error: null,
+        hasNextPage: page < _pageCount(),
+        isLoading: false,
+      );
+      return [
+        for (final group in response.groups)
+          _GroupedInfiniteEntry<TItem>(group: group, page: response),
+      ];
+    } catch (error) {
+      _groupController.value = _groupController.value.copyWith(
         error: error,
         isLoading: false,
         hasNextPage: false,
@@ -72,8 +131,46 @@ class _ResponsiveGridInfiniteScrollBodyWidgetState<TItem extends Object>
 
   @override
   Widget build(BuildContext context) {
+    if (_isGrouped) {
+      return PagingListener(
+        controller: _groupController,
+        builder: (context, state, fetchNextPage) =>
+            // ignore: deprecated_member_use
+            MaterialUiCompatibilityBridge(
+              child: PagedListView<int, _GroupedInfiniteEntry<TItem>>(
+                state: state,
+                fetchNextPage: fetchNextPage,
+                shrinkWrap: false,
+                scrollDirection: Axis.vertical,
+                padding: widget.gridState.widget.layoutMode == GridLayoutMode.table
+                    ? EdgeInsets.zero
+                    : widget.gridState.widget.padding.copyWith(
+                        top: 0,
+                        bottom: 0,
+                      ),
+                builderDelegate:
+                    PagedChildBuilderDelegate<_GroupedInfiniteEntry<TItem>>(
+                      noItemsFoundIndicatorBuilder: (context) =>
+                          gridNoRecordsBody(widget.gridState),
+                      itemBuilder: (context, entry, index) {
+                        return GridGroupSection<TItem>(
+                          response: entry.page,
+                          group: entry.group,
+                          items: entry.page.items,
+                          depth: 0,
+                          path: '',
+                          gridState: widget.gridState,
+                          theme: widget.theme,
+                        );
+                      },
+                    ),
+              ),
+            ),
+      );
+    }
+
     return PagingListener(
-      controller: _controller,
+      controller: _rowController,
       builder: (context, state, fetchNextPage) =>
           // ignore: deprecated_member_use
           MaterialUiCompatibilityBridge(

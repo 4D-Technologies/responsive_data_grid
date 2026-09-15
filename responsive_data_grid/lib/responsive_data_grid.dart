@@ -51,6 +51,7 @@ part './src/extensions.dart';
 part './src/widgets/chrome_icon_button.dart';
 part './src/widgets/column_header.dart';
 part './src/widgets/paged_body.dart';
+part './src/widgets/group_section.dart';
 part './src/widgets/infinite_scroll_body.dart';
 part './src/widgets/no_records.dart';
 part './src/widgets/field.dart';

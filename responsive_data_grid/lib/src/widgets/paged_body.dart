@@ -39,10 +39,6 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
     required int depth,
     String path = '',
   }) {
-    final col = gridState.widget.columns.firstWhere(
-      (c) => c.fieldName == groups.first.fieldName,
-    );
-
     // Nested group lists live inside a Column, so they must always shrink-wrap.
     // Only the top-level groups list may scroll when the grid has a bounded height.
     final wrap = nested || shrinkWrap;
@@ -51,45 +47,14 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
       shrinkWrap: wrap,
       physics: wrap ? const NeverScrollableScrollPhysics() : null,
       itemBuilder: (context, index) {
-        final group = groups[index];
-
-        final groupItems = items
-            .where((e) => gridMatchesGroupValue(col.value(e), group.value))
-            .toList();
-        final collapsed = gridState.isGroupCollapsed(group, path: path);
-        final nextPath = gridState.groupCollapseKey(group, path: path);
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            GridGroupHeader(
-              group: group,
-              theme: theme,
-              depth: depth,
-              indent: gridState.widget.groupIndent,
-              collapsed: collapsed,
-              onToggle: () =>
-                  gridState.toggleGroupCollapsed(group, path: path),
-            ),
-            if (!collapsed)
-              (group.subGroups.isEmpty
-                  ? getPage(groupItems, nested: true)
-                  : buildGroups(
-                      response,
-                      group.subGroups,
-                      groupItems,
-                      nested: true,
-                      depth: depth + 1,
-                      path: nextPath,
-                    )),
-            if (!collapsed)
-              GridGroupFooter<TItem>(
-                group: group,
-                gridState: gridState,
-                theme: theme,
-                groupCount: response.groups.length,
-              ),
-          ],
+        return GridGroupSection<TItem>(
+          response: response,
+          group: groups[index],
+          items: items,
+          depth: depth,
+          path: path,
+          gridState: gridState,
+          theme: theme,
         );
       },
       itemCount: groups.length,
