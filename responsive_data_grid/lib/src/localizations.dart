@@ -15,6 +15,7 @@ class GridLocalizations {
   final String doesNotInclude;
   final String noEntry;
   final String retry;
+  final String refresh;
   final String loadFailed;
   final String noRecords;
   final String groupBy;
@@ -69,6 +70,7 @@ class GridLocalizations {
     required this.doesNotInclude,
     required this.noEntry,
     required this.retry,
+    required this.refresh,
     required this.loadFailed,
     required this.noRecords,
     required this.groupBy,
@@ -119,6 +121,7 @@ class GridLocalizations {
     doesNotInclude: 'Does Not Include',
     noEntry: 'No Entry',
     retry: 'Retry',
+    refresh: 'Refresh',
     loadFailed: 'Unable to load data.',
     noRecords: 'No records available.',
     groupBy: 'Group by',
@@ -169,6 +172,7 @@ class GridLocalizations {
     doesNotInclude: 'No incluye',
     noEntry: 'Sin valor',
     retry: 'Reintentar',
+    refresh: 'Actualizar',
     loadFailed: 'No se pudieron cargar los datos.',
     noRecords: 'No hay registros.',
     groupBy: 'Agrupar por',

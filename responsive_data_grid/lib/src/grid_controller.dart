@@ -4,6 +4,7 @@ part of '../responsive_data_grid.dart';
 /// without one. Do not use after [dispose].
 class ResponsiveDataGridController<TItem extends Object> extends ChangeNotifier {
   ResponsiveDataGridState<TItem>? _client;
+  var _disposed = false;
 
   bool get isAttached => _client != null;
 
@@ -24,27 +25,28 @@ class ResponsiveDataGridController<TItem extends Object> extends ChangeNotifier 
   }
 
   void _emit() {
+    if (_disposed) return;
     notifyListeners();
   }
 
   Future<void> refresh() async {
     await _client?.refreshData();
-    notifyListeners();
+    _emit();
   }
 
   Future<void> setPage(int pageNumber) async {
     await _client?.setPage(pageNumber);
-    notifyListeners();
+    _emit();
   }
 
   Future<void> clearFilters() async {
     await _client?.clearFilters();
-    notifyListeners();
+    _emit();
   }
 
   void setColumnVisible(String fieldName, bool visible) {
     _client?.setColumnVisible(fieldName, visible);
-    notifyListeners();
+    _emit();
   }
 
   GridStateSnapshot? captureState() => _client?.captureState();
@@ -56,6 +58,7 @@ class ResponsiveDataGridController<TItem extends Object> extends ChangeNotifier 
 
   @override
   void dispose() {
+    _disposed = true;
     _client = null;
     super.dispose();
   }

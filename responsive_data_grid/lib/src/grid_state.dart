@@ -220,6 +220,7 @@ class ResponsiveDataGridState<TItem extends Object>
   }
 
   void _notifyState() {
+    if (!mounted) return;
     widget.onStateChanged?.call(captureState());
     widget.controller?._emit();
   }
@@ -602,7 +603,16 @@ class ResponsiveDataGridState<TItem extends Object>
 
                     final parts = List<Widget>.empty(growable: true);
                     if (widget.title != null) {
-                      parts.add(TitleRowWidget(widget.title!));
+                      parts.add(
+                        TitleRowWidget(
+                          widget.title!,
+                          onRefresh: widget.controller == null
+                              ? null
+                              : () {
+                                  widget.controller!.refresh();
+                                },
+                        ),
+                      );
                     }
 
                     if (widget.allowGrouping &&

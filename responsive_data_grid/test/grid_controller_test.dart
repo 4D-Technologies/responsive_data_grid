@@ -109,6 +109,61 @@ void main() {
     expect(find.text('Grace'), findsOneWidget);
   });
 
+  testWidgets('controller.refresh reloads an attached server grid', (
+    tester,
+  ) async {
+    var loads = 0;
+    final controller = ResponsiveDataGridController<_Person>();
+    addTearDown(controller.dispose);
+
+    tester.view.physicalSize = const Size(900, 700);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SizedBox(
+            width: 900,
+            height: 600,
+            child: ResponsiveDataGrid<_Person>.serverSide(
+              controller: controller,
+              height: 500,
+              pagingMode: PagingMode.pager,
+              pageSize: 10,
+              loadData: (criteria) async {
+                loads++;
+                return ListResponse<_Person>(
+                  totalCount: 1,
+                  items: const [_Person(1, 'Ada')],
+                  groups: const [],
+                  aggregates: const [],
+                );
+              },
+              columns: [
+                StringColumn<_Person>(
+                  fieldName: 'name',
+                  header: const ColumnHeader(text: 'Name'),
+                  value: (row) => row.name,
+                  xsCols: 12,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 50));
+    expect(loads, 1);
+
+    await controller.refresh();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 50));
+    expect(loads, 2);
+  });
+
   testWidgets('controller detaches on dispose and does not throw', (
     tester,
   ) async {
