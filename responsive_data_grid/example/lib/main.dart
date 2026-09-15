@@ -276,6 +276,7 @@ class _MyHomePageState extends State<MyHomePage> {
       itemTapped: (row) {},
       pageSize: 20,
       pagingMode: PagingMode.pager,
+      filterable: FilterableMode.menuAndRow,
       sortable: SortableOptions.multiColumn,
       allowAggregations: true,
       allowGrouping: true,
