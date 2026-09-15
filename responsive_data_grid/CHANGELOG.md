@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Body loading/error overlay the grid instead of replacing it, so height stays stable. Infinite scroll no longer uses `MaterialUiCompatibilityBridge`. Large paged lists virtualize rows (`ListView.builder`).
 - Optional `GridToolbar` for search, column chooser, refresh, density, and export. Built-ins appear only when enabled.
 - `ResponsiveDataGridController` refreshes, pages, clears filters, and captures state without a `GlobalKey`.
 - `GridStateSnapshot` captures and restores page, page size, criteria, and column visibility/order/width/frozen via `captureState` / `restoreState` / `initialState` / `onStateChanged`.

@@ -1,5 +1,24 @@
 part of '../../responsive_data_grid.dart';
 
+Widget _infiniteError(BuildContext context, VoidCallback retry) {
+  return Center(
+    child: Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(GridLocalizations.of(context).loadFailed),
+          const SizedBox(height: 8),
+          TextButton(
+            onPressed: retry,
+            child: Text(GridLocalizations.of(context).retry),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
 class _GroupedInfiniteEntry<TItem extends Object> {
   final GroupResult group;
   final ListResponse<TItem> page;
@@ -135,9 +154,7 @@ class _ResponsiveGridInfiniteScrollBodyWidgetState<TItem extends Object>
       return PagingListener(
         controller: _groupController,
         builder: (context, state, fetchNextPage) =>
-            // ignore: deprecated_member_use
-            MaterialUiCompatibilityBridge(
-              child: PagedListView<int, _GroupedInfiniteEntry<TItem>>(
+            PagedListView<int, _GroupedInfiniteEntry<TItem>>(
                 state: state,
                 fetchNextPage: fetchNextPage,
                 shrinkWrap: false,
@@ -150,6 +167,20 @@ class _ResponsiveGridInfiniteScrollBodyWidgetState<TItem extends Object>
                       ),
                 builderDelegate:
                     PagedChildBuilderDelegate<_GroupedInfiniteEntry<TItem>>(
+                      firstPageProgressIndicatorBuilder: (_) =>
+                          const Center(
+                            child: CircularProgressIndicator.adaptive(),
+                          ),
+                      newPageProgressIndicatorBuilder: (_) => const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Center(
+                          child: CircularProgressIndicator.adaptive(),
+                        ),
+                      ),
+                      firstPageErrorIndicatorBuilder: (context) =>
+                          _infiniteError(context, fetchNextPage),
+                      newPageErrorIndicatorBuilder: (context) =>
+                          _infiniteError(context, fetchNextPage),
                       noItemsFoundIndicatorBuilder: (context) =>
                           gridNoRecordsBody(widget.gridState),
                       itemBuilder: (context, entry, index) {
@@ -165,16 +196,13 @@ class _ResponsiveGridInfiniteScrollBodyWidgetState<TItem extends Object>
                       },
                     ),
               ),
-            ),
       );
     }
 
     return PagingListener(
       controller: _rowController,
       builder: (context, state, fetchNextPage) =>
-          // ignore: deprecated_member_use
-          MaterialUiCompatibilityBridge(
-            child: PagedListView<int, TItem>.separated(
+          PagedListView<int, TItem>.separated(
               state: state,
               fetchNextPage: fetchNextPage,
               separatorBuilder: (context, index) => gridRowSeparator(
@@ -190,6 +218,19 @@ class _ResponsiveGridInfiniteScrollBodyWidgetState<TItem extends Object>
                       bottom: 0,
                     ),
               builderDelegate: PagedChildBuilderDelegate(
+                firstPageProgressIndicatorBuilder: (_) => const Center(
+                  child: CircularProgressIndicator.adaptive(),
+                ),
+                newPageProgressIndicatorBuilder: (_) => const Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Center(
+                    child: CircularProgressIndicator.adaptive(),
+                  ),
+                ),
+                firstPageErrorIndicatorBuilder: (context) =>
+                    _infiniteError(context, fetchNextPage),
+                newPageErrorIndicatorBuilder: (context) =>
+                    _infiniteError(context, fetchNextPage),
                 noItemsFoundIndicatorBuilder: (context) =>
                     gridNoRecordsBody(widget.gridState),
                 itemBuilder: (context, item, index) {
@@ -203,7 +244,6 @@ class _ResponsiveGridInfiniteScrollBodyWidgetState<TItem extends Object>
                 },
               ),
             ),
-          ),
     );
   }
 }
