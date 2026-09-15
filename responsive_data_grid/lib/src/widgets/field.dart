@@ -31,9 +31,12 @@ class DataGridFieldWidget<TItem extends Object, TValue extends dynamic>
       }
     }
 
-    return Align(
-      alignment: definition.alignment ?? Alignment.centerLeft,
-      child: child,
+    return Semantics(
+      label: definition.getFormattedValue(item) ?? '',
+      child: Align(
+        alignment: definition.alignment ?? Alignment.centerLeft,
+        child: child,
+      ),
     );
   }
 }

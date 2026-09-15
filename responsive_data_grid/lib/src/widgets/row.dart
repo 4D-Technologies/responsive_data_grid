@@ -24,19 +24,31 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
         .findAncestorWidgetOfExactType<ResponsiveDataGrid<TItem>>();
     final gridTheme = ResponsiveDataGridTheme.of(context);
 
-    return ColoredBox(
+    void activate() {
+      itemTapped?.call(item);
+    }
+
+    return Semantics(
+      button: itemTapped != null,
+      onTap: itemTapped == null ? null : activate,
+      child: FocusableActionDetector(
+        onShowFocusHighlight: (_) {},
+        actions: {
+          ActivateIntent: CallbackAction<ActivateIntent>(
+            onInvoke: (_) {
+              activate();
+              return null;
+            },
+          ),
+        },
+        child: ColoredBox(
       color: gridTheme.rowBackground,
       child: InkWell(
-        onTap: itemTapped == null
-            ? null
-            : () {
-                if (itemTapped != null) {
-                  itemTapped!(item);
-                }
-              },
+        onTap: itemTapped == null ? null : activate,
         enableFeedback: true,
         excludeFromSemantics: false,
         hoverColor: gridTheme.rowHoverColor,
+        focusColor: gridTheme.headerSortActiveColor.withValues(alpha: 0.25),
         mouseCursor: itemTapped != null
             ? SystemMouseCursors.click
             : SystemMouseCursors.basic,
@@ -46,6 +58,8 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
             padding: _tablePadding(context, gridTheme, padding),
             child: _rowCells(context, grid!, item, gridTheme),
           ),
+        ),
+      ),
         ),
       ),
     );

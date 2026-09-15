@@ -47,6 +47,7 @@ class GridLocalizations {
   final String lastPage;
   final String pageSize;
   final String applicationError;
+  final String dataGrid;
   final String Function(String column) filterTitle;
   final String Function({
     required int start,
@@ -100,6 +101,7 @@ class GridLocalizations {
     required this.lastPage,
     required this.pageSize,
     required this.applicationError,
+    required this.dataGrid,
     required this.filterTitle,
     required this.pagerRange,
     required this.pageLabel,
@@ -149,6 +151,7 @@ class GridLocalizations {
     lastPage: 'Last page',
     pageSize: 'Page size',
     applicationError: 'Application Error',
+    dataGrid: 'Data grid',
     filterTitle: _enFilterTitle,
     pagerRange: _enPagerRange,
     pageLabel: _enPageLabel,
@@ -198,6 +201,7 @@ class GridLocalizations {
     lastPage: 'Última página',
     pageSize: 'Tamaño de página',
     applicationError: 'Error de la aplicación',
+    dataGrid: 'Cuadrícula de datos',
     filterTitle: _esFilterTitle,
     pagerRange: _esPagerRange,
     pageLabel: _esPageLabel,
