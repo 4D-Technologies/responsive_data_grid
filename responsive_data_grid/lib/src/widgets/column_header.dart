@@ -187,7 +187,29 @@ class ColumnHeaderState<TItem extends Object, TValue extends dynamic>
       ],
     );
 
-    return ColoredBox(
+    final l10n = GridLocalizations.of(context);
+    final headerLabel = StringBuffer(header.text ?? widget.definition.fieldName);
+    if (widget.definition.sortDirection == OrderDirections.ascending) {
+      headerLabel.write(', ${l10n.sortAscending}');
+    } else if (widget.definition.sortDirection == OrderDirections.descending) {
+      headerLabel.write(', ${l10n.sortDescending}');
+    }
+
+    return Semantics(
+      header: true,
+      button: showSort,
+      label: headerLabel.toString(),
+      onTap: showSort ? toggleOrder : null,
+      child: FocusableActionDetector(
+        actions: {
+          ActivateIntent: CallbackAction<ActivateIntent>(
+            onInvoke: (_) {
+              if (showSort) toggleOrder();
+              return null;
+            },
+          ),
+        },
+        child: ColoredBox(
       color:
           header.backgroundColor ??
           widget.definition.backgroundColor ??
@@ -220,6 +242,8 @@ class ColumnHeaderState<TItem extends Object, TValue extends dynamic>
               ],
             );
           },
+        ),
+      ),
         ),
       ),
     );

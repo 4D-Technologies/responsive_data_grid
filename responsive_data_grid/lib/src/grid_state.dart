@@ -553,7 +553,12 @@ class ResponsiveDataGridState<TItem extends Object>
                       columnWidths: columnWidths,
                       frozenCount: frozenCount,
                       layoutMode: widget.layoutMode,
-                      child: Column(
+                      child: Semantics(
+                        container: true,
+                        label:
+                            widget.title?.title ??
+                            GridLocalizations.of(context).dataGrid,
+                        child: Column(
                         mainAxisSize: constraints.hasBoundedHeight
                             ? MainAxisSize.max
                             : MainAxisSize.min,
@@ -569,6 +574,7 @@ class ResponsiveDataGridState<TItem extends Object>
                           if (_dataCache.aggregates.isNotEmpty)
                             GridFooter(_dataCache, this, theme),
                         ],
+                      ),
                       ),
                     );
 

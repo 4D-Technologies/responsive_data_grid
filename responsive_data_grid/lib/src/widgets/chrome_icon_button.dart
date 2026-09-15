@@ -61,6 +61,11 @@ class GridChromeIconButton extends StatelessWidget {
       child = Tooltip(message: tooltip!, child: child);
     }
 
-    return child;
+    return Semantics(
+      button: true,
+      enabled: enabled,
+      label: tooltip,
+      child: child,
+    );
   }
 }

@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Headers, cells, pager buttons, and rows expose Semantics. Enter/Space activate a focused row; Enter on a sortable header toggles sort.
 - Grouped pager bodies pin the current group header while its rows scroll; the next group header replaces it.
 - Infinite scroll keeps group headers, nested groups, and group footers. Grouped pages load incrementally (client-side groups are paged as groups; servers should return the same).
 - Groups expand/collapse, nested headers indent with `groupIndent`, and group membership matches DateTime/enum/num values without relying only on `toString()`.
