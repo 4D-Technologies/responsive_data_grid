@@ -67,6 +67,8 @@ void main() {
     await tester.enterText(find.byKey(const ValueKey('rdg-toolbar-search')), 'Ada');
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 50));
 
     expect(find.text('Ada'), findsWidgets);
     expect(find.text('Grace'), findsNothing);

@@ -21,6 +21,8 @@ class ResponsiveDataGridState<TItem extends Object>
 
   late List<String> _columnOrder;
   GridDensity density = GridDensity.standard;
+  String _searchQuery = '';
+  Timer? _searchDebounce;
   final Set<String> _collapsedGroups = <String>{};
 
   String groupCollapseKey(GroupResult group, {String path = ''}) =>
@@ -235,23 +237,20 @@ class ResponsiveDataGridState<TItem extends Object>
   }
 
   Future<void> setSearch(String query) async {
-    final trimmed = query.trim();
-    StringColumn<TItem>? target;
+    _searchQuery = query.trim();
     for (final column in widget.columns) {
-      if (column is StringColumn<TItem>) {
-        target = column;
+      if (column.filterRules is StringFilterRules) {
+        column.filterRules.criteria = _searchQuery.isEmpty
+            ? null
+            : FilterCriteria<String>(
+                fieldName: column.fieldName,
+                op: Operators.and,
+                logicalOperator: Logic.contains,
+                values: [_searchQuery],
+              );
         break;
       }
     }
-    if (target == null) return;
-    target.filterRules.criteria = trimmed.isEmpty
-        ? null
-        : FilterCriteria<String>(
-            fieldName: target.fieldName,
-            op: Operators.and,
-            logicalOperator: Logic.contains,
-            values: [trimmed],
-          );
     await refreshData();
   }
 
@@ -290,6 +289,7 @@ class ResponsiveDataGridState<TItem extends Object>
   @override
   void dispose() {
     widget.controller?._detach(this);
+    _searchDebounce?.cancel();
     _dataCache.dispose();
     super.dispose();
   }
@@ -389,10 +389,28 @@ class ResponsiveDataGridState<TItem extends Object>
       criteria = criteria.copyWith(
         skip: () => _skipForPage(pageNumber),
         take: () => _takeCount,
-        filterBy: () => widget.columns
-            .where((c) => c.filterRules.criteria != null)
-            .map((c) => c.filterRules.criteria!)
-            .toList(),
+        filterBy: () {
+          final filters = widget.columns
+              .where((c) => c.filterRules.criteria != null)
+              .map((c) => c.filterRules.criteria!)
+              .toList();
+          if (_searchQuery.isNotEmpty) {
+            for (final column in widget.columns) {
+              if (column.filterRules is StringFilterRules) {
+                filters.add(
+                  FilterCriteria<String>(
+                    fieldName: column.fieldName,
+                    op: Operators.and,
+                    logicalOperator: Logic.contains,
+                    values: [_searchQuery],
+                  ),
+                );
+                break;
+              }
+            }
+          }
+          return filters;
+        },
         orderBy: () => _orderByFromColumns(),
         aggregates: () => widget.columns
             .map((e) => e.aggregations)
@@ -605,7 +623,14 @@ class ResponsiveDataGridState<TItem extends Object>
       child: Builder(
         builder: (context) {
           final theme = Theme.of(context);
-          return Card(
+          final visualDensity = switch (density) {
+            GridDensity.compact => VisualDensity.compact,
+            GridDensity.comfortable => VisualDensity.comfortable,
+            GridDensity.standard => VisualDensity.standard,
+          };
+          return Theme(
+            data: theme.copyWith(visualDensity: visualDensity),
+            child: Card(
             borderOnForeground: false,
             elevation: widget.elevation,
             child: Padding(
@@ -637,8 +662,8 @@ class ResponsiveDataGridState<TItem extends Object>
                         TitleRowWidget(
                           widget.title!,
                           onRefresh:
-                              widget.toolbar == null &&
-                                  widget.controller != null
+                              widget.controller != null &&
+                                  widget.toolbar?.refresh != true
                               ? () {
                                   widget.controller!.refresh();
                                 }
@@ -816,6 +841,7 @@ class ResponsiveDataGridState<TItem extends Object>
                 ),
               ),
             ),
+          ),
           );
         },
       ),

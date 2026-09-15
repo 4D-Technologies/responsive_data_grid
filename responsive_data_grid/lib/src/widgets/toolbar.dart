@@ -26,7 +26,9 @@ class GridToolbarRow<TItem extends Object> extends StatelessWidget {
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        padding: gridTheme.resolvePadding(
+          const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        ),
         child: Row(
           children: [
             if (toolbar.search)
