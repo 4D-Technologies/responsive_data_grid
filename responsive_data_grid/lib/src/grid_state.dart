@@ -220,7 +220,16 @@ class ResponsiveDataGridState<TItem extends Object>
   }
 
   void _notifyState() {
+    if (!mounted) return;
     widget.onStateChanged?.call(captureState());
+    widget.controller?._emit();
+  }
+
+  Future<void> clearFilters() async {
+    for (final column in widget.columns) {
+      column.filterRules.criteria = null;
+    }
+    await refreshData();
   }
 
   ResponsiveDataGridState() {
@@ -234,6 +243,7 @@ class ResponsiveDataGridState<TItem extends Object>
   initState() {
     super.initState();
     _pageSize = widget.pageSize;
+    widget.controller?._attach(this);
     _columnOrder = [for (final c in widget.columns) c.fieldName];
     criteria = _criteriaFromInitial();
     _applyOrderByToColumns(criteria.orderBy);
@@ -249,6 +259,7 @@ class ResponsiveDataGridState<TItem extends Object>
 
   @override
   void dispose() {
+    widget.controller?._detach(this);
     _dataCache.dispose();
     super.dispose();
   }
@@ -256,6 +267,11 @@ class ResponsiveDataGridState<TItem extends Object>
   @override
   void didUpdateWidget(covariant ResponsiveDataGrid<TItem> oldWidget) {
     super.didUpdateWidget(oldWidget);
+
+    if (!identical(oldWidget.controller, widget.controller)) {
+      oldWidget.controller?._detach(this);
+      widget.controller?._attach(this);
+    }
 
     if (oldWidget.pageSize != widget.pageSize) {
       _pageSize = widget.pageSize;
@@ -587,7 +603,16 @@ class ResponsiveDataGridState<TItem extends Object>
 
                     final parts = List<Widget>.empty(growable: true);
                     if (widget.title != null) {
-                      parts.add(TitleRowWidget(widget.title!));
+                      parts.add(
+                        TitleRowWidget(
+                          widget.title!,
+                          onRefresh: widget.controller == null
+                              ? null
+                              : () {
+                                  widget.controller!.refresh();
+                                },
+                        ),
+                      );
                     }
 
                     if (widget.allowGrouping &&

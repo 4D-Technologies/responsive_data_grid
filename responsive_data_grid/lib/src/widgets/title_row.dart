@@ -2,8 +2,9 @@ part of '../../responsive_data_grid.dart';
 
 class TitleRowWidget extends StatelessWidget {
   final TitleDefinition definition;
+  final VoidCallback? onRefresh;
 
-  const TitleRowWidget(this.definition, {super.key});
+  const TitleRowWidget(this.definition, {super.key, this.onRefresh});
 
   @override
   Widget build(BuildContext context) {
@@ -40,6 +41,15 @@ class TitleRowWidget extends StatelessWidget {
                 maxLines: 1,
               ),
             ),
+            if (onRefresh != null)
+              GridChromeIconButton(
+                tooltip: GridLocalizations.of(context).refresh,
+                icon: const Icon(Icons.refresh),
+                color: foregroundColor,
+                size: 20,
+                extent: 32,
+                onPressed: onRefresh,
+              ),
           ],
         ),
       ),

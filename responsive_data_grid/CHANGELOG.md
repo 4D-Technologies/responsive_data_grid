@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- `ResponsiveDataGridController` refreshes, pages, clears filters, and captures state without a `GlobalKey`.
 - `GridStateSnapshot` captures and restores page, page size, criteria, and column visibility/order/width/frozen via `captureState` / `restoreState` / `initialState` / `onStateChanged`.
 - Headers, cells, pager buttons, and rows expose Semantics. Enter/Space activate a focused row; Enter on a sortable header toggles sort.
 - Grouped pager bodies pin the current group header while its rows scroll; the next group header replaces it.
