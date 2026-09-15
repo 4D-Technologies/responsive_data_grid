@@ -84,32 +84,39 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
   }) {
     final collapsed = gridState.isGroupCollapsed(group, path: path);
     return [
-      SliverPersistentHeader(
-        pinned: true,
-        delegate: GridStickyGroupHeaderDelegate(
-          child: GridGroupHeader(
-            group: group,
-            theme: theme,
-            depth: depth,
-            indent: gridState.widget.groupIndent,
-            collapsed: collapsed,
-            onToggle: () => gridState.toggleGroupCollapsed(group, path: path),
+      SliverMainAxisGroup(
+        slivers: [
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: GridStickyGroupHeaderDelegate(
+              child: GridGroupHeader(
+                group: group,
+                theme: theme,
+                depth: depth,
+                indent: gridState.widget.groupIndent,
+                collapsed: collapsed,
+                onToggle: () =>
+                    gridState.toggleGroupCollapsed(group, path: path),
+              ),
+            ),
           ),
-        ),
+          if (!collapsed)
+            SliverList.list(
+              children: [
+                GridGroupSection<TItem>(
+                  response: response,
+                  group: group,
+                  items: items,
+                  depth: depth,
+                  path: path,
+                  gridState: gridState,
+                  theme: theme,
+                  showHeader: false,
+                ),
+              ],
+            ),
+        ],
       ),
-      if (!collapsed)
-        SliverToBoxAdapter(
-          child: GridGroupSection<TItem>(
-            response: response,
-            group: group,
-            items: items,
-            depth: depth,
-            path: path,
-            gridState: gridState,
-            theme: theme,
-            showHeader: false,
-          ),
-        ),
     ];
   }
 

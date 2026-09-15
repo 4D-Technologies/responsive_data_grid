@@ -83,4 +83,33 @@ void main() {
     expect(header, findsOneWidget);
     expect(tester.getTopLeft(header).dy, closeTo(yBefore, 2));
   });
+
+  testWidgets('next group header replaces the sticky one', (tester) async {
+    await _pump(
+      tester,
+      items: [
+        for (var i = 0; i < 20; i++) _Person('Ada', i),
+        for (var i = 0; i < 5; i++) _Person('Grace', 100 + i),
+      ],
+    );
+
+    final ada = find.descendant(
+      of: find.byType(GridGroupHeader),
+      matching: find.text('Ada'),
+    );
+    final pinY = tester.getTopLeft(ada).dy;
+
+    final scrollable = find.descendant(
+      of: find.byType(CustomScrollView),
+      matching: find.byType(Scrollable),
+    );
+    await tester.drag(scrollable.first, const Offset(0, -2500));
+    await tester.pumpAndSettle();
+
+    final grace = find.descendant(
+      of: find.byType(GridGroupHeader),
+      matching: find.text('Grace'),
+    );
+    expect(grace, findsOneWidget);
+  });
 }
