@@ -281,6 +281,12 @@ class _MyHomePageState extends State<MyHomePage> {
     return ResponsiveDataGrid<ExampleData>.clientSide(
       controller: _gridController,
       title: TitleDefinition(title: "Testing Title", icon: Icon(Icons.help)),
+      toolbar: const GridToolbar(
+        search: true,
+        columnChooser: true,
+        refresh: true,
+        density: true,
+      ),
       items: widget.exampleData,
       itemTapped: (row) {},
       pageSize: 20,

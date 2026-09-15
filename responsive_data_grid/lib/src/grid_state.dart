@@ -20,6 +20,9 @@ class ResponsiveDataGridState<TItem extends Object>
       widget.pagingMode == PagingMode.none ? 0 : (page - 1) * _pageSize;
 
   late List<String> _columnOrder;
+  GridDensity density = GridDensity.standard;
+  String _searchQuery = '';
+  Timer? _searchDebounce;
   final Set<String> _collapsedGroups = <String>{};
 
   String groupCollapseKey(GroupResult group, {String path = ''}) =>
@@ -225,6 +228,32 @@ class ResponsiveDataGridState<TItem extends Object>
     widget.controller?._emit();
   }
 
+  void cycleDensity() {
+    setState(() {
+      density = GridDensity
+          .values[(density.index + 1) % GridDensity.values.length];
+    });
+    _notifyState();
+  }
+
+  Future<void> setSearch(String query) async {
+    _searchQuery = query.trim();
+    for (final column in widget.columns) {
+      if (column.filterRules is StringFilterRules) {
+        column.filterRules.criteria = _searchQuery.isEmpty
+            ? null
+            : FilterCriteria<String>(
+                fieldName: column.fieldName,
+                op: Operators.and,
+                logicalOperator: Logic.contains,
+                values: [_searchQuery],
+              );
+        break;
+      }
+    }
+    await refreshData();
+  }
+
   Future<void> clearFilters() async {
     for (final column in widget.columns) {
       column.filterRules.criteria = null;
@@ -260,6 +289,7 @@ class ResponsiveDataGridState<TItem extends Object>
   @override
   void dispose() {
     widget.controller?._detach(this);
+    _searchDebounce?.cancel();
     _dataCache.dispose();
     super.dispose();
   }
@@ -359,10 +389,28 @@ class ResponsiveDataGridState<TItem extends Object>
       criteria = criteria.copyWith(
         skip: () => _skipForPage(pageNumber),
         take: () => _takeCount,
-        filterBy: () => widget.columns
-            .where((c) => c.filterRules.criteria != null)
-            .map((c) => c.filterRules.criteria!)
-            .toList(),
+        filterBy: () {
+          final filters = widget.columns
+              .where((c) => c.filterRules.criteria != null)
+              .map((c) => c.filterRules.criteria!)
+              .toList();
+          if (_searchQuery.isNotEmpty) {
+            for (final column in widget.columns) {
+              if (column.filterRules is StringFilterRules) {
+                filters.add(
+                  FilterCriteria<String>(
+                    fieldName: column.fieldName,
+                    op: Operators.and,
+                    logicalOperator: Logic.contains,
+                    values: [_searchQuery],
+                  ),
+                );
+                break;
+              }
+            }
+          }
+          return filters;
+        },
         orderBy: () => _orderByFromColumns(),
         aggregates: () => widget.columns
             .map((e) => e.aggregations)
@@ -575,7 +623,14 @@ class ResponsiveDataGridState<TItem extends Object>
       child: Builder(
         builder: (context) {
           final theme = Theme.of(context);
-          return Card(
+          final visualDensity = switch (density) {
+            GridDensity.compact => VisualDensity.compact,
+            GridDensity.comfortable => VisualDensity.comfortable,
+            GridDensity.standard => VisualDensity.standard,
+          };
+          return Theme(
+            data: theme.copyWith(visualDensity: visualDensity),
+            child: Card(
             borderOnForeground: false,
             elevation: widget.elevation,
             child: Padding(
@@ -606,11 +661,21 @@ class ResponsiveDataGridState<TItem extends Object>
                       parts.add(
                         TitleRowWidget(
                           widget.title!,
-                          onRefresh: widget.controller == null
-                              ? null
-                              : () {
+                          onRefresh:
+                              widget.controller != null &&
+                                  widget.toolbar?.refresh != true
+                              ? () {
                                   widget.controller!.refresh();
-                                },
+                                }
+                              : null,
+                        ),
+                      );
+                    }
+                    if (widget.toolbar != null && !widget.toolbar!.isEmpty) {
+                      parts.add(
+                        GridToolbarRow<TItem>(
+                          grid: this,
+                          toolbar: widget.toolbar!,
                         ),
                       );
                     }
@@ -776,6 +841,7 @@ class ResponsiveDataGridState<TItem extends Object>
                 ),
               ),
             ),
+          ),
           );
         },
       ),

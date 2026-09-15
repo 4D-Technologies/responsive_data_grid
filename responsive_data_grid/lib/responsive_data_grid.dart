@@ -60,6 +60,7 @@ part './src/widgets/field.dart';
 part './src/widgets/header_row.dart';
 part './src/widgets/filter_row.dart';
 part './src/widgets/title_row.dart';
+part './src/widgets/toolbar.dart';
 part './src/widgets/row.dart';
 part './src/widgets/pager.dart';
 part './src/widgets/grid_group_chooser.dart';
@@ -173,6 +174,35 @@ enum GridLayoutMode {
 }
 
 /// Where column filters are shown.
+/// Optional chrome above the grid: search, column chooser, refresh, density.
+class GridToolbar {
+  final bool search;
+  final bool columnChooser;
+  final bool refresh;
+  final bool density;
+  final VoidCallback? onExport;
+  final Widget? actions;
+
+  const GridToolbar({
+    this.search = false,
+    this.columnChooser = false,
+    this.refresh = false,
+    this.density = false,
+    this.onExport,
+    this.actions,
+  });
+
+  bool get isEmpty =>
+      !search &&
+      !columnChooser &&
+      !refresh &&
+      !density &&
+      onExport == null &&
+      actions == null;
+}
+
+enum GridDensity { compact, standard, comfortable }
+
 enum FilterableMode {
   /// No filter UI.
   none,
