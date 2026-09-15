@@ -132,7 +132,8 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
     expect(find.text('Group column'), findsOneWidget);
-
+    await tester.ensureVisible(find.text('Group column'));
+    await tester.pump();
     await tester.tap(find.text('Group column'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
