@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Table mode virtualizes off-screen columns (120px overscan). Frozen columns stay mounted.
 - Body loading/error overlay the grid instead of replacing it, so height stays stable. Infinite scroll no longer uses `MaterialUiCompatibilityBridge`. Large paged lists virtualize rows (`ListView.builder`).
 - Optional `GridToolbar` for search, column chooser, refresh, density, and export. Built-ins appear only when enabled.
 - `ResponsiveDataGridController` refreshes, pages, clears filters, and captures state without a `GlobalKey`.

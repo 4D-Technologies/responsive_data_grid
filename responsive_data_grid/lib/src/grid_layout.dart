@@ -78,35 +78,38 @@ List<double> gridColumnPixelWidths<TItem extends Object>({
 }
 
 class GridTableRow extends StatelessWidget {
-  final List<Widget> cells;
+  final List<Widget>? cells;
+  final Widget Function(int index)? cellBuilder;
+  final int? cellCount;
   final List<double> widths;
   final int frozenCount;
   final Color? frozenBackground;
 
   const GridTableRow({
     super.key,
-    required this.cells,
+    this.cells,
+    this.cellBuilder,
+    this.cellCount,
     required this.widths,
     this.frozenCount = 0,
     this.frozenBackground,
   });
+
+  static const double overscan = 120;
+
+  int get _count => cellCount ?? cells?.length ?? 0;
+
+  Widget _cell(int index) {
+    if (cellBuilder != null) return cellBuilder!(index);
+    return cells![index];
+  }
 
   @override
   Widget build(BuildContext context) {
     final frozenWidth = widths
         .take(frozenCount)
         .fold<double>(0, (sum, width) => sum + width);
-    final scrolling = Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (frozenCount > 0) SizedBox(width: frozenWidth),
-        for (var i = frozenCount; i < cells.length; i++)
-          SizedBox(
-            width: i < widths.length ? widths[i] : 0,
-            child: cells[i],
-          ),
-      ],
-    );
+    final scrolling = _scrollingRow(context, frozenWidth);
     if (frozenCount <= 0) return scrolling;
     return Stack(
       children: [
@@ -121,10 +124,10 @@ class GridTableRow extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  for (var i = 0; i < frozenCount && i < cells.length; i++)
+                  for (var i = 0; i < frozenCount && i < _count; i++)
                     SizedBox(
                       width: i < widths.length ? widths[i] : 0,
-                      child: cells[i],
+                      child: _cell(i),
                     ),
                 ],
               ),
@@ -133,6 +136,74 @@ class GridTableRow extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  Widget _scrollingRow(BuildContext context, double frozenWidth) {
+    final position =
+        Scrollable.maybeOf(context, axis: Axis.horizontal)?.position;
+    if (position == null ||
+        cellBuilder == null ||
+        !position.hasContentDimensions) {
+      return _fullScrollingRow(frozenWidth);
+    }
+    return AnimatedBuilder(
+      animation: position,
+      builder: (context, _) {
+        if (!position.hasContentDimensions) {
+          return _fullScrollingRow(frozenWidth);
+        }
+        return _virtualScrollingRow(
+          frozenWidth,
+          position.pixels,
+          position.viewportDimension,
+        );
+      },
+    );
+  }
+
+  Widget _fullScrollingRow(double frozenWidth) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (frozenCount > 0) SizedBox(width: frozenWidth),
+        for (var i = frozenCount; i < _count; i++)
+          SizedBox(
+            width: i < widths.length ? widths[i] : 0,
+            child: _cell(i),
+          ),
+      ],
+    );
+  }
+
+  Widget _virtualScrollingRow(
+    double frozenWidth,
+    double pixels,
+    double viewport,
+  ) {
+    final start = pixels - overscan;
+    final end = pixels + viewport + overscan;
+    var x = frozenWidth;
+    final children = <Widget>[
+      if (frozenCount > 0) SizedBox(width: frozenWidth),
+    ];
+    var gap = 0.0;
+    for (var i = frozenCount; i < _count; i++) {
+      final width = i < widths.length ? widths[i] : 0.0;
+      final cellStart = x;
+      final cellEnd = x + width;
+      x += width;
+      if (cellEnd < start || cellStart > end) {
+        gap += width;
+        continue;
+      }
+      if (gap > 0) {
+        children.add(SizedBox(width: gap));
+        gap = 0;
+      }
+      children.add(SizedBox(width: width, child: _cell(i)));
+    }
+    if (gap > 0) children.add(SizedBox(width: gap));
+    return Row(mainAxisSize: MainAxisSize.min, children: children);
   }
 }
 

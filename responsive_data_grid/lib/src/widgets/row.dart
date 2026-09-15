@@ -87,10 +87,9 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
     final layout = GridTableLayout.maybeOf(context);
     if (layout != null && layout.layoutMode == GridLayoutMode.table) {
       return GridTableRow(
-        cells: [
-          for (final column in columns)
-            DataGridFieldWidget<TItem, dynamic>(column, item),
-        ],
+        cellCount: columns.length,
+        cellBuilder: (i) =>
+            DataGridFieldWidget<TItem, dynamic>(columns[i], item),
         widths: layout.columnWidths,
         frozenCount: layout.frozenCount,
         frozenBackground: gridTheme.rowBackground,

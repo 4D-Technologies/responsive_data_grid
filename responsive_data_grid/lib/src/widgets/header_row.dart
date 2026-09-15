@@ -51,12 +51,10 @@ class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
     ResponsiveDataGridTheme gridTheme,
   ) {
     final layout = GridTableLayout.maybeOf(context);
-    final cells = [
-      for (var i = 0; i < columns.length; i++) _headerCell(i, gridTheme),
-    ];
     if (layout != null && layout.layoutMode == GridLayoutMode.table) {
       return GridTableRow(
-        cells: cells,
+        cellCount: columns.length,
+        cellBuilder: (i) => _headerCell(i, gridTheme),
         widths: layout.columnWidths,
         frozenCount: layout.frozenCount,
         frozenBackground: gridTheme.headerBackground,
