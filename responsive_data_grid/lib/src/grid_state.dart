@@ -148,7 +148,16 @@ class ResponsiveDataGridState<TItem extends Object>
     return GridStateSnapshot(
       pageNumber: pageNumber,
       pageSize: _pageSize,
-      criteria: criteria,
+      criteria: LoadCriteria(
+        skip: criteria.skip,
+        take: criteria.take,
+        filterBy: List.of(criteria.filterBy),
+        orderBy: List.of(criteria.orderBy),
+        groupBy: criteria.groupBy == null ? null : List.of(criteria.groupBy!),
+        aggregates: criteria.aggregates == null
+            ? null
+            : List.of(criteria.aggregates!),
+      ),
       columns: [
         for (final name in _columnOrder)
           for (final column in widget.columns)
@@ -165,17 +174,8 @@ class ResponsiveDataGridState<TItem extends Object>
 
   void restoreState(GridStateSnapshot snapshot) {
     _applySnapshot(snapshot, notify: false);
-    setState(() {
-      isLoading = true;
-      loadError = null;
-      _dataCache.clear();
-      _loadId++;
-    });
     Future(() async {
-      await setPage(pageNumber);
-      if (mounted) {
-        setState(() => isLoading = false);
-      }
+      await _reloadSnapshotPage();
       _notifyState();
     });
   }
@@ -200,6 +200,10 @@ class ResponsiveDataGridState<TItem extends Object>
           }
         }
       }
+    }
+    for (final column in widget.columns) {
+      column.sortDirection = OrderDirections.notSet;
+      column.filterRules.criteria = null;
     }
     _applyOrderByToColumns(criteria.orderBy);
     for (final filter in criteria.filterBy) {
@@ -235,9 +239,12 @@ class ResponsiveDataGridState<TItem extends Object>
     _applyOrderByToColumns(criteria.orderBy);
     if (widget.initialState != null) {
       _applySnapshot(widget.initialState!, notify: false);
+      Future(() async {
+        await _reloadSnapshotPage();
+      });
+    } else {
+      refreshData();
     }
-
-    refreshData();
   }
 
   @override
@@ -359,7 +366,32 @@ class ResponsiveDataGridState<TItem extends Object>
           isLoading = false;
         });
       }
+      _notifyState();
     }
+  }
+
+  Future<void> _reloadSnapshotPage() async {
+    final target = pageNumber;
+    setState(() {
+      isLoading = true;
+      loadError = null;
+      _dataCache.clear();
+      _loadId++;
+    });
+    await fetchPage(1, false);
+    final pageCount = pagerPageCount(
+      totalCount: _dataCache.totalCount,
+      pageSize: _pageSize,
+    );
+    final page = target < 1
+        ? 1
+        : (pageCount > 0 && target > pageCount ? pageCount : target);
+    if (page == 1) {
+      if (mounted) setState(() => isLoading = false);
+      return;
+    }
+    await setPage(page);
+    if (mounted) setState(() => isLoading = false);
   }
 
   FutureOr<void> addGroup(GroupCriteria group) async {
