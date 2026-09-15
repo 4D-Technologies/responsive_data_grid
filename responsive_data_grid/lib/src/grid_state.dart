@@ -721,7 +721,9 @@ class ResponsiveDataGridState<TItem extends Object>
                         .length;
 
                     Widget tableBody = _dataCache.pageMap.isEmpty
-                        ? const SizedBox.expand()
+                        ? (constraints.hasBoundedHeight
+                              ? const SizedBox.expand()
+                              : const SizedBox.shrink())
                         : GridBody<TItem>(
                             gridState: this,
                             constraints: constraints,
