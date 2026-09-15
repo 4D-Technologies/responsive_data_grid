@@ -28,6 +28,8 @@ class GridLocalizations {
   final String columnMenu;
   final String showGroupPanel;
   final String hideGroupPanel;
+  final String expandGroup;
+  final String collapseGroup;
   final String sortGroup;
   final String clearAll;
   final String removeGroup;
@@ -79,6 +81,8 @@ class GridLocalizations {
     required this.columnMenu,
     required this.showGroupPanel,
     required this.hideGroupPanel,
+    required this.expandGroup,
+    required this.collapseGroup,
     required this.sortGroup,
     required this.clearAll,
     required this.removeGroup,
@@ -126,6 +130,8 @@ class GridLocalizations {
     columnMenu: 'Column menu',
     showGroupPanel: 'Show group panel',
     hideGroupPanel: 'Hide group panel',
+    expandGroup: 'Expand group',
+    collapseGroup: 'Collapse group',
     sortGroup: 'Sort group',
     clearAll: 'Clear All',
     removeGroup: 'Remove Group',
@@ -173,6 +179,8 @@ class GridLocalizations {
     columnMenu: 'Menú de columna',
     showGroupPanel: 'Mostrar panel de agrupación',
     hideGroupPanel: 'Ocultar panel de agrupación',
+    expandGroup: 'Expandir grupo',
+    collapseGroup: 'Contraer grupo',
     sortGroup: 'Ordenar grupo',
     clearAll: 'Borrar todo',
     removeGroup: 'Quitar grupo',

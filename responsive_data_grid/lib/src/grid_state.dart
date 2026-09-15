@@ -20,6 +20,22 @@ class ResponsiveDataGridState<TItem extends Object>
       widget.pagingMode == PagingMode.none ? 0 : (page - 1) * _pageSize;
 
   late List<String> _columnOrder;
+  final Set<String> _collapsedGroups = <String>{};
+
+  String groupCollapseKey(GroupResult group) =>
+      '${group.fieldName}\u0001${group.value ?? ''}';
+
+  bool isGroupCollapsed(GroupResult group) =>
+      _collapsedGroups.contains(groupCollapseKey(group));
+
+  void toggleGroupCollapsed(GroupResult group) {
+    final key = groupCollapseKey(group);
+    setState(() {
+      if (!_collapsedGroups.add(key)) {
+        _collapsedGroups.remove(key);
+      }
+    });
+  }
 
   List<GridColumn<TItem, dynamic>> get layoutColumns {
     final byName = {for (final c in widget.columns) c.fieldName: c};

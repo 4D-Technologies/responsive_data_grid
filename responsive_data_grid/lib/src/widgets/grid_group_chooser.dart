@@ -295,13 +295,23 @@ class _GridGroupChooserState<TItem extends Object>
         }
 
         if (compact) {
-          return GridChromeIconButton(
-            tooltip: GridLocalizations.of(context).addGrouping,
-            icon: const Icon(Icons.add),
-            color: gridTheme.chooserForeground,
-            size: 20,
-            extent: 32,
-            onPressed: toggle,
+          return FocusableActionDetector(
+            actions: {
+              ActivateIntent: CallbackAction<ActivateIntent>(
+                onInvoke: (_) {
+                  toggle();
+                  return null;
+                },
+              ),
+            },
+            child: GridChromeIconButton(
+              tooltip: GridLocalizations.of(context).addGrouping,
+              icon: const Icon(Icons.add),
+              color: gridTheme.chooserForeground,
+              size: 20,
+              extent: 32,
+              onPressed: toggle,
+            ),
           );
         }
         return TextButton.icon(
