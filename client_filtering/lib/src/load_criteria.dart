@@ -164,6 +164,14 @@ class LoadCriteria with IJsonable {
         return value is String && first is String && value.endsWith(first);
       case Logic.notEndsWith:
         return value is String && first is String && !value.endsWith(first);
+      case Logic.isNull:
+        return value == null;
+      case Logic.isNotNull:
+        return value != null;
+      case Logic.isEmpty:
+        return value is String && value.isEmpty;
+      case Logic.isNotEmpty:
+        return value is String && value.isNotEmpty;
     }
   }
 

@@ -76,40 +76,7 @@ class DataGridDoubleColumnFilterState<TItem extends Object>
       children: [
         DropdownButton<Logic?>(
           isExpanded: true,
-          items: [
-            DropdownMenuItem<Logic?>(
-              value: null,
-              child: Text(GridLocalizations.of(context).any),
-            ),
-            DropdownMenuItem<Logic?>(
-              value: Logic.greaterThan,
-              child: Text(Logic.greaterThan.toString()),
-            ),
-            DropdownMenuItem<Logic?>(
-              value: Logic.greaterThanOrEqualTo,
-              child: Text(Logic.greaterThanOrEqualTo.toString()),
-            ),
-            DropdownMenuItem<Logic?>(
-              value: Logic.lessThan,
-              child: Text(Logic.lessThan.toString()),
-            ),
-            DropdownMenuItem<Logic?>(
-              value: Logic.lessThanOrEqualTo,
-              child: Text(Logic.lessThanOrEqualTo.toString()),
-            ),
-            DropdownMenuItem<Logic?>(
-              value: Logic.between,
-              child: Text(Logic.between.toString()),
-            ),
-            DropdownMenuItem<Logic?>(
-              value: Logic.equals,
-              child: Text(Logic.equals.toString()),
-            ),
-            DropdownMenuItem<Logic?>(
-              value: Logic.notEqual,
-              child: Text(Logic.notEqual.toString()),
-            ),
-          ],
+          items: gridFilterLogicItems(context, gridComparableFilterLogics),
           value: op,
           onChanged: (Logic? value) {
             setState(() {

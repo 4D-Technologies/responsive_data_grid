@@ -100,7 +100,16 @@ public static class FilterCriteriaExtensions
 
         var values = criteria.Values.Select(v => Helpers.GetConstantValue(property, v)).ToArray();
 
-        if (!values.Any())
+        if (
+            !values.Any()
+            && criteria.Relation
+                is not (
+                    RelationalOperators.IsNull
+                    or RelationalOperators.IsNotNull
+                    or RelationalOperators.IsEmpty
+                    or RelationalOperators.IsNotEmpty
+                )
+        )
         {
             throw new InvalidOperationException(
                 "There must be at least a single value passed in a filter."
@@ -185,6 +194,27 @@ public static class FilterCriteriaExtensions
                 );
                 if (criteria.Relation == RelationalOperators.NotEndsWith)
                     expression = Expression.Not(expression);
+                break;
+            case RelationalOperators.IsNull:
+                expression = Expression.Equal(
+                    property,
+                    Expression.Constant(null, property.Type)
+                );
+                break;
+            case RelationalOperators.IsNotNull:
+                expression = Expression.NotEqual(
+                    property,
+                    Expression.Constant(null, property.Type)
+                );
+                break;
+            case RelationalOperators.IsEmpty:
+                expression = Expression.Equal(property, Expression.Constant(""));
+                break;
+            case RelationalOperators.IsNotEmpty:
+                expression = Expression.NotEqual(
+                    property,
+                    Expression.Constant("")
+                );
                 break;
             case RelationalOperators.Between:
                 if (values.Length < 2)

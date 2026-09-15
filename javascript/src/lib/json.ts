@@ -52,6 +52,10 @@ const logicNames: Record<string, number> = {
   notstartswith: Logic.NotStartsWith,
   notendswith: Logic.NotEndsWith,
   between: Logic.Between,
+  isnull: Logic.IsNull,
+  isnotnull: Logic.IsNotNull,
+  isempty: Logic.IsEmpty,
+  isnotempty: Logic.IsNotEmpty,
 };
 
 const operatorNames: Record<string, number> = { and: Operators.And, or: Operators.Or };

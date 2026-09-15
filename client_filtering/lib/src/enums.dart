@@ -92,7 +92,11 @@ enum Logic implements IEnum {
   notEqual(10),
   notEndsWith(12),
   notStartsWith(11),
-  between(13);
+  between(13),
+  isNull(14),
+  isNotNull(15),
+  isEmpty(16),
+  isNotEmpty(17);
 
   /// Typo kept as a public alias so existing call sites keep compiling.
   @Deprecated('Use Logic.endsWith')
@@ -123,6 +127,10 @@ enum Logic implements IEnum {
       'notstartswith': Logic.notStartsWith,
       'notendswith': Logic.notEndsWith,
       'between': Logic.between,
+      'isnull': Logic.isNull,
+      'isnotnull': Logic.isNotNull,
+      'isempty': Logic.isEmpty,
+      'isnotempty': Logic.isNotEmpty,
     },
   );
 
@@ -155,6 +163,14 @@ enum Logic implements IEnum {
         return ClientFilteringLocalizedMessages.notEndsWith;
       case Logic.notStartsWith:
         return ClientFilteringLocalizedMessages.notStartsWith;
+      case Logic.isNull:
+        return ClientFilteringLocalizedMessages.isNull;
+      case Logic.isNotNull:
+        return ClientFilteringLocalizedMessages.isNotNull;
+      case Logic.isEmpty:
+        return ClientFilteringLocalizedMessages.isEmpty;
+      case Logic.isNotEmpty:
+        return ClientFilteringLocalizedMessages.isNotEmpty;
     }
   }
 }

@@ -252,4 +252,52 @@ void main() {
       expect(_apply(criteria, withNullName), [ada]);
     });
   });
+
+  group('null and empty operators', () {
+    test('isNull matches missing values', () {
+      final criteria = LoadCriteria(
+        filterBy: [
+          _filter(field: 'dob', logic: Logic.isNull, values: const <DateTime>[]),
+        ],
+      );
+      expect(_apply(criteria, rows), [alan]);
+    });
+
+    test('isNotNull excludes missing values', () {
+      final criteria = LoadCriteria(
+        filterBy: [
+          _filter(
+            field: 'dob',
+            logic: Logic.isNotNull,
+            values: const <DateTime>[],
+          ),
+        ],
+      );
+      expect(_apply(criteria, rows), [ada, grace]);
+    });
+
+    test('isEmpty matches empty strings', () {
+      final withEmpty = [ada, _Row(4, '', DateTime.utc(1990), false)];
+      final criteria = LoadCriteria(
+        filterBy: [
+          _filter(field: 'name', logic: Logic.isEmpty, values: const <String>[]),
+        ],
+      );
+      expect(_apply(criteria, withEmpty).map((r) => r.id), [4]);
+    });
+
+    test('isNotEmpty excludes empty strings', () {
+      final withEmpty = [ada, _Row(4, '', DateTime.utc(1990), false)];
+      final criteria = LoadCriteria(
+        filterBy: [
+          _filter(
+            field: 'name',
+            logic: Logic.isNotEmpty,
+            values: const <String>[],
+          ),
+        ],
+      );
+      expect(_apply(criteria, withEmpty), [ada]);
+    });
+  });
 }

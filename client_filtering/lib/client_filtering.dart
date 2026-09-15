@@ -36,6 +36,10 @@ class ClientFilteringLocalizedMessages {
   static var notEqual = "Does Not Equal";
   static var notStartsWith = "Does Not Start With";
   static var notEndsWith = "Does Not End With";
+  static var isNull = "Is Null";
+  static var isNotNull = "Is Not Null";
+  static var isEmpty = "Is Empty";
+  static var isNotEmpty = "Is Not Empty";
 
   static var notSet = "Not Set";
   static var ascending = "Ascending";

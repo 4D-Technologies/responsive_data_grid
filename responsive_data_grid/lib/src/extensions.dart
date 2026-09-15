@@ -60,6 +60,14 @@ extension FilterCriteriaExtensions on List<FilterCriteria<dynamic>> {
       case Logic.between:
         final last = e.values.length > 1 ? e.values.last : value;
         return '$field ge $value and $field le $last';
+      case Logic.isNull:
+        return '$field eq null';
+      case Logic.isNotNull:
+        return '$field ne null';
+      case Logic.isEmpty:
+        return "$field eq ''";
+      case Logic.isNotEmpty:
+        return "$field ne ''";
     }
   }
 
