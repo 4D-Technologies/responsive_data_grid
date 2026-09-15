@@ -93,27 +93,45 @@ class GridTableRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    final frozenWidth = widths
+        .take(frozenCount)
+        .fold<double>(0, (sum, width) => sum + width);
+    final scrolling = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        for (var i = 0; i < cells.length; i++)
-          _wrapFrozen(
-            frozen: i < frozenCount,
-            child: SizedBox(
-              width: i < widths.length ? widths[i] : 0,
-              child: cells[i],
-            ),
+        if (frozenCount > 0) SizedBox(width: frozenWidth),
+        for (var i = frozenCount; i < cells.length; i++)
+          SizedBox(
+            width: i < widths.length ? widths[i] : 0,
+            child: cells[i],
           ),
       ],
     );
-  }
-
-  Widget _wrapFrozen({required bool frozen, required Widget child}) {
-    if (!frozen) return child;
-    return PinToHorizontalViewport(
-      child: frozenBackground == null
-          ? child
-          : ColoredBox(color: frozenBackground!, child: child),
+    if (frozenCount <= 0) return scrolling;
+    return Stack(
+      children: [
+        scrolling,
+        Positioned(
+          left: 0,
+          top: 0,
+          bottom: 0,
+          child: PinToHorizontalViewport(
+            child: ColoredBox(
+              color: frozenBackground ?? const Color(0x00000000),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  for (var i = 0; i < frozenCount && i < cells.length; i++)
+                    SizedBox(
+                      width: i < widths.length ? widths[i] : 0,
+                      child: cells[i],
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

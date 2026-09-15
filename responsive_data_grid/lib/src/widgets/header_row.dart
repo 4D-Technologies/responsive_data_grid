@@ -89,32 +89,46 @@ class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
         grid.reorderColumnByField(details.data, column.fieldName);
       },
       builder: (context, candidate, rejected) {
-        return GestureDetector(
-          onHorizontalDragUpdate: (details) {
-            final widths =
-                GridTableLayout.maybeOf(grid.context)?.columnWidths ??
-                const [];
-            final current = i < widths.length ? widths[i] : null;
-            final start = current ?? column.width ?? 80;
-            grid.setColumnWidth(column.fieldName, start + details.delta.dx);
-          },
-          child: LongPressDraggable<String>(
-            data: column.fieldName,
-            feedback: Material(
-              color: gridTheme.headerBackground,
-              child: Padding(
-                padding: const EdgeInsets.all(8),
-                child: Text(
-                  column.header.text ?? column.fieldName,
-                  style: gridTheme.headerTextStyle,
+        final layout = GridTableLayout.maybeOf(context);
+        return Stack(
+          children: [
+            Draggable<String>(
+              data: column.fieldName,
+              feedback: Material(
+                color: gridTheme.headerBackground,
+                child: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Text(
+                    column.header.text ?? column.fieldName,
+                    style: gridTheme.headerTextStyle,
+                  ),
+                ),
+              ),
+              child: cell,
+            ),
+            Positioned(
+              right: 0,
+              top: 0,
+              bottom: 0,
+              width: 8,
+              child: MouseRegion(
+                cursor: SystemMouseCursors.resizeColumn,
+                child: GestureDetector(
+                  key: ValueKey('rdg-header-resize-${column.fieldName}'),
+                  behavior: HitTestBehavior.opaque,
+                  onHorizontalDragUpdate: (details) {
+                    final widths = layout?.columnWidths ?? const [];
+                    final current = i < widths.length ? widths[i] : null;
+                    final start = current ?? column.width ?? 80;
+                    grid.setColumnWidth(
+                      column.fieldName,
+                      start + details.delta.dx,
+                    );
+                  },
                 ),
               ),
             ),
-            child: MouseRegion(
-              cursor: SystemMouseCursors.resizeColumn,
-              child: cell,
-            ),
-          ),
+          ],
         );
       },
     );
