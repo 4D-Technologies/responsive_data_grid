@@ -61,5 +61,16 @@ void main() {
     expect(headerKeys, lessThan(20));
     expect(find.text('C0'), findsOneWidget);
     expect(find.text('C19'), findsNothing);
+
+    await tester.drag(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is SingleChildScrollView &&
+            widget.scrollDirection == Axis.horizontal,
+      ),
+      const Offset(-2000, 0),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('C19'), findsOneWidget);
   });
 }
