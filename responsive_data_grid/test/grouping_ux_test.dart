@@ -66,6 +66,15 @@ Future<void> _pump(WidgetTester tester, {int groupIndent = 15}) async {
 }
 
 void main() {
+  test('gridMatchesGroupValue covers dates, enums, and nums', () {
+    expect(gridMatchesGroupValue(1, '1'), isTrue);
+    expect(gridMatchesGroupValue(1.0, '1'), isTrue);
+    expect(
+      gridMatchesGroupValue(DateTime.utc(2020, 1, 2), '2020-01-02T00:00:00.000Z'),
+      isTrue,
+    );
+  });
+
   testWidgets('groups can collapse and expand', (tester) async {
     await _pump(tester);
     expect(find.text('36'), findsOneWidget);

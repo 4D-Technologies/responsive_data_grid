@@ -22,14 +22,14 @@ class ResponsiveDataGridState<TItem extends Object>
   late List<String> _columnOrder;
   final Set<String> _collapsedGroups = <String>{};
 
-  String groupCollapseKey(GroupResult group) =>
-      '${group.fieldName}\u0001${group.value ?? ''}';
+  String groupCollapseKey(GroupResult group, {String path = ''}) =>
+      '$path\u0001${group.fieldName}\u0001${group.value ?? ''}';
 
-  bool isGroupCollapsed(GroupResult group) =>
-      _collapsedGroups.contains(groupCollapseKey(group));
+  bool isGroupCollapsed(GroupResult group, {String path = ''}) =>
+      _collapsedGroups.contains(groupCollapseKey(group, path: path));
 
-  void toggleGroupCollapsed(GroupResult group) {
-    final key = groupCollapseKey(group);
+  void toggleGroupCollapsed(GroupResult group, {String path = ''}) {
+    final key = groupCollapseKey(group, path: path);
     setState(() {
       if (!_collapsedGroups.add(key)) {
         _collapsedGroups.remove(key);

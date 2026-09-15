@@ -30,18 +30,28 @@ class GridGroupHeader extends StatelessWidget {
         ),
         child: Row(
           children: [
-            GridChromeIconButton(
-              key: ValueKey(
-                'rdg-group-toggle-${group.fieldName}-${group.value}',
+            FocusableActionDetector(
+              actions: {
+                ActivateIntent: CallbackAction<ActivateIntent>(
+                  onInvoke: (_) {
+                    onToggle?.call();
+                    return null;
+                  },
+                ),
+              },
+              child: GridChromeIconButton(
+                key: ValueKey(
+                  'rdg-group-toggle-${group.fieldName}-${group.value}',
+                ),
+                tooltip: collapsed ? l10n.expandGroup : l10n.collapseGroup,
+                icon: Icon(
+                  collapsed ? Icons.chevron_right : Icons.expand_more,
+                ),
+                color: gridTheme.groupHeaderForeground,
+                size: 20,
+                extent: 28,
+                onPressed: onToggle,
               ),
-              tooltip: collapsed ? l10n.expandGroup : l10n.collapseGroup,
-              icon: Icon(
-                collapsed ? Icons.chevron_right : Icons.expand_more,
-              ),
-              color: gridTheme.groupHeaderForeground,
-              size: 20,
-              extent: 28,
-              onPressed: onToggle,
             ),
             PinToHorizontalViewport(
               child: Text(
