@@ -64,6 +64,12 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   DemoPalette _palette = DemoPalette.light;
   DemoDesign _design = DemoDesign.material;
+  Locale _locale = const Locale('en');
+
+  void _setLocale(Locale locale) {
+    Intl.defaultLocale = locale.toLanguageTag();
+    setState(() => _locale = locale);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,19 +77,33 @@ class _MyAppState extends State<MyApp> {
       title: 'Responsive Data Grid',
       palette: _palette,
       design: _design,
+      locale: _locale,
       onPalette: (value) => setState(() => _palette = value),
       onDesign: (value) => setState(() => _design = value),
+      onLocale: _setLocale,
     );
     if (_design == DemoDesign.cupertino) {
       return cupertino.CupertinoApp(
         title: 'Responsive Data Grid',
         theme: _demoCupertinoTheme(_palette),
+        locale: _locale,
+        supportedLocales: GridLocalizations.supportedLocales,
+        localizationsDelegates: [
+          GridLocalizations.delegate,
+          ...GlobalMaterialLocalizations.delegates,
+        ],
         home: home,
       );
     }
     return MaterialApp(
       title: 'Responsive Data Grid',
       theme: _demoTheme(_palette),
+      locale: _locale,
+      supportedLocales: GridLocalizations.supportedLocales,
+      localizationsDelegates: [
+        GridLocalizations.delegate,
+        ...GlobalMaterialLocalizations.delegates,
+      ],
       home: home,
     );
   }
@@ -133,8 +153,10 @@ class MyHomePage extends StatefulWidget {
     required this.title,
     required this.palette,
     required this.design,
+    required this.locale,
     required this.onPalette,
     required this.onDesign,
+    required this.onLocale,
   });
 
   // This widget is the home page of your application. It is stateful, meaning
@@ -149,8 +171,10 @@ class MyHomePage extends StatefulWidget {
   final String title;
   final DemoPalette palette;
   final DemoDesign design;
+  final Locale locale;
   final ValueChanged<DemoPalette> onPalette;
   final ValueChanged<DemoDesign> onDesign;
+  final ValueChanged<Locale> onLocale;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -168,6 +192,14 @@ class _MyHomePageState extends State<MyHomePage> {
   void _cyclePalette() {
     const values = DemoPalette.values;
     widget.onPalette(values[(widget.palette.index + 1) % values.length]);
+  }
+
+  void _cycleLocale() {
+    widget.onLocale(
+      widget.locale.languageCode == 'en'
+          ? const Locale('es')
+          : const Locale('en'),
+    );
   }
 
   @override
@@ -189,6 +221,11 @@ class _MyHomePageState extends State<MyHomePage> {
                 onPressed: _cyclePalette,
                 child: Text(_paletteLabel(widget.palette)),
               ),
+              cupertino.CupertinoButton(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                onPressed: _cycleLocale,
+                child: Text(widget.locale.languageCode.toUpperCase()),
+              ),
             ],
           ),
         ),
@@ -202,6 +239,10 @@ class _MyHomePageState extends State<MyHomePage> {
         actionsPadding: const EdgeInsets.only(right: 56),
         actions: [
           TextButton(onPressed: _cycleDesign, child: const Text('Material')),
+          TextButton(
+            onPressed: _cycleLocale,
+            child: Text(widget.locale.languageCode.toUpperCase()),
+          ),
           PopupMenuButton<DemoPalette>(
             tooltip: 'Theme',
             initialValue: widget.palette,

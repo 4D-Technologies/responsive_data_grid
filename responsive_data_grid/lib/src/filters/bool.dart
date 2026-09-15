@@ -43,7 +43,7 @@ class DataGridBoolColumnFilterState<TItem extends Object>
       mainAxisSize: MainAxisSize.min,
       children: [
         CheckboxListTile(
-          title: Text(LocalizedMessages.state),
+          title: Text(GridLocalizations.of(context).state),
           value: value,
           onChanged: (value) {
             setState(() {

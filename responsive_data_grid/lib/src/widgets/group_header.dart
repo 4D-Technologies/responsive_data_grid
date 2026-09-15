@@ -16,7 +16,7 @@ class GridGroupHeader extends StatelessWidget {
           children: [
             PinToHorizontalViewport(
               child: Text(
-                group.value ?? LocalizedMessages.noEntry,
+                group.value ?? GridLocalizations.of(context).noEntry,
                 style: gridTheme.groupHeaderTextStyle.copyWith(
                   color: gridTheme.groupHeaderForeground,
                 ),

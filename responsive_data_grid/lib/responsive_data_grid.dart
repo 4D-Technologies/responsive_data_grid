@@ -6,6 +6,7 @@ import 'package:bootstrap_grid/bootstrap_grid.dart';
 import 'package:client_filtering/client_filtering.dart';
 import 'package:darq/darq.dart';
 import 'package:date_field/date_field.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart' as intl;
@@ -82,6 +83,7 @@ part './src/definitions/columns/num.dart';
 part './src/definitions/columns/widget.dart';
 
 part './src/notifications/criteriachange.dart';
+part './src/localizations.dart';
 
 class LocalizedMessages {
   static var applicationError = "Application Error";

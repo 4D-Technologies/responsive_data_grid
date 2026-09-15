@@ -41,7 +41,10 @@ class GroupMenu<TItem extends Object> extends DropDownViewWidget {
                 Padding(
                   padding: EdgeInsets.only(top: 3, bottom: 3),
                   child: TextButton.icon(
-                    label: Text("Apply", style: theme.gridLabelLarge),
+                    label: Text(
+                      GridLocalizations.of(context).apply,
+                      style: theme.gridLabelLarge,
+                    ),
                     onPressed: () {
                       close(context);
                       gridState.updateGroup(group);
@@ -52,7 +55,10 @@ class GroupMenu<TItem extends Object> extends DropDownViewWidget {
                 Padding(
                   padding: EdgeInsets.only(top: 3, bottom: 3),
                   child: TextButton.icon(
-                    label: Text("Clear All", style: theme.gridLabelLarge),
+                    label: Text(
+                      GridLocalizations.of(context).clearAll,
+                      style: theme.gridLabelLarge,
+                    ),
                     onPressed: () {
                       group.aggregates.clear();
                       close(context);
@@ -66,7 +72,10 @@ class GroupMenu<TItem extends Object> extends DropDownViewWidget {
                 ),
                 Divider(),
                 TextButton.icon(
-                  label: Text("Remove Group", style: theme.gridLabelLarge),
+                  label: Text(
+                    GridLocalizations.of(context).removeGroup,
+                    style: theme.gridLabelLarge,
+                  ),
                   onPressed: () => removeGroup(group),
                   icon: Icon(Icons.delete, color: theme.colorScheme.error),
                 ),

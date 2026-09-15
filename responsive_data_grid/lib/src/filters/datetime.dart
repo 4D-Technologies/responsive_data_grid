@@ -65,7 +65,7 @@ class DataGridDateTimeColumnFilterState<TItem extends Object>
           items: [
             DropdownMenuItem<Logic?>(
               value: null,
-              child: Text(LocalizedMessages.any),
+              child: Text(GridLocalizations.of(context).any),
             ),
             DropdownMenuItem<Logic?>(
               value: Logic.greaterThan,

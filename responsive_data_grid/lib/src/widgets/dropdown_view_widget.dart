@@ -57,7 +57,7 @@ class _DropDownViewState extends State<DropDownViewWidget> {
           color: widget.iconColor ?? gridTheme.headerMenuColor,
           size: widget.iconSize ?? gridTheme.headerIconSize,
           extent: gridTheme.headerActionExtent,
-          tooltip: 'Column menu',
+          tooltip: GridLocalizations.of(context).columnMenu,
           onPressed: () {
             if (controller.isOpen) {
               controller.close();

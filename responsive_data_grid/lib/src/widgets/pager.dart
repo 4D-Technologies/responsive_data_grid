@@ -118,6 +118,7 @@ class PagerWidget extends StatelessWidget {
     final atStart = pageCount <= 0 || pageNumber <= 1;
     final atEnd = pageCount <= 0 || pageNumber >= pageCount;
     final gridTheme = ResponsiveDataGridTheme.of(context);
+    final l10n = GridLocalizations.of(context);
     final sizes = {...pageSizeOptions, pageSize}.toList()..sort();
     final showPageSize = setPageSize != null && sizes.length > 1;
 
@@ -173,11 +174,13 @@ class PagerWidget extends StatelessWidget {
               builder: (context, constraints) {
                 const iconExtent = 36.0;
                 const pageExtent = 36.0;
-                final rangeLabel = pagerRangeLabel(
-                  pageNumber: pageNumber,
-                  pageSize: pageSize,
-                  totalCount: totalCount,
-                );
+                final rangeLabel = totalCount <= 0 || pageSize <= 0
+                    ? l10n.pagerRange(start: 0, end: 0, total: 0)
+                    : l10n.pagerRange(
+                        start: (pageNumber - 1) * pageSize + 1,
+                        end: math.min(pageNumber * pageSize, totalCount),
+                        total: totalCount,
+                      );
                 final chrome = iconExtent * 4 + (showPageSize ? 64 : 0) + 120;
                 final remaining = constraints.maxWidth - chrome;
                 final maxSlots = math.max(1, remaining ~/ pageExtent);
@@ -190,7 +193,7 @@ class PagerWidget extends StatelessWidget {
                 return Row(
                   children: [
                     GridChromeIconButton(
-                      tooltip: 'First page',
+                      tooltip: l10n.firstPage,
                       onPressed: atStart ? null : () => setPage(1),
                       icon: Icon(gridTheme.pagerFirstIcon),
                       color: gridTheme.pagerIconColor,
@@ -199,7 +202,7 @@ class PagerWidget extends StatelessWidget {
                       extent: iconExtent,
                     ),
                     GridChromeIconButton(
-                      tooltip: 'Previous page',
+                      tooltip: l10n.previousPage,
                       onPressed: atStart
                           ? null
                           : () => setPage(math.max(1, pageNumber - 1)),
@@ -242,7 +245,7 @@ class PagerWidget extends StatelessWidget {
                       ),
                     ),
                     GridChromeIconButton(
-                      tooltip: 'Next page',
+                      tooltip: l10n.nextPage,
                       onPressed: atEnd
                           ? null
                           : () => setPage(math.min(pageCount, pageNumber + 1)),
@@ -253,7 +256,7 @@ class PagerWidget extends StatelessWidget {
                       extent: iconExtent,
                     ),
                     GridChromeIconButton(
-                      tooltip: 'Last page',
+                      tooltip: l10n.lastPage,
                       onPressed: atEnd ? null : () => setPage(pageCount),
                       icon: Icon(gridTheme.pagerLastIcon),
                       color: gridTheme.pagerIconColor,
@@ -275,7 +278,7 @@ class PagerWidget extends StatelessWidget {
                       const SizedBox(width: 8),
                       PopupMenuButton<int>(
                         key: const ValueKey('rdg-pager-page-size'),
-                        tooltip: 'Page size',
+                        tooltip: l10n.pageSize,
                         enabled: setPageSize != null,
                         initialValue: pageSize,
                         onSelected: setPageSize,
@@ -332,9 +335,9 @@ class _PagerPageButton extends StatelessWidget {
     return Semantics(
       button: true,
       selected: selected,
-      label: 'Page $page',
+      label: GridLocalizations.of(context).pageLabel(page),
       child: Tooltip(
-        message: 'Page $page',
+        message: GridLocalizations.of(context).pageLabel(page),
         child: GestureDetector(
           key: ValueKey('rdg-pager-page-$page'),
           behavior: HitTestBehavior.opaque,

@@ -29,7 +29,7 @@ class TimeOfDayColumn<TItem extends Object>
   }) : super(
          format: (value) => value == null
              ? null
-             : (format ?? intl.DateFormat.jm()).format(
+             : (format ?? intl.DateFormat.jm(intl.Intl.defaultLocale)).format(
                  DateTime(1, 1, 1, value.hour, value.minute),
                ),
          header: header ?? ColumnHeader(),
