@@ -240,6 +240,7 @@ class _ResponsiveGridInfiniteScrollBodyWidgetState<TItem extends Object>
                     itemTapped: widget.gridState.widget.itemTapped,
                     theme: widget.theme,
                     padding: widget.gridState.widget.contentPadding,
+                    gridState: widget.gridState,
                   );
                 },
               ),

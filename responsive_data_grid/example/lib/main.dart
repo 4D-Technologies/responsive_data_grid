@@ -289,6 +289,10 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       items: widget.exampleData,
       itemTapped: (row) {},
+      detailBuilder: (context, item) => Text(
+        '${item.name}: ${DateFormat.yMMMd().format(item.dob)}'
+        ' — ${item.accepted ? "accepted" : "not accepted"}',
+      ),
       pageSize: 20,
       pagingMode: PagingMode.pager,
       height: 520,

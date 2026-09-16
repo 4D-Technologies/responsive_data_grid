@@ -143,6 +143,7 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
           itemTapped: gridState.widget.itemTapped,
           theme: theme,
           padding: gridState.widget.contentPadding,
+          gridState: gridState,
         );
       },
     );

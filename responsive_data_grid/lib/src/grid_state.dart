@@ -24,6 +24,7 @@ class ResponsiveDataGridState<TItem extends Object>
   double? _tableViewportWidth;
   var _didInitialAutoSize = false;
   var _restoredColumnLayout = false;
+  final Set<TItem> _expandedItems = <TItem>{};
   GridDensity density = GridDensity.standard;
   String _searchQuery = '';
   Timer? _searchDebounce;
@@ -255,6 +256,37 @@ class ResponsiveDataGridState<TItem extends Object>
         ),
       ],
     );
+  }
+
+  Set<TItem> get currentExpandedItems =>
+      widget.expandedItems ?? _expandedItems;
+
+  bool isRowExpanded(TItem item) => currentExpandedItems.contains(item);
+
+  bool canExpandRow(TItem item) {
+    if (widget.detailBuilder == null) return false;
+    return widget.isRowExpandable?.call(item) ?? true;
+  }
+
+  void toggleRowExpanded(TItem item) {
+    if (!canExpandRow(item)) return;
+    final next = Set<TItem>.of(currentExpandedItems);
+    if (next.contains(item)) {
+      next.remove(item);
+    } else {
+      if (widget.detailExpandMode == GridDetailExpandMode.single) {
+        next.clear();
+      }
+      next.add(item);
+    }
+    if (widget.expandedItems == null) {
+      setState(() {
+        _expandedItems
+          ..clear()
+          ..addAll(next);
+      });
+    }
+    widget.onExpandedChanged?.call(next);
   }
 
   void setColumnVisible(String fieldName, bool visible) {
@@ -899,10 +931,11 @@ class ResponsiveDataGridState<TItem extends Object>
                       0,
                       (sum, width) => sum + width,
                     );
-                    final contentWidth = math.max(
-                      metrics.contentWidth,
-                      widthSum,
-                    );
+                    final detailGutter =
+                        widget.detailBuilder != null ? 32.0 : 0.0;
+                    final contentWidth =
+                        math.max(metrics.contentWidth, widthSum) +
+                        detailGutter;
                     final frozenCount = columns
                         .takeWhile((column) => column.frozen)
                         .length;
@@ -964,6 +997,7 @@ class ResponsiveDataGridState<TItem extends Object>
                       frozenCount: frozenCount,
                       stickyIndexes: stickyIndexes,
                       layoutMode: widget.layoutMode,
+                      detailGutter: detailGutter,
                       child: Semantics(
                         container: true,
                         label:
