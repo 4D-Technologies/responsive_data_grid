@@ -60,6 +60,13 @@ class ResponsiveDataGridController<TItem extends Object>
     _emit();
   }
 
+  void toggleRowExpanded(TItem item) {
+    _client?.toggleRowExpanded(item);
+    _emit();
+  }
+
+  bool isRowExpanded(TItem item) => _client?.isRowExpanded(item) ?? false;
+
   GridStateSnapshot? captureState() => _client?.captureState();
 
   void restoreState(GridStateSnapshot snapshot) {

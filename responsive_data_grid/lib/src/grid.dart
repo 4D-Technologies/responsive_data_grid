@@ -1,5 +1,10 @@
 part of '../responsive_data_grid.dart';
 
+typedef GridDetailBuilder<TItem extends Object> =
+    Widget Function(BuildContext context, TItem item);
+
+enum GridDetailExpandMode { single, multiple }
+
 class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
   final Future<ListResponse<TItem>?> Function(LoadCriteria criteria)? loadData;
   final List<TItem>? items;
@@ -32,6 +37,11 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
   final GridToolbar? toolbar;
   final GridRowDecoration<TItem>? rowDecoration;
   final GridCellDecoration<TItem>? cellDecoration;
+  final GridDetailBuilder<TItem>? detailBuilder;
+  final bool Function(TItem item)? isRowExpandable;
+  final GridDetailExpandMode detailExpandMode;
+  final Set<TItem>? expandedItems;
+  final void Function(Set<TItem> items)? onExpandedChanged;
 
   /// When true, visible columns size to their widest header or cell on first
   /// load. Per-column [GridColumn.autoSize] still applies when this is false.
@@ -85,6 +95,11 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
     this.toolbar,
     this.rowDecoration,
     this.cellDecoration,
+    this.detailBuilder,
+    this.isRowExpandable,
+    this.detailExpandMode = GridDetailExpandMode.multiple,
+    this.expandedItems,
+    this.onExpandedChanged,
     this.autoSize = false,
     this.padding = const EdgeInsets.all(5),
     this.contentPadding = const EdgeInsets.all(3),
@@ -127,6 +142,11 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
     this.toolbar,
     this.rowDecoration,
     this.cellDecoration,
+    this.detailBuilder,
+    this.isRowExpandable,
+    this.detailExpandMode = GridDetailExpandMode.multiple,
+    this.expandedItems,
+    this.onExpandedChanged,
     this.autoSize = false,
     this.padding = const EdgeInsets.all(5),
     this.contentPadding = const EdgeInsets.only(

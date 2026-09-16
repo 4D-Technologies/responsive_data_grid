@@ -6,6 +6,7 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
   final void Function(TItem item)? itemTapped;
   final ThemeData theme;
   final EdgeInsets padding;
+  final ResponsiveDataGridState<TItem>? gridState;
 
   DataGridRowWidget({
     super.key,
@@ -14,6 +15,7 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
     required this.itemTapped,
     required this.theme,
     required this.padding,
+    this.gridState,
   }) {
     assert(TItem != Object);
   }
@@ -26,12 +28,21 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
     final custom = grid?.rowDecoration?.call(item);
     final themeFill = gridTheme.rowBackground;
 
+    final expandable =
+        grid?.detailBuilder != null &&
+        (grid!.isRowExpandable?.call(item) ?? true);
+    final expanded = gridState?.isRowExpanded(item) ?? false;
+
     void activate() {
+      if (expandable) {
+        gridState!.toggleRowExpanded(item);
+        return;
+      }
       itemTapped?.call(item);
     }
 
     Widget row = InkWell(
-      onTap: itemTapped == null ? null : activate,
+      onTap: itemTapped == null ? null : () => itemTapped?.call(item),
       enableFeedback: true,
       excludeFromSemantics: false,
       hoverColor: gridTheme.rowHoverColor,
@@ -55,11 +66,41 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
       child: row,
     );
 
-    return Semantics(
-      button: itemTapped != null,
-      onTap: itemTapped == null ? null : activate,
+    if (expandable) {
+      final l10n = GridLocalizations.of(context);
+      row = Stack(
+        children: [
+          row,
+          Positioned.directional(
+            textDirection: Directionality.of(context),
+            start: 0,
+            top: 0,
+            bottom: 0,
+            child: IconButton(
+              key: ValueKey('rdg-detail-toggle-$item'),
+              tooltip: expanded ? l10n.collapseRow : l10n.expandRow,
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints.tightFor(width: 32, height: 32),
+              icon: Icon(
+                expanded ? Icons.expand_more : Icons.chevron_right,
+                size: 20,
+              ),
+              onPressed: () => gridState!.toggleRowExpanded(item),
+            ),
+          ),
+        ],
+      );
+    }
+
+    Widget body = Semantics(
+      button: itemTapped != null || expandable,
+      onTap: itemTapped == null && !expandable ? null : activate,
       child: FocusableActionDetector(
         onShowFocusHighlight: (_) {},
+        shortcuts: const {
+          SingleActivator(LogicalKeyboardKey.enter): ActivateIntent(),
+          SingleActivator(LogicalKeyboardKey.space): ActivateIntent(),
+        },
         actions: {
           ActivateIntent: CallbackAction<ActivateIntent>(
             onInvoke: (_) {
@@ -70,6 +111,26 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
         },
         child: row,
       ),
+    );
+
+    if (grid.detailBuilder == null) return body;
+    final detail = expanded
+        ? Padding(
+            padding: const EdgeInsets.fromLTRB(32, 8, 12, 12),
+            child: grid.detailBuilder!(context, item),
+          )
+        : const SizedBox(width: double.infinity, height: 0);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        body,
+        AnimatedSize(
+          duration: const Duration(milliseconds: 150),
+          curve: Curves.easeInOut,
+          alignment: Alignment.topCenter,
+          child: detail,
+        ),
+      ],
     );
   }
 

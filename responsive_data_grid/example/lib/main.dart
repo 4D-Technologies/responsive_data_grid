@@ -289,6 +289,13 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       items: widget.exampleData,
       itemTapped: (row) {},
+      detailBuilder: (context, item) => Padding(
+        padding: const EdgeInsets.fromLTRB(32, 8, 12, 12),
+        child: Text(
+          '${item.name}: ${DateFormat.yMMMd().format(item.dob)}'
+          ' — ${item.accepted ? "accepted" : "not accepted"}',
+        ),
+      ),
       pageSize: 20,
       pagingMode: PagingMode.pager,
       height: 520,
