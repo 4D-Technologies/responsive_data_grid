@@ -23,6 +23,9 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
     final grid = context
         .findAncestorWidgetOfExactType<ResponsiveDataGrid<TItem>>();
     final gridTheme = ResponsiveDataGridTheme.of(context);
+    final custom = grid?.rowDecoration?.call(item);
+    final decoration = custom ?? BoxDecoration(color: gridTheme.rowBackground);
+    final frozenBackground = custom?.color ?? gridTheme.rowBackground;
 
     void activate() {
       itemTapped?.call(item);
@@ -42,29 +45,30 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
           ),
         },
         child: DecoratedBox(
-      decoration: () {
-        final custom = grid?.rowDecoration?.call(item);
-        return (custom ?? const BoxDecoration()).copyWith(
-          color: custom?.color ?? gridTheme.rowBackground,
-        );
-      }(),
-      child: InkWell(
-        onTap: itemTapped == null ? null : activate,
-        enableFeedback: true,
-        excludeFromSemantics: false,
-        hoverColor: gridTheme.rowHoverColor,
-        focusColor: gridTheme.headerSortActiveColor.withValues(alpha: 0.25),
-        mouseCursor: itemTapped != null
-            ? SystemMouseCursors.click
-            : SystemMouseCursors.basic,
-        child: DefaultTextStyle(
-          style: gridTheme.bodyTextStyle,
-          child: Padding(
-            padding: _tablePadding(context, gridTheme, padding),
-            child: _rowCells(context, grid!, item, gridTheme),
+          decoration: decoration,
+          child: InkWell(
+            onTap: itemTapped == null ? null : activate,
+            enableFeedback: true,
+            excludeFromSemantics: false,
+            hoverColor: gridTheme.rowHoverColor,
+            focusColor: gridTheme.headerSortActiveColor.withValues(alpha: 0.25),
+            mouseCursor: itemTapped != null
+                ? SystemMouseCursors.click
+                : SystemMouseCursors.basic,
+            child: DefaultTextStyle(
+              style: gridTheme.bodyTextStyle,
+              child: Padding(
+                padding: _tablePadding(context, gridTheme, padding),
+                child: _rowCells(
+                  context,
+                  grid!,
+                  item,
+                  gridTheme,
+                  frozenBackground,
+                ),
+              ),
+            ),
           ),
-        ),
-      ),
         ),
       ),
     );
@@ -88,6 +92,7 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
     ResponsiveDataGrid<TItem> grid,
     TItem item,
     ResponsiveDataGridTheme gridTheme,
+    Color frozenBackground,
   ) {
     final layout = GridTableLayout.maybeOf(context);
     if (layout != null && layout.layoutMode == GridLayoutMode.table) {
@@ -97,7 +102,7 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
             DataGridFieldWidget<TItem, dynamic>(columns[i], item),
         widths: layout.columnWidths,
         frozenCount: layout.frozenCount,
-        frozenBackground: gridTheme.rowBackground,
+        frozenBackground: frozenBackground,
       );
     }
     return BootstrapRow(

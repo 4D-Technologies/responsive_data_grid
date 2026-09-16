@@ -9,105 +9,172 @@ class _Person {
   const _Person(this.id, this.name);
 }
 
-void main() {
-  testWidgets('rowDecoration tints matching rows', (tester) async {
-    tester.view.physicalSize = const Size(800, 600);
-    tester.view.devicePixelRatio = 1.0;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
+Finder _highlightBox(Color highlight) {
+  return find.byWidgetPredicate(
+    (widget) =>
+        widget is DecoratedBox &&
+        widget.decoration is BoxDecoration &&
+        (widget.decoration as BoxDecoration).color == highlight,
+  );
+}
 
-    const highlight = Color(0xFFFFCCCC);
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: SizedBox(
-            width: 800,
-            height: 500,
-            child: ResponsiveDataGrid<_Person>.clientSide(
-              height: 400,
-              pagingMode: PagingMode.pager,
-              rowDecoration: (item) => item.id == 1
-                  ? const BoxDecoration(color: highlight)
-                  : null,
-              items: const [_Person(1, 'Ada'), _Person(2, 'Grace')],
-              columns: [
-                IntColumn<_Person>(
-                  fieldName: 'id',
-                  header: const ColumnHeader(text: 'Id'),
-                  value: (row) => row.id,
-                  xsCols: 4,
-                ),
-                StringColumn<_Person>(
-                  fieldName: 'name',
-                  header: const ColumnHeader(text: 'Name'),
-                  value: (row) => row.name,
-                  xsCols: 8,
-                ),
-              ],
-            ),
+Future<void> _pumpGrid(
+  WidgetTester tester, {
+  GridRowDecoration<_Person>? rowDecoration,
+  GridCellDecoration<_Person>? cellDecoration,
+  List<GridColumn<_Person, dynamic>>? columns,
+}) async {
+  tester.view.physicalSize = const Size(800, 600);
+  tester.view.devicePixelRatio = 1.0;
+  addTearDown(tester.view.resetPhysicalSize);
+  addTearDown(tester.view.resetDevicePixelRatio);
+
+  await tester.pumpWidget(
+    MaterialApp(
+      home: Scaffold(
+        body: SizedBox(
+          width: 800,
+          height: 500,
+          child: ResponsiveDataGrid<_Person>.clientSide(
+            height: 400,
+            pagingMode: PagingMode.pager,
+            rowDecoration: rowDecoration,
+            cellDecoration: cellDecoration,
+            items: const [_Person(1, 'Ada'), _Person(2, 'Grace')],
+            columns:
+                columns ??
+                [
+                  IntColumn<_Person>(
+                    fieldName: 'id',
+                    header: const ColumnHeader(text: 'Id'),
+                    value: (row) => row.id,
+                    xsCols: 4,
+                  ),
+                  StringColumn<_Person>(
+                    fieldName: 'name',
+                    header: const ColumnHeader(text: 'Name'),
+                    value: (row) => row.name,
+                    xsCols: 8,
+                  ),
+                ],
           ),
         ),
       ),
-    );
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 50));
+    ),
+  );
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 50));
+}
 
-    final decorations = tester
-        .widgetList<DecoratedBox>(find.byType(DecoratedBox))
-        .map((box) => box.decoration)
-        .whereType<BoxDecoration>()
-        .where((decoration) => decoration.color == highlight);
-    expect(decorations, isNotEmpty);
+void main() {
+  testWidgets('rowDecoration tints matching rows', (tester) async {
+    const highlight = Color(0xFFFFCCCC);
+    await _pumpGrid(
+      tester,
+      rowDecoration: (item) =>
+          item.id == 1 ? const BoxDecoration(color: highlight) : null,
+    );
+
+    expect(_highlightBox(highlight), findsOneWidget);
+    expect(
+      find.ancestor(of: find.text('Ada'), matching: _highlightBox(highlight)),
+      findsOneWidget,
+    );
+    expect(
+      find.ancestor(of: find.text('Grace'), matching: _highlightBox(highlight)),
+      findsNothing,
+    );
   });
 
   testWidgets('cellDecoration tints a single column', (tester) async {
-    tester.view.physicalSize = const Size(800, 600);
-    tester.view.devicePixelRatio = 1.0;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-
     const highlight = Color(0xFFCCFFCC);
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: SizedBox(
-            width: 800,
-            height: 500,
-            child: ResponsiveDataGrid<_Person>.clientSide(
-              height: 400,
-              pagingMode: PagingMode.pager,
-              cellDecoration: (item, column) =>
-                  column.fieldName == 'name' && item.id == 2
-                  ? const BoxDecoration(color: highlight)
-                  : null,
-              items: const [_Person(1, 'Ada'), _Person(2, 'Grace')],
-              columns: [
-                IntColumn<_Person>(
-                  fieldName: 'id',
-                  header: const ColumnHeader(text: 'Id'),
-                  value: (row) => row.id,
-                  xsCols: 4,
-                ),
-                StringColumn<_Person>(
-                  fieldName: 'name',
-                  header: const ColumnHeader(text: 'Name'),
-                  value: (row) => row.name,
-                  xsCols: 8,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
+    await _pumpGrid(
+      tester,
+      cellDecoration: (item, column) =>
+          column.fieldName == 'name' && item.id == 2
+          ? const BoxDecoration(color: highlight)
+          : null,
     );
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 50));
 
-    final decorations = tester
-        .widgetList<DecoratedBox>(find.byType(DecoratedBox))
-        .map((box) => box.decoration)
-        .whereType<BoxDecoration>()
-        .where((decoration) => decoration.color == highlight);
-    expect(decorations, isNotEmpty);
+    expect(_highlightBox(highlight), findsOneWidget);
+    expect(
+      find.ancestor(of: find.text('Grace'), matching: _highlightBox(highlight)),
+      findsOneWidget,
+    );
+    expect(
+      find.ancestor(of: find.text('Ada'), matching: _highlightBox(highlight)),
+      findsNothing,
+    );
+  });
+
+  testWidgets('rowDecoration without color is left unchanged', (tester) async {
+    const borderColor = Color(0xFFE11D48);
+    await _pumpGrid(
+      tester,
+      rowDecoration: (item) => item.id == 1
+          ? const BoxDecoration(
+              border: Border(left: BorderSide(color: borderColor, width: 3)),
+            )
+          : null,
+    );
+
+    expect(tester.takeException(), isNull);
+    final boxes = tester.widgetList<DecoratedBox>(
+      find.ancestor(of: find.text('Ada'), matching: find.byType(DecoratedBox)),
+    );
+    expect(
+      boxes.any((box) {
+        final decoration = box.decoration;
+        return decoration is BoxDecoration &&
+            decoration.color == null &&
+            decoration.border != null;
+      }),
+      isTrue,
+    );
+  });
+
+  testWidgets('rowDecoration color reaches frozen cells', (tester) async {
+    const highlight = Color(0xFFFFCCCC);
+    await _pumpGrid(
+      tester,
+      rowDecoration: (item) =>
+          item.id == 1 ? const BoxDecoration(color: highlight) : null,
+      columns: [
+        StringColumn<_Person>(
+          fieldName: 'name',
+          header: const ColumnHeader(text: 'Name'),
+          value: (row) => row.name,
+          xsCols: 4,
+          frozen: true,
+          width: 160,
+        ),
+        IntColumn<_Person>(
+          fieldName: 'id',
+          header: const ColumnHeader(text: 'Id'),
+          value: (row) => row.id,
+          xsCols: 4,
+          width: 200,
+        ),
+        StringColumn<_Person>(
+          fieldName: 'extra',
+          header: const ColumnHeader(text: 'Extra'),
+          value: (row) => row.name,
+          xsCols: 6,
+          width: 240,
+        ),
+      ],
+    );
+
+    final frozenHighlight = find.byWidgetPredicate(
+      (widget) => widget is ColoredBox && widget.color == highlight,
+    );
+    expect(
+      find.ancestor(of: find.text('Ada'), matching: frozenHighlight),
+      findsWidgets,
+    );
+    expect(
+      find.ancestor(of: find.text('Grace'), matching: frozenHighlight),
+      findsNothing,
+    );
   });
 }
