@@ -11,8 +11,13 @@ class GridHeaderGroup {
 class HeaderGroupSpan {
   final String title;
   final double width;
+  final List<String> fieldNames;
 
-  const HeaderGroupSpan({required this.title, required this.width});
+  const HeaderGroupSpan({
+    required this.title,
+    required this.width,
+    this.fieldNames = const [],
+  });
 }
 
 List<HeaderGroupSpan> headerGroupSpans({
@@ -36,17 +41,23 @@ List<HeaderGroupSpan> headerGroupSpans({
         HeaderGroupSpan(
           title: '',
           width: i < widths.length ? widths[i] : 0,
+          fieldNames: [field],
         ),
       );
       i++;
       continue;
     }
     var width = 0.0;
-    while (i < columns.length && group.fieldNames.contains(columns[i].fieldName)) {
+    final fields = <String>[];
+    while (i < columns.length &&
+        group.fieldNames.contains(columns[i].fieldName)) {
+      fields.add(columns[i].fieldName);
       width += i < widths.length ? widths[i] : 0;
       i++;
     }
-    spans.add(HeaderGroupSpan(title: group.title, width: width));
+    spans.add(
+      HeaderGroupSpan(title: group.title, width: width, fieldNames: fields),
+    );
   }
   return spans;
 }

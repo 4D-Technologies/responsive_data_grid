@@ -67,6 +67,26 @@ class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
       widths: layout.columnWidths,
       groups: grid.widget.headerGroups ?? const [],
     );
+    var consumed = 0;
+    var frozenSpans = 0;
+    while (frozenSpans < spans.length && consumed < layout.frozenCount) {
+      consumed += spans[frozenSpans].fieldNames.length;
+      if (consumed <= layout.frozenCount) {
+        frozenSpans++;
+      } else {
+        break;
+      }
+    }
+    final stickyFields = {
+      for (final column in columns)
+        if (column.sticky) column.fieldName,
+    };
+    final stickySpans = [
+      for (var i = 0; i < spans.length; i++)
+        if (i >= frozenSpans &&
+            spans[i].fieldNames.any(stickyFields.contains))
+          i,
+    ];
     return DecoratedBox(
       decoration: BoxDecoration(
         border: Border(
@@ -80,26 +100,31 @@ class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
       ),
       child: SizedBox(
         height: 32,
-        child: Row(
-          children: [
-            if (layout.detailGutter > 0) SizedBox(width: layout.detailGutter),
-            for (final span in spans)
-              SizedBox(
-                key: span.title.isEmpty
-                    ? null
-                    : ValueKey('rdg-header-group-${span.title}'),
-                width: span.width,
-                child: span.title.isEmpty
-                    ? const SizedBox.shrink()
-                    : Center(
-                        child: Text(
-                          span.title,
-                          style: gridTheme.headerTextStyle,
-                          overflow: TextOverflow.ellipsis,
-                        ),
+        child: GridTableRow(
+          cellCount: spans.length,
+          widths: [for (final span in spans) span.width],
+          frozenCount: frozenSpans,
+          stickyIndexes: stickySpans,
+          frozenBackground: gridTheme.headerBackground,
+          cellBuilder: (i) {
+            final span = spans[i];
+            return SizedBox(
+              key: span.title.isEmpty
+                  ? null
+                  : ValueKey(
+                      'rdg-header-group-${span.title}-${span.fieldNames.first}',
+                    ),
+              child: span.title.isEmpty
+                  ? const SizedBox.shrink()
+                  : Center(
+                      child: Text(
+                        span.title,
+                        style: gridTheme.headerTextStyle,
+                        overflow: TextOverflow.ellipsis,
                       ),
-              ),
-          ],
+                    ),
+            );
+          },
         ),
       ),
     );

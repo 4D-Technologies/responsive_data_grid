@@ -30,7 +30,7 @@ class CommandColumn<TItem extends Object> extends GridColumn<TItem, void> {
          value: (item) {},
          customFieldWidget: (item) => null,
          format: (value) => null,
-         header: header ?? const ColumnHeader(text: ''),
+         header: header ?? CommandColumnHeader(),
          filterRules: NoFilterRules(),
          sortDirection: OrderDirections.notSet,
        );
@@ -43,4 +43,19 @@ class CommandColumn<TItem extends Object> extends GridColumn<TItem, void> {
 
   @override
   bool get hasAggregations => false;
+
+  @override
+  bool get participatesInGrouping => false;
+}
+
+class CommandColumnHeader extends ColumnHeader {
+  CommandColumnHeader({
+    super.empty,
+    super.text,
+    super.alignment,
+    super.textAlign,
+    super.textStyle,
+    super.backgroundColor,
+    super.foregroundColor,
+  }) : super(showFilter: false, showOrderBy: false, showAggregations: false);
 }

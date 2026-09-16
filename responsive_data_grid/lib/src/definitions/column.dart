@@ -79,6 +79,8 @@ abstract class GridColumn<TItem extends Object, TValue extends dynamic> {
 
   bool get hasAggregations;
 
+  bool get participatesInGrouping => true;
+
   String? getFormattedValue(TItem item) {
     return format(value(item));
   }

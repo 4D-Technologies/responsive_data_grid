@@ -85,13 +85,16 @@ void main() {
     tester,
   ) async {
     await _pump(tester);
-    expect(find.byKey(const ValueKey('rdg-header-group-Address')), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('rdg-header-group-Address-street')),
+      findsOneWidget,
+    );
     expect(find.text('Address'), findsOneWidget);
     expect(find.text('Street'), findsOneWidget);
     expect(find.text('City'), findsOneWidget);
 
     final group = tester.getSize(
-      find.byKey(const ValueKey('rdg-header-group-Address')),
+      find.byKey(const ValueKey('rdg-header-group-Address-street')),
     );
     final street = tester.getSize(
       find.byKey(const ValueKey('rdg-header-cell-street')),
