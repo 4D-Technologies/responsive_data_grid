@@ -128,8 +128,39 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
     final padding = gridState.widget.layoutMode == GridLayoutMode.table
         ? EdgeInsets.zero
         : gridState.widget.padding.copyWith(top: 0, bottom: 0);
-    DataGridRowWidget<TItem> rowAt(int index) {
-      final item = items[index];
+
+    final top = <TItem>[];
+    final bottom = <TItem>[];
+    final rest = <TItem>[];
+    final seen = <TItem>{};
+    void take(List<TItem> bucket, TItem item) {
+      if (seen.add(item)) bucket.add(item);
+    }
+
+    final pinEnabled =
+        gridState._activePagingMode != PagingMode.infiniteScroll;
+    if (pinEnabled) {
+      for (final item in gridState._pinnedTop) {
+        take(top, item);
+      }
+      for (final item in items) {
+        switch (gridState.pinOf(item)) {
+          case GridRowPin.top:
+            take(top, item);
+          case GridRowPin.bottom:
+            take(bottom, item);
+          case GridRowPin.none:
+            take(rest, item);
+        }
+      }
+      for (final item in gridState._pinnedBottom) {
+        take(bottom, item);
+      }
+    } else {
+      rest.addAll(items);
+    }
+
+    DataGridRowWidget<TItem> rowFor(TItem item, {int? index}) {
       return DataGridRowWidget<TItem>(
         key: ObjectKey(item),
         item: item,
@@ -142,29 +173,138 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
       );
     }
 
+    Widget scroll = _scrollingRows(
+      rest,
+      wrap: wrap,
+      padding: padding,
+      rowFor: rowFor,
+    );
+    if (top.isEmpty && bottom.isEmpty) return scroll;
+
+    final topRows = [for (final item in top) rowFor(item)];
+    final bottomRows = [for (final item in bottom) rowFor(item)];
+    if (wrap) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [...topRows, scroll, ...bottomRows],
+      );
+    }
+    return Column(
+      children: [
+        ...topRows,
+        Expanded(
+          child: Stack(
+            children: [
+              Positioned.fill(child: scroll),
+              if (bottomRows.isNotEmpty)
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: bottomRows,
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _scrollingRows(
+    List<TItem> items, {
+    required bool wrap,
+    required EdgeInsets padding,
+    required DataGridRowWidget<TItem> Function(TItem item, {int? index})
+    rowFor,
+  }) {
+    const scrollKey = ValueKey('rdg-body-scroll');
+    final physics = wrap ? const NeverScrollableScrollPhysics() : null;
+    final useSticky =
+        !gridState.canReorderRows && items.any(gridState.isRowSticky);
     if (gridState.canReorderRows &&
         gridState.widget.layoutMode == GridLayoutMode.table) {
       return ReorderableListView.builder(
+        key: scrollKey,
         shrinkWrap: wrap,
-        physics: wrap ? const NeverScrollableScrollPhysics() : null,
+        physics: physics,
         padding: padding,
         buildDefaultDragHandles: false,
         itemCount: items.length,
         onReorderItem: (from, to) {
           gridState.reorderRow(from, to, adjustForRemoval: false);
         },
-        itemBuilder: (context, index) => rowAt(index),
+        itemBuilder: (context, index) =>
+            rowFor(items[index], index: index),
+      );
+    }
+    if (useSticky) {
+      return CustomScrollView(
+        key: scrollKey,
+        shrinkWrap: wrap,
+        physics: physics,
+        slivers: [
+          for (var i = 0; i < items.length; i++)
+            if (gridState.isRowSticky(items[i]))
+              SliverPersistentHeader(
+                pinned: true,
+                delegate: _StickyRowHeaderDelegate(
+                  height: 48,
+                  background: ResponsiveDataGridTheme.of(
+                    gridState.context,
+                  ).rowBackground,
+                  child: rowFor(items[i], index: i),
+                ),
+              )
+            else
+              SliverToBoxAdapter(child: rowFor(items[i], index: i)),
+        ],
       );
     }
     return ListView.separated(
+      key: scrollKey,
       separatorBuilder: (context, index) =>
           gridRowSeparator(context, gridState.widget.separatorThickness),
       shrinkWrap: wrap,
       scrollDirection: Axis.vertical,
-      physics: wrap ? const NeverScrollableScrollPhysics() : null,
+      physics: physics,
       padding: padding,
       itemCount: items.length,
-      itemBuilder: (context, index) => rowAt(index),
+      itemBuilder: (context, index) => rowFor(items[index], index: index),
     );
+  }
+}
+
+class _StickyRowHeaderDelegate extends SliverPersistentHeaderDelegate {
+  final Widget child;
+  final double height;
+  final Color background;
+
+  _StickyRowHeaderDelegate({
+    required this.child,
+    required this.height,
+    required this.background,
+  });
+
+  @override
+  double get minExtent => height;
+
+  @override
+  double get maxExtent => height;
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return ColoredBox(color: background, child: child);
+  }
+
+  @override
+  bool shouldRebuild(covariant _StickyRowHeaderDelegate oldDelegate) {
+    return child != oldDelegate.child ||
+        height != oldDelegate.height ||
+        background != oldDelegate.background;
   }
 }

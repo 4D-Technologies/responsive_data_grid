@@ -5,6 +5,8 @@ typedef GridDetailBuilder<TItem extends Object> =
 
 enum GridDetailExpandMode { single, multiple }
 
+enum GridRowPin { none, top, bottom }
+
 class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
   final Future<ListResponse<TItem>?> Function(LoadCriteria criteria)? loadData;
   final List<TItem>? items;
@@ -49,6 +51,15 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
   /// Called after a reorder. [from] and [to] are indices on the current page
   /// (not the full dataset). Client-side already updated page order.
   final void Function(int from, int to, TItem item)? onRowReorder;
+
+  /// Declarative pin. Distinct from [isRowSticky]: pinned rows leave the
+  /// scroll flow and park at the top or bottom of the body.
+  final GridRowPin Function(TItem item)? rowPin;
+
+  /// When true, the row stays in sort order but sticks to the top of the
+  /// scrolling viewport as you scroll past it. Pager only; ignored in
+  /// infinite scroll.
+  final bool Function(TItem item)? isRowSticky;
 
   /// When true, visible columns size to their widest header or cell on first
   /// load. Per-column [GridColumn.autoSize] still applies when this is false.
@@ -109,6 +120,8 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
     this.onExpandedChanged,
     this.allowRowReorder = false,
     this.onRowReorder,
+    this.rowPin,
+    this.isRowSticky,
     this.autoSize = false,
     this.padding = const EdgeInsets.all(5),
     this.contentPadding = const EdgeInsets.all(3),
@@ -158,6 +171,8 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
     this.onExpandedChanged,
     this.allowRowReorder = false,
     this.onRowReorder,
+    this.rowPin,
+    this.isRowSticky,
     this.autoSize = false,
     this.padding = const EdgeInsets.all(5),
     this.contentPadding = const EdgeInsets.only(

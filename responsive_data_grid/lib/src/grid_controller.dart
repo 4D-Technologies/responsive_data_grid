@@ -72,6 +72,16 @@ class ResponsiveDataGridController<TItem extends Object>
     _emit();
   }
 
+  void pinRow(TItem item, {GridRowPin position = GridRowPin.top}) {
+    _client?.pinRow(item, position: position);
+    _emit();
+  }
+
+  void unpinRow(TItem item) {
+    _client?.unpinRow(item);
+    _emit();
+  }
+
   GridStateSnapshot? captureState() => _client?.captureState();
 
   void restoreState(GridStateSnapshot snapshot) {
