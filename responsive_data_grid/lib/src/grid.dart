@@ -42,7 +42,12 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
   final GridDetailExpandMode detailExpandMode;
   final Set<TItem>? expandedItems;
   final void Function(Set<TItem> items)? onExpandedChanged;
+  /// When true, a drag handle reorders rows on the current page. Disabled
+  /// while sorted, grouped, in infinite scroll, or in reflow layout.
   final bool allowRowReorder;
+
+  /// Called after a reorder. [from] and [to] are indices on the current page
+  /// (not the full dataset). Client-side already updated page order.
   final void Function(int from, int to, TItem item)? onRowReorder;
 
   /// When true, visible columns size to their widest header or cell on first

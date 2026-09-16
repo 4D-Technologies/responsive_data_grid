@@ -276,13 +276,14 @@ class ResponsiveDataGridState<TItem extends Object>
       return false;
     }
     if (_activePagingMode == PagingMode.infiniteScroll) return false;
+    if (widget.layoutMode != GridLayoutMode.table) return false;
     return true;
   }
 
   void reorderRow(
     int from,
     int to, {
-    bool adjustForRemoval = true,
+    bool adjustForRemoval = false,
   }) {
     if (!canReorderRows) return;
     var dest = to;

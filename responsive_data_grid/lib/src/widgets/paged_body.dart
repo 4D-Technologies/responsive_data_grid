@@ -131,7 +131,7 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
     DataGridRowWidget<TItem> rowAt(int index) {
       final item = items[index];
       return DataGridRowWidget<TItem>(
-        key: ValueKey('rdg-row-$item'),
+        key: ObjectKey(item),
         item: item,
         columns: gridState.layoutColumns,
         itemTapped: gridState.widget.itemTapped,
@@ -142,7 +142,8 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
       );
     }
 
-    if (gridState.canReorderRows) {
+    if (gridState.canReorderRows &&
+        gridState.widget.layoutMode == GridLayoutMode.table) {
       return ReorderableListView.builder(
         shrinkWrap: wrap,
         physics: wrap ? const NeverScrollableScrollPhysics() : null,

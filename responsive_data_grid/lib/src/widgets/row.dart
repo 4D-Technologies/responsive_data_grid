@@ -147,12 +147,22 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
     if (canReorder && rowIndex != null) {
       leadingChildren.add(
         ReorderableDragStartListener(
-          key: ValueKey('rdg-row-drag-$item'),
+          key: ValueKey('rdg-row-drag-$rowIndex'),
           index: rowIndex!,
-          child: Icon(
-            Icons.drag_indicator,
-            size: 20,
-            semanticLabel: l10n.reorderRow,
+          child: Tooltip(
+            message: l10n.reorderRow,
+            child: MouseRegion(
+              cursor: SystemMouseCursors.grab,
+              child: SizedBox(
+                width: 28,
+                height: 32,
+                child: Icon(
+                  Icons.drag_indicator,
+                  size: 20,
+                  semanticLabel: l10n.reorderRow,
+                ),
+              ),
+            ),
           ),
         ),
       );

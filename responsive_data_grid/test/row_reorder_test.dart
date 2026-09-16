@@ -72,7 +72,7 @@ void main() {
     tester,
   ) async {
     await _pump(tester, allowRowReorder: false);
-    expect(find.byKey(const ValueKey('rdg-row-drag-1')), findsNothing);
+    expect(find.byKey(const ValueKey('rdg-row-drag-0')), findsNothing);
   });
 
   testWidgets('dragging a row handle reorders two rows', (tester) async {
@@ -94,7 +94,7 @@ void main() {
     );
 
     await tester.drag(
-      find.byKey(const ValueKey('rdg-row-drag-1')),
+      find.byKey(const ValueKey('rdg-row-drag-0')),
       const Offset(0, 80),
     );
     await tester.pumpAndSettle();
@@ -117,6 +117,6 @@ void main() {
         orderBy: [OrderCriteria(fieldName: 'name')],
       ),
     );
-    expect(find.byKey(const ValueKey('rdg-row-drag-1')), findsNothing);
+    expect(find.byKey(const ValueKey('rdg-row-drag-0')), findsNothing);
   });
 }
