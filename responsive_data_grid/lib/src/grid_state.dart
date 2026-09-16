@@ -21,7 +21,6 @@ class ResponsiveDataGridState<TItem extends Object>
 
   late List<String> _columnOrder;
   double? _tableViewportWidth;
-  List<double>? _lastColumnWidths;
   var _didInitialAutoSize = false;
   var _restoredColumnLayout = false;
   GridDensity density = GridDensity.standard;
@@ -86,17 +85,21 @@ class ResponsiveDataGridState<TItem extends Object>
     if (column == null) return;
     _applyContentWidth(
       column,
-      style ?? ResponsiveDataGridTheme.of(context).bodyTextStyle,
+      ResponsiveDataGridTheme.of(context),
     );
     setState(() {});
     _notifyState();
   }
 
-  void autoFitColumns({bool onlyFlagged = false}) {
-    final style = ResponsiveDataGridTheme.of(context).bodyTextStyle;
+  void autoFitColumns() {
+    _autoFitColumns(onlyFlagged: false);
+  }
+
+  void _autoFitColumns({required bool onlyFlagged}) {
+    final theme = ResponsiveDataGridTheme.of(context);
     for (final column in layoutColumns) {
       if (onlyFlagged && !widget.autoSize && !column.autoSize) continue;
-      _applyContentWidth(column, style);
+      _applyContentWidth(column, theme);
     }
     setState(() {});
     _notifyState();
@@ -106,13 +109,20 @@ class ResponsiveDataGridState<TItem extends Object>
     final viewport = _tableViewportWidth;
     final columns = layoutColumns;
     if (viewport == null || viewport <= 0 || columns.isEmpty) return;
-    final current = [
-      for (var i = 0; i < columns.length; i++)
-        columns[i].width ??
-            (_lastColumnWidths != null && i < _lastColumnWidths!.length
-                ? _lastColumnWidths![i]
-                : 100.0),
-    ];
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final metrics = gridTableMetrics<TItem>(
+      columns: columns,
+      viewportWidth: viewport,
+      reactiveSegments: widget.reactiveSegments,
+      screenWidth: screenWidth,
+      layoutMode: widget.layoutMode,
+    );
+    final current = gridColumnPixelWidths<TItem>(
+      columns: columns,
+      contentWidth: metrics.contentWidth,
+      totalSegments: metrics.totalSegments,
+      screenWidth: screenWidth,
+    );
     final fitted = fitWidthsToViewport(
       widths: current,
       minWidths: [for (final column in columns) column.minWidth],
@@ -128,35 +138,48 @@ class ResponsiveDataGridState<TItem extends Object>
 
   void _applyContentWidth(
     GridColumn<TItem, dynamic> column,
-    TextStyle style,
+    ResponsiveDataGridTheme theme,
   ) {
+    final direction = Directionality.maybeOf(context) ?? TextDirection.ltr;
+    final scaler = MediaQuery.textScalerOf(context);
     final painter = TextPainter(
-      textDirection: Directionality.maybeOf(context) ?? TextDirection.ltr,
+      textDirection: direction,
       maxLines: 1,
-      textScaler: MediaQuery.textScalerOf(context),
+      textScaler: scaler,
     );
-    var width = 48.0;
-    void measure(String text) {
+    var textWidth = 0.0;
+    void measure(String text, TextStyle style) {
       painter.text = TextSpan(text: text, style: style);
       painter.layout();
-      if (painter.width > width) width = painter.width;
+      if (painter.width > textWidth) textWidth = painter.width;
     }
 
-    measure(column.header.text ?? column.fieldName);
+    final headerStyle =
+        column.header.textStyle ?? theme.headerTextStyle;
+    measure(column.header.text ?? column.fieldName, headerStyle);
     for (final page in _dataCache.pageMap.values) {
       for (final item in page.items) {
-        measure(column.getFormattedValue(item) ?? '');
+        measure(
+          column.getFormattedValue(item) ?? '',
+          column.textStyle ?? theme.bodyTextStyle,
+        );
       }
     }
     painter.dispose();
-    var next = width + 48;
-    if (column.minWidth != null && next < column.minWidth!) {
-      next = column.minWidth!;
+    final padding = theme.resolvePadding(
+      column.header.padding ?? theme.headerCellPadding,
+    );
+    var chrome = padding.horizontal;
+    if (!column.header.empty) chrome += theme.headerActionExtent;
+    if (column.header.showOrderBy &&
+        widget.sortable != SortableOptions.none) {
+      chrome += theme.headerActionExtent;
     }
-    if (column.maxWidth != null && next > column.maxWidth!) {
-      next = column.maxWidth!;
-    }
-    column.width = next;
+    column.width = clampColumnWidth(
+      textWidth + chrome,
+      column.minWidth,
+      column.maxWidth,
+    );
   }
 
   void setColumnVisible(String fieldName, bool visible) {
@@ -241,6 +264,9 @@ class ResponsiveDataGridState<TItem extends Object>
   }
 
   void _applySnapshot(GridStateSnapshot snapshot, {required bool notify}) {
+    if (snapshot.columns.isNotEmpty) {
+      _restoredColumnLayout = true;
+    }
     pageNumber = snapshot.pageNumber < 1 ? 1 : snapshot.pageNumber;
     if (snapshot.pageSize > 0) {
       _pageSize = snapshot.pageSize;
@@ -768,7 +794,6 @@ class ResponsiveDataGridState<TItem extends Object>
                       screenWidth: screenWidth,
                     );
                     _tableViewportWidth = constraints.maxWidth;
-                    _lastColumnWidths = columnWidths;
                     if (!_didInitialAutoSize &&
                         _dataCache.pageMap.isNotEmpty) {
                       final needsAutoSize =
@@ -778,7 +803,7 @@ class ResponsiveDataGridState<TItem extends Object>
                       if (needsAutoSize && !_restoredColumnLayout) {
                         WidgetsBinding.instance.addPostFrameCallback((_) {
                           if (!mounted) return;
-                          autoFitColumns(onlyFlagged: !widget.autoSize);
+                          _autoFitColumns(onlyFlagged: !widget.autoSize);
                         });
                       }
                     }

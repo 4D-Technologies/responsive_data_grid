@@ -45,13 +45,13 @@ Future<ResponsiveDataGridState<_Person>> _pump(
                     fieldName: 'id',
                     header: const ColumnHeader(text: 'Id'),
                     value: (row) => row.id,
-                    xsCols: 4,
+                    xsCols: 6,
                   ),
                   StringColumn<_Person>(
                     fieldName: 'name',
                     header: const ColumnHeader(text: 'Name'),
                     value: (row) => row.name,
-                    xsCols: 8,
+                    xsCols: 6,
                   ),
                 ],
           ),
@@ -93,6 +93,14 @@ void main() {
     }
   });
 
+  testWidgets('equal segments stay similar without autosize', (tester) async {
+    await _pump(tester);
+    expect(
+      _headerWidth(tester, 'name'),
+      closeTo(_headerWidth(tester, 'id'), 8),
+    );
+  });
+
   testWidgets('autosize uses the widest header or cell', (tester) async {
     final state = await _pump(tester);
     state.autosizeColumn('id');
@@ -121,6 +129,39 @@ void main() {
     state.autosizeColumn('name');
     await tester.pump();
     expect(_headerWidth(tester, 'name'), closeTo(90, 1));
+  });
+
+  testWidgets('autoFitColumnsToGrid shrinks overflow to the viewport', (
+    tester,
+  ) async {
+    final state = await _pump(
+      tester,
+      width: 400,
+      columns: [
+        StringColumn<_Person>(
+          fieldName: 'id',
+          header: const ColumnHeader(text: 'Id'),
+          value: (row) => row.id.toString(),
+          xsCols: 6,
+          width: 300,
+          minWidth: 50,
+        ),
+        StringColumn<_Person>(
+          fieldName: 'name',
+          header: const ColumnHeader(text: 'Name'),
+          value: (row) => row.name,
+          xsCols: 6,
+          width: 300,
+          minWidth: 50,
+        ),
+      ],
+    );
+    state.autoFitColumnsToGrid();
+    await tester.pump();
+    final sum = _headerWidth(tester, 'id') + _headerWidth(tester, 'name');
+    expect(sum, lessThan(400));
+    expect(_headerWidth(tester, 'id'), greaterThanOrEqualTo(50));
+    expect(_headerWidth(tester, 'name'), greaterThanOrEqualTo(50));
   });
 
   testWidgets('autoFitColumnsToGrid fills leftover grid width', (tester) async {
@@ -158,6 +199,33 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
 
+    expect(
+      _headerWidth(tester, 'name'),
+      greaterThan(_headerWidth(tester, 'id') + 20),
+    );
+  });
+
+  testWidgets('per-column autoSize only sizes that column', (tester) async {
+    await _pump(
+      tester,
+      columns: [
+        IntColumn<_Person>(
+          fieldName: 'id',
+          header: const ColumnHeader(text: 'Id'),
+          value: (row) => row.id,
+          xsCols: 6,
+        ),
+        StringColumn<_Person>(
+          fieldName: 'name',
+          header: const ColumnHeader(text: 'Name'),
+          value: (row) => row.name,
+          xsCols: 6,
+          autoSize: true,
+        ),
+      ],
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 50));
     expect(
       _headerWidth(tester, 'name'),
       greaterThan(_headerWidth(tester, 'id') + 20),
