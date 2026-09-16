@@ -333,6 +333,9 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ],
       ),
+      headerGroups: const [
+        GridHeaderGroup(title: 'Person', fieldNames: ['id', 'name']),
+      ],
       columns: [
         WidgetColumn(
           widget: (item) => Icon(Icons.check, color: Colors.green),
@@ -415,6 +418,16 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           xsCols: 4,
           mediumCols: 2,
+        ),
+        CommandColumn(
+          fieldName: 'actions',
+          sticky: true,
+          xsCols: 1,
+          header: const ColumnHeader(text: ''),
+          builder: (context, item) => IconButton(
+            icon: const Icon(Icons.more_horiz),
+            onPressed: () {},
+          ),
         ),
       ],
     );

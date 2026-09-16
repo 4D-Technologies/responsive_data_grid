@@ -153,6 +153,7 @@ class GridTableRow extends StatelessWidget {
   final Color? frozenBackground;
   final Decoration? frozenDecoration;
   final Widget? leading;
+  final List<int>? stickyIndexes;
 
   const GridTableRow({
     super.key,
@@ -164,6 +165,7 @@ class GridTableRow extends StatelessWidget {
     this.frozenBackground,
     this.frozenDecoration,
     this.leading,
+    this.stickyIndexes,
   });
 
   static const double overscan = 120;
@@ -194,7 +196,9 @@ class GridTableRow extends StatelessWidget {
     final pinnedWidth = gutter + frozenWidth;
     final sticky = [
       for (final index
-          in GridTableLayout.maybeOf(context)?.stickyIndexes ?? const <int>[])
+          in stickyIndexes ??
+              GridTableLayout.maybeOf(context)?.stickyIndexes ??
+              const <int>[])
         if (index >= frozenCount && index < _count) index,
     ];
     final stickySet = sticky.toSet();

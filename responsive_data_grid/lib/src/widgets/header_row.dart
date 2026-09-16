@@ -32,15 +32,99 @@ class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
               ),
             ),
           ),
-          child: grid.widget.filterable.usesRow
-              ? Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _headerCells(context, gridTheme),
-                    GridFilterRow<TItem>(grid: grid, columns: columns),
-                  ],
-                )
-              : _headerCells(context, gridTheme),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (grid.widget.headerGroups != null &&
+                  grid.widget.headerGroups!.isNotEmpty &&
+                  GridTableLayout.maybeOf(context)?.layoutMode ==
+                      GridLayoutMode.table)
+                _groupHeaderRow(context, gridTheme),
+              grid.widget.filterable.usesRow
+                  ? Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _headerCells(context, gridTheme),
+                        GridFilterRow<TItem>(grid: grid, columns: columns),
+                      ],
+                    )
+                  : _headerCells(context, gridTheme),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _groupHeaderRow(
+    BuildContext context,
+    ResponsiveDataGridTheme gridTheme,
+  ) {
+    final layout = GridTableLayout.maybeOf(context);
+    if (layout == null) return const SizedBox.shrink();
+    final spans = headerGroupSpans(
+      columns: columns,
+      widths: layout.columnWidths,
+      groups: grid.widget.headerGroups ?? const [],
+    );
+    var consumed = 0;
+    var frozenSpans = 0;
+    while (frozenSpans < spans.length && consumed < layout.frozenCount) {
+      consumed += spans[frozenSpans].fieldNames.length;
+      if (consumed <= layout.frozenCount) {
+        frozenSpans++;
+      } else {
+        break;
+      }
+    }
+    final stickyFields = {
+      for (final column in columns)
+        if (column.sticky) column.fieldName,
+    };
+    final stickySpans = [
+      for (var i = 0; i < spans.length; i++)
+        if (i >= frozenSpans &&
+            spans[i].fieldNames.any(stickyFields.contains))
+          i,
+    ];
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: gridTheme.headerDividerColor,
+            width: gridTheme.headerDividerWidth <= 0
+                ? 0
+                : gridTheme.headerDividerWidth,
+          ),
+        ),
+      ),
+      child: SizedBox(
+        height: 32,
+        child: GridTableRow(
+          cellCount: spans.length,
+          widths: [for (final span in spans) span.width],
+          frozenCount: frozenSpans,
+          stickyIndexes: stickySpans,
+          frozenBackground: gridTheme.headerBackground,
+          cellBuilder: (i) {
+            final span = spans[i];
+            return SizedBox(
+              key: span.title.isEmpty
+                  ? null
+                  : ValueKey(
+                      'rdg-header-group-${span.title}-${span.fieldNames.first}',
+                    ),
+              child: span.title.isEmpty
+                  ? const SizedBox.shrink()
+                  : Center(
+                      child: Text(
+                        span.title,
+                        style: gridTheme.headerTextStyle,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+            );
+          },
         ),
       ),
     );

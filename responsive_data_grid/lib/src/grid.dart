@@ -60,6 +60,7 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
   /// When true, the row stays in sort order but sticks to the top of the
   /// scrolling viewport as you scroll past it. Ungrouped pager only.
   final bool Function(TItem item)? isRowSticky;
+  final List<GridHeaderGroup>? headerGroups;
 
   /// When true, visible columns size to their widest header or cell on first
   /// load. Per-column [GridColumn.autoSize] still applies when this is false.
@@ -122,6 +123,7 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
     this.onRowReorder,
     this.rowPin,
     this.isRowSticky,
+    this.headerGroups,
     this.autoSize = false,
     this.padding = const EdgeInsets.all(5),
     this.contentPadding = const EdgeInsets.all(3),
@@ -173,6 +175,7 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
     this.onRowReorder,
     this.rowPin,
     this.isRowSticky,
+    this.headerGroups,
     this.autoSize = false,
     this.padding = const EdgeInsets.all(5),
     this.contentPadding = const EdgeInsets.only(

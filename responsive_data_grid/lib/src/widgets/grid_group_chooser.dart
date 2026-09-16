@@ -44,7 +44,12 @@ class _GridGroupChooserState<TItem extends Object>
   List<GridColumn<TItem, dynamic>> get _availableColumns {
     final grouped = _groups.map((g) => g.fieldName).toSet();
     return widget.gridState.widget.columns
-        .where((c) => !grouped.contains(c.fieldName) && !c.header.empty)
+        .where(
+          (c) =>
+              !grouped.contains(c.fieldName) &&
+              !c.header.empty &&
+              c.participatesInGrouping,
+        )
         .toList();
   }
 

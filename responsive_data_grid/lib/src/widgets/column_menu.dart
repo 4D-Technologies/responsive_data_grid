@@ -118,7 +118,8 @@ class ColumnMenu<T extends Object> extends DropDownViewWidget {
                   },
                 ),
               ],
-              if (gridState.widget.allowGrouping) ...[
+              if (gridState.widget.allowGrouping &&
+                  column.participatesInGrouping) ...[
                 section(l10n.groupBy),
                 action(
                   label: grouped ? l10n.ungroup : l10n.groupColumn,

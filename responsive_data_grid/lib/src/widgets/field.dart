@@ -17,7 +17,9 @@ class DataGridFieldWidget<TItem extends Object, TValue extends dynamic>
         theme.gridBodyMedium;
 
     Widget? child;
-    if (definition.customFieldWidget != null) {
+    if (definition is CommandColumn<TItem>) {
+      child = (definition as CommandColumn<TItem>).builder(context, item);
+    } else if (definition.customFieldWidget != null) {
       child = DefaultTextStyle(
         style: effectiveDataTextStyle,
         child: definition.customFieldWidget!(item) ?? SizedBox(),
