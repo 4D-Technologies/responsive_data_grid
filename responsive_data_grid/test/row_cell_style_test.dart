@@ -18,6 +18,46 @@ Finder _highlightBox(Color highlight) {
   );
 }
 
+List<GridColumn<_Person, dynamic>> _frozenColumns() {
+  return [
+    StringColumn<_Person>(
+      fieldName: 'name',
+      header: const ColumnHeader(text: 'Name'),
+      value: (row) => row.name,
+      xsCols: 4,
+      frozen: true,
+      width: 160,
+    ),
+    IntColumn<_Person>(
+      fieldName: 'id',
+      header: const ColumnHeader(text: 'Id'),
+      value: (row) => row.id,
+      xsCols: 4,
+      width: 200,
+    ),
+    StringColumn<_Person>(
+      fieldName: 'extra',
+      header: const ColumnHeader(text: 'Extra'),
+      value: (row) => 'extra-${row.id}',
+      xsCols: 6,
+      width: 240,
+    ),
+  ];
+}
+
+Color? _frozenFill(WidgetTester tester, Finder of) {
+  final boxes = tester.widgetList<ColoredBox>(
+    find.ancestor(
+      of: of,
+      matching: find.descendant(
+        of: find.byType(PinToHorizontalViewport),
+        matching: find.byType(ColoredBox),
+      ),
+    ),
+  );
+  return boxes.isEmpty ? null : boxes.first.color;
+}
+
 Future<void> _pumpGrid(
   WidgetTester tester, {
   GridRowDecoration<_Person>? rowDecoration,
@@ -131,6 +171,13 @@ void main() {
       }),
       isTrue,
     );
+    expect(
+      boxes.any((box) {
+        final decoration = box.decoration;
+        return decoration is BoxDecoration && decoration.color != null;
+      }),
+      isTrue,
+    );
   });
 
   testWidgets('rowDecoration color reaches frozen cells', (tester) async {
@@ -139,42 +186,30 @@ void main() {
       tester,
       rowDecoration: (item) =>
           item.id == 1 ? const BoxDecoration(color: highlight) : null,
-      columns: [
-        StringColumn<_Person>(
-          fieldName: 'name',
-          header: const ColumnHeader(text: 'Name'),
-          value: (row) => row.name,
-          xsCols: 4,
-          frozen: true,
-          width: 160,
-        ),
-        IntColumn<_Person>(
-          fieldName: 'id',
-          header: const ColumnHeader(text: 'Id'),
-          value: (row) => row.id,
-          xsCols: 4,
-          width: 200,
-        ),
-        StringColumn<_Person>(
-          fieldName: 'extra',
-          header: const ColumnHeader(text: 'Extra'),
-          value: (row) => row.name,
-          xsCols: 6,
-          width: 240,
-        ),
-      ],
+      columns: _frozenColumns(),
     );
 
-    final frozenHighlight = find.byWidgetPredicate(
-      (widget) => widget is ColoredBox && widget.color == highlight,
+    expect(_frozenFill(tester, find.text('Ada')), highlight);
+    expect(_frozenFill(tester, find.text('Grace')), isNot(highlight));
+  });
+
+  testWidgets('frozen overlay keeps theme fill for border-only rows', (
+    tester,
+  ) async {
+    const borderColor = Color(0xFFE11D48);
+    await _pumpGrid(
+      tester,
+      rowDecoration: (item) => item.id == 1
+          ? const BoxDecoration(
+              border: Border(left: BorderSide(color: borderColor, width: 3)),
+            )
+          : null,
+      columns: _frozenColumns(),
     );
-    expect(
-      find.ancestor(of: find.text('Ada'), matching: frozenHighlight),
-      findsWidgets,
-    );
-    expect(
-      find.ancestor(of: find.text('Grace'), matching: frozenHighlight),
-      findsNothing,
-    );
+
+    final adaFill = _frozenFill(tester, find.text('Ada'));
+    final graceFill = _frozenFill(tester, find.text('Grace'));
+    expect(adaFill, isNotNull);
+    expect(adaFill, graceFill);
   });
 }
