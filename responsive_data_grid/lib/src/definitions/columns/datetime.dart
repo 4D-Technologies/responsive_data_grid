@@ -16,6 +16,7 @@ class DateTimeColumn<TItem extends Object> extends GridColumn<TItem, DateTime> {
     super.visible,
     super.frozen,
     super.sticky,
+    super.autoSize,
     super.xlCols,
     super.largeCols,
     super.mediumCols,

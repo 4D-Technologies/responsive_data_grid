@@ -16,6 +16,7 @@ class NumColumn<TItem extends Object> extends GridColumn<TItem, num> {
     super.visible,
     super.frozen,
     super.sticky,
+    super.autoSize,
     super.xlCols,
     super.largeCols,
     super.mediumCols,

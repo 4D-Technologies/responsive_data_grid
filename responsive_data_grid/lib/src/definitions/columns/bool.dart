@@ -17,6 +17,7 @@ class BoolColumn<TItem extends Object> extends GridColumn<TItem, bool> {
     super.visible,
     super.frozen,
     super.sticky,
+    super.autoSize,
     super.xlCols,
     super.largeCols,
     super.mediumCols,

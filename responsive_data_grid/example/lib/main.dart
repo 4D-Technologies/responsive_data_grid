@@ -295,6 +295,7 @@ class _MyHomePageState extends State<MyHomePage> {
       sortable: SortableOptions.multiColumn,
       allowAggregations: true,
       allowGrouping: true,
+      autoSize: true,
       rowDecoration: (item) => item.id.isEven
           ? BoxDecoration(
               color: Theme.of(

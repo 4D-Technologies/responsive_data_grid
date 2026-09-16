@@ -2,7 +2,8 @@ part of '../responsive_data_grid.dart';
 
 /// Imperative API for a [ResponsiveDataGrid]. Optional; the grid still works
 /// without one. Do not use after [dispose].
-class ResponsiveDataGridController<TItem extends Object> extends ChangeNotifier {
+class ResponsiveDataGridController<TItem extends Object>
+    extends ChangeNotifier {
   ResponsiveDataGridState<TItem>? _client;
   var _disposed = false;
 
@@ -46,6 +47,16 @@ class ResponsiveDataGridController<TItem extends Object> extends ChangeNotifier 
 
   void setColumnVisible(String fieldName, bool visible) {
     _client?.setColumnVisible(fieldName, visible);
+    _emit();
+  }
+
+  void autoFitColumns() {
+    _client?.autoFitColumns();
+    _emit();
+  }
+
+  void autoFitColumnsToGrid() {
+    _client?.autoFitColumnsToGrid();
     _emit();
   }
 

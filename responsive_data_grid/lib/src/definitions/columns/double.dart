@@ -16,6 +16,7 @@ class DoubleColumn<TItem extends Object> extends GridColumn<TItem, double> {
     super.visible,
     super.frozen,
     super.sticky,
+    super.autoSize,
     super.xlCols,
     super.largeCols,
     super.mediumCols,
