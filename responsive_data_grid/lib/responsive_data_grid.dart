@@ -86,6 +86,8 @@ part './src/definitions/columns/int.dart';
 part './src/definitions/columns/double.dart';
 part './src/definitions/columns/num.dart';
 part './src/definitions/columns/widget.dart';
+part './src/definitions/columns/command.dart';
+part './src/definitions/header_group.dart';
 
 part './src/notifications/criteriachange.dart';
 part './src/localizations.dart';

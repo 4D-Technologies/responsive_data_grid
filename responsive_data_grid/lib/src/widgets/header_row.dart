@@ -32,15 +32,74 @@ class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
               ),
             ),
           ),
-          child: grid.widget.filterable.usesRow
-              ? Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _headerCells(context, gridTheme),
-                    GridFilterRow<TItem>(grid: grid, columns: columns),
-                  ],
-                )
-              : _headerCells(context, gridTheme),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (grid.widget.headerGroups != null &&
+                  grid.widget.headerGroups!.isNotEmpty &&
+                  GridTableLayout.maybeOf(context)?.layoutMode ==
+                      GridLayoutMode.table)
+                _groupHeaderRow(context, gridTheme),
+              grid.widget.filterable.usesRow
+                  ? Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _headerCells(context, gridTheme),
+                        GridFilterRow<TItem>(grid: grid, columns: columns),
+                      ],
+                    )
+                  : _headerCells(context, gridTheme),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _groupHeaderRow(
+    BuildContext context,
+    ResponsiveDataGridTheme gridTheme,
+  ) {
+    final layout = GridTableLayout.maybeOf(context);
+    if (layout == null) return const SizedBox.shrink();
+    final spans = headerGroupSpans(
+      columns: columns,
+      widths: layout.columnWidths,
+      groups: grid.widget.headerGroups ?? const [],
+    );
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: gridTheme.headerDividerColor,
+            width: gridTheme.headerDividerWidth <= 0
+                ? 0
+                : gridTheme.headerDividerWidth,
+          ),
+        ),
+      ),
+      child: SizedBox(
+        height: 32,
+        child: Row(
+          children: [
+            if (layout.detailGutter > 0) SizedBox(width: layout.detailGutter),
+            for (final span in spans)
+              SizedBox(
+                key: span.title.isEmpty
+                    ? null
+                    : ValueKey('rdg-header-group-${span.title}'),
+                width: span.width,
+                child: span.title.isEmpty
+                    ? const SizedBox.shrink()
+                    : Center(
+                        child: Text(
+                          span.title,
+                          style: gridTheme.headerTextStyle,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+              ),
+          ],
         ),
       ),
     );
