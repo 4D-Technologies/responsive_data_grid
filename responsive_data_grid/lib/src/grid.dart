@@ -27,6 +27,8 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
   final FilterableMode filterable;
   final TitleDefinition? title;
   final GridToolbar? toolbar;
+  final GridRowDecoration<TItem>? rowDecoration;
+  final GridCellDecoration<TItem>? cellDecoration;
   final EdgeInsets padding;
   final EdgeInsets contentPadding;
   final double columnSpacing;
@@ -71,6 +73,8 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
     this.filterable = FilterableMode.menu,
     this.title,
     this.toolbar,
+    this.rowDecoration,
+    this.cellDecoration,
     this.padding = const EdgeInsets.all(5),
     this.contentPadding = const EdgeInsets.all(3),
     this.elevation = 0,
@@ -107,6 +111,8 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
     this.filterable = FilterableMode.menu,
     this.title,
     this.toolbar,
+    this.rowDecoration,
+    this.cellDecoration,
     this.padding = const EdgeInsets.all(5),
     this.contentPadding = const EdgeInsets.only(
       left: 10,

@@ -295,6 +295,21 @@ class _MyHomePageState extends State<MyHomePage> {
       sortable: SortableOptions.multiColumn,
       allowAggregations: true,
       allowGrouping: true,
+      rowDecoration: (item) => item.id.isEven
+          ? BoxDecoration(
+              color: Theme.of(
+                context,
+              ).colorScheme.primaryContainer.withValues(alpha: 0.45),
+            )
+          : null,
+      cellDecoration: (item, column) =>
+          column.fieldName == 'accepted' && !item.accepted
+          ? BoxDecoration(
+              color: Theme.of(
+                context,
+              ).colorScheme.errorContainer.withValues(alpha: 0.7),
+            )
+          : null,
       initialLoadCriteria: LoadCriteria(
         groupBy: [
           GroupCriteria(
