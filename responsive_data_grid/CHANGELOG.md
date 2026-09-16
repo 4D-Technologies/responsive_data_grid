@@ -2,14 +2,14 @@
 
 ## Unreleased
 
-- Columns can be `sticky`: they keep their place in the order and stay visible while the table scrolls horizontally, pinning to the start or end of the viewport only as they would otherwise leave view. Frozen columns still lock to the leading edge.
+- Columns can be `sticky`: they keep their place in the order and stay visible while the table scrolls horizontally, stacking at the start or end of the viewport only as they would otherwise leave view (not pulled on-screen from fully off-screen). Frozen columns still lock to the leading edge. `GridStateSnapshot` persists `sticky`.
 - Optional `rowDecoration` and `cellDecoration` callbacks for per-row and per-cell `BoxDecoration`.
 - RTL: `Directionality.rtl` places columns from the start and pins frozen columns to the visual start. Numeric/date cells default to end alignment.
 - Table mode virtualizes off-screen columns (120px overscan). Frozen columns stay mounted.
 - Body loading/error overlay the grid instead of replacing it, so height stays stable. Infinite scroll no longer uses `MaterialUiCompatibilityBridge`. Large paged lists virtualize rows (`ListView.builder`).
 - Optional `GridToolbar` for search, column chooser, refresh, density, and export. Built-ins appear only when enabled.
 - `ResponsiveDataGridController` refreshes, pages, clears filters, and captures state without a `GlobalKey`.
-- `GridStateSnapshot` captures and restores page, page size, criteria, and column visibility/order/width/frozen via `captureState` / `restoreState` / `initialState` / `onStateChanged`.
+- `GridStateSnapshot` captures and restores page, page size, criteria, and column visibility/order/width/frozen/sticky via `captureState` / `restoreState` / `initialState` / `onStateChanged`.
 - Headers, cells, pager buttons, and rows expose Semantics. Enter/Space activate a focused row; Enter on a sortable header toggles sort.
 - Grouped pager bodies pin the current group header while its rows scroll; the next group header replaces it.
 - Infinite scroll keeps group headers, nested groups, and group footers. Grouped pages load incrementally (client-side groups are paged as groups; servers should return the same).

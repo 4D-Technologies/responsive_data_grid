@@ -49,10 +49,7 @@ Future<ResponsiveDataGridState<_Person>> _pump(
             pageSize: 10,
             initialState: initialState,
             onStateChanged: onStateChanged,
-            items: const [
-              _Person(2, 'Zoe'),
-              _Person(1, 'Ada'),
-            ],
+            items: const [_Person(2, 'Zoe'), _Person(1, 'Ada')],
             columns: _columns(),
           ),
         ),
@@ -75,6 +72,7 @@ void main() {
           fieldName: 'name',
           visible: false,
           frozen: true,
+          sticky: true,
           width: 120,
         ),
       ],
@@ -84,6 +82,7 @@ void main() {
     expect(restored.pageSize, 25);
     expect(restored.columns.single.visible, isFalse);
     expect(restored.columns.single.frozen, isTrue);
+    expect(restored.columns.single.sticky, isTrue);
     expect(restored.columns.single.width, 120);
   });
 
