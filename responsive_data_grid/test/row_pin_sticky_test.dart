@@ -125,6 +125,37 @@ void main() {
     expect(find.text('Row0'), findsNothing);
   });
 
+  testWidgets('pinning a middle row keeps it at the top while scrolling', (
+    tester,
+  ) async {
+    final state = await _pump(tester);
+    state.pinRow(const _Person(8, 'Row8'), position: GridRowPin.top);
+    await tester.pump();
+
+    await tester.drag(_verticalScroll(), const Offset(0, -240));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Row8'), findsOneWidget);
+    expect(
+      tester.getTopLeft(find.text('Row8')).dy,
+      lessThan(tester.getTopLeft(find.text('Id')).dy + 120),
+    );
+  });
+
+  testWidgets('unpinRow overrides a rowPin selector', (tester) async {
+    final state = await _pump(
+      tester,
+      rowPin: (item) =>
+          item.id == 0 ? GridRowPin.top : GridRowPin.none,
+    );
+    state.unpinRow(const _Person(0, 'Row0'));
+    await tester.pump();
+
+    await tester.drag(_verticalScroll(), const Offset(0, -240));
+    await tester.pumpAndSettle();
+    expect(find.text('Row0'), findsNothing);
+  });
+
   testWidgets('rowPin selector pins without an API call', (tester) async {
     await _pump(
       tester,

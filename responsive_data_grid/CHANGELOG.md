@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Row pinning (`pinRow` / `unpinRow` / `rowPin`) parks rows at the top or bottom of the pager body. Sticky rows (`isRowSticky`) stay in order and stick to the top of the scrolling viewport. Infinite scroll does not pin or stick.
+- Row pinning (`pinRow` / `unpinRow` / `rowPin`) parks rows at the top or bottom of the ungrouped pager body. Sticky rows (`isRowSticky`) stay in order and stick to the top of the scrolling viewport after you scroll past them. Infinite scroll and grouped pages do not pin or stick. `unpinRow` overrides a `rowPin` selector.
 - Optional `allowRowReorder` with a drag handle. Client-side updates page order and `onRowReorder` fires; disabled while sorted, grouped, or in infinite scroll.
 - Optional `detailBuilder` for per-row master-detail expansion (`detailExpandMode` single or multiple, `isRowExpandable`, keyboard Enter).
 - Optional `resizable` grid with a bottom drag handle, `minHeight` / `maxHeight`, and height in `GridStateSnapshot`.

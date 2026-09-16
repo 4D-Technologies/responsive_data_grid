@@ -178,6 +178,7 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
       wrap: wrap,
       padding: padding,
       rowFor: rowFor,
+      allowReorder: top.isEmpty && bottom.isEmpty,
     );
     if (top.isEmpty && bottom.isEmpty) return scroll;
 
@@ -192,21 +193,8 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
     return Column(
       children: [
         ...topRows,
-        Expanded(
-          child: Stack(
-            children: [
-              Positioned.fill(child: scroll),
-              if (bottomRows.isNotEmpty)
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: bottomRows,
-                  ),
-                ),
-            ],
-          ),
-        ),
+        Expanded(child: scroll),
+        ...bottomRows,
       ],
     );
   }
@@ -217,13 +205,16 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
     required EdgeInsets padding,
     required DataGridRowWidget<TItem> Function(TItem item, {int? index})
     rowFor,
+    bool allowReorder = true,
   }) {
     const scrollKey = ValueKey('rdg-body-scroll');
     final physics = wrap ? const NeverScrollableScrollPhysics() : null;
-    final useSticky =
-        !gridState.canReorderRows && items.any(gridState.isRowSticky);
-    if (gridState.canReorderRows &&
-        gridState.widget.layoutMode == GridLayoutMode.table) {
+    final reorder =
+        allowReorder &&
+        gridState.canReorderRows &&
+        gridState.widget.layoutMode == GridLayoutMode.table;
+    final useSticky = !reorder && items.any(gridState.isRowSticky);
+    if (reorder) {
       return ReorderableListView.builder(
         key: scrollKey,
         shrinkWrap: wrap,
@@ -249,7 +240,9 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
               SliverPersistentHeader(
                 pinned: true,
                 delegate: _StickyRowHeaderDelegate(
-                  height: 48,
+                  height:
+                      24 +
+                      gridState.widget.contentPadding.vertical,
                   background: ResponsiveDataGridTheme.of(
                     gridState.context,
                   ).rowBackground,

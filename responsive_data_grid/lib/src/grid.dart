@@ -53,12 +53,12 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
   final void Function(int from, int to, TItem item)? onRowReorder;
 
   /// Declarative pin. Distinct from [isRowSticky]: pinned rows leave the
-  /// scroll flow and park at the top or bottom of the body.
+  /// scroll flow and park at the top or bottom of the ungrouped pager body.
+  /// Ignored in infinite scroll and when grouping is active.
   final GridRowPin Function(TItem item)? rowPin;
 
   /// When true, the row stays in sort order but sticks to the top of the
-  /// scrolling viewport as you scroll past it. Pager only; ignored in
-  /// infinite scroll.
+  /// scrolling viewport as you scroll past it. Ungrouped pager only.
   final bool Function(TItem item)? isRowSticky;
 
   /// When true, visible columns size to their widest header or cell on first
