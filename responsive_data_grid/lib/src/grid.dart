@@ -14,6 +14,9 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
   final int pageSize;
   final List<int> pageSizeOptions;
   final double? height;
+  final bool resizable;
+  final double? minHeight;
+  final double? maxHeight;
   final double? separatorThickness;
 
   final SortableOptions sortable;
@@ -64,6 +67,9 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
     this.pageSize = 50,
     this.pageSizeOptions = const [10, 25, 50, 100],
     this.height,
+    this.resizable = false,
+    this.minHeight,
+    this.maxHeight,
     this.sortable = SortableOptions.single,
     this.noResults,
     this.groupIndent = 15,
@@ -107,6 +113,9 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
     this.pageSize = 50,
     this.pageSizeOptions = const [10, 25, 50, 100],
     this.height,
+    this.resizable = false,
+    this.minHeight,
+    this.maxHeight,
     this.sortable = SortableOptions.single,
     this.noResults,
     this.rowCrossAxisAlignment = CrossAxisAlignment.center,

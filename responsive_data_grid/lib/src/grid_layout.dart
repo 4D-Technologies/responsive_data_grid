@@ -59,6 +59,19 @@ class GridTableLayout extends InheritedWidget {
   }
 }
 
+double clampGridHeight(
+  double height, {
+  double? minHeight,
+  double? maxHeight,
+  double floor = 80,
+}) {
+  var next = height;
+  if (minHeight != null && next < minHeight) next = minHeight;
+  if (maxHeight != null && next > maxHeight) next = maxHeight;
+  if (next < floor) next = floor;
+  return next;
+}
+
 double clampColumnWidth(double width, double? minWidth, double? maxWidth) {
   var next = width;
   if (minWidth != null && next < minWidth) next = minWidth;
