@@ -20,7 +20,8 @@ abstract class GridColumn<TItem extends Object, TValue extends dynamic> {
   /// otherwise leave view.
   bool sticky;
 
-  /// When true, the column's initial width is the widest header or cell.
+  /// When true, the column's initial width is the widest header or formatted
+  /// cell. Custom widget cells are not measured.
   final bool autoSize;
   final int? xlCols;
   final int? largeCols;
