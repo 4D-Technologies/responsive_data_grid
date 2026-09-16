@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Optional `resizable` grid with a bottom drag handle, `minHeight` / `maxHeight`, and height in `GridStateSnapshot`.
 - `autoSize` (grid or per-column) sizes to the widest header or cell on first load. `autoFitColumns()` repeats that at runtime; `autoFitColumnsToGrid()` then distributes leftover or overflow width to the viewport (honoring min/max).
 - Columns can be `sticky`: they keep their place in the order and stay visible while the table scrolls horizontally, stacking at the start or end of the viewport only as they would otherwise leave view (not pulled on-screen from fully off-screen). Frozen columns still lock to the leading edge. `GridStateSnapshot` persists `sticky`.
 - Optional `rowDecoration` and `cellDecoration` callbacks for per-row and per-cell `BoxDecoration`.

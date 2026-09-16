@@ -46,6 +46,7 @@ class GridLocalizations {
   final String unpin;
   final String hideColumn;
   final String autosizeColumn;
+  final String resizeGrid;
   final String firstPage;
   final String previousPage;
   final String nextPage;
@@ -105,6 +106,7 @@ class GridLocalizations {
     required this.unpin,
     required this.hideColumn,
     required this.autosizeColumn,
+    this.resizeGrid = 'Resize grid',
     required this.firstPage,
     required this.previousPage,
     required this.nextPage,
@@ -160,6 +162,7 @@ class GridLocalizations {
     unpin: 'Unpin',
     hideColumn: 'Hide column',
     autosizeColumn: 'Autosize',
+    resizeGrid: 'Resize grid',
     firstPage: 'First page',
     previousPage: 'Previous page',
     nextPage: 'Next page',
@@ -215,6 +218,7 @@ class GridLocalizations {
     unpin: 'Desfijar',
     hideColumn: 'Ocultar columna',
     autosizeColumn: 'Ajustar ancho',
+    resizeGrid: 'Cambiar tamaño de la cuadrícula',
     firstPage: 'Primera página',
     previousPage: 'Página anterior',
     nextPage: 'Página siguiente',

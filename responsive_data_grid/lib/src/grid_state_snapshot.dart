@@ -40,12 +40,14 @@ class GridStateSnapshot {
   final int pageSize;
   final LoadCriteria criteria;
   final List<GridColumnSnapshot> columns;
+  final double? height;
 
   const GridStateSnapshot({
     required this.pageNumber,
     required this.pageSize,
     required this.criteria,
     required this.columns,
+    this.height,
   });
 
   Map<String, dynamic> toJson() => {
@@ -53,6 +55,7 @@ class GridStateSnapshot {
     'pageSize': pageSize,
     'criteria': criteria.toJson(),
     'columns': columns.map((c) => c.toJson()).toList(),
+    'height': height,
   };
 
   factory GridStateSnapshot.fromJson(Map<String, dynamic> json) {
@@ -66,6 +69,7 @@ class GridStateSnapshot {
         for (final raw in (json['columns'] as List<dynamic>? ?? const []))
           GridColumnSnapshot.fromJson(Map<String, dynamic>.from(raw as Map)),
       ],
+      height: (json['height'] as num?)?.toDouble(),
     );
   }
 }
