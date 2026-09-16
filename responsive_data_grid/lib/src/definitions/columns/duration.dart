@@ -14,6 +14,7 @@ class DurationColumn<TItem extends Object> extends GridColumn<TItem, Duration> {
     super.maxWidth,
     super.visible,
     super.frozen,
+    super.sticky,
     super.xlCols,
     super.largeCols,
     super.mediumCols,

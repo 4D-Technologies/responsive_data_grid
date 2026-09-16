@@ -11,6 +11,7 @@ class WidgetColumn<TItem extends Object> extends GridColumn<TItem, void> {
     super.maxWidth,
     super.visible,
     super.frozen,
+    super.sticky,
     super.xlCols,
     super.largeCols,
     super.mediumCols,

@@ -15,6 +15,7 @@ class DateTimeColumn<TItem extends Object> extends GridColumn<TItem, DateTime> {
     super.maxWidth,
     super.visible,
     super.frozen,
+    super.sticky,
     super.xlCols,
     super.largeCols,
     super.mediumCols,
@@ -29,7 +30,7 @@ class DateTimeColumn<TItem extends Object> extends GridColumn<TItem, DateTime> {
          format: (value) => value == null
              ? null
              : format?.format(value) ??
-               intl.DateFormat.yMd(intl.Intl.defaultLocale).format(value),
+                   intl.DateFormat.yMd(intl.Intl.defaultLocale).format(value),
          header: header ?? ColumnHeader(),
          filterRules:
              filterRules ??

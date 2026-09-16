@@ -13,6 +13,12 @@ abstract class GridColumn<TItem extends Object, TValue extends dynamic> {
   final double? maxWidth;
   bool visible;
   bool frozen;
+
+  /// Stays visible while the table scrolls horizontally without locking to
+  /// the leading edge. Unlike [frozen], the column keeps its place in the
+  /// order and only pins to the start or end of the viewport as it would
+  /// otherwise leave view.
+  bool sticky;
   final int? xlCols;
   final int? largeCols;
   final int? mediumCols;
@@ -38,6 +44,7 @@ abstract class GridColumn<TItem extends Object, TValue extends dynamic> {
     required this.maxWidth,
     this.visible = true,
     this.frozen = false,
+    this.sticky = false,
     required this.xlCols,
     required this.largeCols,
     required this.mediumCols,

@@ -18,6 +18,7 @@ class EnumColumn<TItem extends Object, TValue extends Enum>
     super.maxWidth,
     super.visible,
     super.frozen,
+    super.sticky,
     super.xlCols,
     super.largeCols,
     super.mediumCols,

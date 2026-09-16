@@ -169,6 +169,7 @@ class ResponsiveDataGridState<TItem extends Object>
                 fieldName: name,
                 visible: column.visible,
                 frozen: column.frozen,
+                sticky: column.sticky,
                 width: column.width,
               ),
       ],
@@ -198,6 +199,7 @@ class ResponsiveDataGridState<TItem extends Object>
           if (column.fieldName == snap.fieldName) {
             column.visible = snap.visible;
             column.frozen = snap.frozen;
+            column.sticky = snap.sticky;
             column.width = snap.width;
             break;
           }
@@ -719,6 +721,10 @@ class ResponsiveDataGridState<TItem extends Object>
                     final frozenCount = columns
                         .takeWhile((column) => column.frozen)
                         .length;
+                    final stickyIndexes = [
+                      for (var i = 0; i < columns.length; i++)
+                        if (columns[i].sticky && i >= frozenCount) i,
+                    ];
 
                     Widget tableBody = _dataCache.pageMap.isEmpty
                         ? (constraints.hasBoundedHeight
@@ -771,6 +777,7 @@ class ResponsiveDataGridState<TItem extends Object>
                       totalSegments: metrics.totalSegments,
                       columnWidths: columnWidths,
                       frozenCount: frozenCount,
+                      stickyIndexes: stickyIndexes,
                       layoutMode: widget.layoutMode,
                       child: Semantics(
                         container: true,

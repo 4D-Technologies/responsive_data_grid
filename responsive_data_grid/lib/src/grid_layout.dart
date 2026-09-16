@@ -8,6 +8,7 @@ class GridTableLayout extends InheritedWidget {
   final int totalSegments;
   final List<double> columnWidths;
   final int frozenCount;
+  final List<int> stickyIndexes;
   final GridLayoutMode layoutMode;
 
   const GridTableLayout({
@@ -16,6 +17,7 @@ class GridTableLayout extends InheritedWidget {
     required this.totalSegments,
     this.columnWidths = const [],
     this.frozenCount = 0,
+    this.stickyIndexes = const [],
     this.layoutMode = GridLayoutMode.table,
     required super.child,
   });
@@ -36,10 +38,19 @@ class GridTableLayout extends InheritedWidget {
         totalSegments != oldWidget.totalSegments ||
         frozenCount != oldWidget.frozenCount ||
         layoutMode != oldWidget.layoutMode ||
+        !_sameInts(stickyIndexes, oldWidget.stickyIndexes) ||
         !_sameWidths(columnWidths, oldWidget.columnWidths);
   }
 
   static bool _sameWidths(List<double> a, List<double> b) {
+    if (a.length != b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+    return true;
+  }
+
+  static bool _sameInts(List<int> a, List<int> b) {
     if (a.length != b.length) return false;
     for (var i = 0; i < a.length; i++) {
       if (a[i] != b[i]) return false;
@@ -121,37 +132,98 @@ class GridTableRow extends StatelessWidget {
     final frozenWidth = widths
         .take(frozenCount)
         .fold<double>(0, (sum, width) => sum + width);
-    final scrolling = _scrollingRow(context, frozenWidth);
-    if (frozenCount <= 0) return scrolling;
+    final sticky = [
+      for (final index
+          in GridTableLayout.maybeOf(context)?.stickyIndexes ?? const <int>[])
+        if (index >= frozenCount && index < _count) index,
+    ];
+    final stickySet = sticky.toSet();
+    final scrolling = _scrollingRow(context, frozenWidth, stickySet);
+    if (frozenCount <= 0 && sticky.isEmpty) return scrolling;
     final textDirection = Directionality.of(context);
-    return Stack(
-      children: [
-        scrolling,
-        Positioned.directional(
-          textDirection: textDirection,
-          start: 0,
-          top: 0,
-          bottom: 0,
-          child: PinToHorizontalViewport(
-            child: _frozenChrome(
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  for (var i = 0; i < frozenCount && i < _count; i++)
-                    SizedBox(
-                      width: i < widths.length ? widths[i] : 0,
-                      child: _cell(i),
-                    ),
-                ],
+    final scrollable = Scrollable.maybeOf(context, axis: Axis.horizontal);
+
+    List<double> extras() {
+      if (scrollable == null || !scrollable.position.hasContentDimensions) {
+        return List<double>.filled(sticky.length, 0);
+      }
+      return stickyExtras(
+        indexes: sticky,
+        widths: widths,
+        pixels: scrollable.position.pixels,
+        viewport: scrollable.position.viewportDimension,
+        frozenWidth: frozenWidth,
+      );
+    }
+
+    Widget stackFor(List<double> extras) {
+      return Stack(
+        children: [
+          scrolling,
+          if (frozenCount > 0)
+            Positioned.directional(
+              textDirection: textDirection,
+              start: 0,
+              top: 0,
+              bottom: 0,
+              child: PinToHorizontalViewport(
+                child: _frozenChrome(
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      for (var i = 0; i < frozenCount && i < _count; i++)
+                        SizedBox(
+                          width: i < widths.length ? widths[i] : 0,
+                          child: _cell(i),
+                        ),
+                    ],
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
-      ],
+          for (var i = 0; i < sticky.length; i++)
+            Positioned.directional(
+              textDirection: textDirection,
+              start: _naturalStart(sticky[i]),
+              top: 0,
+              bottom: 0,
+              child: Transform.translate(
+                offset: Offset(
+                  textDirection == TextDirection.rtl ? -extras[i] : extras[i],
+                  0,
+                ),
+                child: _frozenChrome(
+                  SizedBox(
+                    width: sticky[i] < widths.length ? widths[sticky[i]] : 0,
+                    child: _cell(sticky[i]),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      );
+    }
+
+    if (scrollable == null) return stackFor(extras());
+    return AnimatedBuilder(
+      animation: scrollable.position,
+      builder: (context, _) => stackFor(extras()),
     );
   }
 
-  Widget _scrollingRow(BuildContext context, double frozenWidth) {
+  double _naturalStart(int index) {
+    var x = 0.0;
+    for (var i = 0; i < index && i < widths.length; i++) {
+      x += widths[i];
+    }
+    return x;
+  }
+
+  Widget _scrollingRow(
+    BuildContext context,
+    double frozenWidth,
+    Set<int> sticky,
+  ) {
     final position = Scrollable.maybeOf(
       context,
       axis: Axis.horizontal,
@@ -160,16 +232,17 @@ class GridTableRow extends StatelessWidget {
         cellBuilder == null ||
         !position.hasContentDimensions ||
         Directionality.of(context) == TextDirection.rtl) {
-      return _fullScrollingRow(frozenWidth);
+      return _fullScrollingRow(frozenWidth, sticky);
     }
     return AnimatedBuilder(
       animation: position,
       builder: (context, _) {
         if (!position.hasContentDimensions) {
-          return _fullScrollingRow(frozenWidth);
+          return _fullScrollingRow(frozenWidth, sticky);
         }
         return _virtualScrollingRow(
           frozenWidth,
+          sticky,
           position.pixels,
           position.viewportDimension,
         );
@@ -177,19 +250,25 @@ class GridTableRow extends StatelessWidget {
     );
   }
 
-  Widget _fullScrollingRow(double frozenWidth) {
+  Widget _fullScrollingRow(double frozenWidth, Set<int> sticky) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         if (frozenCount > 0) SizedBox(width: frozenWidth),
         for (var i = frozenCount; i < _count; i++)
-          SizedBox(width: i < widths.length ? widths[i] : 0, child: _cell(i)),
+          SizedBox(
+            width: i < widths.length ? widths[i] : 0,
+            child: sticky.contains(i)
+                ? Opacity(opacity: 0, child: _cell(i))
+                : _cell(i),
+          ),
       ],
     );
   }
 
   Widget _virtualScrollingRow(
     double frozenWidth,
+    Set<int> sticky,
     double pixels,
     double viewport,
   ) {
@@ -205,7 +284,7 @@ class GridTableRow extends StatelessWidget {
       final cellStart = x;
       final cellEnd = x + width;
       x += width;
-      if (cellEnd < start || cellStart > end) {
+      if (sticky.contains(i) || cellEnd < start || cellStart > end) {
         gap += width;
         continue;
       }
@@ -309,4 +388,52 @@ class PinToHorizontalViewport extends StatelessWidget {
       child: child,
     );
   }
+}
+
+double _widthsBefore(List<double> widths, int index) {
+  var x = 0.0;
+  for (var i = 0; i < index && i < widths.length; i++) {
+    x += widths[i];
+  }
+  return x;
+}
+
+/// Per-column translate so sticky columns stack at the start or end instead
+/// of covering each other. A column fully past the trailing edge stays off
+/// screen until it enters view (CSS-sticky, not pulled in).
+List<double> stickyExtras({
+  required List<int> indexes,
+  required List<double> widths,
+  required double pixels,
+  required double viewport,
+  required double frozenWidth,
+}) {
+  if (indexes.isEmpty) return const [];
+  final extras = List<double>.filled(indexes.length, 0);
+  final startPinned = List<bool>.filled(indexes.length, false);
+  var startInset = frozenWidth;
+  for (var i = 0; i < indexes.length; i++) {
+    final index = indexes[i];
+    final width = index < widths.length ? widths[index] : 0.0;
+    final visualStart = _widthsBefore(widths, index) - pixels;
+    if (visualStart < startInset) {
+      extras[i] = startInset - visualStart;
+      startPinned[i] = true;
+      startInset += width;
+    }
+  }
+  var endInset = 0.0;
+  for (var i = indexes.length - 1; i >= 0; i--) {
+    if (startPinned[i]) continue;
+    final index = indexes[i];
+    final width = index < widths.length ? widths[index] : 0.0;
+    final visualStart = _widthsBefore(widths, index) - pixels;
+    final visualEnd = visualStart + width;
+    final endLimit = viewport - endInset;
+    if (visualStart < endLimit && visualEnd > endLimit) {
+      extras[i] = endLimit - width - visualStart;
+      endInset += width;
+    }
+  }
+  return extras;
 }
