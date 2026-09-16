@@ -125,27 +125,46 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
       return gridNoRecordsBody(gridState);
     }
     final wrap = nested || shrinkWrap;
+    final padding = gridState.widget.layoutMode == GridLayoutMode.table
+        ? EdgeInsets.zero
+        : gridState.widget.padding.copyWith(top: 0, bottom: 0);
+    DataGridRowWidget<TItem> rowAt(int index) {
+      final item = items[index];
+      return DataGridRowWidget<TItem>(
+        key: ObjectKey(item),
+        item: item,
+        columns: gridState.layoutColumns,
+        itemTapped: gridState.widget.itemTapped,
+        theme: theme,
+        padding: gridState.widget.contentPadding,
+        gridState: gridState,
+        rowIndex: index,
+      );
+    }
+
+    if (gridState.canReorderRows &&
+        gridState.widget.layoutMode == GridLayoutMode.table) {
+      return ReorderableListView.builder(
+        shrinkWrap: wrap,
+        physics: wrap ? const NeverScrollableScrollPhysics() : null,
+        padding: padding,
+        buildDefaultDragHandles: false,
+        itemCount: items.length,
+        onReorderItem: (from, to) {
+          gridState.reorderRow(from, to, adjustForRemoval: false);
+        },
+        itemBuilder: (context, index) => rowAt(index),
+      );
+    }
     return ListView.separated(
       separatorBuilder: (context, index) =>
           gridRowSeparator(context, gridState.widget.separatorThickness),
       shrinkWrap: wrap,
       scrollDirection: Axis.vertical,
       physics: wrap ? const NeverScrollableScrollPhysics() : null,
-      padding: gridState.widget.layoutMode == GridLayoutMode.table
-          ? EdgeInsets.zero
-          : gridState.widget.padding.copyWith(top: 0, bottom: 0),
+      padding: padding,
       itemCount: items.length,
-      itemBuilder: (context, index) {
-        final item = items[index];
-        return DataGridRowWidget<TItem>(
-          item: item,
-          columns: gridState.layoutColumns,
-          itemTapped: gridState.widget.itemTapped,
-          theme: theme,
-          padding: gridState.widget.contentPadding,
-          gridState: gridState,
-        );
-      },
+      itemBuilder: (context, index) => rowAt(index),
     );
   }
 }

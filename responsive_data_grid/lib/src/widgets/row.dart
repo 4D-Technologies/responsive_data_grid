@@ -7,6 +7,7 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
   final ThemeData theme;
   final EdgeInsets padding;
   final ResponsiveDataGridState<TItem>? gridState;
+  final int? rowIndex;
 
   DataGridRowWidget({
     super.key,
@@ -16,6 +17,7 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
     required this.theme,
     required this.padding,
     this.gridState,
+    this.rowIndex,
   }) {
     assert(TItem != Object);
   }
@@ -140,21 +142,56 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
     required bool expanded,
   }) {
     final l10n = GridLocalizations.of(context);
-    final leading = expandable
-        ? Align(
-            child: IconButton(
-              key: ValueKey('rdg-detail-toggle-$item'),
-              tooltip: expanded ? l10n.collapseRow : l10n.expandRow,
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints.tightFor(width: 32, height: 32),
-              icon: Icon(
-                expanded ? Icons.expand_more : Icons.chevron_right,
-                size: 20,
+    final leadingChildren = <Widget>[];
+    final canReorder = gridState?.canReorderRows ?? false;
+    if (canReorder && rowIndex != null) {
+      leadingChildren.add(
+        ReorderableDragStartListener(
+          key: ValueKey('rdg-row-drag-$rowIndex'),
+          index: rowIndex!,
+          child: Tooltip(
+            message: l10n.reorderRow,
+            child: MouseRegion(
+              cursor: SystemMouseCursors.grab,
+              child: SizedBox(
+                width: 28,
+                height: 32,
+                child: Icon(
+                  Icons.drag_indicator,
+                  size: 20,
+                  semanticLabel: l10n.reorderRow,
+                ),
               ),
-              onPressed: () => gridState!.toggleRowExpanded(item),
             ),
-          )
-        : null;
+          ),
+        ),
+      );
+    }
+    if (expandable) {
+      leadingChildren.add(
+        Align(
+          child: IconButton(
+            key: ValueKey('rdg-detail-toggle-$item'),
+            tooltip: expanded ? l10n.collapseRow : l10n.expandRow,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints.tightFor(width: 32, height: 32),
+            icon: Icon(
+              expanded ? Icons.expand_more : Icons.chevron_right,
+              size: 20,
+            ),
+            onPressed: () => gridState!.toggleRowExpanded(item),
+          ),
+        ),
+      );
+    }
+    final leading = leadingChildren.isEmpty
+        ? null
+        : leadingChildren.length == 1
+        ? leadingChildren.first
+        : Row(
+            mainAxisSize: MainAxisSize.min,
+            children: leadingChildren,
+          );
     final layout = GridTableLayout.maybeOf(context);
     if (layout != null && layout.layoutMode == GridLayoutMode.table) {
       return GridTableRow(

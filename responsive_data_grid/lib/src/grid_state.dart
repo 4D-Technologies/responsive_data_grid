@@ -24,6 +24,7 @@ class ResponsiveDataGridState<TItem extends Object>
   double? _tableViewportWidth;
   var _didInitialAutoSize = false;
   var _restoredColumnLayout = false;
+  PagingMode _activePagingMode = PagingMode.pager;
   final Set<TItem> _expandedItems = <TItem>{};
   GridDensity density = GridDensity.standard;
   String _searchQuery = '';
@@ -266,6 +267,44 @@ class ResponsiveDataGridState<TItem extends Object>
   bool canExpandRow(TItem item) {
     if (widget.detailBuilder == null) return false;
     return widget.isRowExpandable?.call(item) ?? true;
+  }
+
+  bool get canReorderRows {
+    if (!widget.allowRowReorder) return false;
+    if (criteria.orderBy.isNotEmpty) return false;
+    if (criteria.groupBy != null && criteria.groupBy!.isNotEmpty) {
+      return false;
+    }
+    if (_activePagingMode == PagingMode.infiniteScroll) return false;
+    if (widget.layoutMode != GridLayoutMode.table) return false;
+    return true;
+  }
+
+  void reorderRow(
+    int from,
+    int to, {
+    bool adjustForRemoval = false,
+  }) {
+    if (!canReorderRows) return;
+    var dest = to;
+    if (adjustForRemoval && dest > from) dest -= 1;
+    if (from == dest || from < 0 || dest < 0) return;
+    final page = _dataCache.pageMap[pageNumber];
+    if (page == null || from >= page.items.length || dest >= page.items.length) {
+      return;
+    }
+    final next = List<TItem>.of(page.items);
+    final item = next.removeAt(from);
+    next.insert(dest, item);
+    _dataCache.pageMap[pageNumber] = ListResponse<TItem>(
+      totalCount: page.totalCount,
+      items: next,
+      groups: page.groups,
+      aggregates: page.aggregates,
+    );
+    setState(() {});
+    widget.onRowReorder?.call(from, dest, item);
+    _notifyState();
   }
 
   void toggleRowExpanded(TItem item) {
@@ -853,6 +892,7 @@ class ResponsiveDataGridState<TItem extends Object>
                     } else {
                       pagingMode = widget.pagingMode;
                     }
+                    _activePagingMode = pagingMode;
 
                     if (pagingMode == PagingMode.infiniteScroll &&
                         !constraints.hasBoundedHeight) {
@@ -932,7 +972,8 @@ class ResponsiveDataGridState<TItem extends Object>
                       (sum, width) => sum + width,
                     );
                     final detailGutter =
-                        widget.detailBuilder != null ? 32.0 : 0.0;
+                        (widget.detailBuilder != null ? 32.0 : 0.0) +
+                        (canReorderRows ? 28.0 : 0.0);
                     final contentWidth =
                         math.max(metrics.contentWidth, widthSum) +
                         detailGutter;
