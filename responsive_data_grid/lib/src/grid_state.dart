@@ -26,6 +26,9 @@ class ResponsiveDataGridState<TItem extends Object>
   var _restoredColumnLayout = false;
   PagingMode _activePagingMode = PagingMode.pager;
   final Set<TItem> _expandedItems = <TItem>{};
+  final Set<TItem> _pinnedTop = <TItem>{};
+  final Set<TItem> _pinnedBottom = <TItem>{};
+  final Set<TItem> _unpinned = <TItem>{};
   GridDensity density = GridDensity.standard;
   String _searchQuery = '';
   Timer? _searchDebounce;
@@ -267,6 +270,35 @@ class ResponsiveDataGridState<TItem extends Object>
   bool canExpandRow(TItem item) {
     if (widget.detailBuilder == null) return false;
     return widget.isRowExpandable?.call(item) ?? true;
+  }
+
+  GridRowPin pinOf(TItem item) {
+    if (_unpinned.contains(item)) return GridRowPin.none;
+    if (_pinnedTop.contains(item)) return GridRowPin.top;
+    if (_pinnedBottom.contains(item)) return GridRowPin.bottom;
+    return widget.rowPin?.call(item) ?? GridRowPin.none;
+  }
+
+  bool isRowSticky(TItem item) => widget.isRowSticky?.call(item) ?? false;
+
+  void pinRow(TItem item, {GridRowPin position = GridRowPin.top}) {
+    setState(() {
+      _unpinned.remove(item);
+      _pinnedTop.remove(item);
+      _pinnedBottom.remove(item);
+      if (position == GridRowPin.top) _pinnedTop.add(item);
+      if (position == GridRowPin.bottom) _pinnedBottom.add(item);
+    });
+    _notifyState();
+  }
+
+  void unpinRow(TItem item) {
+    setState(() {
+      _pinnedTop.remove(item);
+      _pinnedBottom.remove(item);
+      _unpinned.add(item);
+    });
+    _notifyState();
   }
 
   bool get canReorderRows {
