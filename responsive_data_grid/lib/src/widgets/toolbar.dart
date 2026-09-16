@@ -4,11 +4,7 @@ class GridToolbarRow<TItem extends Object> extends StatelessWidget {
   final ResponsiveDataGridState<TItem> grid;
   final GridToolbar toolbar;
 
-  const GridToolbarRow({
-    super.key,
-    required this.grid,
-    required this.toolbar,
-  });
+  const GridToolbarRow({super.key, required this.grid, required this.toolbar});
 
   @override
   Widget build(BuildContext context) {
@@ -35,45 +31,55 @@ class GridToolbarRow<TItem extends Object> extends StatelessWidget {
         data: IconThemeData(color: iconColor),
         child: Padding(
           padding: gridTheme.resolvePadding(
-            const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            const EdgeInsets.fromLTRB(12, 8, 12, 8),
           ),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               if (toolbar.search)
                 Expanded(
-                  child: TextField(
-                    key: const ValueKey('rdg-toolbar-search'),
-                    style: theme.textTheme.bodyMedium,
-                    cursorColor: scheme.primary,
-                    decoration: InputDecoration(
-                      isDense: true,
-                      hintText: l10n.search,
-                      hintStyle: theme.inputDecorationTheme.hintStyle ??
-                          theme.textTheme.bodyMedium?.copyWith(
-                            color: scheme.onSurfaceVariant,
-                          ),
-                      prefixIcon: Icon(
-                        Icons.search,
-                        size: 18,
-                        color: scheme.onSurfaceVariant,
+                  child: SizedBox(
+                    height: 40,
+                    child: TextField(
+                      key: const ValueKey('rdg-toolbar-search'),
+                      style: theme.textTheme.bodyMedium,
+                      cursorColor: scheme.primary,
+                      decoration: InputDecoration(
+                        isDense: true,
+                        hintText: l10n.search,
+                        hintStyle:
+                            theme.inputDecorationTheme.hintStyle ??
+                            theme.textTheme.bodyMedium?.copyWith(
+                              color: scheme.onSurfaceVariant,
+                            ),
+                        prefixIcon: Icon(
+                          Icons.search,
+                          size: 20,
+                          color: scheme.onSurfaceVariant,
+                        ),
+                        prefixIconConstraints: const BoxConstraints.tightFor(
+                          width: 40,
+                          height: 40,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        filled: true,
+                        fillColor: scheme.surface,
+                        contentPadding: const EdgeInsets.fromLTRB(0, 8, 12, 8),
                       ),
-                      border: const OutlineInputBorder(),
-                      filled: true,
-                      fillColor: scheme.surface,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 8,
-                      ),
+                      onChanged: grid.setSearch,
                     ),
-                    onChanged: grid.setSearch,
                   ),
                 )
               else
                 const Spacer(),
+              if (toolbar.search) const SizedBox(width: 12),
               if (toolbar.columnChooser)
                 PopupMenuButton<String>(
                   key: const ValueKey('rdg-toolbar-columns'),
                   tooltip: l10n.columns,
+                  padding: EdgeInsets.zero,
                   onSelected: (field) {
                     final column = grid.widget.columns.firstWhere(
                       (c) => c.fieldName == field,
@@ -88,12 +94,10 @@ class GridToolbarRow<TItem extends Object> extends StatelessWidget {
                         child: Text(column.header.text ?? column.fieldName),
                       ),
                   ],
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Icon(
-                      Icons.view_column_outlined,
-                      color: iconColor,
-                    ),
+                  child: SizedBox(
+                    width: 40,
+                    height: 40,
+                    child: Icon(Icons.view_column_outlined, color: iconColor),
                   ),
                 ),
               if (toolbar.refresh && grid.widget.controller != null)
@@ -103,7 +107,7 @@ class GridToolbarRow<TItem extends Object> extends StatelessWidget {
                   icon: const Icon(Icons.refresh),
                   color: iconColor,
                   size: 20,
-                  extent: 32,
+                  extent: 40,
                   onPressed: () {
                     grid.widget.controller!.refresh();
                   },
@@ -115,7 +119,7 @@ class GridToolbarRow<TItem extends Object> extends StatelessWidget {
                   icon: const Icon(Icons.density_medium),
                   color: iconColor,
                   size: 20,
-                  extent: 32,
+                  extent: 40,
                   onPressed: grid.cycleDensity,
                 ),
               if (toolbar.onExport != null)
@@ -125,7 +129,7 @@ class GridToolbarRow<TItem extends Object> extends StatelessWidget {
                   icon: const Icon(Icons.download_outlined),
                   color: iconColor,
                   size: 20,
-                  extent: 32,
+                  extent: 40,
                   onPressed: toolbar.onExport,
                 ),
               if (toolbar.actions != null) toolbar.actions!,
