@@ -203,39 +203,50 @@ class ResponsiveDataGridState<TItem extends Object>
     _notifyState();
   }
 
+  Widget _heightHost(Widget child) {
+    if (_effectiveHeight == null) return child;
+    return Align(
+      alignment: Alignment.topCenter,
+      heightFactor: 1,
+      child: child,
+    );
+  }
+
   Widget _maybeResizable(BuildContext context, Widget child) {
     if (!widget.resizable) return child;
     final gridTheme = ResponsiveDataGridTheme.of(context);
-    return Stack(
-      fit: StackFit.expand,
+    return Column(
+      mainAxisSize: MainAxisSize.max,
       children: [
-        Positioned.fill(child: child),
-        Positioned(
-          left: 0,
-          right: 0,
-          bottom: 0,
-          child: GestureDetector(
-            key: const ValueKey('rdg-resize-handle'),
-            behavior: HitTestBehavior.opaque,
-            onVerticalDragUpdate: (details) {
-              final current = _effectiveHeight ?? 400;
-              setGridHeight(current + details.delta.dy);
-            },
-            child: MouseRegion(
-              cursor: SystemMouseCursors.resizeUpDown,
-              child: Semantics(
-                label: GridLocalizations.of(context).resizeGrid,
-                slider: true,
-                child: SizedBox(
-                  height: 12,
-                  child: Center(
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: gridTheme.borderColor,
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                      child: const SizedBox(width: 40, height: 4),
+        Expanded(child: child),
+        GestureDetector(
+          key: const ValueKey('rdg-resize-handle'),
+          behavior: HitTestBehavior.opaque,
+          onVerticalDragUpdate: (details) {
+            final current = _effectiveHeight ?? 400;
+            final next = clampGridHeight(
+              current + details.delta.dy,
+              minHeight: widget.minHeight,
+              maxHeight: widget.maxHeight,
+            );
+            if (next == _height) return;
+            setState(() => _height = next);
+          },
+          onVerticalDragEnd: (_) => _notifyState(),
+          child: MouseRegion(
+            cursor: SystemMouseCursors.resizeUpDown,
+            child: Semantics(
+              label: GridLocalizations.of(context).resizeGrid,
+              child: SizedBox(
+                height: 12,
+                width: double.infinity,
+                child: Center(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: gridTheme.borderColor,
+                      borderRadius: BorderRadius.circular(2),
                     ),
+                    child: const SizedBox(width: 40, height: 4),
                   ),
                 ),
               ),
@@ -316,7 +327,7 @@ class ResponsiveDataGridState<TItem extends Object>
                 width: column.width,
               ),
       ],
-      height: _height ?? widget.height,
+      height: _effectiveHeight,
     );
   }
 
@@ -459,6 +470,9 @@ class ResponsiveDataGridState<TItem extends Object>
 
     if (oldWidget.pageSize != widget.pageSize) {
       _pageSize = widget.pageSize;
+    }
+    if (oldWidget.height != widget.height && _height == oldWidget.height) {
+      _height = widget.height;
     }
     if (_columnsChanged(oldWidget.columns, widget.columns)) {
       _columnOrder = [for (final c in widget.columns) c.fieldName];
@@ -789,9 +803,8 @@ class ResponsiveDataGridState<TItem extends Object>
             elevation: widget.elevation,
             child: Padding(
               padding: widget.padding,
-              child: Align(
-                alignment: Alignment.topCenter,
-                child: SizedBox(
+              child: _heightHost(
+                SizedBox(
                 key: const ValueKey('rdg-height'),
                 height: _effectiveHeight,
                 width: double.infinity,

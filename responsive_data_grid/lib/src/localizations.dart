@@ -106,7 +106,7 @@ class GridLocalizations {
     required this.unpin,
     required this.hideColumn,
     required this.autosizeColumn,
-    required this.resizeGrid,
+    this.resizeGrid = 'Resize grid',
     required this.firstPage,
     required this.previousPage,
     required this.nextPage,

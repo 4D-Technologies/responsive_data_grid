@@ -73,6 +73,8 @@ void main() {
     expect(clampGridHeight(50, minHeight: 100, maxHeight: 400), 100);
     expect(clampGridHeight(500, minHeight: 100, maxHeight: 400), 400);
     expect(clampGridHeight(200, minHeight: 100, maxHeight: 400), 200);
+    expect(clampGridHeight(10, minHeight: 50, maxHeight: 400), 50);
+    expect(clampGridHeight(10, maxHeight: 60), 60);
   });
 
   testWidgets('resize handle is omitted when resizable is false', (
@@ -108,7 +110,21 @@ void main() {
     await tester.pump();
 
     final after = tester.getSize(find.byKey(const ValueKey('rdg-height')));
-    expect(after.height, lessThanOrEqualTo(before.height + 35));
+    expect(after.height, closeTo(430, 4));
+    expect(after.height, greaterThan(before.height));
+  });
+
+  testWidgets('resize honors minHeight', (tester) async {
+    await _pump(tester, height: 400, minHeight: 360);
+    await tester.drag(
+      find.byKey(const ValueKey('rdg-resize-handle')),
+      const Offset(0, -200),
+    );
+    await tester.pump();
+    expect(
+      tester.getSize(find.byKey(const ValueKey('rdg-height'))).height,
+      closeTo(360, 4),
+    );
   });
 
   testWidgets('resized pager grid still shows the pager', (tester) async {
@@ -131,6 +147,24 @@ void main() {
     await tester.pump();
     expect(find.text('Ada'), findsOneWidget);
     expect(find.text('Grace'), findsOneWidget);
+  });
+
+  testWidgets('initialState restores height', (tester) async {
+    await _pump(
+      tester,
+      height: 400,
+      initialState: GridStateSnapshot(
+        pageNumber: 1,
+        pageSize: 50,
+        criteria: LoadCriteria(),
+        columns: const [],
+        height: 320,
+      ),
+    );
+    expect(
+      tester.getSize(find.byKey(const ValueKey('rdg-height'))).height,
+      closeTo(320, 4),
+    );
   });
 
   test('snapshot JSON round-trips height', () {

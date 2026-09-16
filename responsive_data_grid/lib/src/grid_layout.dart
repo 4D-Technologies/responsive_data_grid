@@ -65,10 +65,15 @@ double clampGridHeight(
   double? maxHeight,
   double floor = 80,
 }) {
+  if (minHeight != null &&
+      maxHeight != null &&
+      minHeight > maxHeight) {
+    return maxHeight;
+  }
+  final lower = minHeight ?? floor;
   var next = height;
-  if (minHeight != null && next < minHeight) next = minHeight;
+  if (next < lower) next = lower;
   if (maxHeight != null && next > maxHeight) next = maxHeight;
-  if (next < floor) next = floor;
   return next;
 }
 
