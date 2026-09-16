@@ -24,7 +24,7 @@ class TimeOfDayColumn<TItem extends Object>
     super.backgroundColor,
     super.foregroundColor,
     super.accentColor,
-    AlignmentGeometry super.alignment = Alignment.centerLeft,
+    AlignmentGeometry super.alignment = AlignmentDirectional.centerEnd,
     intl.DateFormat? format,
   }) : super(
          format: (value) => value == null

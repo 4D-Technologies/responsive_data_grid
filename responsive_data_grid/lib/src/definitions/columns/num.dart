@@ -24,7 +24,7 @@ class NumColumn<TItem extends Object> extends GridColumn<TItem, num> {
     super.backgroundColor,
     super.foregroundColor,
     super.accentColor,
-    AlignmentGeometry super.alignment = Alignment.centerLeft,
+    AlignmentGeometry super.alignment = AlignmentDirectional.centerEnd,
   }) : super(
          format: (value) =>
              format?.format(value) ??

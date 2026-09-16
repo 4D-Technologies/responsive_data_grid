@@ -24,7 +24,7 @@ class DateTimeColumn<TItem extends Object> extends GridColumn<TItem, DateTime> {
     super.backgroundColor,
     super.foregroundColor,
     super.accentColor,
-    AlignmentGeometry super.alignment = Alignment.centerLeft,
+    AlignmentGeometry super.alignment = AlignmentDirectional.centerEnd,
   }) : super(
          format: (value) => value == null
              ? null

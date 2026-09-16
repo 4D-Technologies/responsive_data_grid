@@ -137,7 +137,7 @@ class ColumnHeaderState<TItem extends Object, TValue extends dynamic>
             children: [
               sortButton,
               Padding(
-                padding: const EdgeInsets.only(left: 1),
+                padding: const EdgeInsetsDirectional.only(start: 1),
                 child: Text(
                   '$sortIndex',
                   key: ValueKey(

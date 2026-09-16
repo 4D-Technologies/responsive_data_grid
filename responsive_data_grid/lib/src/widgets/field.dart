@@ -34,7 +34,7 @@ class DataGridFieldWidget<TItem extends Object, TValue extends dynamic>
     return Semantics(
       label: definition.getFormattedValue(item) ?? '',
       child: Align(
-        alignment: definition.alignment ?? Alignment.centerLeft,
+        alignment: definition.alignment ?? AlignmentDirectional.centerStart,
         child: child,
       ),
     );

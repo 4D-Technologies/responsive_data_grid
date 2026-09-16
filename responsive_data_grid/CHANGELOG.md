@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- RTL: `Directionality.rtl` places columns from the start, pins frozen columns to the visual start, and flips pager/group chevrons. Numeric/date cells default to end alignment.
 - Table mode virtualizes off-screen columns (120px overscan). Frozen columns stay mounted.
 - Body loading/error overlay the grid instead of replacing it, so height stays stable. Infinite scroll no longer uses `MaterialUiCompatibilityBridge`. Large paged lists virtualize rows (`ListView.builder`).
 - Optional `GridToolbar` for search, column chooser, refresh, density, and export. Built-ins appear only when enabled.

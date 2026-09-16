@@ -19,7 +19,7 @@ class ColumnHeader {
   const ColumnHeader({
     this.empty = false,
     this.text,
-    this.alignment = Alignment.centerLeft,
+    this.alignment = AlignmentDirectional.centerStart,
     this.showFilter = false,
     this.showOrderBy = false,
     this.showAggregations = false,

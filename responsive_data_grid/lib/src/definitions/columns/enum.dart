@@ -27,7 +27,7 @@ class EnumColumn<TItem extends Object, TValue extends Enum>
     super.backgroundColor,
     super.foregroundColor,
     super.accentColor,
-    AlignmentGeometry super.alignment = Alignment.centerLeft,
+    AlignmentGeometry super.alignment = AlignmentDirectional.centerStart,
   }) : super(
          customFieldWidget:
              customFieldWidget ??
