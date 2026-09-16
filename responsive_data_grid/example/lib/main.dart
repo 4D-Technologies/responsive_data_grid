@@ -289,6 +289,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       items: widget.exampleData,
       itemTapped: (row) {},
+      allowRowReorder: true,
       detailBuilder: (context, item) => Text(
         '${item.name}: ${DateFormat.yMMMd().format(item.dob)}'
         ' — ${item.accepted ? "accepted" : "not accepted"}',

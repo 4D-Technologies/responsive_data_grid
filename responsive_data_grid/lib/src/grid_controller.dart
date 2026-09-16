@@ -67,6 +67,11 @@ class ResponsiveDataGridController<TItem extends Object>
 
   bool isRowExpanded(TItem item) => _client?.isRowExpanded(item) ?? false;
 
+  void reorderRow(int from, int to) {
+    _client?.reorderRow(from, to);
+    _emit();
+  }
+
   GridStateSnapshot? captureState() => _client?.captureState();
 
   void restoreState(GridStateSnapshot snapshot) {

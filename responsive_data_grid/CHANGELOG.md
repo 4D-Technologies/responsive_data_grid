@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Optional `allowRowReorder` with a drag handle. Client-side updates page order and `onRowReorder` fires; disabled while sorted, grouped, or in infinite scroll.
 - Optional `detailBuilder` for per-row master-detail expansion (`detailExpandMode` single or multiple, `isRowExpandable`, keyboard Enter).
 - Optional `resizable` grid with a bottom drag handle, `minHeight` / `maxHeight`, and height in `GridStateSnapshot`.
 - `autoSize` (grid or per-column) sizes to the widest header or cell on first load. `autoFitColumns()` repeats that at runtime; `autoFitColumnsToGrid()` then distributes leftover or overflow width to the viewport (honoring min/max).

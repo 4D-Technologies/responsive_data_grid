@@ -49,6 +49,7 @@ class GridLocalizations {
   final String resizeGrid;
   final String expandRow;
   final String collapseRow;
+  final String reorderRow;
   final String firstPage;
   final String previousPage;
   final String nextPage;
@@ -111,6 +112,7 @@ class GridLocalizations {
     this.resizeGrid = 'Resize grid',
     this.expandRow = 'Expand row',
     this.collapseRow = 'Collapse row',
+    this.reorderRow = 'Reorder row',
     required this.firstPage,
     required this.previousPage,
     required this.nextPage,
@@ -169,6 +171,7 @@ class GridLocalizations {
     resizeGrid: 'Resize grid',
     expandRow: 'Expand row',
     collapseRow: 'Collapse row',
+    reorderRow: 'Reorder row',
     firstPage: 'First page',
     previousPage: 'Previous page',
     nextPage: 'Next page',
@@ -227,6 +230,7 @@ class GridLocalizations {
     resizeGrid: 'Cambiar tamaño de la cuadrícula',
     expandRow: 'Expandir fila',
     collapseRow: 'Contraer fila',
+    reorderRow: 'Reordenar fila',
     firstPage: 'Primera página',
     previousPage: 'Página anterior',
     nextPage: 'Página siguiente',

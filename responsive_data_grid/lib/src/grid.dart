@@ -42,6 +42,8 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
   final GridDetailExpandMode detailExpandMode;
   final Set<TItem>? expandedItems;
   final void Function(Set<TItem> items)? onExpandedChanged;
+  final bool allowRowReorder;
+  final void Function(int from, int to, TItem item)? onRowReorder;
 
   /// When true, visible columns size to their widest header or cell on first
   /// load. Per-column [GridColumn.autoSize] still applies when this is false.
@@ -100,6 +102,8 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
     this.detailExpandMode = GridDetailExpandMode.multiple,
     this.expandedItems,
     this.onExpandedChanged,
+    this.allowRowReorder = false,
+    this.onRowReorder,
     this.autoSize = false,
     this.padding = const EdgeInsets.all(5),
     this.contentPadding = const EdgeInsets.all(3),
@@ -147,6 +151,8 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
     this.detailExpandMode = GridDetailExpandMode.multiple,
     this.expandedItems,
     this.onExpandedChanged,
+    this.allowRowReorder = false,
+    this.onRowReorder,
     this.autoSize = false,
     this.padding = const EdgeInsets.all(5),
     this.contentPadding = const EdgeInsets.only(
