@@ -160,6 +160,10 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
       rest.addAll(items);
     }
 
+    final spanByColumn = [
+      for (final column in gridState.layoutColumns)
+        computeRowspans(column, rest),
+    ];
     DataGridRowWidget<TItem> rowFor(TItem item, {int? index}) {
       return DataGridRowWidget<TItem>(
         key: ObjectKey(item),
@@ -170,6 +174,12 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
         padding: gridState.widget.contentPadding,
         gridState: gridState,
         rowIndex: index,
+        cellRowspans: index == null
+            ? null
+            : [
+                for (var c = 0; c < spanByColumn.length; c++)
+                  index < spanByColumn[c].length ? spanByColumn[c][index] : 1,
+              ],
       );
     }
 

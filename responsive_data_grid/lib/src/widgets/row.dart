@@ -8,6 +8,7 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
   final EdgeInsets padding;
   final ResponsiveDataGridState<TItem>? gridState;
   final int? rowIndex;
+  final List<int>? cellRowspans;
 
   DataGridRowWidget({
     super.key,
@@ -18,6 +19,7 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
     required this.padding,
     this.gridState,
     this.rowIndex,
+    this.cellRowspans,
   }) {
     assert(TItem != Object);
   }
@@ -196,13 +198,24 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
     if (layout != null && layout.layoutMode == GridLayoutMode.table) {
       return GridTableRow(
         cellCount: columns.length,
-        cellBuilder: (i) =>
-            DataGridFieldWidget<TItem, dynamic>(columns[i], item),
+        cellBuilder: (i) {
+          final span =
+              cellRowspans != null && i < cellRowspans!.length
+              ? cellRowspans![i]
+              : 1;
+          if (span == 0) return const SizedBox.shrink();
+          return DataGridFieldWidget<TItem, dynamic>(
+            columns[i],
+            item,
+            key: ValueKey('rdg-cell-${columns[i].fieldName}-$item'),
+          );
+        },
         widths: layout.columnWidths,
         frozenCount: layout.frozenCount,
         frozenBackground: themeFill,
         frozenDecoration: custom,
         leading: leading,
+        cellColspan: (i) => columns[i].colspan?.call(item) ?? 1,
       );
     }
     return BootstrapRow(

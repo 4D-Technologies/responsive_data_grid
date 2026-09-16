@@ -80,6 +80,43 @@ double clampGridHeight(
   return next;
 }
 
+List<int> computeRowspans<TItem extends Object>(
+  GridColumn<TItem, dynamic> column,
+  List<TItem> items,
+) {
+  if (items.isEmpty) return const [];
+  final spans = List<int>.filled(items.length, 1);
+  if (column.rowspanFor != null) {
+    for (var i = 0; i < items.length; i++) {
+      if (spans[i] == 0) continue;
+      var length = column.rowspanFor!(items[i], i);
+      if (length < 1) length = 1;
+      if (i + length > items.length) length = items.length - i;
+      spans[i] = length;
+      for (var k = 1; k < length; k++) {
+        spans[i + k] = 0;
+      }
+    }
+    return spans;
+  }
+  if (!column.rowspan) return spans;
+  var i = 0;
+  while (i < items.length) {
+    final value = column.getFormattedValue(items[i]);
+    var j = i + 1;
+    while (j < items.length &&
+        column.getFormattedValue(items[j]) == value) {
+      j++;
+    }
+    spans[i] = j - i;
+    for (var k = i + 1; k < j; k++) {
+      spans[k] = 0;
+    }
+    i = j;
+  }
+  return spans;
+}
+
 double clampColumnWidth(double width, double? minWidth, double? maxWidth) {
   var next = width;
   if (minWidth != null && next < minWidth) next = minWidth;
@@ -154,6 +191,7 @@ class GridTableRow extends StatelessWidget {
   final Decoration? frozenDecoration;
   final Widget? leading;
   final List<int>? stickyIndexes;
+  final int Function(int index)? cellColspan;
 
   const GridTableRow({
     super.key,
@@ -166,6 +204,7 @@ class GridTableRow extends StatelessWidget {
     this.frozenDecoration,
     this.leading,
     this.stickyIndexes,
+    this.cellColspan,
   });
 
   static const double overscan = 120;
@@ -302,7 +341,8 @@ class GridTableRow extends StatelessWidget {
     if (position == null ||
         cellBuilder == null ||
         !position.hasContentDimensions ||
-        Directionality.of(context) == TextDirection.rtl) {
+        Directionality.of(context) == TextDirection.rtl ||
+        cellColspan != null) {
       return _fullScrollingRow(frozenWidth, sticky);
     }
     return AnimatedBuilder(
@@ -321,20 +361,39 @@ class GridTableRow extends StatelessWidget {
     );
   }
 
+  int _colspanAt(int index) {
+    final span = cellColspan?.call(index) ?? 1;
+    if (span < 1) return 1;
+    final remaining = _count - index;
+    return span > remaining ? remaining : span;
+  }
+
+  double _spanWidth(int index, int span) {
+    var width = 0.0;
+    for (var i = 0; i < span && index + i < widths.length; i++) {
+      width += widths[index + i];
+    }
+    return width;
+  }
+
   Widget _fullScrollingRow(double frozenWidth, Set<int> sticky) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (frozenWidth > 0) SizedBox(width: frozenWidth),
-        for (var i = frozenCount; i < _count; i++)
-          SizedBox(
-            width: i < widths.length ? widths[i] : 0,
-            child: sticky.contains(i)
-                ? Opacity(opacity: 0, child: _cell(i))
-                : _cell(i),
-          ),
-      ],
-    );
+    final children = <Widget>[
+      if (frozenWidth > 0) SizedBox(width: frozenWidth),
+    ];
+    var i = frozenCount;
+    while (i < _count) {
+      final span = _colspanAt(i);
+      children.add(
+        SizedBox(
+          width: _spanWidth(i, span),
+          child: sticky.contains(i)
+              ? Opacity(opacity: 0, child: _cell(i))
+              : _cell(i),
+        ),
+      );
+      i += span;
+    }
+    return Row(mainAxisSize: MainAxisSize.min, children: children);
   }
 
   Widget _virtualScrollingRow(

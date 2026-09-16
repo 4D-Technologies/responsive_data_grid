@@ -23,6 +23,13 @@ abstract class GridColumn<TItem extends Object, TValue extends dynamic> {
   /// When true, the column's initial width is the widest header or formatted
   /// cell. Custom widget cells are not measured.
   final bool autoSize;
+
+  /// Merge consecutive equal formatted values in this column (pager body).
+  final bool rowspan;
+  final int Function(TItem item, int rowIndex)? rowspanFor;
+
+  /// Occupies this many adjacent body cells in table layout (headers stay 1:1).
+  final int Function(TItem item)? colspan;
   final int? xlCols;
   final int? largeCols;
   final int? mediumCols;
@@ -50,6 +57,9 @@ abstract class GridColumn<TItem extends Object, TValue extends dynamic> {
     this.frozen = false,
     this.sticky = false,
     this.autoSize = false,
+    this.rowspan = false,
+    this.rowspanFor,
+    this.colspan,
     required this.xlCols,
     required this.largeCols,
     required this.mediumCols,

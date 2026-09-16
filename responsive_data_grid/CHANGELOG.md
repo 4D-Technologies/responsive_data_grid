@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Per-column `rowspan` / `rowspanFor` merge consecutive equal body cells. `colspan` occupies adjacent body columns in table layout (headers stay 1:1).
 - Stacked headers via `headerGroups` (table layout; reflow shows leaf headers only) and `CommandColumn` for row actions that do not sort, filter, group, or aggregate.
 - Row pinning (`pinRow` / `unpinRow` / `rowPin`) parks rows at the top or bottom of the ungrouped pager body. Sticky rows (`isRowSticky`) stay in order and stick to the top of the scrolling viewport after you scroll past them. Infinite scroll and grouped pages do not pin or stick. `unpinRow` overrides a `rowPin` selector.
 - Optional `allowRowReorder` with a drag handle. Client-side updates page order and `onRowReorder` fires; disabled while sorted, grouped, or in infinite scroll.
