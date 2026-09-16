@@ -1,4 +1,3 @@
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:responsive_data_grid/responsive_data_grid.dart';
@@ -106,14 +105,33 @@ void main() {
     expect(find.byKey(const ValueKey('rdg-detail-toggle-2')), findsNothing);
   });
 
-  testWidgets('Enter on a focused row toggles detail', (tester) async {
+  testWidgets('expand toggle exposes a tooltip for keyboard users', (
+    tester,
+  ) async {
     await _pump(tester);
-    final toggle = find.byKey(const ValueKey('rdg-detail-toggle-1'));
-    Focus.of(tester.element(toggle)).requestFocus();
-    await tester.pump();
-    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    expect(find.byTooltip('Expand row'), findsWidgets);
+    await tester.tap(find.byTooltip('Expand row').first);
     await tester.pumpAndSettle();
     expect(find.text('Detail Ada'), findsOneWidget);
+    expect(find.byTooltip('Collapse row'), findsWidgets);
+  });
+
+  testWidgets('multiple expand mode keeps both rows open', (tester) async {
+    await _pump(tester);
+    await tester.tap(find.byKey(const ValueKey('rdg-detail-toggle-1')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('rdg-detail-toggle-2')));
+    await tester.pumpAndSettle();
+    expect(find.text('Detail Ada'), findsOneWidget);
+    expect(find.text('Detail Grace'), findsOneWidget);
+  });
+
+  testWidgets('expanding a row does not move the Id header', (tester) async {
+    await _pump(tester);
+    final before = tester.getTopLeft(find.text('Id').first);
+    await tester.tap(find.byKey(const ValueKey('rdg-detail-toggle-1')));
+    await tester.pumpAndSettle();
+    expect(tester.getTopLeft(find.text('Id').first).dx, closeTo(before.dx, 1));
   });
 
   testWidgets('detail works in infinite scroll', (tester) async {

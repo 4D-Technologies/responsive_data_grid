@@ -10,6 +10,7 @@ class GridTableLayout extends InheritedWidget {
   final int frozenCount;
   final List<int> stickyIndexes;
   final GridLayoutMode layoutMode;
+  final double detailGutter;
 
   const GridTableLayout({
     super.key,
@@ -19,6 +20,7 @@ class GridTableLayout extends InheritedWidget {
     this.frozenCount = 0,
     this.stickyIndexes = const [],
     this.layoutMode = GridLayoutMode.table,
+    this.detailGutter = 0,
     required super.child,
   });
 
@@ -39,6 +41,7 @@ class GridTableLayout extends InheritedWidget {
         frozenCount != oldWidget.frozenCount ||
         layoutMode != oldWidget.layoutMode ||
         !_sameInts(stickyIndexes, oldWidget.stickyIndexes) ||
+        detailGutter != oldWidget.detailGutter ||
         !_sameWidths(columnWidths, oldWidget.columnWidths);
   }
 
@@ -149,6 +152,7 @@ class GridTableRow extends StatelessWidget {
   final int frozenCount;
   final Color? frozenBackground;
   final Decoration? frozenDecoration;
+  final Widget? leading;
 
   const GridTableRow({
     super.key,
@@ -159,6 +163,7 @@ class GridTableRow extends StatelessWidget {
     this.frozenCount = 0,
     this.frozenBackground,
     this.frozenDecoration,
+    this.leading,
   });
 
   static const double overscan = 120;
@@ -182,17 +187,21 @@ class GridTableRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final gutter = GridTableLayout.maybeOf(context)?.detailGutter ?? 0;
     final frozenWidth = widths
         .take(frozenCount)
         .fold<double>(0, (sum, width) => sum + width);
+    final pinnedWidth = gutter + frozenWidth;
     final sticky = [
       for (final index
           in GridTableLayout.maybeOf(context)?.stickyIndexes ?? const <int>[])
         if (index >= frozenCount && index < _count) index,
     ];
     final stickySet = sticky.toSet();
-    final scrolling = _scrollingRow(context, frozenWidth, stickySet);
-    if (frozenCount <= 0 && sticky.isEmpty) return scrolling;
+    final scrolling = _scrollingRow(context, pinnedWidth, stickySet);
+    if (frozenCount <= 0 && sticky.isEmpty && gutter <= 0) {
+      return scrolling;
+    }
     final textDirection = Directionality.of(context);
     final scrollable = Scrollable.maybeOf(context, axis: Axis.horizontal);
 
@@ -205,7 +214,7 @@ class GridTableRow extends StatelessWidget {
         widths: widths,
         pixels: scrollable.position.pixels,
         viewport: scrollable.position.viewportDimension,
-        frozenWidth: frozenWidth,
+        frozenWidth: pinnedWidth,
       );
     }
 
@@ -213,7 +222,7 @@ class GridTableRow extends StatelessWidget {
       return Stack(
         children: [
           scrolling,
-          if (frozenCount > 0)
+          if (frozenCount > 0 || gutter > 0)
             Positioned.directional(
               textDirection: textDirection,
               start: 0,
@@ -224,6 +233,11 @@ class GridTableRow extends StatelessWidget {
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      if (gutter > 0)
+                        SizedBox(
+                          width: gutter,
+                          child: leading ?? const SizedBox.shrink(),
+                        ),
                       for (var i = 0; i < frozenCount && i < _count; i++)
                         SizedBox(
                           width: i < widths.length ? widths[i] : 0,
@@ -307,7 +321,7 @@ class GridTableRow extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (frozenCount > 0) SizedBox(width: frozenWidth),
+        if (frozenWidth > 0) SizedBox(width: frozenWidth),
         for (var i = frozenCount; i < _count; i++)
           SizedBox(
             width: i < widths.length ? widths[i] : 0,
@@ -329,7 +343,7 @@ class GridTableRow extends StatelessWidget {
     final end = pixels + viewport + overscan;
     var x = frozenWidth;
     final children = <Widget>[
-      if (frozenCount > 0) SizedBox(width: frozenWidth),
+      if (frozenWidth > 0) SizedBox(width: frozenWidth),
     ];
     var gap = 0.0;
     for (var i = frozenCount; i < _count; i++) {

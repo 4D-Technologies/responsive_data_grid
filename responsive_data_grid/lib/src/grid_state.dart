@@ -931,10 +931,11 @@ class ResponsiveDataGridState<TItem extends Object>
                       0,
                       (sum, width) => sum + width,
                     );
-                    final contentWidth = math.max(
-                      metrics.contentWidth,
-                      widthSum,
-                    );
+                    final detailGutter =
+                        widget.detailBuilder != null ? 32.0 : 0.0;
+                    final contentWidth =
+                        math.max(metrics.contentWidth, widthSum) +
+                        detailGutter;
                     final frozenCount = columns
                         .takeWhile((column) => column.frozen)
                         .length;
@@ -996,6 +997,7 @@ class ResponsiveDataGridState<TItem extends Object>
                       frozenCount: frozenCount,
                       stickyIndexes: stickyIndexes,
                       layoutMode: widget.layoutMode,
+                      detailGutter: detailGutter,
                       child: Semantics(
                         container: true,
                         label:
