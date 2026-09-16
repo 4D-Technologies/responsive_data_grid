@@ -39,7 +39,7 @@ class _AggregationChooserState<TItem extends Object>
   Widget build(BuildContext context) {
     return ListTile(
       title: Padding(
-        padding: EdgeInsets.only(left: 5),
+        padding: const EdgeInsetsDirectional.only(start: 5),
         child: Text(
           widget.aggregation.toString(),
           style: Theme.of(context).textTheme.labelLarge,

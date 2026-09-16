@@ -214,7 +214,12 @@ class _GridGroupChooserState<TItem extends Object>
         border: Border.all(color: gridTheme.borderColor),
       ),
       child: Padding(
-        padding: const EdgeInsets.only(left: 10, right: 4, top: 2, bottom: 2),
+        padding: const EdgeInsetsDirectional.only(
+          start: 10,
+          end: 4,
+          top: 2,
+          bottom: 2,
+        ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [

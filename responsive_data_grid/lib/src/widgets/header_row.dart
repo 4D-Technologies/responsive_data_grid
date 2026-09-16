@@ -61,6 +61,7 @@ class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
       );
     }
     return BootstrapRow(
+      textDirection: Directionality.of(context),
       children: getColumnHeaders(context, grid.widget, gridTheme),
       crossAxisAlignment:
           grid.widget.headerCrossAxisAlignment == CrossAxisAlignment.start ||
@@ -112,8 +113,9 @@ class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
               ),
               child: cell,
             ),
-            Positioned(
-              right: 0,
+            Positioned.directional(
+              textDirection: Directionality.of(context),
+              end: 0,
               top: 0,
               bottom: 0,
               width: 8,
@@ -126,10 +128,11 @@ class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
                     final widths = layout?.columnWidths ?? const [];
                     final current = i < widths.length ? widths[i] : null;
                     final start = current ?? column.width ?? 80;
-                    grid.setColumnWidth(
-                      column.fieldName,
-                      start + details.delta.dx,
-                    );
+                    final delta =
+                        Directionality.of(context) == TextDirection.rtl
+                        ? -details.delta.dx
+                        : details.delta.dx;
+                    grid.setColumnWidth(column.fieldName, start + delta);
                   },
                 ),
               ),

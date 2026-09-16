@@ -96,6 +96,7 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
       );
     }
     return BootstrapRow(
+      textDirection: Directionality.of(context),
       alignment: WrapAlignment.start,
       runSpacing: grid.rowSpacing,
       crossAxisAlignment:
@@ -118,8 +119,8 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
     return columns.map((c) {
       return BootstrapCol(
         child: Padding(
-          padding: EdgeInsets.only(
-            left: columns.indexOf(c) == 0 ? 0 : grid.columnSpacing,
+          padding: EdgeInsetsDirectional.only(
+            start: columns.indexOf(c) == 0 ? 0 : grid.columnSpacing,
           ),
           child: DataGridFieldWidget<TItem, dynamic>(c, item),
         ),

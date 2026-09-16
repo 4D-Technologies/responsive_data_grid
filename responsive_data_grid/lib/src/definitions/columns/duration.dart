@@ -23,7 +23,7 @@ class DurationColumn<TItem extends Object> extends GridColumn<TItem, Duration> {
     super.backgroundColor,
     super.foregroundColor,
     super.accentColor,
-    AlignmentGeometry super.alignment = Alignment.centerLeft,
+    AlignmentGeometry super.alignment = AlignmentDirectional.centerEnd,
   }) : super(
          header: header ?? ColumnHeader(),
          format: (value) => value?.toString() ?? '',

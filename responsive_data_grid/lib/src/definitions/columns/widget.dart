@@ -20,7 +20,7 @@ class WidgetColumn<TItem extends Object> extends GridColumn<TItem, void> {
     super.backgroundColor,
     super.foregroundColor,
     super.accentColor,
-    AlignmentGeometry super.alignment = Alignment.centerLeft,
+    AlignmentGeometry super.alignment = AlignmentDirectional.centerStart,
   }) : super(
          value: (item) {},
          customFieldWidget: widget,

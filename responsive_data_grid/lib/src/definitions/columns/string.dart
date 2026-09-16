@@ -23,7 +23,7 @@ class StringColumn<TItem extends Object> extends GridColumn<TItem, String> {
     super.backgroundColor,
     super.foregroundColor,
     super.accentColor,
-    AlignmentGeometry super.alignment = Alignment.centerLeft,
+    AlignmentGeometry super.alignment = AlignmentDirectional.centerStart,
   }) : super(
          format: (value) => value,
          header: header ?? ColumnHeader(),

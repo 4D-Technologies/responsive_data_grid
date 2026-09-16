@@ -111,11 +111,13 @@ class GridTableRow extends StatelessWidget {
         .fold<double>(0, (sum, width) => sum + width);
     final scrolling = _scrollingRow(context, frozenWidth);
     if (frozenCount <= 0) return scrolling;
+    final textDirection = Directionality.of(context);
     return Stack(
       children: [
         scrolling,
-        Positioned(
-          left: 0,
+        Positioned.directional(
+          textDirection: textDirection,
+          start: 0,
           top: 0,
           bottom: 0,
           child: PinToHorizontalViewport(
@@ -143,7 +145,8 @@ class GridTableRow extends StatelessWidget {
         Scrollable.maybeOf(context, axis: Axis.horizontal)?.position;
     if (position == null ||
         cellBuilder == null ||
-        !position.hasContentDimensions) {
+        !position.hasContentDimensions ||
+        Directionality.of(context) == TextDirection.rtl) {
       return _fullScrollingRow(frozenWidth);
     }
     return AnimatedBuilder(
@@ -288,7 +291,10 @@ class PinToHorizontalViewport extends StatelessWidget {
       animation: scrollable.position,
       builder: (context, child) {
         final offset = scrollable.position.pixels;
-        return Transform.translate(offset: Offset(offset, 0), child: child);
+        final dx = Directionality.of(context) == TextDirection.rtl
+            ? -offset
+            : offset;
+        return Transform.translate(offset: Offset(dx, 0), child: child);
       },
       child: child,
     );

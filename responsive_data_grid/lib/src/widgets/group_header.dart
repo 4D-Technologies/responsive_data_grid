@@ -26,7 +26,12 @@ class GridGroupHeader extends StatelessWidget {
       decoration: BoxDecoration(color: gridTheme.groupHeaderBackground),
       child: Padding(
         padding: gridTheme.resolvePadding(const EdgeInsets.all(3)).copyWith(
-          left: 3 + depth * indent.toDouble(),
+          left: Directionality.of(context) == TextDirection.rtl
+              ? 3
+              : 3 + depth * indent.toDouble(),
+          right: Directionality.of(context) == TextDirection.rtl
+              ? 3 + depth * indent.toDouble()
+              : 3,
         ),
         child: Row(
           children: [
