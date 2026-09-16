@@ -24,7 +24,8 @@ abstract class GridColumn<TItem extends Object, TValue extends dynamic> {
   /// cell. Custom widget cells are not measured.
   final bool autoSize;
 
-  /// Merge consecutive equal formatted values in this column (pager body).
+  /// Hide consecutive equal formatted values in this column on the ungrouped
+  /// pager body (not a stretched HTML rowspan).
   final bool rowspan;
   final int Function(TItem item, int rowIndex)? rowspanFor;
 

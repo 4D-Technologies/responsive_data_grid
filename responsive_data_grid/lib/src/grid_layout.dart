@@ -103,6 +103,10 @@ List<int> computeRowspans<TItem extends Object>(
   var i = 0;
   while (i < items.length) {
     final value = column.getFormattedValue(items[i]);
+    if (value == null || value.isEmpty) {
+      i++;
+      continue;
+    }
     var j = i + 1;
     while (j < items.length &&
         column.getFormattedValue(items[j]) == value) {
@@ -281,11 +285,7 @@ class GridTableRow extends StatelessWidget {
                           width: gutter,
                           child: leading ?? const SizedBox.shrink(),
                         ),
-                      for (var i = 0; i < frozenCount && i < _count; i++)
-                        SizedBox(
-                          width: i < widths.length ? widths[i] : 0,
-                          child: _cell(i),
-                        ),
+                      ..._frozenCells(),
                     ],
                   ),
                 ),
@@ -359,6 +359,19 @@ class GridTableRow extends StatelessWidget {
         );
       },
     );
+  }
+
+  List<Widget> _frozenCells() {
+    final cells = <Widget>[];
+    var i = 0;
+    while (i < frozenCount && i < _count) {
+      var span = _colspanAt(i);
+      if (i + span > frozenCount) span = frozenCount - i;
+      if (span < 1) span = 1;
+      cells.add(SizedBox(width: _spanWidth(i, span), child: _cell(i)));
+      i += span;
+    }
+    return cells;
   }
 
   int _colspanAt(int index) {

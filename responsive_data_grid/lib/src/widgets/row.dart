@@ -215,7 +215,9 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
         frozenBackground: themeFill,
         frozenDecoration: custom,
         leading: leading,
-        cellColspan: (i) => columns[i].colspan?.call(item) ?? 1,
+        cellColspan: columns.any((column) => column.colspan != null)
+            ? (i) => columns[i].colspan?.call(item) ?? 1
+            : null,
       );
     }
     return BootstrapRow(
