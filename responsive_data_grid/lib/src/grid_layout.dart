@@ -84,6 +84,7 @@ class GridTableRow extends StatelessWidget {
   final List<double> widths;
   final int frozenCount;
   final Color? frozenBackground;
+  final Decoration? frozenDecoration;
 
   const GridTableRow({
     super.key,
@@ -93,6 +94,7 @@ class GridTableRow extends StatelessWidget {
     required this.widths,
     this.frozenCount = 0,
     this.frozenBackground,
+    this.frozenDecoration,
   });
 
   static const double overscan = 120;
@@ -102,6 +104,16 @@ class GridTableRow extends StatelessWidget {
   Widget _cell(int index) {
     if (cellBuilder != null) return cellBuilder!(index);
     return cells![index];
+  }
+
+  Widget _frozenChrome(Widget child) {
+    if (frozenDecoration != null) {
+      child = DecoratedBox(decoration: frozenDecoration!, child: child);
+    }
+    return ColoredBox(
+      color: frozenBackground ?? const Color(0x00000000),
+      child: child,
+    );
   }
 
   @override
@@ -121,9 +133,8 @@ class GridTableRow extends StatelessWidget {
           top: 0,
           bottom: 0,
           child: PinToHorizontalViewport(
-            child: ColoredBox(
-              color: frozenBackground ?? const Color(0x00000000),
-              child: Row(
+            child: _frozenChrome(
+              Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   for (var i = 0; i < frozenCount && i < _count; i++)
@@ -141,8 +152,10 @@ class GridTableRow extends StatelessWidget {
   }
 
   Widget _scrollingRow(BuildContext context, double frozenWidth) {
-    final position =
-        Scrollable.maybeOf(context, axis: Axis.horizontal)?.position;
+    final position = Scrollable.maybeOf(
+      context,
+      axis: Axis.horizontal,
+    )?.position;
     if (position == null ||
         cellBuilder == null ||
         !position.hasContentDimensions ||
@@ -170,10 +183,7 @@ class GridTableRow extends StatelessWidget {
       children: [
         if (frozenCount > 0) SizedBox(width: frozenWidth),
         for (var i = frozenCount; i < _count; i++)
-          SizedBox(
-            width: i < widths.length ? widths[i] : 0,
-            child: _cell(i),
-          ),
+          SizedBox(width: i < widths.length ? widths[i] : 0, child: _cell(i)),
       ],
     );
   }

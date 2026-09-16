@@ -25,10 +25,6 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
     final gridTheme = ResponsiveDataGridTheme.of(context);
     final custom = grid?.rowDecoration?.call(item);
     final themeFill = gridTheme.rowBackground;
-    final customColor = custom?.color;
-    final frozenBackground = customColor == null
-        ? themeFill
-        : Color.alphaBlend(customColor, themeFill);
 
     void activate() {
       itemTapped?.call(item);
@@ -47,7 +43,7 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
         style: gridTheme.bodyTextStyle,
         child: Padding(
           padding: _tablePadding(context, gridTheme, padding),
-          child: _rowCells(context, grid!, item, frozenBackground),
+          child: _rowCells(context, grid!, item, themeFill, custom),
         ),
       ),
     );
@@ -94,7 +90,8 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
     BuildContext context,
     ResponsiveDataGrid<TItem> grid,
     TItem item,
-    Color frozenBackground,
+    Color themeFill,
+    BoxDecoration? custom,
   ) {
     final layout = GridTableLayout.maybeOf(context);
     if (layout != null && layout.layoutMode == GridLayoutMode.table) {
@@ -104,7 +101,8 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
             DataGridFieldWidget<TItem, dynamic>(columns[i], item),
         widths: layout.columnWidths,
         frozenCount: layout.frozenCount,
-        frozenBackground: frozenBackground,
+        frozenBackground: themeFill,
+        frozenDecoration: custom,
       );
     }
     return BootstrapRow(

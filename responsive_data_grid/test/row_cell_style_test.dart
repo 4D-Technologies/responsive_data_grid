@@ -45,17 +45,8 @@ List<GridColumn<_Person, dynamic>> _frozenColumns() {
   ];
 }
 
-Color? _frozenFill(WidgetTester tester, Finder of) {
-  final boxes = tester.widgetList<ColoredBox>(
-    find.ancestor(
-      of: of,
-      matching: find.descendant(
-        of: find.byType(PinToHorizontalViewport),
-        matching: find.byType(ColoredBox),
-      ),
-    ),
-  );
-  return boxes.isEmpty ? null : boxes.first.color;
+Finder _frozenOverlay(Finder of) {
+  return find.ancestor(of: of, matching: find.byType(PinToHorizontalViewport));
 }
 
 Future<void> _pumpGrid(
@@ -189,14 +180,33 @@ void main() {
       columns: _frozenColumns(),
     );
 
-    expect(_frozenFill(tester, find.text('Ada')), highlight);
-    expect(_frozenFill(tester, find.text('Grace')), isNot(highlight));
+    expect(
+      find.descendant(
+        of: _frozenOverlay(find.text('Ada')),
+        matching: _highlightBox(highlight),
+      ),
+      findsWidgets,
+    );
+    expect(
+      find.descendant(
+        of: _frozenOverlay(find.text('Grace')),
+        matching: _highlightBox(highlight),
+      ),
+      findsNothing,
+    );
   });
 
   testWidgets('frozen overlay keeps theme fill for border-only rows', (
     tester,
   ) async {
     const borderColor = Color(0xFFE11D48);
+    final borderDecoration = find.byWidgetPredicate(
+      (widget) =>
+          widget is DecoratedBox &&
+          widget.decoration is BoxDecoration &&
+          (widget.decoration as BoxDecoration).color == null &&
+          (widget.decoration as BoxDecoration).border != null,
+    );
     await _pumpGrid(
       tester,
       rowDecoration: (item) => item.id == 1
@@ -207,9 +217,19 @@ void main() {
       columns: _frozenColumns(),
     );
 
-    final adaFill = _frozenFill(tester, find.text('Ada'));
-    final graceFill = _frozenFill(tester, find.text('Grace'));
-    expect(adaFill, isNotNull);
-    expect(adaFill, graceFill);
+    expect(
+      find.descendant(
+        of: _frozenOverlay(find.text('Ada')),
+        matching: borderDecoration,
+      ),
+      findsWidgets,
+    );
+    expect(
+      find.descendant(
+        of: _frozenOverlay(find.text('Grace')),
+        matching: borderDecoration,
+      ),
+      findsNothing,
+    );
   });
 }
