@@ -31,12 +31,20 @@ class DataGridFieldWidget<TItem extends Object, TValue extends dynamic>
       }
     }
 
+    final grid = context
+        .findAncestorWidgetOfExactType<ResponsiveDataGrid<TItem>>();
+    final cellDecoration = grid?.cellDecoration?.call(item, definition);
+    Widget aligned = Align(
+      alignment: definition.alignment ?? AlignmentDirectional.centerStart,
+      child: child,
+    );
+    if (cellDecoration != null) {
+      aligned = DecoratedBox(decoration: cellDecoration, child: aligned);
+    }
+
     return Semantics(
       label: definition.getFormattedValue(item) ?? '',
-      child: Align(
-        alignment: definition.alignment ?? AlignmentDirectional.centerStart,
-        child: child,
-      ),
+      child: aligned,
     );
   }
 }

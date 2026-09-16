@@ -41,8 +41,13 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
             },
           ),
         },
-        child: ColoredBox(
-      color: gridTheme.rowBackground,
+        child: DecoratedBox(
+      decoration: () {
+        final custom = grid?.rowDecoration?.call(item);
+        return (custom ?? const BoxDecoration()).copyWith(
+          color: custom?.color ?? gridTheme.rowBackground,
+        );
+      }(),
       child: InkWell(
         onTap: itemTapped == null ? null : activate,
         enableFeedback: true,

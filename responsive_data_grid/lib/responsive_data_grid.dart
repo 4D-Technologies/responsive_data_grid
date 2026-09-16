@@ -203,6 +203,15 @@ class GridToolbar {
 
 enum GridDensity { compact, standard, comfortable }
 
+typedef GridRowDecoration<TItem extends Object> =
+    BoxDecoration? Function(TItem item);
+
+typedef GridCellDecoration<TItem extends Object> =
+    BoxDecoration? Function(
+      TItem item,
+      GridColumn<TItem, dynamic> column,
+    );
+
 enum FilterableMode {
   /// No filter UI.
   none,

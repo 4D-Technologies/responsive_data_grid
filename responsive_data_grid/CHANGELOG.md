@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Optional `rowDecoration` and `cellDecoration` callbacks for per-row and per-cell `BoxDecoration`.
 - RTL: `Directionality.rtl` places columns from the start and pins frozen columns to the visual start. Numeric/date cells default to end alignment.
 - Table mode virtualizes off-screen columns (120px overscan). Frozen columns stay mounted.
 - Body loading/error overlay the grid instead of replacing it, so height stays stable. Infinite scroll no longer uses `MaterialUiCompatibilityBridge`. Large paged lists virtualize rows (`ListView.builder`).
