@@ -237,7 +237,12 @@ class _MyHomePageState extends State<MyHomePage> {
             ],
           ),
         ),
-        child: SafeArea(child: _grid()),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: _grid(),
+          ),
+        ),
       );
     }
 
@@ -273,7 +278,10 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ],
       ),
-      body: _grid(),
+      body: Padding(
+        padding: const EdgeInsets.all(12),
+        child: _grid(),
+      ),
     );
   }
 
@@ -289,53 +297,13 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       items: widget.exampleData,
       itemTapped: (row) {},
-      allowRowReorder: true,
-      detailBuilder: (context, item) => Text(
-        '${item.name}: ${DateFormat.yMMMd().format(item.dob)}'
-        ' — ${item.accepted ? "accepted" : "not accepted"}',
-      ),
       pageSize: 20,
       pagingMode: PagingMode.pager,
-      height: 520,
-      resizable: true,
-      minHeight: 280,
-      filterable: FilterableMode.menuAndRow,
+      layoutMode: GridLayoutMode.table,
+      filterable: FilterableMode.menu,
       sortable: SortableOptions.multiColumn,
       allowAggregations: true,
       allowGrouping: true,
-      autoSize: true,
-      rowDecoration: (item) => item.id.isEven
-          ? BoxDecoration(
-              color: Theme.of(
-                context,
-              ).colorScheme.primaryContainer.withValues(alpha: 0.45),
-            )
-          : null,
-      cellDecoration: (item, column) =>
-          column.fieldName == 'accepted' && !item.accepted
-          ? BoxDecoration(
-              color: Theme.of(
-                context,
-              ).colorScheme.errorContainer.withValues(alpha: 0.7),
-            )
-          : null,
-      initialLoadCriteria: LoadCriteria(
-        groupBy: [
-          GroupCriteria(
-            fieldName: "name",
-            direction: OrderDirections.ascending,
-            aggregates: [
-              AggregateCriteria(
-                fieldName: "name",
-                aggregation: Aggregations.count,
-              ),
-            ],
-          ),
-        ],
-      ),
-      headerGroups: const [
-        GridHeaderGroup(title: 'Person', fieldNames: ['id', 'name']),
-      ],
       columns: [
         WidgetColumn(
           widget: (item) => Icon(Icons.check, color: Colors.green),
@@ -357,7 +325,6 @@ class _MyHomePageState extends State<MyHomePage> {
           xsCols: 5,
           mediumCols: 2,
           fieldName: "name",
-          sticky: true,
           sortDirection: OrderDirections.ascending,
           filterRules: StringFilterRules(hintText: "Name"),
           header: ColumnHeader(
@@ -421,9 +388,8 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         CommandColumn(
           fieldName: 'actions',
-          sticky: true,
-          xsCols: 1,
-          header: const ColumnHeader(text: ''),
+          xsCols: 2,
+          header: const ColumnHeader(text: 'Actions'),
           builder: (context, item) => IconButton(
             icon: const Icon(Icons.more_horiz),
             onPressed: () {},

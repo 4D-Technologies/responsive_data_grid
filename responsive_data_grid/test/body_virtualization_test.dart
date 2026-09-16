@@ -61,7 +61,6 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    var completer = true;
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
@@ -72,9 +71,6 @@ void main() {
               height: 360,
               pagingMode: PagingMode.pager,
               loadData: (criteria) async {
-                if (!completer) {
-                  await Future<void>.delayed(const Duration(milliseconds: 200));
-                }
                 return ListResponse<_Person>(
                   totalCount: 1,
                   items: const [_Person(1, 'Ada')],

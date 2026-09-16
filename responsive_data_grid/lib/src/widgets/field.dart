@@ -29,7 +29,12 @@ class DataGridFieldWidget<TItem extends Object, TValue extends dynamic>
       if (stringValue == null) {
         child = SizedBox();
       } else {
-        child = Text(stringValue, style: effectiveDataTextStyle);
+        child = Text(
+          stringValue,
+          style: effectiveDataTextStyle,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        );
       }
     }
 
@@ -44,9 +49,15 @@ class DataGridFieldWidget<TItem extends Object, TValue extends dynamic>
       aligned = DecoratedBox(decoration: cellDecoration, child: aligned);
     }
 
+    final gridTheme = ResponsiveDataGridTheme.of(context);
     return Semantics(
       label: definition.getFormattedValue(item) ?? '',
-      child: aligned,
+      child: Padding(
+        padding: gridTheme.resolvePadding(
+          const EdgeInsets.symmetric(horizontal: 8),
+        ),
+        child: ClipRect(child: aligned),
+      ),
     );
   }
 }

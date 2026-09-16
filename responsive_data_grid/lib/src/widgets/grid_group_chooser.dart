@@ -234,10 +234,13 @@ class _GridGroupChooserState<TItem extends Object>
               color: gridTheme.chooserChipForeground,
             ),
             const SizedBox(width: 6),
-            Text(
-              col.header.text ?? col.fieldName,
-              style: gridTheme.chooserTextStyle.copyWith(
-                color: gridTheme.chooserChipForeground,
+            Flexible(
+              child: Text(
+                col.header.text ?? col.fieldName,
+                overflow: TextOverflow.ellipsis,
+                style: gridTheme.chooserTextStyle.copyWith(
+                  color: gridTheme.chooserChipForeground,
+                ),
               ),
             ),
             GridChromeIconButton(
