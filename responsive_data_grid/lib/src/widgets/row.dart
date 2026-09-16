@@ -96,6 +96,7 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
       );
     }
     return BootstrapRow(
+      textDirection: Directionality.of(context),
       alignment: WrapAlignment.start,
       runSpacing: grid.rowSpacing,
       crossAxisAlignment:

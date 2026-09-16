@@ -61,6 +61,7 @@ class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
       );
     }
     return BootstrapRow(
+      textDirection: Directionality.of(context),
       children: getColumnHeaders(context, grid.widget, gridTheme),
       crossAxisAlignment:
           grid.widget.headerCrossAxisAlignment == CrossAxisAlignment.start ||

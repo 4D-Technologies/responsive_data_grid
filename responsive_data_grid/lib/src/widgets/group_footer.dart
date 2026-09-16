@@ -40,6 +40,7 @@ class GridGroupFooter<TItem extends Object> extends StatelessWidget {
                 frozenBackground: gridTheme.groupFooterBackground,
               )
             : BootstrapRow(
+                textDirection: Directionality.of(context),
                 crossAxisAlignment:
                     gridState.widget.rowCrossAxisAlignment ==
                             CrossAxisAlignment.start ||

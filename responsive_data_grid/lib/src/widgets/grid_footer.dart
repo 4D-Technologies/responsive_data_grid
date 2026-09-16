@@ -61,6 +61,7 @@ class GridFooter<TItem extends Object> extends StatelessWidget {
       );
     }
     return BootstrapRow(
+      textDirection: Directionality.of(context),
       horizontalSpacing: gridState.widget.columnSpacing,
       crossAxisAlignment:
           gridState.widget.rowCrossAxisAlignment == CrossAxisAlignment.start ||

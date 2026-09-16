@@ -30,6 +30,7 @@ class GridFilterRow<TItem extends Object> extends StatelessWidget {
             frozenBackground: gridTheme.headerBackground,
           )
         : BootstrapRow(
+            textDirection: Directionality.of(context),
             children: [
               for (final column in columns)
                 BootstrapCol(

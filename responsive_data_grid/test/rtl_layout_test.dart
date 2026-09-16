@@ -45,6 +45,12 @@ Future<void> _pump(
                   xsCols: 8,
                   frozen: freezeName,
                 ),
+                StringColumn<_Person>(
+                  fieldName: 'extra',
+                  header: const ColumnHeader(text: 'Extra'),
+                  value: (row) => row.name,
+                  xsCols: 8,
+                ),
               ],
             ),
           ),
@@ -68,8 +74,21 @@ void main() {
   testWidgets('RTL pins frozen columns to the visual start', (tester) async {
     await _pump(tester, direction: TextDirection.rtl, freezeName: true);
 
-    final name = tester.getRect(find.text('Name').first);
-    expect(name.right, closeTo(800, 40));
+    final nameBefore = tester.getRect(find.text('Name').first);
+    expect(nameBefore.right, closeTo(800, 40));
+
+    await tester.drag(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is SingleChildScrollView &&
+            widget.scrollDirection == Axis.horizontal,
+      ),
+      const Offset(180, 0),
+    );
+    await tester.pumpAndSettle();
+
+    final nameAfter = tester.getRect(find.text('Name').first);
+    expect(nameAfter.right, closeTo(nameBefore.right, 4));
   });
 
   testWidgets('numeric cells default to end alignment', (tester) async {
