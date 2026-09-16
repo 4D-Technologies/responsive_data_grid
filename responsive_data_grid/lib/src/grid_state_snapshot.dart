@@ -4,12 +4,14 @@ class GridColumnSnapshot {
   final String fieldName;
   final bool visible;
   final bool frozen;
+  final bool sticky;
   final double? width;
 
   const GridColumnSnapshot({
     required this.fieldName,
     this.visible = true,
     this.frozen = false,
+    this.sticky = false,
     this.width,
   });
 
@@ -17,6 +19,7 @@ class GridColumnSnapshot {
     'fieldName': fieldName,
     'visible': visible,
     'frozen': frozen,
+    'sticky': sticky,
     'width': width,
   };
 
@@ -25,6 +28,7 @@ class GridColumnSnapshot {
       fieldName: json['fieldName'] as String,
       visible: json['visible'] as bool? ?? true,
       frozen: json['frozen'] as bool? ?? false,
+      sticky: json['sticky'] as bool? ?? false,
       width: (json['width'] as num?)?.toDouble(),
     );
   }

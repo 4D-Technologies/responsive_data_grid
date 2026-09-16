@@ -14,6 +14,7 @@ class StringColumn<TItem extends Object> extends GridColumn<TItem, String> {
     super.maxWidth,
     super.visible,
     super.frozen,
+    super.sticky,
     super.xlCols,
     super.largeCols,
     super.mediumCols,

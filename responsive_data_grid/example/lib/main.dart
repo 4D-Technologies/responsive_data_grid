@@ -345,6 +345,7 @@ class _MyHomePageState extends State<MyHomePage> {
           xsCols: 5,
           mediumCols: 2,
           fieldName: "name",
+          sticky: true,
           sortDirection: OrderDirections.ascending,
           filterRules: StringFilterRules(hintText: "Name"),
           header: ColumnHeader(

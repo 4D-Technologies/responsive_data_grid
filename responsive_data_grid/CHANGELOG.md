@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Columns can be `sticky`: they keep their place in the order and stay visible while the table scrolls horizontally, pinning to the start or end of the viewport only as they would otherwise leave view. Frozen columns still lock to the leading edge.
 - Optional `rowDecoration` and `cellDecoration` callbacks for per-row and per-cell `BoxDecoration`.
 - RTL: `Directionality.rtl` places columns from the start and pins frozen columns to the visual start. Numeric/date cells default to end alignment.
 - Table mode virtualizes off-screen columns (120px overscan). Frozen columns stay mounted.
