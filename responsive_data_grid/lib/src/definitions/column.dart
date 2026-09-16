@@ -19,6 +19,10 @@ abstract class GridColumn<TItem extends Object, TValue extends dynamic> {
   /// order and only pins to the start or end of the viewport as it would
   /// otherwise leave view.
   bool sticky;
+
+  /// When true, the column's initial width is the widest header or formatted
+  /// cell. Custom widget cells are not measured.
+  final bool autoSize;
   final int? xlCols;
   final int? largeCols;
   final int? mediumCols;
@@ -45,6 +49,7 @@ abstract class GridColumn<TItem extends Object, TValue extends dynamic> {
     this.visible = true,
     this.frozen = false,
     this.sticky = false,
+    this.autoSize = false,
     required this.xlCols,
     required this.largeCols,
     required this.mediumCols,

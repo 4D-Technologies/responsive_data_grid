@@ -20,6 +20,9 @@ class ResponsiveDataGridState<TItem extends Object>
       widget.pagingMode == PagingMode.none ? 0 : (page - 1) * _pageSize;
 
   late List<String> _columnOrder;
+  double? _tableViewportWidth;
+  var _didInitialAutoSize = false;
+  var _restoredColumnLayout = false;
   GridDensity density = GridDensity.standard;
   String _searchQuery = '';
   Timer? _searchDebounce;
@@ -71,7 +74,7 @@ class ResponsiveDataGridState<TItem extends Object>
     _updateOrderByCriteria(column);
   }
 
-  void autosizeColumn(String fieldName, {required TextStyle style}) {
+  void autosizeColumn(String fieldName, {TextStyle? style}) {
     GridColumn<TItem, dynamic>? column;
     for (final candidate in widget.columns) {
       if (candidate.fieldName == fieldName) {
@@ -80,27 +83,103 @@ class ResponsiveDataGridState<TItem extends Object>
       }
     }
     if (column == null) return;
-    final painter = TextPainter(
-      textDirection: Directionality.maybeOf(context) ?? TextDirection.ltr,
-      maxLines: 1,
-      textScaler: MediaQuery.textScalerOf(context),
+    _applyContentWidth(
+      column,
+      ResponsiveDataGridTheme.of(context),
     );
-    var width = 48.0;
-    void measure(String text) {
+    setState(() {});
+    _notifyState();
+  }
+
+  void autoFitColumns() {
+    _autoFitColumns(onlyFlagged: false);
+  }
+
+  void _autoFitColumns({required bool onlyFlagged}) {
+    final theme = ResponsiveDataGridTheme.of(context);
+    for (final column in layoutColumns) {
+      if (onlyFlagged && !widget.autoSize && !column.autoSize) continue;
+      _applyContentWidth(column, theme);
+    }
+    setState(() {});
+    _notifyState();
+  }
+
+  void autoFitColumnsToGrid() {
+    final viewport = _tableViewportWidth;
+    final columns = layoutColumns;
+    if (viewport == null || viewport <= 0 || columns.isEmpty) return;
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final metrics = gridTableMetrics<TItem>(
+      columns: columns,
+      viewportWidth: viewport,
+      reactiveSegments: widget.reactiveSegments,
+      screenWidth: screenWidth,
+      layoutMode: widget.layoutMode,
+    );
+    final current = gridColumnPixelWidths<TItem>(
+      columns: columns,
+      contentWidth: metrics.contentWidth,
+      totalSegments: metrics.totalSegments,
+      screenWidth: screenWidth,
+    );
+    final fitted = fitWidthsToViewport(
+      widths: current,
+      minWidths: [for (final column in columns) column.minWidth],
+      maxWidths: [for (final column in columns) column.maxWidth],
+      viewport: viewport,
+    );
+    for (var i = 0; i < columns.length; i++) {
+      columns[i].width = fitted[i];
+    }
+    setState(() {});
+    _notifyState();
+  }
+
+  void _applyContentWidth(
+    GridColumn<TItem, dynamic> column,
+    ResponsiveDataGridTheme theme,
+  ) {
+    final direction = Directionality.maybeOf(context) ?? TextDirection.ltr;
+    final scaler = MediaQuery.textScalerOf(context);
+    final painter = TextPainter(
+      textDirection: direction,
+      maxLines: 1,
+      textScaler: scaler,
+    );
+    var textWidth = 0.0;
+    void measure(String text, TextStyle style) {
       painter.text = TextSpan(text: text, style: style);
       painter.layout();
-      if (painter.width > width) width = painter.width;
+      if (painter.width > textWidth) textWidth = painter.width;
     }
 
-    measure(column.header.text ?? fieldName);
-    final page = _dataCache.pageMap[pageNumber];
-    if (page != null) {
+    final headerStyle =
+        column.header.textStyle ?? theme.headerTextStyle;
+    measure(column.header.text ?? column.fieldName, headerStyle);
+    for (final page in _dataCache.pageMap.values) {
       for (final item in page.items) {
-        measure(column.getFormattedValue(item) ?? '');
+        measure(
+          column.getFormattedValue(item) ?? '',
+          column.textStyle ?? theme.bodyTextStyle,
+        );
       }
     }
     painter.dispose();
-    setColumnWidth(fieldName, width + 48);
+    final padding = theme.resolvePadding(
+      column.header.padding ?? theme.headerCellPadding,
+    );
+    var chrome = padding.horizontal;
+    if (!column.header.empty) chrome += theme.headerActionExtent;
+    if (column.header.showOrderBy &&
+        widget.sortable != SortableOptions.none) {
+      chrome += theme.headerActionExtent;
+    }
+    column.width = clampColumnWidth(
+      textWidth + chrome,
+      column.minWidth,
+      column.maxWidth,
+    );
   }
 
   void setColumnVisible(String fieldName, bool visible) {
@@ -185,6 +264,9 @@ class ResponsiveDataGridState<TItem extends Object>
   }
 
   void _applySnapshot(GridStateSnapshot snapshot, {required bool notify}) {
+    if (snapshot.columns.isNotEmpty) {
+      _restoredColumnLayout = true;
+    }
     pageNumber = snapshot.pageNumber < 1 ? 1 : snapshot.pageNumber;
     if (snapshot.pageSize > 0) {
       _pageSize = snapshot.pageSize;
@@ -279,6 +361,7 @@ class ResponsiveDataGridState<TItem extends Object>
     criteria = _criteriaFromInitial();
     _applyOrderByToColumns(criteria.orderBy);
     if (widget.initialState != null) {
+      _restoredColumnLayout = widget.initialState!.columns.isNotEmpty;
       _applySnapshot(widget.initialState!, notify: false);
       Future(() async {
         await _reloadSnapshotPage();
@@ -710,6 +793,20 @@ class ResponsiveDataGridState<TItem extends Object>
                       totalSegments: metrics.totalSegments,
                       screenWidth: screenWidth,
                     );
+                    _tableViewportWidth = constraints.maxWidth;
+                    if (!_didInitialAutoSize &&
+                        _dataCache.pageMap.isNotEmpty) {
+                      final needsAutoSize =
+                          widget.autoSize ||
+                          widget.columns.any((column) => column.autoSize);
+                      _didInitialAutoSize = true;
+                      if (needsAutoSize && !_restoredColumnLayout) {
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          if (!mounted) return;
+                          _autoFitColumns(onlyFlagged: !widget.autoSize);
+                        });
+                      }
+                    }
                     final widthSum = columnWidths.fold<double>(
                       0,
                       (sum, width) => sum + width,

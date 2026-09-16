@@ -66,6 +66,41 @@ double clampColumnWidth(double width, double? minWidth, double? maxWidth) {
   return next;
 }
 
+/// Grow or shrink [widths] so they sum to [viewport], honoring min/max.
+List<double> fitWidthsToViewport({
+  required List<double> widths,
+  required List<double?> minWidths,
+  required List<double?> maxWidths,
+  required double viewport,
+}) {
+  if (widths.isEmpty || viewport <= 0) return List<double>.of(widths);
+  final next = [
+    for (var i = 0; i < widths.length; i++)
+      clampColumnWidth(widths[i], minWidths[i], maxWidths[i]),
+  ];
+  for (var pass = 0; pass < 16; pass++) {
+    final sum = next.fold<double>(0, (a, b) => a + b);
+    final remaining = viewport - sum;
+    if (remaining.abs() < 0.01) break;
+    final flexible = <int>[];
+    for (var i = 0; i < next.length; i++) {
+      if (remaining > 0) {
+        final max = maxWidths[i];
+        if (max == null || next[i] < max - 0.01) flexible.add(i);
+      } else {
+        final min = minWidths[i];
+        if (min == null || next[i] > min + 0.01) flexible.add(i);
+      }
+    }
+    if (flexible.isEmpty) break;
+    final share = remaining / flexible.length;
+    for (final i in flexible) {
+      next[i] = clampColumnWidth(next[i] + share, minWidths[i], maxWidths[i]);
+    }
+  }
+  return next;
+}
+
 List<double> gridColumnPixelWidths<TItem extends Object>({
   required List<GridColumn<TItem, dynamic>> columns,
   required double contentWidth,

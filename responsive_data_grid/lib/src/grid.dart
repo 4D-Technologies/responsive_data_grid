@@ -29,6 +29,10 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
   final GridToolbar? toolbar;
   final GridRowDecoration<TItem>? rowDecoration;
   final GridCellDecoration<TItem>? cellDecoration;
+
+  /// When true, visible columns size to their widest header or cell on first
+  /// load. Per-column [GridColumn.autoSize] still applies when this is false.
+  final bool autoSize;
   final EdgeInsets padding;
   final EdgeInsets contentPadding;
   final double columnSpacing;
@@ -75,6 +79,7 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
     this.toolbar,
     this.rowDecoration,
     this.cellDecoration,
+    this.autoSize = false,
     this.padding = const EdgeInsets.all(5),
     this.contentPadding = const EdgeInsets.all(3),
     this.elevation = 0,
@@ -113,6 +118,7 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
     this.toolbar,
     this.rowDecoration,
     this.cellDecoration,
+    this.autoSize = false,
     this.padding = const EdgeInsets.all(5),
     this.contentPadding = const EdgeInsets.only(
       left: 10,
