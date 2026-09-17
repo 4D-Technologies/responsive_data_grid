@@ -347,7 +347,7 @@ class _GridGroupChooserState<TItem extends Object>
               widget.addGroup(
                 GroupCriteria(
                   fieldName: column.fieldName,
-                  aggregates: [],
+                  aggregates: [...column.aggregations],
                   direction: OrderDirections.ascending,
                 ),
               );
