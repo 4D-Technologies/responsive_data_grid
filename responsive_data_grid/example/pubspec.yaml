@@ -20,13 +20,14 @@ dependencies:
   cupertino_icons: ">=1.0.8 <2.0.0"
   material_ui: ">=1.1.0 <2.0.0"
   cupertino_ui: ">=1.0.0 <2.0.0"
+  flutter_skill: ^0.9.37
 
 dependency_overrides:
   client_filtering:
     path: ../../client_filtering
 
 dev_dependencies:
-  flutter_lints: ^5.0.0
+  flutter_lints: 
   flutter_test:
     sdk: flutter
   integration_test:

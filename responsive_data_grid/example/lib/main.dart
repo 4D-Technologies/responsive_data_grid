@@ -1,10 +1,15 @@
 import 'package:client_filtering/client_filtering.dart';
 import 'package:cupertino_ui/cupertino_ui.dart' as cupertino;
+import 'package:flutter/foundation.dart';
+import 'package:flutter_skill/flutter_skill.dart';
 import 'package:intl/intl.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:responsive_data_grid/responsive_data_grid.dart';
 
 void main() {
+  if (kDebugMode) {
+    FlutterSkillBinding.ensureInitialized();
+  }
   runApp(const MyApp());
 }
 
