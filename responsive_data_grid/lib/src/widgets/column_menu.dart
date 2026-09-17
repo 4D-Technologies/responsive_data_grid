@@ -4,7 +4,7 @@ class ColumnMenu<T extends Object> extends DropDownViewWidget {
   final GridColumn<T, dynamic> column;
   final ResponsiveDataGridState<T> gridState;
 
-  ColumnMenu({
+  const ColumnMenu({
     super.key,
     required this.column,
     required super.theme,

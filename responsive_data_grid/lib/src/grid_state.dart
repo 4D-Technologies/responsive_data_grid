@@ -906,10 +906,16 @@ class ResponsiveDataGridState<TItem extends Object>
             elevation: widget.elevation,
             child: Padding(
               padding: widget.padding,
-              child: _heightHost(
+              child: LayoutBuilder(
+                builder: (context, outer) {
+                  final hostHeight = _effectiveHeight ??
+                      (outer.hasBoundedHeight && outer.maxHeight.isFinite
+                          ? outer.maxHeight
+                          : null);
+                  return _heightHost(
                 SizedBox(
                 key: const ValueKey('rdg-height'),
-                height: _effectiveHeight,
+                height: hostHeight,
                 width: double.infinity,
                 child: _maybeResizable(
                   context,
@@ -1155,6 +1161,8 @@ class ResponsiveDataGridState<TItem extends Object>
                 ),
                 ),
               ),
+              );
+                },
               ),
             ),
           ),

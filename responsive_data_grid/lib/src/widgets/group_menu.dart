@@ -5,7 +5,7 @@ class GroupMenu<TItem extends Object> extends DropDownViewWidget {
   final GroupCriteria group;
   final ResponsiveDataGridState<TItem> gridState;
 
-  GroupMenu({
+  const GroupMenu({
     required this.removeGroup,
     required super.theme,
     required this.group,
