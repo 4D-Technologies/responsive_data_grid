@@ -29,6 +29,7 @@
 .packages
 .pub-cache/
 .pub/
+.flutter_skill_uri
 /build/
 pubspec.lock
 

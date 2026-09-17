@@ -4,10 +4,13 @@
             "command": "flutter-agent-lens"
         },
         "flutter-skill": {
-            "command": "flutter_skill",
+            "command": "dart",
             "args": [
+                "run",
+                "flutter_skill:flutter_skill",
                 "server"
-            ]
+            ],
+            "cwd": "responsive_data_grid/example"
         },
         "chrome-devtools": {
             "command": "npx",
