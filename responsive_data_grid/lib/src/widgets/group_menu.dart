@@ -39,26 +39,24 @@ class GroupMenu<TItem extends Object> extends DropDownViewWidget {
                   criteria: group,
                 ),
                 Padding(
-                  padding: EdgeInsets.only(top: 3, bottom: 3),
-                  child: TextButton.icon(
-                    label: Text(
-                      GridLocalizations.of(context).apply,
-                      style: theme.gridLabelLarge,
-                    ),
+                  padding: const EdgeInsets.only(top: 3, bottom: 3),
+                  child: FilledButton.icon(
+                    label: Text(GridLocalizations.of(context).apply),
                     onPressed: () {
                       close(context);
                       gridState.updateGroup(group);
                     },
-                    icon: Icon(Icons.save, color: theme.colorScheme.onPrimary),
+                    icon: const Icon(Icons.check),
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.only(top: 3, bottom: 3),
+                  padding: const EdgeInsets.only(top: 3, bottom: 3),
                   child: TextButton.icon(
-                    label: Text(
-                      GridLocalizations.of(context).clearAll,
-                      style: theme.gridLabelLarge,
+                    style: TextButton.styleFrom(
+                      foregroundColor: theme.colorScheme.onSurface,
+                      alignment: Alignment.centerLeft,
                     ),
+                    label: Text(GridLocalizations.of(context).clearAll),
                     onPressed: () {
                       group.aggregates.clear();
                       close(context);
@@ -66,16 +64,17 @@ class GroupMenu<TItem extends Object> extends DropDownViewWidget {
                     },
                     icon: Icon(
                       Icons.clear_all,
-                      color: theme.colorScheme.onPrimary,
+                      color: theme.colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ),
-                Divider(),
+                const Divider(),
                 TextButton.icon(
-                  label: Text(
-                    GridLocalizations.of(context).removeGroup,
-                    style: theme.gridLabelLarge,
+                  style: TextButton.styleFrom(
+                    foregroundColor: theme.colorScheme.error,
+                    alignment: Alignment.centerLeft,
                   ),
+                  label: Text(GridLocalizations.of(context).removeGroup),
                   onPressed: () => removeGroup(group),
                   icon: Icon(Icons.delete, color: theme.colorScheme.error),
                 ),
