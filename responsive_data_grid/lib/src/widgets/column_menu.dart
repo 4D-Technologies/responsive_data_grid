@@ -134,7 +134,7 @@ class ColumnMenu<T extends Object> extends DropDownViewWidget {
               gridState.addGroup(
                 GroupCriteria(
                   fieldName: column.fieldName,
-                  aggregates: [],
+                  aggregates: [...column.aggregations],
                   direction: OrderDirections.ascending,
                 ),
               );
