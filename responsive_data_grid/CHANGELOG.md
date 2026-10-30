@@ -1,5 +1,9 @@
 # Change Log
 
+## [1.1.2] - October 30th, 2026
+
+- Header labels, sort/menu chrome, and the filter row stay in view with `FilterableMode.row` + `GridSizing.fill` when columns use explicit `width`s.
+
 ## [1.1.1] - October 30th, 2026
 
 - `GridSizing.fill` paints empty row chrome from the last data row down to the pager when the current page has fewer rows than the filled body.
