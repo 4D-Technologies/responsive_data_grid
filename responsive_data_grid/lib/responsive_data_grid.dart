@@ -258,6 +258,8 @@ enum GridSizing {
   /// Fill a bounded parent. Never shorter than one page of rows plus header,
   /// filter row, groups, footers, and pager. An unbounded parent uses that
   /// minimum. The host page or tab scrolls when the parent is shorter.
+  /// [PagingMode.auto] resolves to [PagingMode.pager]. A short bounded parent
+  /// that cannot grow keeps an inner body scrollbar so rows stay reachable.
   fill,
 
   /// Size to the current page's content (rows, header, groups, footers).

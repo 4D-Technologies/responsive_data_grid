@@ -5,6 +5,7 @@ class GridBody<TItem extends Object> extends StatelessWidget {
   final BoxConstraints constraints;
   final PagingMode pagingMode;
   final ThemeData gridTheme;
+  final bool pageFitsHost;
 
   GridBody({
     super.key,
@@ -12,6 +13,7 @@ class GridBody<TItem extends Object> extends StatelessWidget {
     required this.constraints,
     required this.pagingMode,
     required this.gridTheme,
+    this.pageFitsHost = true,
   }) {
     assert(TItem != Object);
   }
@@ -27,10 +29,15 @@ class GridBody<TItem extends Object> extends StatelessWidget {
           !constraints.hasBoundedHeight ||
           gridState.widget.sizing == GridSizing.shrinkWrap ||
           gridState.widget.sizing == GridSizing.fill;
+      final neverScroll =
+          !constraints.hasBoundedHeight ||
+          gridState.widget.sizing == GridSizing.shrinkWrap ||
+          (gridState.widget.sizing == GridSizing.fill && pageFitsHost);
       return ResponsiveDataGridPagedBodyWidget<TItem>(
         gridState: gridState,
         theme: gridTheme,
         shrinkWrap: wrapContent,
+        neverScroll: neverScroll,
       );
     } else {
       return ResponsiveGridInfiniteScrollBodyWidget<TItem>(

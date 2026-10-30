@@ -205,6 +205,10 @@ class ResponsiveDataGridState<TItem extends Object>
 
   PagingMode _resolvePagingMode(BoxConstraints outer) {
     if (widget.pagingMode != PagingMode.auto) return widget.pagingMode;
+    if (widget.sizing == GridSizing.fill ||
+        widget.sizing == GridSizing.shrinkWrap) {
+      return PagingMode.pager;
+    }
     return outer.hasBoundedHeight && outer.maxHeight.isFinite
         ? PagingMode.infiniteScroll
         : PagingMode.pager;
@@ -223,7 +227,7 @@ class ResponsiveDataGridState<TItem extends Object>
       pageSize: rowCount,
       contentPadding: widget.contentPadding,
       rowSpacing: widget.rowSpacing,
-      padding: widget.padding,
+      padding: EdgeInsets.zero,
       hasTitle: widget.title != null,
       hasToolbar: widget.toolbar != null && !widget.toolbar!.isEmpty,
       hasGroupChooser:
@@ -948,7 +952,7 @@ class ResponsiveDataGridState<TItem extends Object>
           return Theme(
             data: theme.copyWith(visualDensity: visualDensity),
             child: Card(
-            margin: EdgeInsets.zero,
+            margin: widget.sizing == GridSizing.fill ? EdgeInsets.zero : null,
             borderOnForeground: false,
             elevation: widget.elevation,
             child: Padding(
@@ -973,6 +977,9 @@ class ResponsiveDataGridState<TItem extends Object>
                     resizable: widget.resizable,
                     resizedHeight: _height,
                   );
+                  final parentFitsPage =
+                      parentMax == null ||
+                      parentMax >= (widget.minHeight ?? minContent);
                   return _heightHost(
                 SizedBox(
                 key: const ValueKey('rdg-height'),
@@ -982,6 +989,9 @@ class ResponsiveDataGridState<TItem extends Object>
                   context,
                   LayoutBuilder(
                   builder: (context, constraints) {
+                    final expandVertically =
+                        widget.sizing != GridSizing.shrinkWrap &&
+                        constraints.hasBoundedHeight;
 
                     final parts = List<Widget>.empty(growable: true);
                     if (widget.title != null) {
@@ -1068,7 +1078,7 @@ class ResponsiveDataGridState<TItem extends Object>
                     ];
 
                     Widget tableBody = _dataCache.pageMap.isEmpty
-                        ? (constraints.hasBoundedHeight
+                        ? (expandVertically
                               ? const SizedBox.expand()
                               : const SizedBox.shrink())
                         : GridBody<TItem>(
@@ -1076,6 +1086,7 @@ class ResponsiveDataGridState<TItem extends Object>
                             constraints: constraints,
                             pagingMode: pagingMode,
                             gridTheme: theme,
+                            pageFitsHost: parentFitsPage,
                           );
                     if (isLoading || loadError != null) {
                       final overlay = loadError != null
@@ -1105,7 +1116,7 @@ class ResponsiveDataGridState<TItem extends Object>
                                 child: CircularProgressIndicator.adaptive(),
                               ),
                             );
-                      tableBody = constraints.hasBoundedHeight
+                      tableBody = expandVertically
                           ? Stack(
                               fit: StackFit.expand,
                               children: [tableBody, overlay],
@@ -1127,7 +1138,7 @@ class ResponsiveDataGridState<TItem extends Object>
                             widget.title?.title ??
                             GridLocalizations.of(context).dataGrid,
                         child: Column(
-                        mainAxisSize: constraints.hasBoundedHeight
+                        mainAxisSize: expandVertically
                             ? MainAxisSize.max
                             : MainAxisSize.min,
                         children: [
@@ -1135,7 +1146,7 @@ class ResponsiveDataGridState<TItem extends Object>
                             this,
                             columns,
                           ),
-                          if (constraints.hasBoundedHeight)
+                          if (expandVertically)
                             Expanded(child: tableBody)
                           else
                             tableBody,
@@ -1146,7 +1157,7 @@ class ResponsiveDataGridState<TItem extends Object>
                       ),
                     );
 
-                    if (constraints.hasBoundedHeight) {
+                    if (expandVertically) {
                       parts.add(
                         Expanded(
                           child: LayoutBuilder(
@@ -1195,9 +1206,9 @@ class ResponsiveDataGridState<TItem extends Object>
                         return true;
                       },
                       child: Column(
-                        mainAxisSize: !constraints.hasBoundedHeight
-                            ? MainAxisSize.min
-                            : MainAxisSize.max,
+                        mainAxisSize: expandVertically
+                            ? MainAxisSize.max
+                            : MainAxisSize.min,
                         children: parts,
                       ),
                     );

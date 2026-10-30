@@ -73,6 +73,7 @@ ResponsiveDataGrid<_Person> _grid({
   double? maxHeight,
   GridSizing sizing = GridSizing.auto,
   bool grouping = false,
+  EdgeInsets padding = const EdgeInsets.all(5),
 }) {
   return ResponsiveDataGrid<_Person>.clientSide(
     key: key,
@@ -85,6 +86,7 @@ ResponsiveDataGrid<_Person> _grid({
     minHeight: minHeight,
     maxHeight: maxHeight,
     sizing: sizing,
+    padding: padding,
     allowGrouping: grouping,
     initialLoadCriteria: grouping
         ? LoadCriteria(
@@ -417,6 +419,84 @@ void main() {
       expect(host.scrollDirection, Axis.vertical);
     });
 
+    testWidgets('short bounded parent keeps an inner body scrollbar', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        view: const Size(900, 320),
+        child: SizedBox(
+          width: 900,
+          height: 260,
+          child: _grid(sizing: GridSizing.fill, pageSize: 10),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      expect(find.text('Person 1'), findsOneWidget);
+      expect(find.byKey(const ValueKey('rdg-pager')), findsOneWidget);
+      final body = tester.widget<ScrollView>(
+        find.byKey(const ValueKey('rdg-body-scroll')),
+      );
+      expect(body.physics, isNot(isA<NeverScrollableScrollPhysics>()));
+    });
+
+    testWidgets('fill with default auto paging uses a pager', (tester) async {
+      await _pump(
+        tester,
+        child: SizedBox(
+          width: 900,
+          height: 760,
+          child: _grid(
+            sizing: GridSizing.fill,
+            pagingMode: PagingMode.auto,
+            pageSize: 5,
+          ),
+        ),
+      );
+      expect(find.byKey(const ValueKey('rdg-pager')), findsOneWidget);
+      expect(find.text('Person 1'), findsOneWidget);
+    });
+
+    testWidgets('minimumHeight grows by padding.vertical', (tester) async {
+      final thinKey = GlobalKey<ResponsiveDataGridState<_Person>>();
+      await _pump(
+        tester,
+        child: ListView(
+          children: [
+            _grid(
+              key: thinKey,
+              sizing: GridSizing.fill,
+              pageSize: 5,
+              padding: const EdgeInsets.all(5),
+            ),
+          ],
+        ),
+      );
+      final thin = thinKey.currentState!.minimumHeight;
+
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump();
+
+      final thickKey = GlobalKey<ResponsiveDataGridState<_Person>>();
+      await _pump(
+        tester,
+        child: ListView(
+          children: [
+            _grid(
+              key: thickKey,
+              sizing: GridSizing.fill,
+              pageSize: 5,
+              padding: const EdgeInsets.all(20),
+            ),
+          ],
+        ),
+      );
+      expect(
+        thickKey.currentState!.minimumHeight - thin,
+        closeTo(30, 1),
+      );
+    });
+
     testWidgets('changing page size updates the minimum', (tester) async {
       final key = GlobalKey<ResponsiveDataGridState<_Person>>();
       await _pump(
@@ -471,6 +551,31 @@ void main() {
     testWidgets('sizes to content inside a tall bounded parent', (
       tester,
     ) async {
+      final key = GlobalKey<ResponsiveDataGridState<_Person>>();
+      await _pump(
+        tester,
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 900, maxHeight: 760),
+            child: _grid(
+              key: key,
+              sizing: GridSizing.shrinkWrap,
+              pageSize: 5,
+            ),
+          ),
+        ),
+      );
+      expect(_widgetHeight(tester), lessThan(500));
+      expect(_widgetHeight(tester), lessThan(key.currentState!.minimumHeight));
+      expect(_gridHeight(tester), lessThan(500));
+      expect(find.text('Person 5'), findsOneWidget);
+      expect(find.byKey(const ValueKey('rdg-pager')), findsOneWidget);
+    });
+
+    testWidgets('does not expand the inner host in a tight parent', (
+      tester,
+    ) async {
       await _pump(
         tester,
         child: SizedBox(
@@ -479,9 +584,8 @@ void main() {
           child: _grid(sizing: GridSizing.shrinkWrap, pageSize: 5),
         ),
       );
-      expect(_gridHeight(tester), lessThan(760));
+      expect(_gridHeight(tester), lessThan(500));
       expect(find.text('Person 5'), findsOneWidget);
-      expect(find.byKey(const ValueKey('rdg-pager')), findsOneWidget);
     });
   });
 
