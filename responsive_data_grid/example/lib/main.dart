@@ -6,6 +6,10 @@ import 'package:intl/intl.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:responsive_data_grid/responsive_data_grid.dart';
 
+import 'demo_screens.dart';
+
+const demoScreen = String.fromEnvironment('DEMO_SCREEN');
+
 void main() {
   if (kDebugMode) {
     FlutterSkillBinding.ensureInitialized();
@@ -76,9 +80,8 @@ class _MyAppState extends State<MyApp> {
     setState(() => _locale = locale);
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final home = MyHomePage(
+  Widget _kitchenSink() {
+    return MyHomePage(
       title: 'Responsive Data Grid',
       palette: _palette,
       design: _design,
@@ -87,6 +90,20 @@ class _MyAppState extends State<MyApp> {
       onDesign: (value) => setState(() => _design = value),
       onLocale: _setLocale,
     );
+  }
+
+  Widget _home() {
+    final entry = demoEntryById(demoScreen);
+    if (entry != null) {
+      if (entry.id == 'kitchen-sink') return _kitchenSink();
+      return Builder(builder: entry.builder);
+    }
+    return DemoHomeScreen(kitchenSink: (_) => _kitchenSink());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final home = _home();
     if (_design == DemoDesign.cupertino) {
       return cupertino.CupertinoApp(
         title: 'Responsive Data Grid',

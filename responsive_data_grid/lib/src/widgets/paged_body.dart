@@ -5,13 +5,15 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
   final ResponsiveDataGridState<TItem> gridState;
   final ThemeData theme;
   final bool shrinkWrap;
+  final bool neverScroll;
 
   const ResponsiveDataGridPagedBodyWidget({
     super.key,
     required this.gridState,
     required this.theme,
     this.shrinkWrap = false,
-  });
+    bool? neverScroll,
+  }) : neverScroll = neverScroll ?? shrinkWrap;
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +43,7 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
   }) {
     if (!nested && !shrinkWrap) {
       return CustomScrollView(
+        key: const ValueKey('rdg-body-scroll'),
         slivers: [
           for (final group in groups)
             ..._stickyGroupSlivers(
@@ -58,8 +61,11 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
     final wrap = nested || shrinkWrap;
 
     return ListView.builder(
+      key: nested ? null : const ValueKey('rdg-body-scroll'),
       shrinkWrap: wrap,
-      physics: wrap ? const NeverScrollableScrollPhysics() : null,
+      physics: nested || neverScroll
+          ? const NeverScrollableScrollPhysics()
+          : null,
       itemBuilder: (context, index) {
         return GridGroupSection<TItem>(
           response: response,
@@ -218,7 +224,7 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
     bool allowReorder = true,
   }) {
     const scrollKey = ValueKey('rdg-body-scroll');
-    final physics = wrap ? const NeverScrollableScrollPhysics() : null;
+    final physics = neverScroll ? const NeverScrollableScrollPhysics() : null;
     final reorder =
         allowReorder &&
         gridState.canReorderRows &&
