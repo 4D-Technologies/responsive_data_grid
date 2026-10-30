@@ -186,6 +186,14 @@ void main() {
     expect(find.textContaining('filters 1'), findsOneWidget);
     expect(find.textContaining('Ada Lovelace'), findsWidgets);
     expect(find.textContaining('Jane Doe'), findsNothing);
+
+    await tester.tap(find.byKey(const ValueKey('rdg-pager-page-2')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(tester.takeException(), isNull);
+    expect(find.textContaining('filters 1'), findsOneWidget);
+    expect(find.textContaining('Ada Lovelace'), findsWidgets);
+    expect(find.textContaining('Jane Doe'), findsNothing);
   });
 
   testWidgets('empty screen shows noResults', (tester) async {

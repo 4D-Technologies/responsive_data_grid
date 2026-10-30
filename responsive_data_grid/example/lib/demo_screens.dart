@@ -479,6 +479,7 @@ dynamic _exampleField(String fieldName, ExampleData item) {
 
 class _ServerSideScreenState extends State<ServerSideScreen> {
   LoadCriteria? _last;
+  final _columns = exampleColumns();
 
   Future<ListResponse<ExampleData>?> _load(LoadCriteria criteria) async {
     _last = criteria;
@@ -511,7 +512,7 @@ class _ServerSideScreenState extends State<ServerSideScreen> {
             Expanded(
               child: ResponsiveDataGrid<ExampleData>.serverSide(
                 loadData: _load,
-                columns: exampleColumns(),
+                columns: _columns,
                 pageSize: 15,
                 pagingMode: PagingMode.pager,
                 sizing: GridSizing.fill,
