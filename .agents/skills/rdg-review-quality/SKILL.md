@@ -37,6 +37,8 @@ open ledger ids. Missing spec → stop.
 - **90%+** coverage of changed production executable lines, or
   implementer evidence in the ledger. Review the tests themselves
   (weak asserts, missing negatives).
+- Layout/visual diffs: a `getRect`/`getSize` expect that names the
+  spec relationship (gap, pager, chrome).
 
 ## Emit
 

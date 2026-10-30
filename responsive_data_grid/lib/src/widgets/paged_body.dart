@@ -59,25 +59,48 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
 
     // Nested group lists live inside a Column, so they must always shrink-wrap.
     final wrap = nested || shrinkWrap;
+    Widget groupAt(int index) {
+      return GridGroupSection<TItem>(
+        response: response,
+        group: groups[index],
+        items: items,
+        depth: depth,
+        path: path,
+        gridState: gridState,
+        theme: theme,
+      );
+    }
 
-    return ListView.builder(
-      key: nested ? null : const ValueKey('rdg-body-scroll'),
-      shrinkWrap: wrap,
-      physics: nested || neverScroll
-          ? const NeverScrollableScrollPhysics()
-          : null,
-      itemBuilder: (context, index) {
-        return GridGroupSection<TItem>(
-          response: response,
-          group: groups[index],
-          items: items,
-          depth: depth,
-          path: path,
-          gridState: gridState,
-          theme: theme,
-        );
+    Widget groupsList(int extra) {
+      return ListView.builder(
+        key: nested ? null : const ValueKey('rdg-body-scroll'),
+        shrinkWrap: wrap,
+        physics: nested || neverScroll
+            ? const NeverScrollableScrollPhysics()
+            : null,
+        itemBuilder: (context, index) {
+          if (index < groups.length) return groupAt(index);
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              gridRowSeparator(context, gridState.widget.separatorThickness),
+              _GridEmptyRow(
+                index: index - groups.length,
+                height: _fillRowHeight,
+              ),
+            ],
+          );
+        },
+        itemCount: groups.length + extra,
+      );
+    }
+
+    if (nested || !_usesFillChrome) return groupsList(0);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final occupied = countGroupNodes(groups) + items.length;
+        return groupsList(_fillExtraCount(occupied, constraints));
       },
-      itemCount: groups.length,
     );
   }
 
@@ -143,8 +166,7 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
       if (seen.add(item)) bucket.add(item);
     }
 
-    final pinEnabled =
-        gridState._activePagingMode != PagingMode.infiniteScroll;
+    final pinEnabled = gridState._activePagingMode != PagingMode.infiniteScroll;
     if (pinEnabled) {
       for (final item in gridState._pinnedTop) {
         take(top, item);
@@ -219,8 +241,7 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
     List<TItem> items, {
     required bool wrap,
     required EdgeInsets padding,
-    required DataGridRowWidget<TItem> Function(TItem item, {int? index})
-    rowFor,
+    required DataGridRowWidget<TItem> Function(TItem item, {int? index}) rowFor,
     bool allowReorder = true,
   }) {
     const scrollKey = ValueKey('rdg-body-scroll');
@@ -230,8 +251,9 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
         gridState.canReorderRows &&
         gridState.widget.layoutMode == GridLayoutMode.table;
     final useSticky = !reorder && items.any(gridState.isRowSticky);
+    late final Widget list;
     if (reorder) {
-      return ReorderableListView.builder(
+      list = ReorderableListView.builder(
         key: scrollKey,
         shrinkWrap: wrap,
         physics: physics,
@@ -241,12 +263,10 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
         onReorderItem: (from, to) {
           gridState.reorderRow(from, to, adjustForRemoval: false);
         },
-        itemBuilder: (context, index) =>
-            rowFor(items[index], index: index),
+        itemBuilder: (context, index) => rowFor(items[index], index: index),
       );
-    }
-    if (useSticky) {
-      return CustomScrollView(
+    } else if (useSticky) {
+      list = CustomScrollView(
         key: scrollKey,
         shrinkWrap: wrap,
         physics: physics,
@@ -256,9 +276,7 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
               SliverPersistentHeader(
                 pinned: true,
                 delegate: _StickyRowHeaderDelegate(
-                  height:
-                      24 +
-                      gridState.widget.contentPadding.vertical,
+                  height: 24 + gridState.widget.contentPadding.vertical,
                   background: ResponsiveDataGridTheme.of(
                     gridState.context,
                   ).rowBackground,
@@ -269,17 +287,99 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
               SliverToBoxAdapter(child: rowFor(items[i], index: i)),
         ],
       );
+    } else if (_usesFillChrome) {
+      list = LayoutBuilder(
+        builder: (context, constraints) {
+          final extra = _fillExtraCount(items.length, constraints);
+          return ListView.separated(
+            key: scrollKey,
+            separatorBuilder: (context, index) =>
+                gridRowSeparator(context, gridState.widget.separatorThickness),
+            shrinkWrap: wrap,
+            scrollDirection: Axis.vertical,
+            physics: physics,
+            padding: padding,
+            itemCount: items.length + extra,
+            itemBuilder: (context, index) {
+              if (index < items.length) {
+                return rowFor(items[index], index: index);
+              }
+              return _GridEmptyRow(
+                index: index - items.length,
+                height: _fillRowHeight,
+              );
+            },
+          );
+        },
+      );
+    } else {
+      list = ListView.separated(
+        key: scrollKey,
+        separatorBuilder: (context, index) =>
+            gridRowSeparator(context, gridState.widget.separatorThickness),
+        shrinkWrap: wrap,
+        scrollDirection: Axis.vertical,
+        physics: physics,
+        padding: padding,
+        itemCount: items.length,
+        itemBuilder: (context, index) => rowFor(items[index], index: index),
+      );
     }
-    return ListView.separated(
-      key: scrollKey,
-      separatorBuilder: (context, index) =>
-          gridRowSeparator(context, gridState.widget.separatorThickness),
-      shrinkWrap: wrap,
-      scrollDirection: Axis.vertical,
-      physics: physics,
-      padding: padding,
-      itemCount: items.length,
-      itemBuilder: (context, index) => rowFor(items[index], index: index),
+    return list;
+  }
+
+  bool get _usesFillChrome => gridState.widget.sizing == GridSizing.fill;
+
+  double get _fillRowHeight {
+    final theme = ResponsiveDataGridTheme.of(gridState.context);
+    return gridRowExtent(
+      theme: theme,
+      contentPadding: gridState.widget.contentPadding,
+      rowSpacing: gridState.widget.rowSpacing,
+    );
+  }
+
+  double get _fillSlot {
+    final theme = ResponsiveDataGridTheme.of(gridState.context);
+    final separator = gridState.widget.separatorThickness ?? theme.borderWidth;
+    return _fillRowHeight + separator;
+  }
+
+  int _fillExtraCount(int realCount, BoxConstraints constraints) {
+    final slot = _fillSlot;
+    if (slot <= 0) return 0;
+    if (!constraints.hasBoundedHeight || !constraints.maxHeight.isFinite) {
+      return math.max(0, gridState._pageSize - realCount);
+    }
+    return math.max(0, (constraints.maxHeight / slot).ceil() - realCount);
+  }
+}
+
+class _GridEmptyRow extends StatelessWidget {
+  final int index;
+  final double height;
+
+  const _GridEmptyRow({required this.index, required this.height});
+
+  @override
+  Widget build(BuildContext context) {
+    final gridTheme = ResponsiveDataGridTheme.of(context);
+    final layout = GridTableLayout.maybeOf(context);
+    final row = layout != null && layout.layoutMode == GridLayoutMode.table
+        ? GridTableRow(
+            cellCount: layout.columnWidths.length,
+            widths: layout.columnWidths,
+            frozenCount: layout.frozenCount,
+            frozenBackground: gridTheme.rowBackground,
+            cellBuilder: (_) => const SizedBox.expand(),
+          )
+        : const SizedBox.expand();
+    return ExcludeSemantics(
+      key: ValueKey('rdg-empty-row-$index'),
+      child: ColoredBox(
+        color: gridTheme.rowBackground,
+        child: SizedBox(height: height, width: double.infinity, child: row),
+      ),
     );
   }
 }

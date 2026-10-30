@@ -1,5 +1,9 @@
 # Change Log
 
+## [1.1.1] - October 30th, 2026
+
+- `GridSizing.fill` paints empty row chrome from the last data row down to the pager when the current page has fewer rows than the filled body.
+
 ## [1.1.0] - October 30th, 2026
 
 - README and example catalog cover V2: server-side `LoadCriteria`, paging modes, typed columns, empty/error, freeze/visibility, fill/shrink-wrap, theming, and grouping+infinite policy.

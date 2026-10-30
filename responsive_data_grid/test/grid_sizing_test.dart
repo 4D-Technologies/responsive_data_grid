@@ -43,6 +43,43 @@ List<_Person> _people(int count) {
 
 Finder _heightBox() => find.byKey(const ValueKey('rdg-height'));
 
+Finder _pager() => find.byKey(const ValueKey('rdg-pager'));
+
+Finder _emptyRows() => find.byWidgetPredicate((widget) {
+  final key = widget.key;
+  return key is ValueKey<String> && key.value.startsWith('rdg-empty-row-');
+});
+
+Finder _emptyRow(int index) => find.byKey(ValueKey('rdg-empty-row-$index'));
+
+void _expectFillChromeToPager(
+  WidgetTester tester, {
+  required double lastDataBottom,
+}) {
+  final host = tester.getRect(_heightBox());
+  final pager = tester.getRect(_pager());
+  expect(_emptyRow(0), findsOneWidget);
+  expect(pager.bottom, closeTo(host.bottom, 4));
+  expect(
+    tester.getRect(_emptyRow(0)).top,
+    greaterThanOrEqualTo(lastDataBottom - 1),
+  );
+  var lastEmpty = tester.getRect(_emptyRow(0));
+  for (var i = 1; ; i++) {
+    final next = _emptyRow(i);
+    if (next.evaluate().isEmpty) break;
+    final rect = tester.getRect(next);
+    if (rect.top >= pager.top - 1) break;
+    lastEmpty = rect;
+  }
+  expect(lastEmpty.top, lessThan(pager.top + 1));
+  expect(
+    pager.top - lastEmpty.bottom,
+    lessThan(36),
+    reason: 'empty chrome meets the pager within one row-extent',
+  );
+}
+
 double _gridHeight(WidgetTester tester) => tester.getSize(_heightBox()).height;
 
 double _widgetHeight(WidgetTester tester) =>
@@ -491,10 +528,7 @@ void main() {
           ],
         ),
       );
-      expect(
-        thickKey.currentState!.minimumHeight - thin,
-        closeTo(30, 1),
-      );
+      expect(thickKey.currentState!.minimumHeight - thin, closeTo(30, 1));
     });
 
     testWidgets('changing page size updates the minimum', (tester) async {
@@ -545,6 +579,125 @@ void main() {
       );
       expect(groupedHeight, greaterThan(plainKey.currentState!.minimumHeight));
     });
+
+    testWidgets('sparse page paints empty row chrome down to the pager', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        view: const Size(1100, 800),
+        child: SizedBox(
+          width: 1100,
+          height: 760,
+          child: _grid(
+            items: _people(2),
+            sizing: GridSizing.fill,
+            pageSize: 20,
+          ),
+        ),
+      );
+
+      _expectFillChromeToPager(
+        tester,
+        lastDataBottom: tester.getRect(find.text('Person 2')).bottom,
+      );
+    });
+
+    testWidgets('full page in a taller parent keeps the pager at the bottom', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        view: const Size(1100, 800),
+        child: SizedBox(
+          width: 1100,
+          height: 760,
+          child: _grid(
+            items: _people(10),
+            sizing: GridSizing.fill,
+            pageSize: 10,
+          ),
+        ),
+      );
+      final host = tester.getRect(_heightBox());
+      final pager = tester.getRect(_pager());
+      expect(find.text('Person 10'), findsOneWidget);
+      expect(pager.bottom, closeTo(host.bottom, 4));
+      expect(
+        tester.getRect(find.text('Person 10')).bottom,
+        lessThan(pager.top),
+      );
+    });
+
+    testWidgets('unbounded fill with few rows still has empty chrome', (
+      tester,
+    ) async {
+      final key = GlobalKey<ResponsiveDataGridState<_Person>>();
+      await _pump(
+        tester,
+        child: ListView(
+          children: [
+            _grid(
+              key: key,
+              items: _people(2),
+              sizing: GridSizing.fill,
+              pageSize: 8,
+            ),
+          ],
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      expect(_emptyRow(0), findsOneWidget);
+      expect(
+        _widgetHeight(tester),
+        closeTo(key.currentState!.minimumHeight, 4),
+      );
+      expect(find.text('Person 2'), findsOneWidget);
+      expect(_pager(), findsOneWidget);
+    });
+
+    testWidgets('short parent inner scroll has no empty rows', (tester) async {
+      await _pump(
+        tester,
+        view: const Size(900, 320),
+        child: SizedBox(
+          width: 900,
+          height: 260,
+          child: _grid(sizing: GridSizing.fill, pageSize: 10),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      expect(_emptyRows(), findsNothing);
+      final body = tester.widget<ScrollView>(
+        find.byKey(const ValueKey('rdg-body-scroll')),
+      );
+      expect(body.physics, isNot(isA<NeverScrollableScrollPhysics>()));
+    });
+
+    testWidgets('grouped fill keeps group chrome and empty rows below', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        view: const Size(1100, 800),
+        child: SizedBox(
+          width: 1100,
+          height: 760,
+          child: _grid(
+            items: _people(4),
+            sizing: GridSizing.fill,
+            pageSize: 10,
+            grouping: true,
+          ),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      final lastDataBottom = [
+        for (final name in ['Person 1', 'Person 2', 'Person 3', 'Person 4'])
+          tester.getRect(find.text(name)).bottom,
+      ].reduce((a, b) => a > b ? a : b);
+      _expectFillChromeToPager(tester, lastDataBottom: lastDataBottom);
+    });
   });
 
   group('shrinkWrap pager layout', () {
@@ -558,11 +711,7 @@ void main() {
           alignment: Alignment.topCenter,
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 900, maxHeight: 760),
-            child: _grid(
-              key: key,
-              sizing: GridSizing.shrinkWrap,
-              pageSize: 5,
-            ),
+            child: _grid(key: key, sizing: GridSizing.shrinkWrap, pageSize: 5),
           ),
         ),
       );
@@ -632,11 +781,7 @@ void main() {
           tester,
           child: ListView(
             children: [
-              _grid(
-                pagingMode: PagingMode.auto,
-                height: 400,
-                pageSize: 10,
-              ),
+              _grid(pagingMode: PagingMode.auto, height: 400, pageSize: 10),
             ],
           ),
         );
@@ -653,9 +798,7 @@ void main() {
   });
 
   group('infinite scroll bounds', () {
-    testWidgets('stays within min and max in a bounded parent', (
-      tester,
-    ) async {
+    testWidgets('stays within min and max in a bounded parent', (tester) async {
       await _pump(
         tester,
         child: SizedBox(

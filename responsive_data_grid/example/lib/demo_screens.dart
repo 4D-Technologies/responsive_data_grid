@@ -78,6 +78,13 @@ final demoEntries = <DemoEntry>[
     builder: (context) => const PagedFillTallScreen(),
   ),
   DemoEntry(
+    id: 'paged-fill-sparse',
+    section: 'Height',
+    title: 'Paged fill, few rows',
+    subtitle: 'Two rows of twenty; empty chrome down to the pager',
+    builder: (context) => const PagedFillSparseScreen(),
+  ),
+  DemoEntry(
     id: 'paged-fill-unbounded',
     section: 'Height',
     title: 'Paged fill in a ListView',
@@ -301,6 +308,27 @@ class PagedFillTallScreen extends StatelessWidget {
   }
 }
 
+class PagedFillSparseScreen extends StatelessWidget {
+  const PagedFillSparseScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Paged fill, few rows')),
+      body: Padding(
+        padding: const EdgeInsets.all(12),
+        child: ResponsiveDataGrid<ExampleData>.clientSide(
+          items: exampleRows(2),
+          columns: exampleColumns(),
+          pageSize: 20,
+          pagingMode: PagingMode.pager,
+          sizing: GridSizing.fill,
+        ),
+      ),
+    );
+  }
+}
+
 class PagedFillUnboundedScreen extends StatelessWidget {
   const PagedFillUnboundedScreen({super.key});
 
@@ -340,7 +368,9 @@ class PagedFillGroupsScreen extends StatelessWidget {
         key: const ValueKey('host-scroll'),
         padding: const EdgeInsets.all(12),
         children: [
-          const Text('Grouped page includes group headers in the minimum height.'),
+          const Text(
+            'Grouped page includes group headers in the minimum height.',
+          ),
           const SizedBox(height: 12),
           ResponsiveDataGrid<ExampleData>.clientSide(
             items: exampleRows(80),

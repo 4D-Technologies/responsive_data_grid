@@ -1,6 +1,6 @@
 ---
 name: flutter-add-widget-test
-description: Implement a component-level test using `WidgetTester` to verify UI rendering and user interactions (tapping, scrolling, entering text). Use when validating that a specific widget displays correct data and responds to events as expected.
+description: Implement a component-level test using `WidgetTester` to verify UI rendering and user interactions (tapping, scrolling, entering text). Use when validating that a specific widget displays correct data and responds to events as expected. For layout, gaps, chrome, overflow, or fill/pager geometry, measure getRect and take a screenshot.
 metadata:
   model: models/gemini-3.1-pro-preview
   last_modified: Tue, 21 Apr 2026 21:15:41 GMT
@@ -10,6 +10,7 @@ metadata:
 ## Contents
 - [Setup & Configuration](#setup--configuration)
 - [Core Components](#core-components)
+- [Layout and screenshots](#layout-and-screenshots)
 - [Workflow: Implementing a Widget Test](#workflow-implementing-a-widget-test)
 - [Interaction & State Management](#interaction--state-management)
 - [Examples](#examples)
@@ -30,6 +31,18 @@ Utilize the following `flutter_test` components to interact with and validate th
 *   **`Finder`**: Locates widgets in the test environment (e.g., `find.text('Submit')`, `find.byType(TextField)`, `find.byKey(Key('submit_btn'))`).
 *   **`Matcher`**: Verifies the presence or state of widgets located by a `Finder` (e.g., `findsOneWidget`, `findsNothing`, `findsNWidgets(2)`, `matchesGoldenFile`).
 
+## Layout and screenshots
+
+When the spec names a gap, fill, pager position, overflow, or table chrome, the test **measures pixels**. The completion criterion is a `getRect` relationship named by the spec plus a screenshot you have looked at.
+
+1. Pin the surface: `tester.view.physicalSize = Size(w, h)` and `devicePixelRatio = 1.0`, with `addTearDown` resets.
+2. Wrap the host in a `RepaintBoundary` keyed for capture.
+3. Read `tester.getRect` / `getSize` on `rdg-height`, the last data row, `rdg-body-scroll`, `rdg-pager`, and any new keys (`rdg-empty-row-*`).
+4. Screenshot inside `tester.runAsync`: `RenderRepaintBoundary.toImage` → PNG. Look at the image. The PNG is how you confirm chrome; geometry `expect`s are the CI contract.
+5. Assert the relationship the spec named (example: last empty-row bottom is within one row-extent of `pager.top`; pager sits at the bottom of `rdg-height`).
+
+**Done when** the screenshot shows that relationship and at least one `getRect` expect names it.
+
 ## Workflow: Implementing a Widget Test
 
 Copy the following checklist to track progress when implementing a new widget test.
@@ -38,7 +51,7 @@ Copy the following checklist to track progress when implementing a new widget te
 - [ ] **Step 1: Define the test.** Use `testWidgets('description', (WidgetTester tester) async { ... })`.
 - [ ] **Step 2: Build the widget.** Call `await tester.pumpWidget(MyWidget())` to render the UI. Wrap the widget in a `MaterialApp` or `Directionality` widget if it requires inherited directional or theme data.
 - [ ] **Step 3: Locate elements.** Instantiate `Finder` objects for the target widgets.
-- [ ] **Step 4: Verify initial state.** Use `expect(finder, matcher)` to validate the initial render.
+- [ ] **Step 4: Verify initial state.** Use `expect(finder, matcher)` to validate the initial render. For layout specs, `getRect` the host, last row, body, and pager, and look at a `runAsync` screenshot before writing expects.
 - [ ] **Step 5: Simulate interactions.** Execute gestures or inputs (e.g., `await tester.tap(buttonFinder)`).
 - [ ] **Step 6: Rebuild the tree.** Call `await tester.pump()` or `await tester.pumpAndSettle()` to process state changes.
 - [ ] **Step 7: Verify updated state.** Use `expect()` to validate the UI after the interaction.

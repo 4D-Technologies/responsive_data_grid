@@ -108,7 +108,7 @@ ResponsiveDataGrid<Order>.serverSide(
 ## Height and scrolling
 
 - `GridSizing.auto` (default): `height` if set, otherwise fill a bounded parent or shrink-wrap in a scroll view
-- `GridSizing.fill`: never shorter than one page of rows plus header, filter row, groups, footers, and pager. A taller parent is filled. A short tight parent keeps an inner body scrollbar. An unbounded parent (tab `ListView`) uses that minimum so the **host** scrolls
+- `GridSizing.fill`: never shorter than one page of rows plus header, filter row, groups, footers, and pager. A taller parent is filled. Empty row chrome continues from the last data row down to the pager. A short tight parent keeps an inner body scrollbar. An unbounded parent (tab `ListView`) uses that minimum so the **host** scrolls
 - `GridSizing.shrinkWrap`: size to the current page; the host scrolls
 - Infinite scroll clamps the **entire** grid between `minHeight` and `maxHeight`, including inside an unbounded parent
 
