@@ -1,8 +1,13 @@
 name: responsive_data_grid
 description: Responsive Data Grid for Flutter inspired by Kendo UI's Grid functionality with full filtering, sorting, and paging that also responds dynamically to screen size using the same metaphor as bootstrap grid.
-version: 1.0.3
+version: 1.1.0
 homepage: https://github.com/4D-Technologies/responsive_data_grid/tree/main/responsive_data_grid
 repository: https://github.com/4D-Technologies/responsive_data_grid
+screenshots:
+  - description: Kitchen sink with grouping, filters, multi-sort, search, and pager.
+    path: doc/kitchen-sink.png
+  - description: Example catalog covering data, paging, height, and column scenarios.
+    path: doc/catalog.png
 
 environment:
   sdk: ">=3.12.0 <4.0.0"

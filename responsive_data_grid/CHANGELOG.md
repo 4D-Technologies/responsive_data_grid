@@ -1,7 +1,8 @@
 # Change Log
 
-## Unreleased
+## [1.1.0] - October 30th, 2026
 
+- README and example catalog cover V2: server-side `LoadCriteria`, paging modes, typed columns, empty/error, freeze/visibility, fill/shrink-wrap, theming, and grouping+infinite policy.
 - `GridSizing.fill` sizes a paged grid to at least one full page of rows plus header, groups, footers, and pager, then fills a taller parent. The host page or tab scrolls; the grid body does not. Infinite scroll clamps the entire grid between `minHeight` and `maxHeight`, including in unbounded parents. `ResponsiveDataGridState.minimumHeight` exposes the computed floor.
 - Per-column `rowspan` / `rowspanFor` hide consecutive equal formatted body cells on the ungrouped pager (not a stretched HTML rowspan). `colspan` occupies adjacent body columns in table layout (headers stay 1:1).
 - Stacked headers via `headerGroups` (table layout; reflow shows leaf headers only) and `CommandColumn` for row actions that do not sort, filter, group, or aggregate.
