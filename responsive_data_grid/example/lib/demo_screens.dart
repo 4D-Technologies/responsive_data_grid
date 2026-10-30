@@ -462,21 +462,32 @@ class ServerSideScreen extends StatefulWidget {
   State<ServerSideScreen> createState() => _ServerSideScreenState();
 }
 
+dynamic _exampleField(String fieldName, ExampleData item) {
+  switch (fieldName) {
+    case 'id':
+      return item.id;
+    case 'name':
+      return item.name;
+    case 'team':
+      return item.team;
+    case 'dob':
+      return item.dob;
+    default:
+      return null;
+  }
+}
+
 class _ServerSideScreenState extends State<ServerSideScreen> {
   LoadCriteria? _last;
 
   Future<ListResponse<ExampleData>?> _load(LoadCriteria criteria) async {
     _last = criteria;
     await Future<void>.delayed(const Duration(milliseconds: 40));
-    final all = exampleRows(80);
-    final skip = criteria.skip ?? 0;
-    final take = criteria.take ?? 15;
     if (mounted) setState(() {});
-    return ListResponse<ExampleData>(
-      totalCount: all.length,
-      items: all.skip(skip).take(take).toList(),
-      groups: const [],
-      aggregates: const [],
+    return ListResponse.fromData(
+      data: exampleRows(80),
+      criteria: criteria,
+      getFieldValue: _exampleField,
     );
   }
 
