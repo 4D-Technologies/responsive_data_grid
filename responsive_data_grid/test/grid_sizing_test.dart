@@ -587,6 +587,29 @@ void main() {
       expect(_gridHeight(tester), lessThan(500));
       expect(find.text('Person 5'), findsOneWidget);
     });
+
+    testWidgets('auto paging stays content-sized and shows a pager', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 900, maxHeight: 760),
+            child: _grid(
+              sizing: GridSizing.shrinkWrap,
+              pagingMode: PagingMode.auto,
+              pageSize: 5,
+            ),
+          ),
+        ),
+      );
+      expect(_widgetHeight(tester), lessThan(500));
+      expect(_gridHeight(tester), lessThan(500));
+      expect(find.byKey(const ValueKey('rdg-pager')), findsOneWidget);
+      expect(find.text('Person 5'), findsOneWidget);
+    });
   });
 
   group('fixed and auto behaviour', () {
@@ -601,6 +624,32 @@ void main() {
       );
       expect(_gridHeight(tester), closeTo(420, 2));
     });
+
+    testWidgets(
+      'auto + explicit height in a ListView stays infinite, no pager',
+      (tester) async {
+        await _pump(
+          tester,
+          child: ListView(
+            children: [
+              _grid(
+                pagingMode: PagingMode.auto,
+                height: 400,
+                pageSize: 10,
+              ),
+            ],
+          ),
+        );
+        expect(tester.takeException(), isNull);
+        expect(_gridHeight(tester), closeTo(400, 2));
+        expect(find.byKey(const ValueKey('rdg-pager')), findsNothing);
+        expect(
+          find.byType(ResponsiveGridInfiniteScrollBodyWidget<_Person>),
+          findsOneWidget,
+        );
+        expect(find.text('Person 1'), findsOneWidget);
+      },
+    );
   });
 
   group('infinite scroll bounds', () {

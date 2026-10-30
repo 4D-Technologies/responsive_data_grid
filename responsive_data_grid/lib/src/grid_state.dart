@@ -209,7 +209,13 @@ class ResponsiveDataGridState<TItem extends Object>
         widget.sizing == GridSizing.shrinkWrap) {
       return PagingMode.pager;
     }
-    return outer.hasBoundedHeight && outer.maxHeight.isFinite
+    // Match BASE: auto keyed off the inner box after SizedBox(height).
+    // An explicit or resizable host height is bounded even in a ListView.
+    final hostHeight = widget.resizable
+        ? (_height ?? widget.height ?? 400)
+        : widget.height;
+    final boundedParent = outer.hasBoundedHeight && outer.maxHeight.isFinite;
+    return boundedParent || hostHeight != null
         ? PagingMode.infiniteScroll
         : PagingMode.pager;
   }
