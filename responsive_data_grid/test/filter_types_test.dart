@@ -3,6 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:responsive_data_grid/responsive_data_grid.dart';
 
+enum _Team { red, blue }
+
 class _Person {
   final String name;
   final bool accepted;
@@ -11,6 +13,7 @@ class _Person {
   final DateTime born;
   final Duration shift;
   final TimeOfDay start;
+  final _Team team;
 
   _Person(
     this.name, {
@@ -20,6 +23,7 @@ class _Person {
     required this.born,
     required this.shift,
     required this.start,
+    required this.team,
   });
 }
 
@@ -31,6 +35,7 @@ final _ada = _Person(
   born: DateTime(2020, 1, 15),
   shift: const Duration(hours: 8),
   start: const TimeOfDay(hour: 9, minute: 0),
+  team: _Team.red,
 );
 
 final _grace = _Person(
@@ -41,6 +46,7 @@ final _grace = _Person(
   born: DateTime(2021, 6, 1),
   shift: const Duration(hours: 4),
   start: const TimeOfDay(hour: 17, minute: 0),
+  team: _Team.blue,
 );
 
 List<GridColumn<_Person, dynamic>> _columns() {
@@ -85,6 +91,14 @@ List<GridColumn<_Person, dynamic>> _columns() {
       fieldName: 'start',
       header: const ColumnHeader(text: 'Start', showFilter: true),
       value: (row) => row.start,
+      xsCols: 4,
+    ),
+    EnumColumn<_Person, _Team>(
+      fieldName: 'team',
+      header: const ColumnHeader(text: 'Team', showFilter: true),
+      values: _Team.values,
+      valueText: (e) => e.name,
+      value: (row) => row.team,
       xsCols: 4,
     ),
   ];
@@ -135,10 +149,7 @@ Future<void> _clear(
   WidgetTester tester,
   GlobalKey<ResponsiveDataGridState<_Person>> key,
 ) async {
-  for (final column in key.currentState!.widget.columns) {
-    column.filterRules.criteria = null;
-  }
-  await key.currentState!.refreshData();
+  await key.currentState!.clearFilters();
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 50));
 }
@@ -251,6 +262,23 @@ void main() {
           op: Operators.and,
           logicalOperator: Logic.equals,
           values: [TimeOfDay(hour: 9, minute: 0)],
+        ),
+      );
+      _expectOnlyAda(tester);
+      await _clear(tester, key);
+      _expectBoth(tester);
+    });
+
+    testWidgets('enum', (tester) async {
+      final key = await _pump(tester);
+      await _apply(
+        tester,
+        key,
+        const FilterCriteria<_Team>(
+          fieldName: 'team',
+          op: Operators.and,
+          logicalOperator: Logic.equals,
+          values: [_Team.red],
         ),
       );
       _expectOnlyAda(tester);
