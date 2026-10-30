@@ -52,6 +52,34 @@ Finder _emptyRows() => find.byWidgetPredicate((widget) {
 
 Finder _emptyRow(int index) => find.byKey(ValueKey('rdg-empty-row-$index'));
 
+void _expectFillChromeToPager(
+  WidgetTester tester, {
+  required double lastDataBottom,
+}) {
+  final host = tester.getRect(_heightBox());
+  final pager = tester.getRect(_pager());
+  expect(_emptyRow(0), findsOneWidget);
+  expect(pager.bottom, closeTo(host.bottom, 4));
+  expect(
+    tester.getRect(_emptyRow(0)).top,
+    greaterThanOrEqualTo(lastDataBottom - 1),
+  );
+  var lastEmpty = tester.getRect(_emptyRow(0));
+  for (var i = 1; ; i++) {
+    final next = _emptyRow(i);
+    if (next.evaluate().isEmpty) break;
+    final rect = tester.getRect(next);
+    if (rect.top >= pager.top - 1) break;
+    lastEmpty = rect;
+  }
+  expect(lastEmpty.top, lessThan(pager.top + 1));
+  expect(
+    pager.top - lastEmpty.bottom,
+    lessThan(36),
+    reason: 'empty chrome meets the pager within one row-extent',
+  );
+}
+
 double _gridHeight(WidgetTester tester) => tester.getSize(_heightBox()).height;
 
 double _widgetHeight(WidgetTester tester) =>
@@ -569,23 +597,9 @@ void main() {
         ),
       );
 
-      final host = tester.getRect(_heightBox());
-      final pager = tester.getRect(_pager());
-      final lastData = tester.getRect(find.text('Person 2'));
-      expect(_emptyRow(0), findsOneWidget);
-      expect(pager.bottom, closeTo(host.bottom, 4));
-      expect(
-        tester.getRect(_emptyRow(0)).top,
-        greaterThanOrEqualTo(lastData.bottom - 1),
-      );
-
-      final empties = _emptyRows();
-      expect(tester.widgetList(empties), isNotEmpty);
-      final lastEmpty = tester.getRect(empties.last);
-      expect(
-        pager.top - lastEmpty.bottom,
-        lessThan(36),
-        reason: 'empty chrome meets the pager within one row-extent',
+      _expectFillChromeToPager(
+        tester,
+        lastDataBottom: tester.getRect(find.text('Person 2')).bottom,
       );
     });
 
@@ -678,12 +692,11 @@ void main() {
         ),
       );
       expect(tester.takeException(), isNull);
-      expect(_pager(), findsOneWidget);
-      expect(_emptyRow(0), findsOneWidget);
-      expect(
-        tester.getRect(_emptyRow(0)).top,
-        greaterThan(tester.getRect(find.text('Person 1')).bottom),
-      );
+      final lastDataBottom = [
+        for (final name in ['Person 1', 'Person 2', 'Person 3', 'Person 4'])
+          tester.getRect(find.text(name)).bottom,
+      ].reduce((a, b) => a > b ? a : b);
+      _expectFillChromeToPager(tester, lastDataBottom: lastDataBottom);
     });
   });
 

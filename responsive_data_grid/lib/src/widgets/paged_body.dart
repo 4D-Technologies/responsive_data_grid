@@ -59,6 +59,18 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
 
     // Nested group lists live inside a Column, so they must always shrink-wrap.
     final wrap = nested || shrinkWrap;
+    Widget groupAt(int index) {
+      return GridGroupSection<TItem>(
+        response: response,
+        group: groups[index],
+        items: items,
+        depth: depth,
+        path: path,
+        gridState: gridState,
+        theme: theme,
+      );
+    }
+
     Widget groupsList(int extra) {
       return ListView.builder(
         key: nested ? null : const ValueKey('rdg-body-scroll'),
@@ -67,20 +79,16 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
             ? const NeverScrollableScrollPhysics()
             : null,
         itemBuilder: (context, index) {
-          if (index < groups.length) {
-            return GridGroupSection<TItem>(
-              response: response,
-              group: groups[index],
-              items: items,
-              depth: depth,
-              path: path,
-              gridState: gridState,
-              theme: theme,
-            );
-          }
-          return _GridEmptyRow(
-            index: index - groups.length,
-            height: _fillRowHeight,
+          if (index < groups.length) return groupAt(index);
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              gridRowSeparator(context, gridState.widget.separatorThickness),
+              _GridEmptyRow(
+                index: index - groups.length,
+                height: _fillRowHeight,
+              ),
+            ],
           );
         },
         itemCount: groups.length + extra,
@@ -90,7 +98,8 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
     if (nested || !_usesFillChrome) return groupsList(0);
     return LayoutBuilder(
       builder: (context, constraints) {
-        return groupsList(_fillExtraCount(groups.length, constraints));
+        final occupied = countGroupNodes(groups) + items.length;
+        return groupsList(_fillExtraCount(occupied, constraints));
       },
     );
   }
@@ -330,10 +339,14 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
     );
   }
 
-  int _fillExtraCount(int realCount, BoxConstraints constraints) {
+  double get _fillSlot {
     final theme = ResponsiveDataGridTheme.of(gridState.context);
     final separator = gridState.widget.separatorThickness ?? theme.borderWidth;
-    final slot = _fillRowHeight + separator;
+    return _fillRowHeight + separator;
+  }
+
+  int _fillExtraCount(int realCount, BoxConstraints constraints) {
+    final slot = _fillSlot;
     if (slot <= 0) return 0;
     if (!constraints.hasBoundedHeight || !constraints.maxHeight.isFinite) {
       return math.max(0, gridState._pageSize - realCount);
@@ -344,9 +357,9 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
 
 class _GridEmptyRow extends StatelessWidget {
   final int index;
-  final double? height;
+  final double height;
 
-  const _GridEmptyRow({required this.index, this.height});
+  const _GridEmptyRow({required this.index, required this.height});
 
   @override
   Widget build(BuildContext context) {
@@ -361,12 +374,12 @@ class _GridEmptyRow extends StatelessWidget {
             cellBuilder: (_) => const SizedBox.expand(),
           )
         : const SizedBox.expand();
-    final body = height == null
-        ? SizedBox.expand(child: row)
-        : SizedBox(height: height, width: double.infinity, child: row);
     return ExcludeSemantics(
       key: ValueKey('rdg-empty-row-$index'),
-      child: ColoredBox(color: gridTheme.rowBackground, child: body),
+      child: ColoredBox(
+        color: gridTheme.rowBackground,
+        child: SizedBox(height: height, width: double.infinity, child: row),
+      ),
     );
   }
 }
