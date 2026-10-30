@@ -28,10 +28,7 @@ void main() {
 
     expect(find.byKey(const ValueKey('host-scroll')), findsOneWidget);
     expect(find.byKey(const ValueKey('rdg-pager')), findsOneWidget);
-    expect(
-      find.byType(ResponsiveDataGrid<demo.ExampleData>),
-      findsOneWidget,
-    );
+    expect(find.byType(ResponsiveDataGrid<demo.ExampleData>), findsOneWidget);
     expect(bodyScroll(tester).physics, isA<NeverScrollableScrollPhysics>());
     expect(bodyScroll(tester).shrinkWrap, isTrue);
     expect(
@@ -58,6 +55,26 @@ void main() {
     await openDemo(tester, 'paged-fill-tall');
     expect(find.byKey(const ValueKey('rdg-pager')), findsOneWidget);
     expect(find.text('John Doe'), findsWidgets);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('paged fill sparse page paints empty chrome to the pager', (
+    tester,
+  ) async {
+    await openDemo(tester, 'paged-fill-sparse');
+    expect(find.byKey(const ValueKey('rdg-pager')), findsOneWidget);
+    expect(find.byKey(const ValueKey('rdg-empty-row-0')), findsOneWidget);
+    final lastData = tester.getRect(find.text('Ada Lovelace'));
+    final pager = tester.getRect(find.byKey(const ValueKey('rdg-pager')));
+    final firstEmpty = tester.getRect(
+      find.byKey(const ValueKey('rdg-empty-row-0')),
+    );
+    expect(firstEmpty.top, greaterThanOrEqualTo(lastData.bottom - 1));
+    final empties = find.byWidgetPredicate((widget) {
+      final key = widget.key;
+      return key is ValueKey<String> && key.value.startsWith('rdg-empty-row-');
+    });
+    expect(pager.top - tester.getRect(empties.last).bottom, lessThan(40));
     expect(tester.takeException(), isNull);
   });
 
