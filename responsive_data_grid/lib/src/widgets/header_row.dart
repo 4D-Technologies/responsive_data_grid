@@ -34,6 +34,7 @@ class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               if (grid.widget.headerGroups != null &&
                   grid.widget.headerGroups!.isNotEmpty &&
@@ -43,6 +44,7 @@ class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
               grid.widget.filterable.usesRow
                   ? Column(
                       mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         _headerCells(context, gridTheme),
                         GridFilterRow<TItem>(grid: grid, columns: columns),
