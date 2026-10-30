@@ -1,6 +1,6 @@
 ---
 name: flutter-add-integration-test
-description: Configures Flutter Driver for app interaction and converts MCP actions into permanent integration tests. Use when adding integration testing to a project, exploring UI components via MCP, or automating user flows with the integration_test package.
+description: Configures Flutter integration tests and converts MCP actions into permanent tests. Use when adding integration testing, exploring UI via MCP, or automating user flows. For layout, gaps, chrome, or fill/pager geometry, screenshot and getRect first — see flutter-add-widget-test Layout and screenshots.
 metadata:
   model: models/gemini-3.1-pro-preview
   last_modified: Tue, 21 Apr 2026 18:29:20 GMT
@@ -75,18 +75,19 @@ Copy and follow this checklist to implement and verify integration tests.
 - [ ] **Task Progress: Setup**
   - [ ] Add `integration_test` and `flutter_test` to `pubspec.yaml`.
   - [ ] Inject `enableFlutterDriverExtension()` into the app entry point.
-  - [ ] Assign `ValueKey`s to target widgets.
+  - [ ] Assign `ValueKey`s to target widgets (`demo-<id>` on example routes; `rdg-*` on grid chrome).
 - [ ] **Task Progress: Exploration**
-  - [ ] Run `launch_app` via MCP.
-  - [ ] Map the widget tree using `get_widget_tree`.
+  - [ ] Run `launch_app` via MCP (example app is instrumented with `flutter_skill`).
+  - [ ] Screenshot the scenario. Inspect keys and `getRect` of host, last data row, body, pager.
   - [ ] Validate interaction paths using MCP tools (`tap`, `enter_text`).
 - [ ] **Task Progress: Authoring**
-  - [ ] Create `integration_test/app_test.dart`.
-  - [ ] Write test cases using `WidgetTester` APIs.
-  - [ ] Create `test_driver/integration_test.dart` with `integrationDriver()`.
+  - [ ] Create `example/integration_test/<name>_test.dart` (or package `test/` widget tests for geometry).
+  - [ ] For layout specs, follow **Layout and screenshots** in `flutter-add-widget-test`: `getRect` expects plus a screenshot you looked at.
+  - [ ] Write interaction cases using `WidgetTester` APIs.
 - [ ] **Task Progress: Execution & Feedback Loop**
-  - [ ] Run `flutter drive --driver=test_driver/integration_test.dart --target=integration_test/app_test.dart`.
-  - [ ] **Feedback Loop**: Review test output -> If `PumpAndSettleTimedOutException` occurs, check for infinite animations -> If widget not found, add `scrollUntilVisible` -> Re-run test until passing.
+  - [ ] Run `flutter test` in `responsive_data_grid/` (widget) and `flutter test integration_test/` in `example/` when the demo changed.
+  - [ ] Re-screenshot after the code change. Compare the same rect table (host, last row, empty chrome, pager).
+  - [ ] If `PumpAndSettleTimedOutException` occurs, check for infinite animations. If a widget is missing, `scrollUntilVisible`.
 
 ## Examples
 
