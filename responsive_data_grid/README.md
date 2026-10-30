@@ -12,7 +12,7 @@ For a fully automatic implementation that allows you to tie your responsive data
 2. Sorting (including multi-column sorting)
 3. Filtering (including mutli-column filtering with friendly interactive filter dialogs)
 4. Infinite scroll with load on demand
-5. Height, or shrinkwrap mode.
+5. Height: fixed, shrink-wrap, or fill. Fill is never shorter than one page of rows plus chrome; the host page or tab scrolls. Infinite scroll clamps the entire grid between `minHeight` and `maxHeight`.
 6. Full responsive design similar to how bootstrap grid layout works allowing for custom layouts of your data grid across mobile, web and desktop.
 
 ## Getting Started

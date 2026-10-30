@@ -23,10 +23,14 @@ class GridBody<TItem extends Object> extends StatelessWidget {
 
   Widget getBody() {
     if (pagingMode == PagingMode.pager || pagingMode == PagingMode.none) {
+      final wrapContent =
+          !constraints.hasBoundedHeight ||
+          gridState.widget.sizing == GridSizing.shrinkWrap ||
+          gridState.widget.sizing == GridSizing.fill;
       return ResponsiveDataGridPagedBodyWidget<TItem>(
         gridState: gridState,
         theme: gridTheme,
-        shrinkWrap: !constraints.hasBoundedHeight,
+        shrinkWrap: wrapContent,
       );
     } else {
       return ResponsiveGridInfiniteScrollBodyWidget<TItem>(

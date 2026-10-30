@@ -41,6 +41,7 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
   }) {
     if (!nested && !shrinkWrap) {
       return CustomScrollView(
+        key: const ValueKey('rdg-body-scroll'),
         slivers: [
           for (final group in groups)
             ..._stickyGroupSlivers(
@@ -58,6 +59,7 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
     final wrap = nested || shrinkWrap;
 
     return ListView.builder(
+      key: nested ? null : const ValueKey('rdg-body-scroll'),
       shrinkWrap: wrap,
       physics: wrap ? const NeverScrollableScrollPhysics() : null,
       itemBuilder: (context, index) {

@@ -80,6 +80,227 @@ double clampGridHeight(
   return next;
 }
 
+double _textBlockHeight(TextStyle style, {double fallback = 14}) {
+  final size = style.fontSize ?? fallback;
+  final height = style.height ?? 1.2;
+  return size * height;
+}
+
+/// Estimated body-row height from theme, [contentPadding], and [rowSpacing].
+double gridRowExtent({
+  required ResponsiveDataGridTheme theme,
+  required EdgeInsets contentPadding,
+  required double rowSpacing,
+}) {
+  final padding = theme.resolvePadding(contentPadding);
+  final text = _textBlockHeight(theme.bodyTextStyle);
+  return math.max(32, text + padding.vertical + rowSpacing);
+}
+
+double gridHeaderExtent({
+  required ResponsiveDataGridTheme theme,
+  bool stacked = false,
+}) {
+  final padding = theme.resolvePadding(theme.headerCellPadding);
+  final text = _textBlockHeight(theme.headerTextStyle);
+  final row =
+      math.max(text, theme.headerActionExtent) +
+      padding.vertical +
+      theme.borderWidth;
+  return stacked ? row + 32 : row;
+}
+
+double gridFilterRowExtent(ResponsiveDataGridTheme theme) {
+  return 48 + theme.borderWidth;
+}
+
+double gridPagerExtent(ResponsiveDataGridTheme theme) {
+  final padding = theme.resolvePadding(theme.footerPadding);
+  return 36 + padding.vertical + theme.borderWidth;
+}
+
+double gridTitleExtent(ResponsiveDataGridTheme theme) {
+  final padding = theme.resolvePadding(
+    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+  );
+  return math.max(20, _textBlockHeight(theme.titleTextStyle)) + padding.vertical;
+}
+
+double gridToolbarExtent(ResponsiveDataGridTheme theme) {
+  final padding = theme.resolvePadding(
+    const EdgeInsets.fromLTRB(12, 8, 12, 8),
+  );
+  return 40 + padding.vertical + theme.borderWidth;
+}
+
+double gridGroupChooserExtent(ResponsiveDataGridTheme theme) {
+  final padding = theme.resolvePadding(
+    const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+  );
+  return 18 + padding.vertical + theme.borderWidth;
+}
+
+double gridGroupHeaderExtent(ResponsiveDataGridTheme theme) {
+  return 40;
+}
+
+double gridGroupFooterExtent(ResponsiveDataGridTheme theme) {
+  final padding = theme.resolvePadding(theme.footerPadding);
+  return _textBlockHeight(theme.footerTextStyle, fallback: 12) +
+      padding.vertical;
+}
+
+double gridAggregatesFooterExtent(ResponsiveDataGridTheme theme) {
+  final padding = theme.resolvePadding(theme.footerPadding);
+  return 3 +
+      _textBlockHeight(theme.footerTextStyle, fallback: 12) +
+      padding.vertical +
+      theme.borderWidth;
+}
+
+int countGroupNodes(Iterable<GroupResult> groups) {
+  var n = 0;
+  for (final group in groups) {
+    n += 1 + countGroupNodes(group.subGroups);
+  }
+  return n;
+}
+
+/// Minimum height of one page of rows plus header, filter, groups, footers,
+/// pager, and padding. An explicit [minHeight] from the caller wins.
+double computeGridMinHeight({
+  required int pageSize,
+  required double rowExtent,
+  required double headerExtent,
+  double filterRowExtent = 0,
+  double pagerExtent = 0,
+  double titleExtent = 0,
+  double toolbarExtent = 0,
+  double groupChooserExtent = 0,
+  double groupHeaderExtent = 0,
+  int groupHeaderCount = 0,
+  double groupFooterExtent = 0,
+  int groupFooterCount = 0,
+  double aggregatesFooterExtent = 0,
+  double paddingVertical = 0,
+  double resizeHandleExtent = 0,
+  double separatorExtent = 0,
+  double? minHeight,
+}) {
+  if (minHeight != null) return minHeight;
+  final rows = math.max(pageSize, 0);
+  return rows * rowExtent +
+      math.max(rows - 1, 0) * separatorExtent +
+      headerExtent +
+      filterRowExtent +
+      pagerExtent +
+      titleExtent +
+      toolbarExtent +
+      groupChooserExtent +
+      groupHeaderExtent * groupHeaderCount +
+      groupFooterExtent * groupFooterCount +
+      aggregatesFooterExtent +
+      paddingVertical +
+      resizeHandleExtent;
+}
+
+double gridMinHeightFromTheme({
+  required ResponsiveDataGridTheme theme,
+  required int pageSize,
+  required EdgeInsets contentPadding,
+  required double rowSpacing,
+  required EdgeInsets padding,
+  bool hasTitle = false,
+  bool hasToolbar = false,
+  bool hasGroupChooser = false,
+  bool hasFilterRow = false,
+  bool hasPager = false,
+  bool hasAggregatesFooter = false,
+  bool hasStackedHeaders = false,
+  bool resizable = false,
+  int groupHeaderCount = 0,
+  int groupFooterCount = 0,
+  double separatorExtent = 0,
+  double? minHeight,
+}) {
+  return computeGridMinHeight(
+    pageSize: pageSize,
+    rowExtent: gridRowExtent(
+      theme: theme,
+      contentPadding: contentPadding,
+      rowSpacing: rowSpacing,
+    ),
+    headerExtent: gridHeaderExtent(theme: theme, stacked: hasStackedHeaders),
+    filterRowExtent: hasFilterRow ? gridFilterRowExtent(theme) : 0,
+    pagerExtent: hasPager ? gridPagerExtent(theme) : 0,
+    titleExtent: hasTitle ? gridTitleExtent(theme) : 0,
+    toolbarExtent: hasToolbar ? gridToolbarExtent(theme) : 0,
+    groupChooserExtent: hasGroupChooser ? gridGroupChooserExtent(theme) : 0,
+    groupHeaderExtent: gridGroupHeaderExtent(theme),
+    groupHeaderCount: groupHeaderCount,
+    groupFooterExtent: gridGroupFooterExtent(theme),
+    groupFooterCount: groupFooterCount,
+    aggregatesFooterExtent: hasAggregatesFooter
+        ? gridAggregatesFooterExtent(theme)
+        : 0,
+    paddingVertical: padding.vertical,
+    resizeHandleExtent: resizable ? 12 : 0,
+    separatorExtent: separatorExtent,
+    minHeight: minHeight,
+  );
+}
+
+/// Vertical size of the grid host for fill, shrink-wrap, infinite-scroll
+/// bounds, and the legacy auto/fixed modes.
+double? resolveGridHostHeight({
+  required GridSizing sizing,
+  required PagingMode pagingMode,
+  required double? explicitHeight,
+  required double? parentMaxHeight,
+  required double minContent,
+  required double? minHeight,
+  required double? maxHeight,
+  required bool resizable,
+  double? resizedHeight,
+}) {
+  final parentMax =
+      parentMaxHeight != null && parentMaxHeight.isFinite
+          ? parentMaxHeight
+          : null;
+
+  if (pagingMode == PagingMode.infiniteScroll) {
+    final floor = minHeight ?? minContent;
+    final preferred =
+        resizedHeight ?? explicitHeight ?? parentMax ?? floor;
+    return clampGridHeight(
+      preferred,
+      minHeight: floor,
+      maxHeight: maxHeight,
+    );
+  }
+
+  if (resizable) {
+    final floor = minHeight ??
+        (sizing == GridSizing.fill ? minContent : null);
+    return clampGridHeight(
+      resizedHeight ?? explicitHeight ?? parentMax ?? 400,
+      minHeight: floor,
+      maxHeight: maxHeight,
+    );
+  }
+
+  switch (sizing) {
+    case GridSizing.shrinkWrap:
+      return null;
+    case GridSizing.fill:
+      final floor = minHeight ?? minContent;
+      if (parentMax != null) return math.max(parentMax, floor);
+      return floor;
+    case GridSizing.auto:
+      return explicitHeight ?? parentMax;
+  }
+}
+
 List<int> computeRowspans<TItem extends Object>(
   GridColumn<TItem, dynamic> column,
   List<TItem> items,

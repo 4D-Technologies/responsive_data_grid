@@ -12,15 +12,15 @@ void main() {
   ) async {
     await tester.pumpWidget(const MyApp());
     await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('demo-kitchen-sink')));
+    await tester.pumpAndSettle();
 
     expect(find.text('Testing Title'), findsWidgets);
-    expect(find.byType(MenuAnchor), findsWidgets);
 
-    final columnMenus = find.descendant(
-      of: find.byType(ResponsiveDataGridHeaderRowWidget<ExampleData>),
-      matching: find.byIcon(Icons.more_vert),
-    );
-    await tester.tap(columnMenus.first);
+    final nameMenu = find.byKey(const ValueKey('rdg-header-menu-name'));
+    expect(nameMenu, findsOneWidget);
+    await tester.ensureVisible(nameMenu);
+    await tester.tap(nameMenu);
     await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);

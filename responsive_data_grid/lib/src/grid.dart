@@ -22,8 +22,16 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
   final List<int> pageSizeOptions;
   final double? height;
   final bool resizable;
+
+  /// Floor for [GridSizing.fill] and infinite-scroll height. When null, fill
+  /// uses one page of rows plus header, groups, footers, and pager.
   final double? minHeight;
+
+  /// Ceiling for infinite-scroll and resizable height.
   final double? maxHeight;
+
+  /// How the grid chooses its vertical size. See [GridSizing].
+  final GridSizing sizing;
   final double? separatorThickness;
 
   final SortableOptions sortable;
@@ -99,6 +107,7 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
     this.resizable = false,
     this.minHeight,
     this.maxHeight,
+    this.sizing = GridSizing.auto,
     this.sortable = SortableOptions.single,
     this.noResults,
     this.groupIndent = 15,
@@ -155,6 +164,7 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
     this.resizable = false,
     this.minHeight,
     this.maxHeight,
+    this.sizing = GridSizing.auto,
     this.sortable = SortableOptions.single,
     this.noResults,
     this.rowCrossAxisAlignment = CrossAxisAlignment.center,

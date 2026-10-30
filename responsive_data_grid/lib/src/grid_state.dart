@@ -197,6 +197,49 @@ class ResponsiveDataGridState<TItem extends Object>
     );
   }
 
+  /// Minimum height of one page of rows plus header, groups, footers, pager,
+  /// and padding. [ResponsiveDataGrid.minHeight] overrides the computed value.
+  double get minimumHeight =>
+      widget.minHeight ??
+      _minContentHeight(context) + widget.padding.vertical;
+
+  PagingMode _resolvePagingMode(BoxConstraints outer) {
+    if (widget.pagingMode != PagingMode.auto) return widget.pagingMode;
+    return outer.hasBoundedHeight && outer.maxHeight.isFinite
+        ? PagingMode.infiniteScroll
+        : PagingMode.pager;
+  }
+
+  double _minContentHeight(BuildContext context) {
+    final theme = ResponsiveDataGridTheme.of(context);
+    final page = _dataCache.pageMap[pageNumber];
+    final groupCount = page == null ? 0 : countGroupNodes(page.groups);
+    final pagingMode = _activePagingMode;
+    final rowCount = pagingMode == PagingMode.none
+        ? (page?.items.length ?? _pageSize)
+        : _pageSize;
+    return gridMinHeightFromTheme(
+      theme: theme,
+      pageSize: rowCount,
+      contentPadding: widget.contentPadding,
+      rowSpacing: widget.rowSpacing,
+      padding: widget.padding,
+      hasTitle: widget.title != null,
+      hasToolbar: widget.toolbar != null && !widget.toolbar!.isEmpty,
+      hasGroupChooser:
+          widget.allowGrouping && widget.groupPanel != GroupPanelDisplay.hidden,
+      hasFilterRow: widget.filterable.usesRow,
+      hasPager: pagingMode == PagingMode.pager,
+      hasAggregatesFooter: _dataCache.aggregates.isNotEmpty,
+      hasStackedHeaders:
+          widget.headerGroups != null && widget.headerGroups!.isNotEmpty,
+      resizable: widget.resizable,
+      groupHeaderCount: groupCount,
+      groupFooterCount: groupCount,
+      separatorExtent: widget.separatorThickness ?? theme.borderWidth,
+    );
+  }
+
   void setGridHeight(double height) {
     final next = clampGridHeight(
       height,
@@ -209,7 +252,6 @@ class ResponsiveDataGridState<TItem extends Object>
   }
 
   Widget _heightHost(Widget child) {
-    if (_effectiveHeight == null) return child;
     return Align(
       alignment: Alignment.topCenter,
       heightFactor: 1,
@@ -229,9 +271,13 @@ class ResponsiveDataGridState<TItem extends Object>
           behavior: HitTestBehavior.opaque,
           onVerticalDragUpdate: (details) {
             final current = _effectiveHeight ?? 400;
+            final floor = widget.minHeight ??
+                (widget.sizing == GridSizing.fill
+                    ? _minContentHeight(context)
+                    : null);
             final next = clampGridHeight(
               current + details.delta.dy,
-              minHeight: widget.minHeight,
+              minHeight: floor,
               maxHeight: widget.maxHeight,
             );
             if (next == _height) return;
@@ -902,16 +948,31 @@ class ResponsiveDataGridState<TItem extends Object>
           return Theme(
             data: theme.copyWith(visualDensity: visualDensity),
             child: Card(
+            margin: EdgeInsets.zero,
             borderOnForeground: false,
             elevation: widget.elevation,
             child: Padding(
               padding: widget.padding,
               child: LayoutBuilder(
                 builder: (context, outer) {
-                  final hostHeight = _effectiveHeight ??
-                      (outer.hasBoundedHeight && outer.maxHeight.isFinite
+                  final pagingMode = _resolvePagingMode(outer);
+                  _activePagingMode = pagingMode;
+                  final minContent = _minContentHeight(context);
+                  final parentMax =
+                      outer.hasBoundedHeight && outer.maxHeight.isFinite
                           ? outer.maxHeight
-                          : null);
+                          : null;
+                  final hostHeight = resolveGridHostHeight(
+                    sizing: widget.sizing,
+                    pagingMode: pagingMode,
+                    explicitHeight: widget.height,
+                    parentMaxHeight: parentMax,
+                    minContent: minContent,
+                    minHeight: widget.minHeight,
+                    maxHeight: widget.maxHeight,
+                    resizable: widget.resizable,
+                    resizedHeight: _height,
+                  );
                   return _heightHost(
                 SizedBox(
                 key: const ValueKey('rdg-height'),
@@ -921,23 +982,6 @@ class ResponsiveDataGridState<TItem extends Object>
                   context,
                   LayoutBuilder(
                   builder: (context, constraints) {
-                    late PagingMode pagingMode;
-
-                    if (widget.pagingMode == PagingMode.auto) {
-                      pagingMode = constraints.hasBoundedHeight
-                          ? PagingMode.infiniteScroll
-                          : PagingMode.pager;
-                    } else {
-                      pagingMode = widget.pagingMode;
-                    }
-                    _activePagingMode = pagingMode;
-
-                    if (pagingMode == PagingMode.infiniteScroll &&
-                        !constraints.hasBoundedHeight) {
-                      throw UnsupportedError(
-                        "The grid cannot be scrolled and as a result pagingModel = PagingMode.infiniteScroll cannot be supported. Please use auto or pager.",
-                      );
-                    }
 
                     final parts = List<Widget>.empty(growable: true);
                     if (widget.title != null) {

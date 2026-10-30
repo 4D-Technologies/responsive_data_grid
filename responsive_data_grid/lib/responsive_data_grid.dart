@@ -248,3 +248,19 @@ enum PagingMode {
   ///All results will always be loaded
   none,
 }
+
+/// How the grid chooses its vertical size.
+enum GridSizing {
+  /// [ResponsiveDataGrid.height] if set. Otherwise fill a bounded parent or
+  /// shrink-wrap in an unbounded one (a scroll view).
+  auto,
+
+  /// Fill a bounded parent. Never shorter than one page of rows plus header,
+  /// filter row, groups, footers, and pager. An unbounded parent uses that
+  /// minimum. The host page or tab scrolls when the parent is shorter.
+  fill,
+
+  /// Size to the current page's content (rows, header, groups, footers).
+  /// The host page or tab scrolls. [ResponsiveDataGrid.height] is ignored.
+  shrinkWrap,
+}
