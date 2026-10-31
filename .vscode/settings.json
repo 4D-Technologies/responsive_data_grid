@@ -1,5 +1,6 @@
 {
   "dotnet-test-explorer.testProjectPath": "dotnet/**/*Tests.@(csproj|vbproj|fsproj)",
   "dart.previewVsCodeTestRunner": true,
-  "dotnet.codeLens.enableTestsCodeLens": true
+  "dotnet.codeLens.enableTestsCodeLens": true,
+  "java.compile.nullAnalysis.mode": "automatic"
 }

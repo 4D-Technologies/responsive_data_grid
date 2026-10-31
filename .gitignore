@@ -28,3 +28,4 @@ node_modules/
 *.tsbuildinfo
 javascript/node_modules/
 coverage/
+./playwright-mcp/
