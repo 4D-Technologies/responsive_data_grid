@@ -220,20 +220,29 @@ class _GridFilterRowCellState<TItem extends Object>
     final bool? current = criteria == null || criteria.values.isEmpty
         ? null
         : criteria.values.first as bool?;
+    final l10n = GridLocalizations.of(context);
     return SizedBox(
+      key: ValueKey('rdg-filter-row-${column.fieldName}'),
       width: double.infinity,
       height: theme.filterRow.editorHeight,
       child: DropdownButtonFormField<bool?>(
-        key: ValueKey('rdg-filter-row-${column.fieldName}'),
+        key: ValueKey('rdg-filter-row-value-${column.fieldName}-$current'),
         isDense: true,
         isExpanded: true,
         initialValue: current,
-        decoration: _decoration(context),
+        decoration: _decoration(
+          context,
+          suffix: current == null
+              ? null
+              : _compactIconButton(
+                  key: ValueKey('rdg-filter-row-clear-${column.fieldName}'),
+                  context: context,
+                  icon: Icons.clear,
+                  tooltip: l10n.clear,
+                  onPressed: _clear,
+                ),
+        ),
         items: [
-          DropdownMenuItem<bool?>(
-            value: null,
-            child: Text(GridLocalizations.of(context).filter),
-          ),
           DropdownMenuItem<bool?>(
             value: true,
             child: Text(column.format(true) ?? 'true'),
