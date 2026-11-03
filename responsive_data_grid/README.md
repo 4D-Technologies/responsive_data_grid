@@ -21,7 +21,7 @@ Companion backends: `client_filtering` (Dart), the `dotnet/` folder (NuGet), and
 
 ```yaml
 dependencies:
-  responsive_data_grid: ^2.0.0
+  responsive_data_grid: ^2.0.1
   client_filtering: ^0.0.29
 ```
 
