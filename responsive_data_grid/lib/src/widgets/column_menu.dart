@@ -12,7 +12,7 @@ class ColumnMenu<T extends Object> extends DropDownViewWidget {
     required super.icon,
     super.iconColor,
     super.iconSize,
-  }) : super(dropDownWidth: 250);
+  });
 
   void updateAggregations(AggregateCriteria aggregation, bool selected) {
     if (selected) {
@@ -27,11 +27,13 @@ class ColumnMenu<T extends Object> extends DropDownViewWidget {
   @override
   Widget build(
     BuildContext context,
-    void Function(BuildContext context) close,
-  ) {
+    void Function(BuildContext context) close, {
+    double? maxHeight,
+  }) {
     final l10n = GridLocalizations.of(context);
     final gridTheme = ResponsiveDataGridTheme.of(context);
-    final aggregates = gridState.widget.allowAggregations
+    final aggregates =
+        gridState.widget.allowAggregations && column.header.showAggregations
         ? column.getAggregations(
             selected: column.aggregations,
             update: updateAggregations,
@@ -48,22 +50,22 @@ class ColumnMenu<T extends Object> extends DropDownViewWidget {
         gridState.widget.sortable != SortableOptions.none;
     final canHide = gridState.layoutColumns.length > 1;
 
+    final menu = gridTheme.menu;
     Widget section(String title) {
       return DecoratedBox(
-        decoration: BoxDecoration(color: gridTheme.menuSectionBackground),
+        decoration: BoxDecoration(color: menu.sectionBackground),
         child: Padding(
-          padding: const EdgeInsets.all(8),
-          child: Text(title, style: theme.textTheme.labelLarge),
+          padding: menu.sectionPadding,
+          child: Text(title, style: menu.sectionTextStyle),
         ),
       );
     }
 
-    final scheme = Theme.of(context).colorScheme;
     final itemStyle = TextButton.styleFrom(
-      foregroundColor: scheme.onSurface,
+      foregroundColor: menu.itemForeground,
       alignment: Alignment.centerLeft,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      minimumSize: const Size(double.infinity, 40),
+      padding: menu.itemPadding,
+      minimumSize: Size(double.infinity, menu.itemMinHeight),
       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );
 
@@ -75,7 +77,7 @@ class ColumnMenu<T extends Object> extends DropDownViewWidget {
       return TextButton.icon(
         style: itemStyle,
         onPressed: onPressed,
-        icon: Icon(icon, color: scheme.onSurfaceVariant),
+        icon: Icon(icon, color: menu.itemIconColor),
         label: Align(
           alignment: Alignment.centerLeft,
           child: Text(label, overflow: TextOverflow.ellipsis),
@@ -87,7 +89,7 @@ class ColumnMenu<T extends Object> extends DropDownViewWidget {
       if (column.header.showFilter && gridState.widget.filterable.usesMenu) ...[
         section(l10n.filter),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          padding: menu.filterInset,
           child: column.filterRules.showFilter(column, gridState),
         ),
       ],
@@ -95,7 +97,7 @@ class ColumnMenu<T extends Object> extends DropDownViewWidget {
         section(l10n.sort),
         action(
           label: l10n.sortAscending,
-          icon: gridTheme.sortAscendingIcon,
+          icon: gridTheme.header.sortAscendingIcon,
           onPressed: () {
             close(context);
             gridState.setColumnSort(column, OrderDirections.ascending);
@@ -103,7 +105,7 @@ class ColumnMenu<T extends Object> extends DropDownViewWidget {
         ),
         action(
           label: l10n.sortDescending,
-          icon: gridTheme.sortDescendingIcon,
+          icon: gridTheme.header.sortDescendingIcon,
           onPressed: () {
             close(context);
             gridState.setColumnSort(column, OrderDirections.descending);
@@ -111,7 +113,7 @@ class ColumnMenu<T extends Object> extends DropDownViewWidget {
         ),
         action(
           label: l10n.clearSort,
-          icon: gridTheme.sortUnsetIcon,
+          icon: gridTheme.header.sortUnsetIcon,
           onPressed: () {
             close(context);
             gridState.setColumnSort(column, OrderDirections.notSet);
@@ -168,68 +170,83 @@ class ColumnMenu<T extends Object> extends DropDownViewWidget {
           close(context);
           gridState.autosizeColumn(
             column.fieldName,
-            style: gridTheme.bodyTextStyle,
+            style: gridTheme.body.textStyle,
           );
         },
       ),
       if (aggregates.isNotEmpty) ...[section(l10n.aggregates), ...aggregates],
     ];
 
+    final cap = math.min(
+      maxHeight ?? menu.maxHeight,
+      MediaQuery.sizeOf(context).height * 0.75,
+    );
+    final panelColor = Theme.of(context).colorScheme.surface;
+    final footer = ColoredBox(
+      color: panelColor,
+      child: Padding(
+        padding: menu.footerPadding,
+        child: Row(
+          children: [
+            Expanded(
+              child: TextButton.icon(
+                style: itemStyle,
+                onPressed: () {
+                  column.aggregations.clear();
+                  column.filterRules.criteria = null;
+                  close(context);
+                  gridState.refreshData();
+                },
+                icon: Icon(
+                  Icons.clear_all,
+                  color: menu.itemIconColor,
+                ),
+                label: Text(l10n.clear, overflow: TextOverflow.ellipsis),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: FilledButton.icon(
+                onPressed: () {
+                  close(context);
+                  gridState.refreshData();
+                },
+                icon: const Icon(Icons.check),
+                label: Text(l10n.apply, overflow: TextOverflow.ellipsis),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
     return Material(
-      elevation: gridTheme.menuElevation,
+      color: panelColor,
+      elevation: menu.elevation,
       type: MaterialType.card,
       child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxHeight: math.min(360, MediaQuery.sizeOf(context).height * 0.6),
-        ),
+        constraints: BoxConstraints(maxHeight: cap),
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Flexible(
-              child: SingleChildScrollView(
-                primary: false,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: actions,
+              fit: FlexFit.loose,
+              child: Align(
+                alignment: Alignment.topLeft,
+                heightFactor: 1,
+                child: SingleChildScrollView(
+                  primary: false,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: actions,
+                  ),
                 ),
               ),
             ),
-            const Divider(height: 1),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextButton.icon(
-                      style: itemStyle,
-                      onPressed: () {
-                        column.aggregations.clear();
-                        column.filterRules.criteria = null;
-                        close(context);
-                        gridState.refreshData();
-                      },
-                      icon: Icon(
-                        Icons.clear_all,
-                        color: scheme.onSurfaceVariant,
-                      ),
-                      label: Text(l10n.clear, overflow: TextOverflow.ellipsis),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: FilledButton.icon(
-                      onPressed: () {
-                        close(context);
-                        gridState.refreshData();
-                      },
-                      icon: const Icon(Icons.check),
-                      label: Text(l10n.apply, overflow: TextOverflow.ellipsis),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            Divider(height: menu.dividerHeight, color: menu.dividerColor),
+            footer,
           ],
         ),
       ),

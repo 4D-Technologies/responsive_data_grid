@@ -36,12 +36,14 @@ ThemeData _theme() {
   return base.copyWith(
     extensions: <ThemeExtension<dynamic>>[
       ResponsiveDataGridTheme.fromTheme(base).copyWith(
-        headerBackground: base.colorScheme.surfaceContainerLow,
-        headerForeground: base.colorScheme.onSurface,
-        headerTextStyle: base.textTheme.titleSmall!.copyWith(
-          color: base.colorScheme.onSurface,
-          fontWeight: FontWeight.w600,
-          fontSize: 13,
+        header: ResponsiveDataGridTheme.fromTheme(base).header.copyWith(
+          background: base.colorScheme.surfaceContainerLow,
+          foreground: base.colorScheme.onSurface,
+          textStyle: base.textTheme.titleSmall!.copyWith(
+            color: base.colorScheme.onSurface,
+            fontWeight: FontWeight.w600,
+            fontSize: 13,
+          ),
         ),
       ),
     ],

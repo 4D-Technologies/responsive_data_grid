@@ -11,24 +11,25 @@ class TitleRowWidget extends StatelessWidget {
     final gridTheme = ResponsiveDataGridTheme.of(context);
 
     final backgroundColor =
-        definition.backgroundColor ?? gridTheme.titleBackground;
+        definition.backgroundColor ?? gridTheme.title.background;
     final foregroundColor =
-        definition.foregroundColor ?? gridTheme.titleForeground;
+        definition.foregroundColor ?? gridTheme.title.foreground;
     final titleTextStyle =
         definition.textStyle?.copyWith(color: foregroundColor) ??
-        gridTheme.titleTextStyle.copyWith(color: foregroundColor);
+        gridTheme.title.textStyle.copyWith(color: foregroundColor);
 
     return ColoredBox(
       color: backgroundColor,
       child: Padding(
-        padding: gridTheme.resolvePadding(
-          const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        ),
+        padding: gridTheme.resolvePadding(gridTheme.title.padding),
         child: Row(
           children: [
             if (definition.icon != null) ...[
               IconTheme(
-                data: IconThemeData(color: foregroundColor, size: 20),
+                data: IconThemeData(
+                  color: foregroundColor,
+                  size: gridTheme.title.iconSize,
+                ),
                 child: definition.icon!,
               ),
               const SizedBox(width: 8),
@@ -46,8 +47,8 @@ class TitleRowWidget extends StatelessWidget {
                 tooltip: GridLocalizations.of(context).refresh,
                 icon: const Icon(Icons.refresh),
                 color: foregroundColor,
-                size: 20,
-                extent: 32,
+                size: gridTheme.title.iconSize,
+                extent: gridTheme.title.actionExtent,
                 onPressed: onRefresh,
               ),
           ],

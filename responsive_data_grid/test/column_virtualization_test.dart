@@ -47,20 +47,19 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
 
-    final headerKeys = find
-        .byWidgetPredicate(
-          (widget) =>
-              widget.key is ValueKey<String> &&
-              (widget.key as ValueKey<String>).value.startsWith(
-                'rdg-header-cell-',
-              ),
-        )
+    int cellKeys(String field) => find
+        .byWidgetPredicate((widget) {
+          final key = widget.key;
+          return key is ValueKey<String> &&
+              key.value.startsWith('rdg-cell-$field-');
+        })
         .evaluate()
         .length;
-    expect(headerKeys, greaterThan(0));
-    expect(headerKeys, lessThan(20));
-    expect(find.text('C0'), findsOneWidget);
-    expect(find.text('C19'), findsNothing);
+
+    expect(cellKeys('c0'), greaterThan(0));
+    expect(cellKeys('c19'), 0);
+    expect(find.text('v0'), findsOneWidget);
+    expect(find.text('v19'), findsNothing);
 
     await tester.drag(
       find.byWidgetPredicate(
@@ -71,6 +70,7 @@ void main() {
       const Offset(-2000, 0),
     );
     await tester.pumpAndSettle();
-    expect(find.text('C19'), findsOneWidget);
+    expect(cellKeys('c19'), greaterThan(0));
+    expect(find.text('v19'), findsOneWidget);
   });
 }

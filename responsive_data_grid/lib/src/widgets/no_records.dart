@@ -9,13 +9,13 @@ class GridNoRecords extends StatelessWidget {
     final gridTheme = ResponsiveDataGridTheme.of(context);
     return Center(
       child: Padding(
-        padding: gridTheme.resolvePadding(gridTheme.footerPadding),
+        padding: gridTheme.resolvePadding(gridTheme.pager.padding),
         child: Text(
           GridLocalizations.of(context).noRecords,
           textAlign: TextAlign.center,
-          style: gridTheme.bodyTextStyle.copyWith(
+          style: gridTheme.body.textStyle.copyWith(
             color:
-                (gridTheme.bodyTextStyle.color ??
+                (gridTheme.body.textStyle.color ??
                         DefaultTextStyle.of(context).style.color)
                     ?.withValues(alpha: 0.72),
           ),

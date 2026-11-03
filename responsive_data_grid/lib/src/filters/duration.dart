@@ -63,6 +63,9 @@ class DataGridDurationColumnFilterState<TItem extends Object>
       children: [
         DropdownButtonFormField<Logic?>(
           isExpanded: true,
+          isDense: true,
+          style: gridMenuFilterTextStyle(context),
+          decoration: gridMenuFilterDecoration(context),
           items: gridFilterLogicItems(context, gridComparableFilterLogics),
           initialValue: op,
           onChanged: (Logic? value) {
@@ -86,7 +89,8 @@ class DataGridDurationColumnFilterState<TItem extends Object>
                   op == Logic.lessThan ||
                   op == Logic.lessThanOrEqualTo),
           child: TextField(
-            decoration: InputDecoration(
+            decoration: gridMenuFilterDecoration(
+              context,
               hintText: GridLocalizations.of(context).minutes,
             ),
             keyboardType: TextInputType.number,
@@ -105,7 +109,8 @@ class DataGridDurationColumnFilterState<TItem extends Object>
         Visibility(
           visible: op != null && (op == Logic.between),
           child: TextField(
-            decoration: InputDecoration(
+            decoration: gridMenuFilterDecoration(
+              context,
               hintText: GridLocalizations.of(context).minutes,
             ),
             keyboardType: TextInputType.number,

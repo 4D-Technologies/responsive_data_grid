@@ -59,12 +59,12 @@ class _GridGroupAggregateChooserState<TItem extends Object>
       child: Column(
         children: [
           SizedBox(
-            width: 250,
+            width: ResponsiveDataGridTheme.of(context).menu.width,
             child: DecoratedBox(
               decoration: BoxDecoration(
                 color: ResponsiveDataGridTheme.of(
                   context,
-                ).menuSectionBackground,
+                ).menu.sectionBackground,
               ),
               child: Padding(
                 padding: EdgeInsets.all(3),

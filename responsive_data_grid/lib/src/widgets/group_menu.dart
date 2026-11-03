@@ -13,22 +13,24 @@ class GroupMenu<TItem extends Object> extends DropDownViewWidget {
     super.iconColor,
     super.iconSize,
     super.key,
-  }) : super(dropDownWidth: 250, icon: Icons.more_vert);
+  }) : super(icon: Icons.more_vert);
 
   @override
   Widget build(
     BuildContext context,
-    void Function(BuildContext context) close,
-  ) {
+    void Function(BuildContext context) close, {
+    double? maxHeight,
+  }) {
+    final menu = ResponsiveDataGridTheme.of(context).menu;
     return Column(
       children: [
         SizedBox(height: 5),
         Material(
-          elevation: 20,
+          elevation: menu.elevation,
           type: MaterialType.card,
           child: Container(
-            padding: EdgeInsets.all(4),
-            width: dropDownWidth,
+            padding: menu.sectionPadding,
+            width: dropDownWidth ?? menu.width,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -39,7 +41,7 @@ class GroupMenu<TItem extends Object> extends DropDownViewWidget {
                   criteria: group,
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(top: 3, bottom: 3),
+                  padding: menu.footerPadding,
                   child: FilledButton.icon(
                     label: Text(GridLocalizations.of(context).apply),
                     onPressed: () {
@@ -50,10 +52,10 @@ class GroupMenu<TItem extends Object> extends DropDownViewWidget {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(top: 3, bottom: 3),
+                  padding: menu.itemPadding,
                   child: TextButton.icon(
                     style: TextButton.styleFrom(
-                      foregroundColor: theme.colorScheme.onSurface,
+                      foregroundColor: menu.itemForeground,
                       alignment: Alignment.centerLeft,
                     ),
                     label: Text(GridLocalizations.of(context).clearAll),
@@ -64,19 +66,22 @@ class GroupMenu<TItem extends Object> extends DropDownViewWidget {
                     },
                     icon: Icon(
                       Icons.clear_all,
-                      color: theme.colorScheme.onSurfaceVariant,
+                      color: menu.itemIconColor,
                     ),
                   ),
                 ),
-                const Divider(),
+                Divider(height: menu.dividerHeight, color: menu.dividerColor),
                 TextButton.icon(
                   style: TextButton.styleFrom(
-                    foregroundColor: theme.colorScheme.error,
+                    foregroundColor: menu.destructiveForeground,
                     alignment: Alignment.centerLeft,
                   ),
                   label: Text(GridLocalizations.of(context).removeGroup),
                   onPressed: () => removeGroup(group),
-                  icon: Icon(Icons.delete, color: theme.colorScheme.error),
+                  icon: Icon(
+                    Icons.delete,
+                    color: menu.destructiveForeground,
+                  ),
                 ),
               ],
             ),

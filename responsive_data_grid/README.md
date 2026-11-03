@@ -21,7 +21,7 @@ Companion backends: `client_filtering` (Dart), the `dotnet/` folder (NuGet), and
 
 ```yaml
 dependencies:
-  responsive_data_grid: ^1.1.0
+  responsive_data_grid: ^2.0.0
   client_filtering: ^0.0.29
 ```
 
@@ -122,21 +122,35 @@ Row pin, sticky rows, and row reorder apply to the ungrouped pager only.
 
 ## Theming
 
+Package defaults look like Kendo Grid. Set the look once on `ThemeData.extensions`; widget constructor values still override, same as `AppBar` vs `AppBarTheme`.
+
 ```dart
-ThemeData(
+final base = ThemeData(
   useMaterial3: true,
   colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
+);
+final grid = ResponsiveDataGridTheme.fromTheme(base);
+ThemeData(
+  useMaterial3: true,
+  colorScheme: base.colorScheme,
   extensions: [
-    ResponsiveDataGridTheme.fromTheme(
-      ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal)),
+    grid.copyWith(
+      header: grid.header.copyWith(dividerWidth: 0),
+      body: grid.body.copyWith(
+        separatorThickness: 0,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        oddBackground: base.colorScheme.surfaceContainerLow,
+      ),
     ),
   ],
 );
 ```
 
-`fromCupertino` does the same under `CupertinoApp`. Override individual tokens (header colors, pager icons, footer padding) on the extension. Empty grids show themed "No records available." chrome; `noResults` replaces that template.
+Nested types: `chrome`, `header`, `body`, `filterRow`, `toolbar`, `title`, `pager`, `groupHeader`, `groupFooter`, `groupPanel`, `menu`. `fromCupertino` does the same under `CupertinoApp`. Empty grids show themed "No records available." chrome; `noResults` replaces that template.
 
-The example app switches Light / Dark / Branded palettes from the kitchen-sink app bar.
+`FilterableMode.menu` (default) keeps typed editors in the column menu. `row` / `menuAndRow` add a compact filter row for string, num, bool, date, time, duration, and value-map columns.
+
+The example app switches Light / Dark / Branded palettes from the kitchen-sink app bar. See the `theme` and `filter-row` catalog screens.
 
 ## Screenshots
 

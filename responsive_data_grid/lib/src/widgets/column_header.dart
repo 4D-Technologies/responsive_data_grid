@@ -35,43 +35,6 @@ class ColumnHeaderState<TItem extends Object, TValue extends dynamic>
     widget.gridState._updateOrderByCriteria(widget.definition);
   }
 
-  Future<void> toggleMenu(BuildContext context) async {
-    final result = await showDialog<FilterResult<TValue>?>(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return AlertDialog(
-          title: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  GridLocalizations.of(context).filterTitle(
-                    widget.definition.header.text ??
-                        widget.definition.fieldName,
-                  ),
-                ),
-              ),
-              IconButton(
-                icon: Icon(Icons.close),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-            ],
-          ),
-          content: widget.definition.filterRules.showFilter(
-            widget.definition,
-            widget.gridState,
-          ),
-        );
-      },
-    );
-
-    if (result == null) return;
-
-    widget.definition.filterRules.criteria = result.criteria;
-
-    widget.gridState._updateAllRules();
-  }
-
   @override
   Widget build(BuildContext context) {
     final gridTheme = ResponsiveDataGridTheme.of(context);
@@ -81,16 +44,16 @@ class ColumnHeaderState<TItem extends Object, TValue extends dynamic>
     final foregroundColor =
         header.foregroundColor ??
         widget.definition.foregroundColor ??
-        gridTheme.headerForeground;
+        gridTheme.header.foreground;
 
     final textStyle =
         header.textStyle?.copyWith(color: foregroundColor) ??
-        gridTheme.headerTextStyle.copyWith(color: foregroundColor);
+        gridTheme.header.textStyle.copyWith(color: foregroundColor);
 
     final padding = gridTheme.resolvePadding(
-      header.padding ?? gridTheme.headerCellPadding,
+      header.padding ?? gridTheme.header.cellPadding,
     );
-    final iconSize = header.iconSize ?? gridTheme.headerIconSize;
+    final iconSize = header.iconSize ?? gridTheme.header.iconSize;
     final sorted = widget.definition.sortDirection != OrderDirections.notSet;
     final menuActive =
         widget.definition.aggregations.isNotEmpty ||
@@ -104,13 +67,13 @@ class ColumnHeaderState<TItem extends Object, TValue extends dynamic>
     IconData sortIcon;
     switch (widget.definition.sortDirection) {
       case OrderDirections.ascending:
-        sortIcon = gridTheme.sortAscendingIcon;
+        sortIcon = gridTheme.header.sortAscendingIcon;
         break;
       case OrderDirections.descending:
-        sortIcon = gridTheme.sortDescendingIcon;
+        sortIcon = gridTheme.header.sortDescendingIcon;
         break;
       default:
-        sortIcon = gridTheme.sortUnsetIcon;
+        sortIcon = gridTheme.header.sortUnsetIcon;
         break;
     }
 
@@ -123,10 +86,10 @@ class ColumnHeaderState<TItem extends Object, TValue extends dynamic>
       color:
           header.sortColor ??
           (sorted
-              ? gridTheme.headerSortActiveColor
-              : gridTheme.headerSortColor),
+              ? gridTheme.header.sortActiveColor
+              : gridTheme.header.sortColor),
       size: iconSize,
-      extent: gridTheme.headerActionExtent,
+      extent: gridTheme.header.actionExtent,
       tooltip: GridLocalizations.of(context).sort,
       onPressed: toggleOrder,
     );
@@ -147,7 +110,7 @@ class ColumnHeaderState<TItem extends Object, TValue extends dynamic>
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
                     height: 1,
-                    color: header.sortColor ?? gridTheme.headerSortActiveColor,
+                    color: header.sortColor ?? gridTheme.header.sortActiveColor,
                   ),
                 ),
               ),
@@ -158,12 +121,12 @@ class ColumnHeaderState<TItem extends Object, TValue extends dynamic>
       column: widget.definition,
       theme: Theme.of(context),
       gridState: widget.gridState,
-      icon: gridTheme.menuIcon,
+      icon: gridTheme.header.menuIcon,
       iconColor:
           header.menuColor ??
           (menuActive
-              ? gridTheme.headerMenuActiveColor
-              : gridTheme.headerMenuColor),
+              ? gridTheme.header.menuActiveColor
+              : gridTheme.header.menuColor),
       iconSize: iconSize,
     );
 
@@ -182,7 +145,7 @@ class ColumnHeaderState<TItem extends Object, TValue extends dynamic>
       mainAxisSize: MainAxisSize.min,
       children: [
         if (showSort) sortControl,
-        if (showSort && showMenu) SizedBox(width: gridTheme.headerActionGap),
+        if (showSort && showMenu) SizedBox(width: gridTheme.header.actionGap),
         if (showMenu) menuButton,
       ],
     );
@@ -222,10 +185,10 @@ class ColumnHeaderState<TItem extends Object, TValue extends dynamic>
               return title;
             }
             final actionExtent =
-                (showSort ? gridTheme.headerActionExtent : 0.0) +
+                (showSort ? gridTheme.header.actionExtent : 0.0) +
                 (showSort && sortIndex != null ? 10.0 : 0.0) +
-                (showMenu ? gridTheme.headerActionExtent : 0.0) +
-                (showSort && showMenu ? gridTheme.headerActionGap : 0.0);
+                (showMenu ? gridTheme.header.actionExtent : 0.0) +
+                (showSort && showMenu ? gridTheme.header.actionGap : 0.0);
             final maxActions = math.max(0.0, constraints.maxWidth * 0.65);
             final actionsWidth = math.min(actionExtent, maxActions);
             return Row(

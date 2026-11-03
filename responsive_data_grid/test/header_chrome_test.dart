@@ -128,9 +128,12 @@ void main() {
       tester,
       theme: base.copyWith(
         extensions: <ThemeExtension<dynamic>>[
-          ResponsiveDataGridTheme.fromTheme(
-            base,
-          ).copyWith(headerDividerColor: divider, headerDividerWidth: 2),
+          ResponsiveDataGridTheme.fromTheme(base).copyWith(
+            header: ResponsiveDataGridTheme.fromTheme(base).header.copyWith(
+              dividerColor: divider,
+              dividerWidth: 2,
+            ),
+          ),
         ],
       ),
       grid: _actionGrid(),
@@ -195,15 +198,15 @@ void main() {
       final gridTheme = ResponsiveDataGridTheme.of(headerElement);
       expect(
         gridContrastRatio(
-          gridTheme.headerBackground,
-          gridTheme.headerForeground,
+          gridTheme.header.background,
+          gridTheme.header.foreground,
         ),
         greaterThanOrEqualTo(4.5),
       );
       expect(
         gridContrastRatio(
-          gridTheme.footerBackground,
-          gridTheme.footerForeground,
+          gridTheme.pager.background,
+          gridTheme.pager.foreground,
         ),
         greaterThanOrEqualTo(4.5),
       );
@@ -216,7 +219,7 @@ void main() {
             )
             .first,
       );
-      expect(headerText.style?.color, gridTheme.headerForeground);
+      expect(headerText.style?.color, gridTheme.header.foreground);
     });
   }
 
@@ -231,9 +234,12 @@ void main() {
       tester,
       theme: base.copyWith(
         extensions: <ThemeExtension<dynamic>>[
-          ResponsiveDataGridTheme.fromTheme(
-            base,
-          ).copyWith(titleBackground: titleBg, titleForeground: titleFg),
+          ResponsiveDataGridTheme.fromTheme(base).copyWith(
+            title: ResponsiveDataGridTheme.fromTheme(base).title.copyWith(
+              background: titleBg,
+              foreground: titleFg,
+            ),
+          ),
         ],
       ),
       grid: ResponsiveDataGrid<_Person>.clientSide(

@@ -221,7 +221,7 @@ enum FilterableMode {
   /// Filters only in the column menu (default).
   menu,
 
-  /// Always-visible editors under the header row.
+  /// Always-visible editors under the header row. Column-menu filters stay available.
   row,
 
   /// Column menu and filter row together.
@@ -229,8 +229,7 @@ enum FilterableMode {
 }
 
 extension FilterableModeX on FilterableMode {
-  bool get usesMenu =>
-      this == FilterableMode.menu || this == FilterableMode.menuAndRow;
+  bool get usesMenu => this != FilterableMode.none;
   bool get usesRow =>
       this == FilterableMode.row || this == FilterableMode.menuAndRow;
 }

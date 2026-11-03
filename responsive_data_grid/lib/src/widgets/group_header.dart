@@ -22,16 +22,15 @@ class GridGroupHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final gridTheme = ResponsiveDataGridTheme.of(context);
     final l10n = GridLocalizations.of(context);
+    final pad = gridTheme.resolvePadding(gridTheme.groupHeader.padding);
+    final extra = depth * indent.toDouble();
+    final rtl = Directionality.of(context) == TextDirection.rtl;
     return DecoratedBox(
-      decoration: BoxDecoration(color: gridTheme.groupHeaderBackground),
+      decoration: BoxDecoration(color: gridTheme.groupHeader.background),
       child: Padding(
-        padding: gridTheme.resolvePadding(const EdgeInsets.all(3)).copyWith(
-          left: Directionality.of(context) == TextDirection.rtl
-              ? 3
-              : 3 + depth * indent.toDouble(),
-          right: Directionality.of(context) == TextDirection.rtl
-              ? 3 + depth * indent.toDouble()
-              : 3,
+        padding: pad.copyWith(
+          left: rtl ? pad.left : pad.left + extra,
+          right: rtl ? pad.right + extra : pad.right,
         ),
         child: Row(
           children: [
@@ -52,17 +51,17 @@ class GridGroupHeader extends StatelessWidget {
                 icon: Icon(
                   collapsed ? Icons.chevron_right : Icons.expand_more,
                 ),
-                color: gridTheme.groupHeaderForeground,
-                size: 20,
-                extent: 28,
+                color: gridTheme.groupHeader.foreground,
+                size: gridTheme.groupHeader.iconSize,
+                extent: gridTheme.groupHeader.iconExtent,
                 onPressed: onToggle,
               ),
             ),
             PinToHorizontalViewport(
               child: Text(
                 group.value ?? l10n.noEntry,
-                style: gridTheme.groupHeaderTextStyle.copyWith(
-                  color: gridTheme.groupHeaderForeground,
+                style: gridTheme.groupHeader.textStyle.copyWith(
+                  color: gridTheme.groupHeader.foreground,
                 ),
               ),
             ),

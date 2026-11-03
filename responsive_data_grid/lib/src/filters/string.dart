@@ -50,7 +50,9 @@ class DataGridStringColumnFilterState<TItem extends Object>
       children: [
         DropdownButtonFormField<Logic?>(
           isExpanded: true,
-          elevation: 30,
+          isDense: true,
+          style: gridMenuFilterTextStyle(context),
+          decoration: gridMenuFilterDecoration(context),
           items: gridFilterLogicItems(context, gridStringFilterLogics),
           initialValue: op,
           onChanged: (Logic? value) {
@@ -67,7 +69,9 @@ class DataGridStringColumnFilterState<TItem extends Object>
           visible: op != null && gridLogicRequiresValue(op!),
           child: TextFormField(
             initialValue: searchText,
-            decoration: InputDecoration(
+            style: gridMenuFilterTextStyle(context),
+            decoration: gridMenuFilterDecoration(
+              context,
               labelText: GridLocalizations.of(context).value,
             ),
             onChanged: (value) => setState(() {

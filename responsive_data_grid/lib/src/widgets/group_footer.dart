@@ -20,13 +20,13 @@ class GridGroupFooter<TItem extends Object> extends StatelessWidget {
   Widget build(BuildContext context) {
     final gridTheme = ResponsiveDataGridTheme.of(context);
     final layout = GridTableLayout.maybeOf(context);
-    final resolved = gridTheme.resolvePadding(gridTheme.footerPadding);
+    final resolved = gridTheme.resolvePadding(gridTheme.groupFooter.padding);
     final padding = layout != null && layout.layoutMode == GridLayoutMode.table
         ? EdgeInsets.only(top: resolved.top, bottom: resolved.bottom)
         : resolved;
     final columns = gridState.layoutColumns;
     return DecoratedBox(
-      decoration: BoxDecoration(color: gridTheme.groupFooterBackground),
+      decoration: BoxDecoration(color: gridTheme.groupFooter.background),
       child: Padding(
         padding: padding,
         child: layout != null && layout.layoutMode == GridLayoutMode.table
@@ -37,7 +37,7 @@ class GridGroupFooter<TItem extends Object> extends StatelessWidget {
                 ],
                 widths: layout.columnWidths,
                 frozenCount: layout.frozenCount,
-                frozenBackground: gridTheme.groupFooterBackground,
+                frozenBackground: gridTheme.groupFooter.background,
               )
             : BootstrapRow(
                 textDirection: Directionality.of(context),
@@ -71,11 +71,11 @@ class GridGroupFooter<TItem extends Object> extends StatelessWidget {
           .map(
             (agg) => Text(
               "${agg.aggregation}: ${agg.formatResult()}",
-              style: ResponsiveDataGridTheme.of(context).footerTextStyle
+              style: ResponsiveDataGridTheme.of(context).groupFooter.textStyle
                   .copyWith(
                     color: ResponsiveDataGridTheme.of(
                       context,
-                    ).groupFooterForeground,
+                    ).groupFooter.foreground,
                   ),
             ),
           )
@@ -94,11 +94,13 @@ class GridGroupFooter<TItem extends Object> extends StatelessWidget {
               .map(
                 (agg) => Text(
                   "${agg.aggregation}: ${agg.formatResult()}",
-                  style: ResponsiveDataGridTheme.of(context).footerTextStyle
+                  style: ResponsiveDataGridTheme.of(context)
+                      .groupFooter
+                      .textStyle
                       .copyWith(
                         color: ResponsiveDataGridTheme.of(
                           context,
-                        ).groupFooterForeground,
+                        ).groupFooter.foreground,
                       ),
                 ),
               )

@@ -63,18 +63,16 @@ class _GridGroupChooserState<TItem extends Object>
     return DecoratedBox(
       key: const ValueKey('rdg-group-panel'),
       decoration: BoxDecoration(
-        color: gridTheme.chooserBackground,
+        color: gridTheme.groupPanel.background,
         border: Border(
           bottom: BorderSide(
-            color: gridTheme.borderColor,
-            width: gridTheme.borderWidth,
+            color: gridTheme.chrome.borderColor,
+            width: gridTheme.chrome.borderWidth,
           ),
         ),
       ),
       child: Padding(
-        padding: gridTheme.resolvePadding(
-          const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-        ),
+        padding: gridTheme.resolvePadding(gridTheme.groupPanel.padding),
         child: _expanded
             ? _expandedPanel(gridTheme, hint)
             : _collapsedBar(gridTheme, hint),
@@ -85,13 +83,17 @@ class _GridGroupChooserState<TItem extends Object>
   Widget _collapsedBar(ResponsiveDataGridTheme gridTheme, String hint) {
     return Row(
       children: [
-        Icon(Icons.account_tree, size: 18, color: gridTheme.chooserForeground),
+        Icon(
+          Icons.account_tree,
+          size: gridTheme.groupPanel.iconSize,
+          color: gridTheme.groupPanel.foreground,
+        ),
         const SizedBox(width: 8),
         Text(
           GridLocalizations.of(context).groupBy,
-          style: gridTheme.chooserTextStyle.copyWith(
+          style: gridTheme.groupPanel.textStyle.copyWith(
             fontWeight: FontWeight.w600,
-            color: gridTheme.chooserForeground,
+            color: gridTheme.groupPanel.foreground,
           ),
         ),
         const SizedBox(width: 8),
@@ -101,8 +103,8 @@ class _GridGroupChooserState<TItem extends Object>
                   hint,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: gridTheme.chooserTextStyle.copyWith(
-                    color: gridTheme.chooserForeground.withValues(alpha: 0.72),
+                  style: gridTheme.groupPanel.textStyle.copyWith(
+                    color: gridTheme.groupPanel.foreground.withValues(alpha: 0.72),
                     fontWeight: FontWeight.w400,
                   ),
                 )
@@ -120,7 +122,7 @@ class _GridGroupChooserState<TItem extends Object>
           key: const ValueKey('rdg-group-panel-expand'),
           tooltip: GridLocalizations.of(context).showGroupPanel,
           icon: const Icon(Icons.expand_more),
-          color: gridTheme.chooserForeground,
+          color: gridTheme.groupPanel.foreground,
           size: 20,
           extent: 32,
           onPressed: () => setState(() => _expanded = true),
@@ -137,15 +139,15 @@ class _GridGroupChooserState<TItem extends Object>
           children: [
             Icon(
               Icons.account_tree,
-              size: 18,
-              color: gridTheme.chooserForeground,
+              size: gridTheme.groupPanel.iconSize,
+              color: gridTheme.groupPanel.foreground,
             ),
             const SizedBox(width: 8),
             Text(
               GridLocalizations.of(context).groupBy,
-              style: gridTheme.chooserTextStyle.copyWith(
+              style: gridTheme.groupPanel.textStyle.copyWith(
                 fontWeight: FontWeight.w600,
-                color: gridTheme.chooserForeground,
+                color: gridTheme.groupPanel.foreground,
               ),
             ),
             const Spacer(),
@@ -155,7 +157,7 @@ class _GridGroupChooserState<TItem extends Object>
                 key: const ValueKey('rdg-group-panel-collapse'),
                 tooltip: GridLocalizations.of(context).hideGroupPanel,
                 icon: const Icon(Icons.expand_less),
-                color: gridTheme.chooserForeground,
+                color: gridTheme.groupPanel.foreground,
                 size: 20,
                 extent: 32,
                 onPressed: () => setState(() => _expanded = false),
@@ -171,8 +173,8 @@ class _GridGroupChooserState<TItem extends Object>
             if (_groups.isEmpty)
               Text(
                 hint,
-                style: gridTheme.chooserTextStyle.copyWith(
-                  color: gridTheme.chooserForeground.withValues(alpha: 0.72),
+                style: gridTheme.groupPanel.textStyle.copyWith(
+                  color: gridTheme.groupPanel.foreground.withValues(alpha: 0.72),
                   fontWeight: FontWeight.w400,
                 ),
               ),
@@ -202,21 +204,21 @@ class _GridGroupChooserState<TItem extends Object>
     IconData sortIcon;
     switch (group.direction) {
       case OrderDirections.descending:
-        sortIcon = gridTheme.sortDescendingIcon;
+        sortIcon = gridTheme.header.sortDescendingIcon;
         break;
       case OrderDirections.ascending:
-        sortIcon = gridTheme.sortAscendingIcon;
+        sortIcon = gridTheme.header.sortAscendingIcon;
         break;
       case OrderDirections.notSet:
-        sortIcon = gridTheme.sortUnsetIcon;
+        sortIcon = gridTheme.header.sortUnsetIcon;
     }
 
     return DecoratedBox(
       key: ValueKey('rdg-group-chip-${group.fieldName}'),
       decoration: BoxDecoration(
-        color: gridTheme.chooserChipBackground,
+        color: gridTheme.groupPanel.chipBackground,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: gridTheme.borderColor),
+        border: Border.all(color: gridTheme.chrome.borderColor),
       ),
       child: Padding(
         padding: const EdgeInsetsDirectional.only(
@@ -231,22 +233,22 @@ class _GridGroupChooserState<TItem extends Object>
             Icon(
               Icons.account_tree,
               size: 14,
-              color: gridTheme.chooserChipForeground,
+              color: gridTheme.groupPanel.chipForeground,
             ),
             const SizedBox(width: 6),
             Flexible(
               child: Text(
                 col.header.text ?? col.fieldName,
                 overflow: TextOverflow.ellipsis,
-                style: gridTheme.chooserTextStyle.copyWith(
-                  color: gridTheme.chooserChipForeground,
+                style: gridTheme.groupPanel.textStyle.copyWith(
+                  color: gridTheme.groupPanel.chipForeground,
                 ),
               ),
             ),
             GridChromeIconButton(
               tooltip: GridLocalizations.of(context).sortGroup,
               icon: Icon(sortIcon),
-              color: gridTheme.chooserChipForeground,
+              color: gridTheme.groupPanel.chipForeground,
               size: 16,
               extent: 24,
               onPressed: () {
@@ -277,13 +279,13 @@ class _GridGroupChooserState<TItem extends Object>
                 removeGroup: widget.removeGroup,
                 theme: widget.theme,
                 gridState: widget.gridState,
-                iconColor: gridTheme.chooserChipForeground,
+                iconColor: gridTheme.groupPanel.chipForeground,
                 iconSize: 16,
               ),
             GridChromeIconButton(
               tooltip: GridLocalizations.of(context).ungroup,
               icon: const Icon(Icons.close),
-              color: gridTheme.chooserChipForeground,
+              color: gridTheme.groupPanel.chipForeground,
               size: 16,
               extent: 24,
               onPressed: () => widget.removeGroup(group),
@@ -320,7 +322,7 @@ class _GridGroupChooserState<TItem extends Object>
             child: GridChromeIconButton(
               tooltip: GridLocalizations.of(context).addGrouping,
               icon: const Icon(Icons.add),
-              color: gridTheme.chooserForeground,
+              color: gridTheme.groupPanel.foreground,
               size: 20,
               extent: 32,
               onPressed: toggle,
@@ -329,11 +331,15 @@ class _GridGroupChooserState<TItem extends Object>
         }
         return TextButton.icon(
           onPressed: toggle,
-          icon: Icon(Icons.add, size: 18, color: gridTheme.chooserForeground),
+          icon: Icon(
+            Icons.add,
+            size: gridTheme.groupPanel.iconSize,
+            color: gridTheme.groupPanel.foreground,
+          ),
           label: Text(
             GridLocalizations.of(context).addGrouping,
-            style: gridTheme.chooserTextStyle.copyWith(
-              color: gridTheme.chooserForeground,
+            style: gridTheme.groupPanel.textStyle.copyWith(
+              color: gridTheme.groupPanel.foreground,
             ),
           ),
         );

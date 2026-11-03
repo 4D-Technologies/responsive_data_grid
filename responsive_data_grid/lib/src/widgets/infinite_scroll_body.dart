@@ -161,10 +161,16 @@ class _ResponsiveGridInfiniteScrollBodyWidgetState<TItem extends Object>
                 scrollDirection: Axis.vertical,
                 padding: widget.gridState.widget.layoutMode == GridLayoutMode.table
                     ? EdgeInsets.zero
-                    : widget.gridState.widget.padding.copyWith(
-                        top: 0,
-                        bottom: 0,
-                      ),
+                    : widget.gridState.widget
+                          .paddingOf(
+                            ResponsiveDataGridTheme.of(
+                              widget.gridState.context,
+                            ),
+                          )
+                          .copyWith(
+                            top: 0,
+                            bottom: 0,
+                          ),
                 builderDelegate:
                     PagedChildBuilderDelegate<_GroupedInfiniteEntry<TItem>>(
                       firstPageProgressIndicatorBuilder: (_) =>
@@ -213,10 +219,16 @@ class _ResponsiveGridInfiniteScrollBodyWidgetState<TItem extends Object>
               scrollDirection: Axis.vertical,
               padding: widget.gridState.widget.layoutMode == GridLayoutMode.table
                   ? EdgeInsets.zero
-                  : widget.gridState.widget.padding.copyWith(
-                      top: 0,
-                      bottom: 0,
-                    ),
+                  : widget.gridState.widget
+                        .paddingOf(
+                          ResponsiveDataGridTheme.of(
+                            widget.gridState.context,
+                          ),
+                        )
+                        .copyWith(
+                          top: 0,
+                          bottom: 0,
+                        ),
               builderDelegate: PagedChildBuilderDelegate(
                 firstPageProgressIndicatorBuilder: (_) => const Center(
                   child: CircularProgressIndicator.adaptive(),
@@ -239,8 +251,11 @@ class _ResponsiveGridInfiniteScrollBodyWidgetState<TItem extends Object>
                     columns: widget.gridState.layoutColumns,
                     itemTapped: widget.gridState.widget.itemTapped,
                     theme: widget.theme,
-                    padding: widget.gridState.widget.contentPadding,
+                    padding: widget.gridState.widget.contentPaddingOf(
+                      ResponsiveDataGridTheme.of(widget.gridState.context),
+                    ),
                     gridState: widget.gridState,
+                    rowIndex: index,
                   );
                 },
               ),

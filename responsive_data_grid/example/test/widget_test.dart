@@ -18,6 +18,7 @@ void main() {
 
     expect(find.byKey(const ValueKey('demo-home')), findsOneWidget);
     expect(find.byKey(const ValueKey('demo-server-side')), findsOneWidget);
+    expect(find.byKey(const ValueKey('demo-theme')), findsOneWidget);
     expect(find.text('Data'), findsOneWidget);
     await tester.scrollUntilVisible(
       find.byKey(const ValueKey('demo-paged-fill-tab')),

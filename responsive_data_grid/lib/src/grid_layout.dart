@@ -93,7 +93,7 @@ double gridRowExtent({
   required double rowSpacing,
 }) {
   final padding = theme.resolvePadding(contentPadding);
-  final text = _textBlockHeight(theme.bodyTextStyle);
+  final text = _textBlockHeight(theme.body.textStyle);
   return math.max(32, text + padding.vertical + rowSpacing);
 }
 
@@ -101,61 +101,69 @@ double gridHeaderExtent({
   required ResponsiveDataGridTheme theme,
   bool stacked = false,
 }) {
-  final padding = theme.resolvePadding(theme.headerCellPadding);
-  final text = _textBlockHeight(theme.headerTextStyle);
+  final padding = theme.resolvePadding(theme.header.cellPadding);
+  final text = _textBlockHeight(theme.header.textStyle);
   final row =
-      math.max(text, theme.headerActionExtent) +
+      math.max(text, theme.header.actionExtent) +
       padding.vertical +
-      theme.borderWidth;
+      theme.chrome.borderWidth;
   return stacked ? row + 32 : row;
 }
 
 double gridFilterRowExtent(ResponsiveDataGridTheme theme) {
-  return 48 + theme.borderWidth;
+  final padding = theme.resolvePadding(theme.filterRow.padding);
+  return theme.filterRow.editorHeight +
+      padding.vertical +
+      theme.chrome.borderWidth;
 }
 
 double gridPagerExtent(ResponsiveDataGridTheme theme) {
-  final padding = theme.resolvePadding(theme.footerPadding);
-  return 36 + padding.vertical + theme.borderWidth;
+  final padding = theme.resolvePadding(theme.pager.padding);
+  return theme.pager.buttonExtent +
+      padding.vertical +
+      theme.chrome.borderWidth;
 }
 
 double gridTitleExtent(ResponsiveDataGridTheme theme) {
-  final padding = theme.resolvePadding(
-    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-  );
-  return math.max(20, _textBlockHeight(theme.titleTextStyle)) + padding.vertical;
+  final padding = theme.resolvePadding(theme.title.padding);
+  return math.max(
+        theme.title.actionExtent,
+        _textBlockHeight(theme.title.textStyle),
+      ) +
+      padding.vertical;
 }
 
 double gridToolbarExtent(ResponsiveDataGridTheme theme) {
-  final padding = theme.resolvePadding(
-    const EdgeInsets.fromLTRB(12, 8, 12, 8),
-  );
-  return 40 + padding.vertical + theme.borderWidth;
+  final padding = theme.resolvePadding(theme.toolbar.padding);
+  return theme.toolbar.searchHeight +
+      padding.vertical +
+      theme.chrome.borderWidth;
 }
 
 double gridGroupChooserExtent(ResponsiveDataGridTheme theme) {
-  final padding = theme.resolvePadding(
-    const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-  );
-  return 18 + padding.vertical + theme.borderWidth;
+  final padding = theme.resolvePadding(theme.groupPanel.padding);
+  return theme.groupPanel.iconSize +
+      padding.vertical +
+      theme.chrome.borderWidth;
 }
 
 double gridGroupHeaderExtent(ResponsiveDataGridTheme theme) {
-  return 40;
+  final padding = theme.resolvePadding(theme.groupHeader.padding);
+  return theme.groupHeader.iconExtent + padding.vertical;
 }
 
 double gridGroupFooterExtent(ResponsiveDataGridTheme theme) {
-  final padding = theme.resolvePadding(theme.footerPadding);
-  return _textBlockHeight(theme.footerTextStyle, fallback: 12) +
+  final padding = theme.resolvePadding(theme.groupFooter.padding);
+  return _textBlockHeight(theme.groupFooter.textStyle, fallback: 12) +
       padding.vertical;
 }
 
 double gridAggregatesFooterExtent(ResponsiveDataGridTheme theme) {
-  final padding = theme.resolvePadding(theme.footerPadding);
+  final padding = theme.resolvePadding(theme.pager.padding);
   return 3 +
-      _textBlockHeight(theme.footerTextStyle, fallback: 12) +
+      _textBlockHeight(theme.pager.textStyle, fallback: 12) +
       padding.vertical +
-      theme.borderWidth;
+      theme.chrome.borderWidth;
 }
 
 int countGroupNodes(Iterable<GroupResult> groups) {
@@ -244,7 +252,7 @@ double gridMinHeightFromTheme({
         ? gridAggregatesFooterExtent(theme)
         : 0,
     paddingVertical: padding.vertical,
-    resizeHandleExtent: resizable ? 12 : 0,
+    resizeHandleExtent: resizable ? theme.chrome.resizeHandleHeight : 0,
     separatorExtent: separatorExtent,
     minHeight: minHeight,
   );
@@ -441,12 +449,22 @@ class GridTableRow extends StatelessWidget {
     return cells![index];
   }
 
-  Widget _frozenChrome(Widget child) {
+  Widget _frozenChrome(BuildContext context, Widget child) {
     if (frozenDecoration != null) {
       child = DecoratedBox(decoration: frozenDecoration!, child: child);
     }
-    return ColoredBox(
+    child = ColoredBox(
       color: frozenBackground ?? const Color(0x00000000),
+      child: child,
+    );
+    final overlay = ResponsiveDataGridTheme.of(context).chrome.frozenOverlay;
+    if (overlay.a == 0) return child;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        boxShadow: [
+          BoxShadow(color: overlay, blurRadius: 6, offset: const Offset(2, 0)),
+        ],
+      ),
       child: child,
     );
   }
@@ -498,6 +516,7 @@ class GridTableRow extends StatelessWidget {
               bottom: 0,
               child: PinToHorizontalViewport(
                 child: _frozenChrome(
+                  context,
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -524,6 +543,7 @@ class GridTableRow extends StatelessWidget {
                   0,
                 ),
                 child: _frozenChrome(
+                  context,
                   SizedBox(
                     width: sticky[i] < widths.length ? widths[sticky[i]] : 0,
                     child: _cell(sticky[i]),
@@ -555,28 +575,33 @@ class GridTableRow extends StatelessWidget {
     double frozenWidth,
     Set<int> sticky,
   ) {
-    final position = Scrollable.maybeOf(
-      context,
-      axis: Axis.horizontal,
-    )?.position;
-    if (position == null ||
+    final scrollable = Scrollable.maybeOf(context, axis: Axis.horizontal);
+    final position = scrollable?.position;
+    if (scrollable == null ||
+        position == null ||
         cellBuilder == null ||
         !position.hasContentDimensions ||
+        axisDirectionToAxis(scrollable.axisDirection) != Axis.horizontal ||
         Directionality.of(context) == TextDirection.rtl ||
         cellColspan != null) {
       return _fullScrollingRow(frozenWidth, sticky);
     }
+    final totalWidth = widths.fold<double>(0, (sum, width) => sum + width);
     return AnimatedBuilder(
       animation: position,
       builder: (context, _) {
-        if (!position.hasContentDimensions) {
+        if (!position.hasContentDimensions || position.maxScrollExtent <= 0.5) {
+          return _fullScrollingRow(frozenWidth, sticky);
+        }
+        final viewport = position.viewportDimension;
+        if (totalWidth <= viewport + overscan * 2) {
           return _fullScrollingRow(frozenWidth, sticky);
         }
         return _virtualScrollingRow(
           frozenWidth,
           sticky,
           position.pixels,
-          position.viewportDimension,
+          viewport,
         );
       },
     );
