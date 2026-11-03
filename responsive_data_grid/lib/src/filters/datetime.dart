@@ -62,6 +62,9 @@ class DataGridDateTimeColumnFilterState<TItem extends Object>
       children: [
         DropdownButtonFormField<Logic?>(
           isExpanded: true,
+          isDense: true,
+          style: gridMenuFilterTextStyle(context),
+          decoration: gridMenuFilterDecoration(context),
           items: gridFilterLogicItems(context, gridComparableFilterLogics),
           initialValue: op,
           onChanged: (Logic? value) {
@@ -85,7 +88,10 @@ class DataGridDateTimeColumnFilterState<TItem extends Object>
                   op == Logic.lessThan ||
                   op == Logic.lessThanOrEqualTo),
           child: DateTimeField(
-            decoration: InputDecoration(hintText: op?.toString()),
+            decoration: gridMenuFilterDecoration(
+              context,
+              hintText: op?.toString(),
+            ),
             value: dtStart,
             lastDate: dtEnd ?? filterRules.lastDate,
             initialPickerDateTime: dtStart,
@@ -105,7 +111,10 @@ class DataGridDateTimeColumnFilterState<TItem extends Object>
         Visibility(
           visible: op != null && (op == Logic.between),
           child: DateTimeField(
-            decoration: InputDecoration(hintText: op?.toString()),
+            decoration: gridMenuFilterDecoration(
+              context,
+              hintText: op?.toString(),
+            ),
             value: dtEnd,
             firstDate: dtStart ?? filterRules.firstDate,
             lastDate: filterRules.lastDate,

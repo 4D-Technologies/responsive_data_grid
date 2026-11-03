@@ -114,13 +114,13 @@ void main() {
     );
     final theme = ResponsiveDataGridTheme.of(element);
     expect(
-      gridContrastRatio(theme.chooserBackground, theme.chooserForeground),
+      gridContrastRatio(theme.groupPanel.background, theme.groupPanel.foreground),
       greaterThanOrEqualTo(4.5),
     );
     expect(
       gridContrastRatio(
-        theme.chooserChipBackground,
-        theme.chooserChipForeground,
+        theme.groupPanel.chipBackground,
+        theme.groupPanel.chipForeground,
       ),
       greaterThanOrEqualTo(4.5),
     );

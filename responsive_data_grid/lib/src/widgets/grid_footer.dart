@@ -16,11 +16,11 @@ class GridFooter<TItem extends Object> extends StatelessWidget {
       padding: EdgeInsets.only(top: 3),
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: gridTheme.footerBackground,
+          color: gridTheme.pager.background,
           border: Border(
             top: BorderSide(
-              color: gridTheme.borderColor,
-              width: gridTheme.borderWidth,
+              color: gridTheme.chrome.borderColor,
+              width: gridTheme.chrome.borderWidth,
             ),
           ),
         ),
@@ -36,7 +36,7 @@ class GridFooter<TItem extends Object> extends StatelessWidget {
     BuildContext context,
     ResponsiveDataGridTheme gridTheme,
   ) {
-    final resolved = gridTheme.resolvePadding(gridTheme.footerPadding);
+    final resolved = gridTheme.resolvePadding(gridTheme.pager.padding);
     final layout = GridTableLayout.maybeOf(context);
     if (layout != null && layout.layoutMode == GridLayoutMode.table) {
       return EdgeInsets.only(top: resolved.top, bottom: resolved.bottom);
@@ -57,12 +57,12 @@ class GridFooter<TItem extends Object> extends StatelessWidget {
         ],
         widths: layout.columnWidths,
         frozenCount: layout.frozenCount,
-        frozenBackground: gridTheme.footerBackground,
+        frozenBackground: gridTheme.pager.background,
       );
     }
     return BootstrapRow(
       textDirection: Directionality.of(context),
-      horizontalSpacing: gridState.widget.columnSpacing,
+      horizontalSpacing: gridState.widget.columnSpacingOf(gridTheme),
       crossAxisAlignment:
           gridState.widget.rowCrossAxisAlignment == CrossAxisAlignment.start ||
               gridState.widget.rowCrossAxisAlignment ==
@@ -81,11 +81,12 @@ class GridFooter<TItem extends Object> extends StatelessWidget {
     GridColumn<TItem, dynamic> column,
     List<GridColumn<TItem, dynamic>> columns,
   ) {
+    final gridTheme = ResponsiveDataGridTheme.of(context);
     return Padding(
       padding: EdgeInsets.only(
         left: columns.indexOf(column) == 0
             ? 0
-            : gridState.widget.columnSpacing,
+            : gridState.widget.columnSpacingOf(gridTheme),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -95,12 +96,9 @@ class GridFooter<TItem extends Object> extends StatelessWidget {
             .map(
               (agg) => Text(
                 "${agg.aggregation}: ${agg.formatResult()}",
-                style: ResponsiveDataGridTheme.of(context).footerTextStyle
-                    .copyWith(
-                      color: ResponsiveDataGridTheme.of(
-                        context,
-                      ).footerForeground,
-                    ),
+                style: gridTheme.pager.textStyle.copyWith(
+                  color: gridTheme.pager.foreground,
+                ),
               ),
             )
             .toList(),
@@ -110,13 +108,14 @@ class GridFooter<TItem extends Object> extends StatelessWidget {
 
   List<BootstrapCol> getColumns(BuildContext context) {
     final columns = gridState.layoutColumns;
+    final gridTheme = ResponsiveDataGridTheme.of(context);
     return columns.map((c) {
       return BootstrapCol(
         child: Padding(
           padding: EdgeInsets.only(
             left: columns.indexOf(c) == 0
                 ? 0
-                : gridState.widget.columnSpacing,
+                : gridState.widget.columnSpacingOf(gridTheme),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -126,12 +125,9 @@ class GridFooter<TItem extends Object> extends StatelessWidget {
                 .map(
                   (agg) => Text(
                     "${agg.aggregation}: ${agg.formatResult()}",
-                    style: ResponsiveDataGridTheme.of(context).footerTextStyle
-                        .copyWith(
-                          color: ResponsiveDataGridTheme.of(
-                            context,
-                          ).footerForeground,
-                        ),
+                    style: gridTheme.pager.textStyle.copyWith(
+                      color: gridTheme.pager.foreground,
+                    ),
                   ),
                 )
                 .toList(),

@@ -1,4 +1,5 @@
 import 'package:client_filtering/client_filtering.dart';
+import 'package:intl/intl.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:responsive_data_grid/responsive_data_grid.dart';
 
@@ -27,6 +28,20 @@ final demoEntries = <DemoEntry>[
     title: 'Kitchen sink',
     subtitle: 'Pager, grouping, filters, multi-sort, light/dark theme',
     builder: (context) => const KitchenSinkScreen(),
+  ),
+  DemoEntry(
+    id: 'theme',
+    section: 'Overview',
+    title: 'Theme override',
+    subtitle: 'Kendo-like default vs host tokens (no rules, 16/14, zebra)',
+    builder: (context) => const ThemeOverrideScreen(),
+  ),
+  DemoEntry(
+    id: 'filter-row',
+    section: 'Columns',
+    title: 'Typed filter row',
+    subtitle: 'String, num, bool, and date editors under headers',
+    builder: (context) => const FilterRowScreen(),
   ),
   DemoEntry(
     id: 'server-side',
@@ -192,6 +207,133 @@ class DemoHomeScreen extends StatelessWidget {
               ),
           ],
         ],
+      ),
+    );
+  }
+}
+
+class ThemeOverrideScreen extends StatelessWidget {
+  const ThemeOverrideScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final base = Theme.of(context);
+    final kendo = ResponsiveDataGridTheme.fromTheme(base);
+    final host = kendo.copyWith(
+      header: kendo.header.copyWith(dividerWidth: 0),
+      body: kendo.body.copyWith(
+        separatorThickness: 0,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
+        oddBackground: base.colorScheme.surfaceContainerLow,
+      ),
+    );
+    return Scaffold(
+      appBar: AppBar(title: const Text('Theme override')),
+      body: ListView(
+        padding: const EdgeInsets.all(12),
+        children: [
+          const Text('Package default (Kendo-like)'),
+          const SizedBox(height: 8),
+          SizedBox(
+            height: 360,
+            child: Theme(
+              data: base.copyWith(extensions: [kendo]),
+              child: ResponsiveDataGrid<ExampleData>.clientSide(
+                items: exampleRows(8),
+                columns: exampleColumns(),
+                pageSize: 5,
+                pagingMode: PagingMode.pager,
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          const Text('Host override: no rules, 16/14 padding, zebra'),
+          const SizedBox(height: 8),
+          SizedBox(
+            height: 360,
+            child: Theme(
+              data: base.copyWith(extensions: [host]),
+              child: ResponsiveDataGrid<ExampleData>.clientSide(
+                items: exampleRows(8),
+                columns: exampleColumns(),
+                pageSize: 5,
+                pagingMode: PagingMode.pager,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class FilterRowScreen extends StatelessWidget {
+  const FilterRowScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Typed filter row')),
+      body: Padding(
+        padding: const EdgeInsets.all(12),
+        child: ResponsiveDataGrid<ExampleData>.clientSide(
+          items: exampleRows(40),
+          columns: [
+            StringColumn(
+              xsCols: 3,
+              fieldName: 'name',
+              header: const ColumnHeader(
+                text: 'Name',
+                showFilter: true,
+                showOrderBy: true,
+              ),
+              value: (row) => row.name,
+            ),
+            BoolColumn(
+              xsCols: 2,
+              fieldName: 'accepted',
+              header: const ColumnHeader(
+                text: 'Accepted',
+                showFilter: true,
+                showOrderBy: true,
+              ),
+              value: (row) => row.accepted,
+              trueText: 'Yes',
+              falseText: 'No',
+            ),
+            DateTimeColumn(
+              xsCols: 4,
+              fieldName: 'dob',
+              filterRules: DateTimeFilterRules(
+                filterType: DateTimeFilterTypes.DateOnly,
+              ),
+              header: const ColumnHeader(
+                text: 'Date of Birth',
+                showFilter: true,
+                showOrderBy: true,
+              ),
+              value: (row) => row.dob,
+              format: DateFormat.yMd(),
+            ),
+            DoubleColumn(
+              xsCols: 3,
+              fieldName: 'score',
+              header: const ColumnHeader(
+                text: 'Score',
+                showFilter: true,
+                showOrderBy: true,
+              ),
+              value: (row) => row.score,
+            ),
+          ],
+          pageSize: 10,
+          pagingMode: PagingMode.pager,
+          sizing: GridSizing.fill,
+          filterable: FilterableMode.row,
+        ),
       ),
     );
   }

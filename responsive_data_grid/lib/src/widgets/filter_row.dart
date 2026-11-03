@@ -27,7 +27,7 @@ class GridFilterRow<TItem extends Object> extends StatelessWidget {
             cells: cells,
             widths: layout.columnWidths,
             frozenCount: layout.frozenCount,
-            frozenBackground: gridTheme.headerBackground,
+            frozenBackground: gridTheme.filterRow.background,
           )
         : BootstrapRow(
             textDirection: Directionality.of(context),
@@ -54,16 +54,21 @@ class GridFilterRow<TItem extends Object> extends StatelessWidget {
     return DecoratedBox(
       key: const ValueKey('rdg-filter-row'),
       decoration: BoxDecoration(
-        color: gridTheme.headerBackground,
+        color: gridTheme.filterRow.background,
         border: Border(
           bottom: BorderSide(
-            color: gridTheme.borderColor,
-            width: gridTheme.borderWidth,
+            color: gridTheme.chrome.borderColor,
+            width: gridTheme.chrome.borderWidth,
           ),
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
+        padding: gridTheme.resolvePadding(
+          EdgeInsets.only(
+            top: gridTheme.filterRow.padding.top,
+            bottom: gridTheme.filterRow.padding.bottom,
+          ),
+        ),
         child: row,
       ),
     );
@@ -115,37 +120,262 @@ class _GridFilterRowCellState<TItem extends Object>
   String _textFromCriteria() {
     final criteria = widget.column.filterRules.criteria;
     if (criteria == null || criteria.values.isEmpty) return '';
-    return criteria.values.first.toString();
+    final value = criteria.values.first;
+    if (value == null) return '';
+    if (value is Duration) return value.inMinutes.toString();
+    return value.toString();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (!widget.column.header.showFilter || !_supportsRowEditor) {
+    if (!widget.column.header.showFilter) {
       return const SizedBox.shrink();
     }
+    final column = widget.column;
+    final Widget editor;
+    if (column is BoolColumn<TItem>) {
+      editor = _boolEditor(context, column);
+    } else if (column is DateTimeColumn<TItem>) {
+      editor = _dateEditor(context, column);
+    } else if (column is TimeOfDayColumn<TItem>) {
+      editor = _timeEditor(context, column);
+    } else if (column.filterRules is ValueMapFilterRules) {
+      editor = _valuesEditor(context);
+    } else if (column is StringColumn<TItem> ||
+        column is IntColumn<TItem> ||
+        column is DoubleColumn<TItem> ||
+        column is NumColumn<TItem> ||
+        column is DurationColumn<TItem>) {
+      editor = _textEditor(context);
+    } else {
+      return const SizedBox.shrink();
+    }
+    final pad = ResponsiveDataGridTheme.of(context).filterRow.padding;
+    return Padding(
+      padding: EdgeInsets.only(left: pad.left, right: pad.right),
+      child: editor,
+    );
+  }
+
+  InputDecoration _decoration(BuildContext context, {Widget? suffix}) {
     final l10n = GridLocalizations.of(context);
-    return TextField(
-      key: ValueKey('rdg-filter-row-${widget.column.fieldName}'),
-      controller: _controller,
-      style: ResponsiveDataGridTheme.of(context).bodyTextStyle,
-      decoration: InputDecoration(
-        isDense: true,
-        hintText: l10n.filter,
-        border: const OutlineInputBorder(),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-        suffixIcon: _controller.text.isEmpty
-            ? null
-            : IconButton(
-                tooltip: l10n.clear,
-                icon: const Icon(Icons.clear, size: 16),
-                onPressed: () => _apply(''),
-              ),
+    final theme = ResponsiveDataGridTheme.of(context);
+    return InputDecoration(
+      isDense: true,
+      hintText: l10n.filter,
+      border: const OutlineInputBorder(),
+      contentPadding: theme.filterRow.editorPadding,
+      suffixIcon: suffix,
+    );
+  }
+
+  Widget _textEditor(BuildContext context) {
+    final l10n = GridLocalizations.of(context);
+    final theme = ResponsiveDataGridTheme.of(context);
+    return SizedBox(
+      width: double.infinity,
+      height: theme.filterRow.editorHeight,
+      child: TextField(
+        key: ValueKey('rdg-filter-row-${widget.column.fieldName}'),
+        controller: _controller,
+        style: theme.body.textStyle,
+        decoration: _decoration(
+          context,
+          suffix: _controller.text.isEmpty
+              ? null
+              : IconButton(
+                  tooltip: l10n.clear,
+                  icon: Icon(
+                    Icons.clear,
+                    size: theme.filterRow.operatorIconSize,
+                  ),
+                  onPressed: () => _applyText(''),
+                ),
+        ),
+        keyboardType: _isNumeric ? TextInputType.number : TextInputType.text,
+        onChanged: (value) {
+          setState(() {});
+          _scheduleCommit(value);
+        },
       ),
-      keyboardType: _isNumeric ? TextInputType.number : TextInputType.text,
-      onChanged: (value) {
-        setState(() {});
-        _scheduleCommit(value);
-      },
+    );
+  }
+
+  Widget _boolEditor(BuildContext context, BoolColumn<TItem> column) {
+    final theme = ResponsiveDataGridTheme.of(context);
+    final criteria = column.filterRules.criteria;
+    final bool? current = criteria == null || criteria.values.isEmpty
+        ? null
+        : criteria.values.first as bool?;
+    return SizedBox(
+      width: double.infinity,
+      height: theme.filterRow.editorHeight,
+      child: DropdownButtonFormField<bool?>(
+        key: ValueKey('rdg-filter-row-${column.fieldName}'),
+        isDense: true,
+        isExpanded: true,
+        initialValue: current,
+        decoration: _decoration(context),
+        items: [
+          DropdownMenuItem<bool?>(
+            value: null,
+            child: Text(GridLocalizations.of(context).filter),
+          ),
+          DropdownMenuItem<bool?>(
+            value: true,
+            child: Text(column.format(true) ?? 'true'),
+          ),
+          DropdownMenuItem<bool?>(
+            value: false,
+            child: Text(column.format(false) ?? 'false'),
+          ),
+        ],
+        onChanged: (value) {
+          if (value == null) {
+            _clear();
+            return;
+          }
+          _commitEquals(value);
+        },
+      ),
+    );
+  }
+
+  Widget _dateEditor(BuildContext context, DateTimeColumn<TItem> column) {
+    final theme = ResponsiveDataGridTheme.of(context);
+    final l10n = GridLocalizations.of(context);
+    final criteria = column.filterRules.criteria;
+    final DateTime? current = criteria == null || criteria.values.isEmpty
+        ? null
+        : criteria.values.first as DateTime?;
+    final label = current == null
+        ? l10n.filter
+        : (column.format(current) ?? current.toString());
+    return SizedBox(
+      width: double.infinity,
+      height: theme.filterRow.editorHeight,
+      child: InkWell(
+        key: ValueKey('rdg-filter-row-${column.fieldName}'),
+        onTap: () async {
+          final rules = column.filterRules;
+          final first = rules is DateTimeFilterRules<TItem>
+              ? rules.firstDate
+              : DateTime(1900);
+          final last = rules is DateTimeFilterRules<TItem>
+              ? rules.lastDate
+              : DateTime(2100);
+          final picked = await showDatePicker(
+            context: context,
+            initialDate: current ?? DateTime.now(),
+            firstDate: first,
+            lastDate: last,
+          );
+          if (!mounted) return;
+          if (picked == null) return;
+          _commitEquals(picked);
+        },
+        child: InputDecorator(
+          decoration: _decoration(
+            context,
+            suffix: current == null
+                ? Icon(
+                    Icons.calendar_today,
+                    size: theme.filterRow.operatorIconSize,
+                  )
+                : IconButton(
+                    tooltip: l10n.clear,
+                    icon: Icon(
+                      Icons.clear,
+                      size: theme.filterRow.operatorIconSize,
+                    ),
+                    onPressed: _clear,
+                  ),
+          ),
+          child: Text(label, style: theme.body.textStyle, maxLines: 1),
+        ),
+      ),
+    );
+  }
+
+  Widget _timeEditor(BuildContext context, TimeOfDayColumn<TItem> column) {
+    final theme = ResponsiveDataGridTheme.of(context);
+    final l10n = GridLocalizations.of(context);
+    final criteria = column.filterRules.criteria;
+    final TimeOfDay? current = criteria == null || criteria.values.isEmpty
+        ? null
+        : criteria.values.first as TimeOfDay?;
+    final label = current == null
+        ? l10n.filter
+        : (column.format(current) ?? current.format(context));
+    return SizedBox(
+      width: double.infinity,
+      height: theme.filterRow.editorHeight,
+      child: InkWell(
+        key: ValueKey('rdg-filter-row-${column.fieldName}'),
+        onTap: () async {
+          final picked = await showTimePicker(
+            context: context,
+            initialTime: current ?? TimeOfDay.now(),
+          );
+          if (!mounted) return;
+          if (picked == null) return;
+          _commitEquals(picked);
+        },
+        child: InputDecorator(
+          decoration: _decoration(
+            context,
+            suffix: current == null
+                ? Icon(
+                    Icons.schedule,
+                    size: theme.filterRow.operatorIconSize,
+                  )
+                : IconButton(
+                    tooltip: l10n.clear,
+                    icon: Icon(
+                      Icons.clear,
+                      size: theme.filterRow.operatorIconSize,
+                    ),
+                    onPressed: _clear,
+                  ),
+          ),
+          child: Text(label, style: theme.body.textStyle, maxLines: 1),
+        ),
+      ),
+    );
+  }
+
+  Widget _valuesEditor(BuildContext context) {
+    final theme = ResponsiveDataGridTheme.of(context);
+    final rules = widget.column.filterRules as ValueMapFilterRules;
+    final criteria = widget.column.filterRules.criteria;
+    final current = criteria == null || criteria.values.isEmpty
+        ? null
+        : criteria.values.first;
+    return SizedBox(
+      width: double.infinity,
+      height: theme.filterRow.editorHeight,
+      child: DropdownButtonFormField<Object?>(
+        key: ValueKey('rdg-filter-row-${widget.column.fieldName}'),
+        isDense: true,
+        isExpanded: true,
+        initialValue: current,
+        decoration: _decoration(context),
+        items: [
+          DropdownMenuItem<Object?>(
+            value: null,
+            child: Text(GridLocalizations.of(context).filter),
+          ),
+          for (final entry in rules.valueMap.entries)
+            DropdownMenuItem<Object?>(value: entry.key, child: entry.value),
+        ],
+        onChanged: (value) {
+          if (value == null) {
+            _clear();
+            return;
+          }
+          _commitEquals(value);
+        },
+      ),
     );
   }
 
@@ -154,27 +384,43 @@ class _GridFilterRowCellState<TItem extends Object>
       widget.column is DoubleColumn<TItem> ||
       widget.column is NumColumn<TItem>;
 
-  bool get _supportsRowEditor =>
-      widget.column is StringColumn<TItem> || _isNumeric;
-
-  void _apply(String raw) {
+  void _applyText(String raw) {
     _debounce?.cancel();
     if (_controller.text != raw) {
       _controller.text = raw;
     }
     setState(() {});
-    _commit(raw);
+    _commitText(raw);
   }
 
   void _scheduleCommit(String raw) {
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 250), () {
       if (!mounted) return;
-      _commit(raw);
+      _commitText(raw);
     });
   }
 
-  void _commit(String raw) {
+  void _clear() {
+    _debounce?.cancel();
+    widget.column.filterRules.criteria = null;
+    _controller.clear();
+    setState(() {});
+    widget.grid.refreshData();
+  }
+
+  void _commitEquals(Object value) {
+    widget.column.filterRules.criteria = FilterCriteria(
+      fieldName: widget.column.fieldName,
+      op: Operators.and,
+      logicalOperator: Logic.equals,
+      values: [value],
+    );
+    setState(() {});
+    widget.grid.refreshData();
+  }
+
+  void _commitText(String raw) {
     final column = widget.column;
     if (raw.isEmpty) {
       if (column.filterRules.criteria != null) {
@@ -200,6 +446,15 @@ class _GridFilterRowCellState<TItem extends Object>
         op: Operators.and,
         logicalOperator: Logic.equals,
         values: [parsed],
+      );
+    } else if (column is DurationColumn<TItem>) {
+      final minutes = int.tryParse(raw);
+      if (minutes == null) return;
+      column.filterRules.criteria = FilterCriteria<Duration>(
+        fieldName: column.fieldName,
+        op: Operators.and,
+        logicalOperator: Logic.equals,
+        values: [Duration(minutes: minutes)],
       );
     } else if (column is StringColumn<TItem>) {
       column.filterRules.criteria = FilterCriteria<String>(

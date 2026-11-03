@@ -39,19 +39,48 @@ const List<Logic> gridComparableFilterLogics = [
   Logic.isNotNull,
 ];
 
+TextStyle gridMenuFilterTextStyle(BuildContext context) {
+  final theme = ResponsiveDataGridTheme.of(context);
+  return theme.body.textStyle.copyWith(color: theme.menu.itemForeground);
+}
+
+InputDecoration gridMenuFilterDecoration(
+  BuildContext context, {
+  String? hintText,
+  String? labelText,
+}) {
+  final menu = ResponsiveDataGridTheme.of(context).menu;
+  return InputDecoration(
+    isDense: true,
+    filled: false,
+    fillColor: const Color(0x00000000),
+    hintText: hintText,
+    labelText: labelText,
+    border: InputBorder.none,
+    enabledBorder: InputBorder.none,
+    focusedBorder: InputBorder.none,
+    disabledBorder: InputBorder.none,
+    contentPadding: EdgeInsets.symmetric(
+      horizontal: menu.itemPadding.left,
+      vertical: 4,
+    ),
+  );
+}
+
 List<DropdownMenuItem<Logic?>> gridFilterLogicItems(
   BuildContext context,
   List<Logic> logics,
 ) {
+  final style = gridMenuFilterTextStyle(context);
   return [
     DropdownMenuItem<Logic?>(
       value: null,
-      child: Text(GridLocalizations.of(context).any),
+      child: Text(GridLocalizations.of(context).any, style: style),
     ),
     for (final logic in logics)
       DropdownMenuItem<Logic?>(
         value: logic,
-        child: Text(logic.toString()),
+        child: Text(logic.toString(), style: style),
       ),
   ];
 }

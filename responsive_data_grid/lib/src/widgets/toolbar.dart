@@ -12,34 +12,30 @@ class GridToolbarRow<TItem extends Object> extends StatelessWidget {
     final scheme = theme.colorScheme;
     final gridTheme = ResponsiveDataGridTheme.of(context);
     final l10n = GridLocalizations.of(context);
-    final iconColor = scheme.onSurfaceVariant;
-    final toolbarColor =
-        theme.dataTableTheme.headingRowColor?.resolve(const {}) ??
-        gridTheme.headerBackground;
+    final iconColor = gridTheme.toolbar.iconColor;
+    final toolbarColor = gridTheme.toolbar.background;
     return DecoratedBox(
       key: const ValueKey('rdg-toolbar'),
       decoration: BoxDecoration(
         color: toolbarColor,
         border: Border(
           bottom: BorderSide(
-            color: gridTheme.borderColor,
-            width: gridTheme.borderWidth,
+            color: gridTheme.chrome.borderColor,
+            width: gridTheme.chrome.borderWidth,
           ),
         ),
       ),
       child: IconTheme.merge(
         data: IconThemeData(color: iconColor),
         child: Padding(
-          padding: gridTheme.resolvePadding(
-            const EdgeInsets.fromLTRB(12, 8, 12, 8),
-          ),
+          padding: gridTheme.resolvePadding(gridTheme.toolbar.padding),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               if (toolbar.search)
                 Expanded(
                   child: SizedBox(
-                    height: 40,
+                    height: gridTheme.toolbar.searchHeight,
                     child: TextField(
                       key: const ValueKey('rdg-toolbar-search'),
                       style: theme.textTheme.bodyMedium,
@@ -57,12 +53,14 @@ class GridToolbarRow<TItem extends Object> extends StatelessWidget {
                           size: 20,
                           color: scheme.onSurfaceVariant,
                         ),
-                        prefixIconConstraints: const BoxConstraints.tightFor(
-                          width: 40,
-                          height: 40,
+                        prefixIconConstraints: BoxConstraints.tightFor(
+                          width: gridTheme.toolbar.iconExtent,
+                          height: gridTheme.toolbar.searchHeight,
                         ),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(
+                            gridTheme.toolbar.searchRadius,
+                          ),
                         ),
                         filled: true,
                         fillColor: scheme.surface,
@@ -95,8 +93,8 @@ class GridToolbarRow<TItem extends Object> extends StatelessWidget {
                       ),
                   ],
                   child: SizedBox(
-                    width: 40,
-                    height: 40,
+                    width: gridTheme.toolbar.iconExtent,
+                    height: gridTheme.toolbar.iconExtent,
                     child: Icon(Icons.view_column_outlined, color: iconColor),
                   ),
                 ),
@@ -107,7 +105,7 @@ class GridToolbarRow<TItem extends Object> extends StatelessWidget {
                   icon: const Icon(Icons.refresh),
                   color: iconColor,
                   size: 20,
-                  extent: 40,
+                  extent: gridTheme.toolbar.iconExtent,
                   onPressed: () {
                     grid.widget.controller!.refresh();
                   },
@@ -119,7 +117,7 @@ class GridToolbarRow<TItem extends Object> extends StatelessWidget {
                   icon: const Icon(Icons.density_medium),
                   color: iconColor,
                   size: 20,
-                  extent: 40,
+                  extent: gridTheme.toolbar.iconExtent,
                   onPressed: grid.cycleDensity,
                 ),
               if (toolbar.onExport != null)
@@ -129,7 +127,7 @@ class GridToolbarRow<TItem extends Object> extends StatelessWidget {
                   icon: const Icon(Icons.download_outlined),
                   color: iconColor,
                   size: 20,
-                  extent: 40,
+                  extent: gridTheme.toolbar.iconExtent,
                   onPressed: toolbar.onExport,
                 ),
               if (toolbar.actions != null) toolbar.actions!,

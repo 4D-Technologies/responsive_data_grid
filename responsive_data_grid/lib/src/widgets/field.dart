@@ -10,11 +10,9 @@ class DataGridFieldWidget<TItem extends Object, TValue extends dynamic>
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final gridTheme = ResponsiveDataGridTheme.of(context);
     final effectiveDataTextStyle =
-        definition.textStyle ??
-        theme.dataTableTheme.dataTextStyle ??
-        theme.gridBodyMedium;
+        definition.textStyle ?? gridTheme.body.textStyle;
 
     Widget? child;
     if (definition is CommandColumn<TItem>) {
@@ -49,13 +47,12 @@ class DataGridFieldWidget<TItem extends Object, TValue extends dynamic>
       aligned = DecoratedBox(decoration: cellDecoration, child: aligned);
     }
 
-    final gridTheme = ResponsiveDataGridTheme.of(context);
+    final cellPad =
+        grid?.contentPaddingOf(gridTheme) ?? gridTheme.body.contentPadding;
     return Semantics(
       label: definition.getFormattedValue(item) ?? '',
       child: Padding(
-        padding: gridTheme.resolvePadding(
-          const EdgeInsets.symmetric(horizontal: 8),
-        ),
+        padding: gridTheme.resolvePadding(cellPad),
         child: ClipRect(child: aligned),
       ),
     );

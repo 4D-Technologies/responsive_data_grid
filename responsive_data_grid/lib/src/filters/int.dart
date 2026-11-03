@@ -92,6 +92,8 @@ class DataGridIntColumnFilterState<TItem extends Object>
       children: [
         DropdownButton<Logic?>(
           isExpanded: true,
+          isDense: true,
+          style: gridMenuFilterTextStyle(context),
           items: gridFilterLogicItems(context, gridComparableFilterLogics),
           value: logic,
           onChanged: (Logic? value) {
@@ -110,7 +112,10 @@ class DataGridIntColumnFilterState<TItem extends Object>
                   logic == Logic.equals ||
                   logic == Logic.notEqual),
           child: TextField(
-            decoration: InputDecoration(hintText: logic?.toString()),
+            decoration: gridMenuFilterDecoration(
+              context,
+              hintText: logic?.toString(),
+            ),
             keyboardType: TextInputType.number,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             controller: tecValue1,
@@ -129,7 +134,10 @@ class DataGridIntColumnFilterState<TItem extends Object>
                   logic == Logic.lessThanOrEqualTo ||
                   logic == Logic.between),
           child: TextField(
-            decoration: InputDecoration(hintText: logic?.toString()),
+            decoration: gridMenuFilterDecoration(
+              context,
+              hintText: logic?.toString(),
+            ),
             keyboardType: TextInputType.number,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             controller: tecValue2,

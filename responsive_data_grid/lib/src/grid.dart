@@ -73,11 +73,11 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
   /// When true, visible columns size to their widest header or cell on first
   /// load. Per-column [GridColumn.autoSize] still applies when this is false.
   final bool autoSize;
-  final EdgeInsets padding;
-  final EdgeInsets contentPadding;
-  final double columnSpacing;
-  final double rowSpacing;
-  final double elevation;
+  final EdgeInsets? padding;
+  final EdgeInsets? contentPadding;
+  final double? columnSpacing;
+  final double? rowSpacing;
+  final double? elevation;
   final PagingMode pagingMode;
   final int maximumRows;
 
@@ -97,8 +97,8 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
     this.initialState,
     this.onStateChanged,
     this.controller,
-    this.columnSpacing = 10,
-    this.rowSpacing = 2,
+    this.columnSpacing,
+    this.rowSpacing,
     this.itemTapped,
     this.separatorThickness,
     this.pageSize = 50,
@@ -134,9 +134,9 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
     this.isRowSticky,
     this.headerGroups,
     this.autoSize = false,
-    this.padding = const EdgeInsets.all(5),
-    this.contentPadding = const EdgeInsets.all(3),
-    this.elevation = 0,
+    this.padding,
+    this.contentPadding,
+    this.elevation,
     this.pagingMode = PagingMode.auto,
     this.allowAggregations = false,
     this.maximumRows = 99999,
@@ -187,16 +187,11 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
     this.isRowSticky,
     this.headerGroups,
     this.autoSize = false,
-    this.padding = const EdgeInsets.all(5),
-    this.contentPadding = const EdgeInsets.only(
-      left: 10,
-      top: 3,
-      right: 10,
-      bottom: 3,
-    ),
-    this.columnSpacing = 3,
-    this.rowSpacing = 3,
-    this.elevation = 0,
+    this.padding,
+    this.contentPadding,
+    this.columnSpacing,
+    this.rowSpacing,
+    this.elevation,
     this.pagingMode = PagingMode.auto,
     this.allowAggregations = false,
     this.maximumRows = 99999,
@@ -206,4 +201,22 @@ class ResponsiveDataGrid<TItem extends Object> extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() => ResponsiveDataGridState<TItem>();
+
+  EdgeInsets paddingOf(ResponsiveDataGridTheme theme) =>
+      padding ?? theme.chrome.padding;
+
+  EdgeInsets contentPaddingOf(ResponsiveDataGridTheme theme) =>
+      contentPadding ?? theme.body.contentPadding;
+
+  double columnSpacingOf(ResponsiveDataGridTheme theme) =>
+      columnSpacing ?? theme.chrome.columnSpacing;
+
+  double rowSpacingOf(ResponsiveDataGridTheme theme) =>
+      rowSpacing ?? theme.chrome.rowSpacing;
+
+  double elevationOf(ResponsiveDataGridTheme theme) =>
+      elevation ?? theme.chrome.elevation;
+
+  double separatorThicknessOf(ResponsiveDataGridTheme theme) =>
+      separatorThickness ?? theme.body.separatorThickness;
 }

@@ -86,6 +86,7 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
               gridRowSeparator(context, gridState.widget.separatorThickness),
               _GridEmptyRow(
                 index: index - groups.length,
+                rowIndex: index,
                 height: _fillRowHeight,
               ),
             ],
@@ -156,7 +157,9 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
     final wrap = nested || shrinkWrap;
     final padding = gridState.widget.layoutMode == GridLayoutMode.table
         ? EdgeInsets.zero
-        : gridState.widget.padding.copyWith(top: 0, bottom: 0);
+        : gridState.widget
+              .paddingOf(ResponsiveDataGridTheme.of(gridState.context))
+              .copyWith(top: 0, bottom: 0);
 
     final top = <TItem>[];
     final bottom = <TItem>[];
@@ -199,7 +202,9 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
         columns: gridState.layoutColumns,
         itemTapped: gridState.widget.itemTapped,
         theme: theme,
-        padding: gridState.widget.contentPadding,
+        padding: gridState.widget.contentPaddingOf(
+          ResponsiveDataGridTheme.of(gridState.context),
+        ),
         gridState: gridState,
         rowIndex: index,
         cellRowspans: index == null
@@ -276,10 +281,16 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
               SliverPersistentHeader(
                 pinned: true,
                 delegate: _StickyRowHeaderDelegate(
-                  height: 24 + gridState.widget.contentPadding.vertical,
+                  height:
+                      24 +
+                      gridState.widget
+                          .contentPaddingOf(
+                            ResponsiveDataGridTheme.of(gridState.context),
+                          )
+                          .vertical,
                   background: ResponsiveDataGridTheme.of(
                     gridState.context,
-                  ).rowBackground,
+                  ).body.background,
                   child: rowFor(items[i], index: i),
                 ),
               )
@@ -306,6 +317,7 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
               }
               return _GridEmptyRow(
                 index: index - items.length,
+                rowIndex: index,
                 height: _fillRowHeight,
               );
             },
@@ -334,14 +346,14 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
     final theme = ResponsiveDataGridTheme.of(gridState.context);
     return gridRowExtent(
       theme: theme,
-      contentPadding: gridState.widget.contentPadding,
-      rowSpacing: gridState.widget.rowSpacing,
+      contentPadding: gridState.widget.contentPaddingOf(theme),
+      rowSpacing: gridState.widget.rowSpacingOf(theme),
     );
   }
 
   double get _fillSlot {
     final theme = ResponsiveDataGridTheme.of(gridState.context);
-    final separator = gridState.widget.separatorThickness ?? theme.borderWidth;
+    final separator = gridState.widget.separatorThicknessOf(theme);
     return _fillRowHeight + separator;
   }
 
@@ -357,27 +369,33 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
 
 class _GridEmptyRow extends StatelessWidget {
   final int index;
+  final int rowIndex;
   final double height;
 
-  const _GridEmptyRow({required this.index, required this.height});
+  const _GridEmptyRow({
+    required this.index,
+    int? rowIndex,
+    required this.height,
+  }) : rowIndex = rowIndex ?? index;
 
   @override
   Widget build(BuildContext context) {
     final gridTheme = ResponsiveDataGridTheme.of(context);
+    final fill = gridTheme.body.fillForIndex(rowIndex);
     final layout = GridTableLayout.maybeOf(context);
     final row = layout != null && layout.layoutMode == GridLayoutMode.table
         ? GridTableRow(
             cellCount: layout.columnWidths.length,
             widths: layout.columnWidths,
             frozenCount: layout.frozenCount,
-            frozenBackground: gridTheme.rowBackground,
+            frozenBackground: fill,
             cellBuilder: (_) => const SizedBox.expand(),
           )
         : const SizedBox.expand();
     return ExcludeSemantics(
       key: ValueKey('rdg-empty-row-$index'),
       child: ColoredBox(
-        color: gridTheme.rowBackground,
+        color: fill,
         child: SizedBox(height: height, width: double.infinity, child: row),
       ),
     );

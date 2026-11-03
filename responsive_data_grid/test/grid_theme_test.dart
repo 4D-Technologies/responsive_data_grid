@@ -100,25 +100,23 @@ void main() {
       tester,
       theme: base.copyWith(
         extensions: <ThemeExtension<dynamic>>[
-          ResponsiveDataGridTheme.fromTheme(
-            base,
-          ).copyWith(groupHeaderBackground: override),
+          ResponsiveDataGridTheme.fromTheme(base).copyWith(
+            groupHeader: ResponsiveDataGridTheme.fromTheme(
+              base,
+            ).groupHeader.copyWith(background: override),
+          ),
         ],
       ),
     );
     expect(_groupHeaderColor(tester), override);
   });
 
-  testWidgets('fromTheme uses DataTableTheme heading row color', (
+  testWidgets('fromTheme uses ColorScheme.surfaceContainerLow for headers', (
     tester,
   ) async {
-    const heading = Color(0xFF445566);
     final base = ThemeData(
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
-      dataTableTheme: DataTableThemeData(
-        headingRowColor: WidgetStateProperty.all(heading),
-      ),
     );
     await _pump(
       tester,
@@ -137,7 +135,10 @@ void main() {
           )
           .first,
     );
-    expect((headerBox.decoration as BoxDecoration).color, heading);
+    expect(
+      (headerBox.decoration as BoxDecoration).color,
+      base.colorScheme.surfaceContainerLow,
+    );
   });
 
   for (final brightness in [Brightness.light, Brightness.dark]) {
@@ -155,27 +156,27 @@ void main() {
 
       final gridTheme = ResponsiveDataGridTheme.fromTheme(theme);
       expect(
-        contrastRatio(gridTheme.headerBackground, gridTheme.headerForeground),
+        contrastRatio(gridTheme.header.background, gridTheme.header.foreground),
         greaterThanOrEqualTo(4.5),
         reason: 'header $brightness',
       );
       expect(
-        contrastRatio(gridTheme.footerBackground, gridTheme.footerForeground),
+        contrastRatio(gridTheme.pager.background, gridTheme.pager.foreground),
         greaterThanOrEqualTo(4.5),
         reason: 'footer $brightness',
       );
       expect(
         contrastRatio(
-          gridTheme.groupHeaderBackground,
-          gridTheme.groupHeaderForeground,
+          gridTheme.groupHeader.background,
+          gridTheme.groupHeader.foreground,
         ),
         greaterThanOrEqualTo(4.5),
         reason: 'group header $brightness',
       );
       expect(
         contrastRatio(
-          gridTheme.groupFooterBackground,
-          gridTheme.groupFooterForeground,
+          gridTheme.groupFooter.background,
+          gridTheme.groupFooter.foreground,
         ),
         greaterThanOrEqualTo(4.5),
         reason: 'group footer $brightness',
@@ -191,11 +192,11 @@ void main() {
       );
       expect(
         headerText.style?.color,
-        gridTheme.headerForeground,
+        gridTheme.header.foreground,
         reason: 'column header text should use grid theme, not onPrimary',
       );
       expect(
-        contrastRatio(gridTheme.headerBackground, headerText.style!.color!),
+        contrastRatio(gridTheme.header.background, headerText.style!.color!),
         greaterThanOrEqualTo(4.5),
       );
     });

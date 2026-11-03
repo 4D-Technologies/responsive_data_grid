@@ -11,12 +11,12 @@ class TitleRowWidget extends StatelessWidget {
     final gridTheme = ResponsiveDataGridTheme.of(context);
 
     final backgroundColor =
-        definition.backgroundColor ?? gridTheme.titleBackground;
+        definition.backgroundColor ?? gridTheme.title.background;
     final foregroundColor =
-        definition.foregroundColor ?? gridTheme.titleForeground;
+        definition.foregroundColor ?? gridTheme.title.foreground;
     final titleTextStyle =
         definition.textStyle?.copyWith(color: foregroundColor) ??
-        gridTheme.titleTextStyle.copyWith(color: foregroundColor);
+        gridTheme.title.textStyle.copyWith(color: foregroundColor);
 
     return ColoredBox(
       color: backgroundColor,

@@ -14,21 +14,21 @@ class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
     final gridTheme = ResponsiveDataGridTheme.of(context);
 
     final iconTheme = IconTheme.of(context).copyWith(
-      color: gridTheme.headerForeground,
-      size: gridTheme.headerIconSize,
+      color: gridTheme.header.foreground,
+      size: gridTheme.header.iconSize,
     );
 
     return IconTheme(
       data: iconTheme,
       child: DefaultTextStyle(
-        style: gridTheme.headerTextStyle,
+        style: gridTheme.header.textStyle,
         child: DecoratedBox(
           decoration: BoxDecoration(
-            color: gridTheme.headerBackground,
+            color: gridTheme.header.background,
             border: Border(
               bottom: BorderSide(
-                color: gridTheme.borderColor,
-                width: gridTheme.borderWidth,
+                color: gridTheme.chrome.borderColor,
+                width: gridTheme.chrome.borderWidth,
               ),
             ),
           ),
@@ -93,10 +93,10 @@ class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
-            color: gridTheme.headerDividerColor,
-            width: gridTheme.headerDividerWidth <= 0
+            color: gridTheme.header.dividerColor,
+            width: gridTheme.header.dividerWidth <= 0
                 ? 0
-                : gridTheme.headerDividerWidth,
+                : gridTheme.header.dividerWidth,
           ),
         ),
       ),
@@ -107,7 +107,7 @@ class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
           widths: [for (final span in spans) span.width],
           frozenCount: frozenSpans,
           stickyIndexes: stickySpans,
-          frozenBackground: gridTheme.headerBackground,
+          frozenBackground: gridTheme.header.background,
           cellBuilder: (i) {
             final span = spans[i];
             return SizedBox(
@@ -121,7 +121,7 @@ class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
                   : Center(
                       child: Text(
                         span.title,
-                        style: gridTheme.headerTextStyle,
+                        style: gridTheme.header.textStyle,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -139,11 +139,12 @@ class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
     final layout = GridTableLayout.maybeOf(context);
     if (layout != null && layout.layoutMode == GridLayoutMode.table) {
       return GridTableRow(
-        cellCount: columns.length,
-        cellBuilder: (i) => _headerCell(i, gridTheme),
+        cells: [
+          for (var i = 0; i < columns.length; i++) _headerCell(i, gridTheme),
+        ],
         widths: layout.columnWidths,
         frozenCount: layout.frozenCount,
-        frozenBackground: gridTheme.headerBackground,
+        frozenBackground: gridTheme.header.background,
       );
     }
     return BootstrapRow(
@@ -167,11 +168,11 @@ class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
       key: ValueKey('rdg-header-cell-${column.fieldName}'),
       decoration: BoxDecoration(
         border: Border(
-          right: i == columns.length - 1 || gridTheme.headerDividerWidth <= 0
+          right: i == columns.length - 1 || gridTheme.header.dividerWidth <= 0
               ? BorderSide.none
               : BorderSide(
-                  color: gridTheme.headerDividerColor,
-                  width: gridTheme.headerDividerWidth,
+                  color: gridTheme.header.dividerColor,
+                  width: gridTheme.header.dividerWidth,
                 ),
         ),
       ),
@@ -188,12 +189,12 @@ class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
             Draggable<String>(
               data: column.fieldName,
               feedback: Material(
-                color: gridTheme.headerBackground,
+                color: gridTheme.header.background,
                 child: Padding(
                   padding: const EdgeInsets.all(8),
                   child: Text(
                     column.header.text ?? column.fieldName,
-                    style: gridTheme.headerTextStyle,
+                    style: gridTheme.header.textStyle,
                   ),
                 ),
               ),
@@ -242,11 +243,11 @@ class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
             decoration: BoxDecoration(
               border: Border(
                 right:
-                    i == columns.length - 1 || gridTheme.headerDividerWidth <= 0
+                    i == columns.length - 1 || gridTheme.header.dividerWidth <= 0
                     ? BorderSide.none
                     : BorderSide(
-                        color: gridTheme.headerDividerColor,
-                        width: gridTheme.headerDividerWidth,
+                        color: gridTheme.header.dividerColor,
+                        width: gridTheme.header.dividerWidth,
                       ),
               ),
             ),

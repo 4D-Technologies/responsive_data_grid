@@ -161,25 +161,25 @@ class ResponsiveDataGridState<TItem extends Object>
     }
 
     final headerStyle =
-        column.header.textStyle ?? theme.headerTextStyle;
+        column.header.textStyle ?? theme.header.textStyle;
     measure(column.header.text ?? column.fieldName, headerStyle);
     for (final page in _dataCache.pageMap.values) {
       for (final item in page.items) {
         measure(
           column.getFormattedValue(item) ?? '',
-          column.textStyle ?? theme.bodyTextStyle,
+          column.textStyle ?? theme.body.textStyle,
         );
       }
     }
     painter.dispose();
     final padding = theme.resolvePadding(
-      column.header.padding ?? theme.headerCellPadding,
+      column.header.padding ?? theme.header.cellPadding,
     );
     var chrome = padding.horizontal;
-    if (!column.header.empty) chrome += theme.headerActionExtent;
+    if (!column.header.empty) chrome += theme.header.actionExtent;
     if (column.header.showOrderBy &&
         widget.sortable != SortableOptions.none) {
-      chrome += theme.headerActionExtent;
+      chrome += theme.header.actionExtent;
     }
     column.width = clampColumnWidth(
       textWidth + chrome,
@@ -201,7 +201,8 @@ class ResponsiveDataGridState<TItem extends Object>
   /// and padding. [ResponsiveDataGrid.minHeight] overrides the computed value.
   double get minimumHeight =>
       widget.minHeight ??
-      _minContentHeight(context) + widget.padding.vertical;
+      _minContentHeight(context) +
+          widget.paddingOf(ResponsiveDataGridTheme.of(context)).vertical;
 
   PagingMode _resolvePagingMode(BoxConstraints outer) {
     if (widget.pagingMode != PagingMode.auto) return widget.pagingMode;
@@ -231,8 +232,8 @@ class ResponsiveDataGridState<TItem extends Object>
     return gridMinHeightFromTheme(
       theme: theme,
       pageSize: rowCount,
-      contentPadding: widget.contentPadding,
-      rowSpacing: widget.rowSpacing,
+      contentPadding: widget.contentPaddingOf(theme),
+      rowSpacing: widget.rowSpacingOf(theme),
       padding: EdgeInsets.zero,
       hasTitle: widget.title != null,
       hasToolbar: widget.toolbar != null && !widget.toolbar!.isEmpty,
@@ -246,7 +247,7 @@ class ResponsiveDataGridState<TItem extends Object>
       resizable: widget.resizable,
       groupHeaderCount: groupCount,
       groupFooterCount: groupCount,
-      separatorExtent: widget.separatorThickness ?? theme.borderWidth,
+      separatorExtent: widget.separatorThicknessOf(theme),
     );
   }
 
@@ -304,7 +305,7 @@ class ResponsiveDataGridState<TItem extends Object>
                 child: Center(
                   child: DecoratedBox(
                     decoration: BoxDecoration(
-                      color: gridTheme.borderColor,
+                      color: gridTheme.chrome.borderColor,
                       borderRadius: BorderRadius.circular(2),
                     ),
                     child: const SizedBox(width: 40, height: 4),
@@ -960,9 +961,9 @@ class ResponsiveDataGridState<TItem extends Object>
             child: Card(
             margin: widget.sizing == GridSizing.fill ? EdgeInsets.zero : null,
             borderOnForeground: false,
-            elevation: widget.elevation,
+            elevation: widget.elevationOf(ResponsiveDataGridTheme.of(context)),
             child: Padding(
-              padding: widget.padding,
+              padding: widget.paddingOf(ResponsiveDataGridTheme.of(context)),
               child: LayoutBuilder(
                 builder: (context, outer) {
                   final pagingMode = _resolvePagingMode(outer);
@@ -1116,9 +1117,11 @@ class ResponsiveDataGridState<TItem extends Object>
                                 ),
                               ),
                             )
-                          : const ColoredBox(
-                              color: Color(0x33000000),
-                              child: Center(
+                          : ColoredBox(
+                              color: ResponsiveDataGridTheme.of(
+                                context,
+                              ).chrome.loadingScrim,
+                              child: const Center(
                                 child: CircularProgressIndicator.adaptive(),
                               ),
                             );

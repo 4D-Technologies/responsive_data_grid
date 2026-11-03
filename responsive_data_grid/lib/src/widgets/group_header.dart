@@ -23,7 +23,7 @@ class GridGroupHeader extends StatelessWidget {
     final gridTheme = ResponsiveDataGridTheme.of(context);
     final l10n = GridLocalizations.of(context);
     return DecoratedBox(
-      decoration: BoxDecoration(color: gridTheme.groupHeaderBackground),
+      decoration: BoxDecoration(color: gridTheme.groupHeader.background),
       child: Padding(
         padding: gridTheme.resolvePadding(const EdgeInsets.all(3)).copyWith(
           left: Directionality.of(context) == TextDirection.rtl
@@ -52,7 +52,7 @@ class GridGroupHeader extends StatelessWidget {
                 icon: Icon(
                   collapsed ? Icons.chevron_right : Icons.expand_more,
                 ),
-                color: gridTheme.groupHeaderForeground,
+                color: gridTheme.groupHeader.foreground,
                 size: 20,
                 extent: 28,
                 onPressed: onToggle,
@@ -61,8 +61,8 @@ class GridGroupHeader extends StatelessWidget {
             PinToHorizontalViewport(
               child: Text(
                 group.value ?? l10n.noEntry,
-                style: gridTheme.groupHeaderTextStyle.copyWith(
-                  color: gridTheme.groupHeaderForeground,
+                style: gridTheme.groupHeader.textStyle.copyWith(
+                  color: gridTheme.groupHeader.foreground,
                 ),
               ),
             ),

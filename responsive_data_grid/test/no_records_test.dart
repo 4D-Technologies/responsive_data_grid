@@ -168,9 +168,12 @@ void main() {
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
     );
-    final gridTheme = ResponsiveDataGridTheme.fromTheme(base).copyWith(
-      headerForeground: headerFg,
-      bodyTextStyle: const TextStyle(color: bodyFg, fontSize: 14),
+    final fromBase = ResponsiveDataGridTheme.fromTheme(base);
+    final gridTheme = fromBase.copyWith(
+      header: fromBase.header.copyWith(foreground: headerFg),
+      body: fromBase.body.copyWith(
+        textStyle: const TextStyle(color: bodyFg, fontSize: 14),
+      ),
     );
 
     tester.view.physicalSize = const Size(900, 700);
@@ -211,9 +214,12 @@ void main() {
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
       );
-      final gridTheme = ResponsiveDataGridTheme.fromTheme(base).copyWith(
-        headerForeground: headerFg,
-        bodyTextStyle: const TextStyle(fontSize: 14),
+      final fromBase = ResponsiveDataGridTheme.fromTheme(base);
+      final gridTheme = fromBase.copyWith(
+        header: fromBase.header.copyWith(foreground: headerFg),
+        body: fromBase.body.copyWith(
+          textStyle: const TextStyle(fontSize: 14),
+        ),
       );
 
       tester.view.physicalSize = const Size(900, 700);

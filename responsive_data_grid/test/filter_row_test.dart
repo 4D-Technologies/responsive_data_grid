@@ -6,8 +6,15 @@ import 'package:responsive_data_grid/responsive_data_grid.dart';
 class _Person {
   final int id;
   final String name;
+  final bool active;
+  final DateTime dob;
 
-  const _Person(this.id, this.name);
+  const _Person(
+    this.id,
+    this.name, {
+    this.active = true,
+    required this.dob,
+  });
 }
 
 Future<void> _pump(
@@ -31,23 +38,37 @@ Future<void> _pump(
             height: 500,
             pagingMode: PagingMode.pager,
             filterable: filterable,
-            items: const [
-              _Person(1, 'Ada'),
-              _Person(2, 'Grace'),
-              _Person(3, 'Alan'),
+            items: [
+              _Person(1, 'Ada', active: true, dob: DateTime(1990, 1, 1)),
+              _Person(2, 'Grace', active: false, dob: DateTime(1991, 2, 2)),
+              _Person(3, 'Alan', active: true, dob: DateTime(1992, 3, 3)),
             ],
             columns: [
               IntColumn<_Person>(
                 fieldName: 'id',
                 header: ColumnHeader(text: 'Id', showFilter: idFilter),
                 value: (row) => row.id,
-                xsCols: 4,
+                xsCols: 3,
               ),
               StringColumn<_Person>(
                 fieldName: 'name',
                 header: ColumnHeader(text: 'Name', showFilter: nameFilter),
                 value: (row) => row.name,
-                xsCols: 8,
+                xsCols: 3,
+              ),
+              BoolColumn<_Person>(
+                fieldName: 'active',
+                header: const ColumnHeader(text: 'Active', showFilter: true),
+                value: (row) => row.active,
+                trueText: 'Yes',
+                falseText: 'No',
+                xsCols: 3,
+              ),
+              DateTimeColumn<_Person>(
+                fieldName: 'dob',
+                header: const ColumnHeader(text: 'DOB', showFilter: true),
+                value: (row) => row.dob,
+                xsCols: 3,
               ),
             ],
           ),
@@ -125,13 +146,202 @@ void main() {
     expect(find.text('Grace'), findsOneWidget);
   });
 
-  testWidgets('row mode does not put filters in the column menu', (
+  testWidgets('row mode still shows filters in the column menu', (
     tester,
   ) async {
     await _pump(tester, filterable: FilterableMode.row);
     await tester.tap(find.byKey(const ValueKey('rdg-header-menu-name')));
     await tester.pumpAndSettle();
 
-    expect(find.byType(DropdownButtonFormField<Logic?>), findsNothing);
+    expect(find.byType(DropdownButtonFormField<Logic?>), findsOneWidget);
+  });
+
+  testWidgets('row mode paints bool and date editors', (tester) async {
+    await _pump(tester, filterable: FilterableMode.row);
+    expect(find.byKey(const ValueKey('rdg-filter-row-active')), findsOneWidget);
+    expect(find.byKey(const ValueKey('rdg-filter-row-dob')), findsOneWidget);
+  });
+
+  testWidgets('last column header, filter, and body stay in view', (
+    tester,
+  ) async {
+    await _pump(tester);
+    expect(find.text('DOB'), findsOneWidget);
+    expect(find.byKey(const ValueKey('rdg-header-cell-dob')), findsOneWidget);
+    expect(find.byKey(const ValueKey('rdg-header-menu-dob')), findsOneWidget);
+    expect(find.byKey(const ValueKey('rdg-filter-row-dob')), findsOneWidget);
+    final header = tester.getRect(
+      find.byKey(const ValueKey('rdg-header-cell-dob')),
+    );
+    expect(header.width, greaterThan(80));
+    expect(header.left, lessThan(800));
+  });
+
+  testWidgets('typed score column keeps header text and values', (tester) async {
+    tester.view.physicalSize = const Size(1280, 800);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Padding(
+            padding: const EdgeInsets.all(12),
+            child: ResponsiveDataGrid<_Person>.clientSide(
+              items: [
+                _Person(1, 'Ada', active: true, dob: DateTime(1990, 1, 1)),
+                _Person(2, 'Grace', active: false, dob: DateTime(1991, 2, 2)),
+              ],
+              columns: [
+                StringColumn<_Person>(
+                  xsCols: 3,
+                  fieldName: 'name',
+                  header: const ColumnHeader(
+                    text: 'Name',
+                    showFilter: true,
+                    showOrderBy: true,
+                  ),
+                  value: (row) => row.name,
+                ),
+                BoolColumn<_Person>(
+                  xsCols: 2,
+                  fieldName: 'active',
+                  header: const ColumnHeader(
+                    text: 'Accepted',
+                    showFilter: true,
+                    showOrderBy: true,
+                  ),
+                  value: (row) => row.active,
+                  trueText: 'Yes',
+                  falseText: 'No',
+                ),
+                DateTimeColumn<_Person>(
+                  xsCols: 4,
+                  fieldName: 'dob',
+                  header: const ColumnHeader(
+                    text: 'Date of Birth',
+                    showFilter: true,
+                    showOrderBy: true,
+                  ),
+                  value: (row) => row.dob,
+                ),
+                IntColumn<_Person>(
+                  xsCols: 3,
+                  fieldName: 'id',
+                  header: const ColumnHeader(
+                    text: 'Score',
+                    showFilter: true,
+                    showOrderBy: true,
+                  ),
+                  value: (row) => row.id,
+                ),
+              ],
+              pageSize: 10,
+              pagingMode: PagingMode.pager,
+              sizing: GridSizing.fill,
+              filterable: FilterableMode.row,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 50));
+
+    expect(find.text('Score'), findsOneWidget);
+    expect(find.byKey(const ValueKey('rdg-header-cell-id')), findsOneWidget);
+    expect(find.byKey(const ValueKey('rdg-header-menu-id')), findsOneWidget);
+    expect(find.byKey(const ValueKey('rdg-filter-row-id')), findsOneWidget);
+    final scoreHeader = tester.getRect(
+      find.byKey(const ValueKey('rdg-header-cell-id')),
+    );
+    expect(scoreHeader.width, greaterThan(120));
+    expect(find.text('1'), findsWidgets);
+    expect(find.text('2'), findsWidgets);
+  });
+
+  testWidgets('double column body values paint in the last column', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1280, 800);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Padding(
+            padding: const EdgeInsets.all(12),
+            child: ResponsiveDataGrid<_Person>.clientSide(
+              items: [
+                _Person(1, 'Ada', active: true, dob: DateTime(1990, 1, 1)),
+                _Person(2, 'Grace', active: false, dob: DateTime(1991, 2, 2)),
+              ],
+              columns: [
+                StringColumn<_Person>(
+                  xsCols: 3,
+                  fieldName: 'name',
+                  header: const ColumnHeader(text: 'Name', showFilter: true),
+                  value: (row) => row.name,
+                ),
+                BoolColumn<_Person>(
+                  xsCols: 2,
+                  fieldName: 'active',
+                  header: const ColumnHeader(text: 'Accepted', showFilter: true),
+                  value: (row) => row.active,
+                  trueText: 'Yes',
+                  falseText: 'No',
+                ),
+                DateTimeColumn<_Person>(
+                  xsCols: 4,
+                  fieldName: 'dob',
+                  header: const ColumnHeader(
+                    text: 'Date of Birth',
+                    showFilter: true,
+                  ),
+                  value: (row) => row.dob,
+                ),
+                DoubleColumn<_Person>(
+                  xsCols: 3,
+                  fieldName: 'score',
+                  header: const ColumnHeader(
+                    text: 'Score',
+                    showFilter: true,
+                    showOrderBy: true,
+                  ),
+                  value: (row) => row.id + 0.5,
+                ),
+              ],
+              pageSize: 10,
+              pagingMode: PagingMode.pager,
+              sizing: GridSizing.fill,
+              filterable: FilterableMode.row,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 50));
+
+    expect(find.text('Score'), findsOneWidget);
+    expect(find.text('1.5'), findsOneWidget);
+    expect(find.text('2.5'), findsOneWidget);
+    final score = tester.getRect(
+      find.byKey(const ValueKey('rdg-header-cell-score')),
+    );
+    expect(score.width, greaterThan(120));
+  });
+
+  testWidgets('menu mode has no filter row and opens typed editors', (
+    tester,
+  ) async {
+    await _pump(tester, filterable: FilterableMode.menu);
+    expect(find.byKey(const ValueKey('rdg-filter-row')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('rdg-header-menu-active')));
+    await tester.pumpAndSettle();
+    expect(find.byType(CheckboxListTile), findsOneWidget);
   });
 }

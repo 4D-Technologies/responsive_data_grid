@@ -30,7 +30,7 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
         .findAncestorWidgetOfExactType<ResponsiveDataGrid<TItem>>();
     final gridTheme = ResponsiveDataGridTheme.of(context);
     final custom = grid?.rowDecoration?.call(item);
-    final themeFill = gridTheme.rowBackground;
+    final themeFill = gridTheme.body.fillForIndex(rowIndex);
 
     final expandable =
         grid?.detailBuilder != null &&
@@ -49,24 +49,21 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
       onTap: itemTapped == null ? null : () => itemTapped?.call(item),
       enableFeedback: true,
       excludeFromSemantics: false,
-      hoverColor: gridTheme.rowHoverColor,
-      focusColor: gridTheme.headerSortActiveColor.withValues(alpha: 0.25),
+      hoverColor: gridTheme.body.hoverColor,
+      focusColor: gridTheme.header.sortActiveColor.withValues(alpha: 0.25),
       mouseCursor: itemTapped != null
           ? SystemMouseCursors.click
           : SystemMouseCursors.basic,
       child: DefaultTextStyle(
-        style: gridTheme.bodyTextStyle,
-        child: Padding(
-          padding: _tablePadding(context, gridTheme, padding),
-          child: _rowCells(
-            context,
-            grid!,
-            item,
-            themeFill,
-            custom,
-            expandable: expandable,
-            expanded: expanded,
-          ),
+        style: gridTheme.body.textStyle,
+        child: _rowCells(
+          context,
+          grid!,
+          item,
+          themeFill,
+          custom,
+          expandable: expandable,
+          expanded: expanded,
         ),
       ),
     );
@@ -103,7 +100,7 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
     if (grid.detailBuilder == null) return body;
     final detail = expanded
         ? Padding(
-            padding: const EdgeInsetsDirectional.fromSTEB(32, 8, 12, 12),
+            padding: gridTheme.body.detailPadding,
             child: grid.detailBuilder!(context, item),
           )
         : const SizedBox(width: double.infinity, height: 0);
@@ -112,26 +109,13 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
       children: [
         body,
         AnimatedSize(
-          duration: const Duration(milliseconds: 150),
+          duration: gridTheme.body.expandAnimationDuration,
           curve: Curves.easeInOut,
           alignment: Alignment.topCenter,
           child: detail,
         ),
       ],
     );
-  }
-
-  EdgeInsets _tablePadding(
-    BuildContext context,
-    ResponsiveDataGridTheme gridTheme,
-    EdgeInsets padding,
-  ) {
-    final resolved = gridTheme.resolvePadding(padding);
-    final layout = GridTableLayout.maybeOf(context);
-    if (layout != null && layout.layoutMode == GridLayoutMode.table) {
-      return EdgeInsets.only(top: resolved.top, bottom: resolved.bottom);
-    }
-    return resolved;
   }
 
   Widget _rowCells(
@@ -144,6 +128,7 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
     required bool expanded,
   }) {
     final l10n = GridLocalizations.of(context);
+    final gridTheme = ResponsiveDataGridTheme.of(context);
     final leadingChildren = <Widget>[];
     final canReorder = gridState?.canReorderRows ?? false;
     if (canReorder && rowIndex != null) {
@@ -156,11 +141,11 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
             child: MouseRegion(
               cursor: SystemMouseCursors.grab,
               child: SizedBox(
-                width: 28,
-                height: 32,
+                width: gridTheme.body.dragHandleWidth,
+                height: gridTheme.body.dragHandleHeight,
                 child: Icon(
                   Icons.drag_indicator,
-                  size: 20,
+                  size: gridTheme.body.dragIconSize,
                   semanticLabel: l10n.reorderRow,
                 ),
               ),
@@ -176,10 +161,13 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
             key: ValueKey('rdg-detail-toggle-$item'),
             tooltip: expanded ? l10n.collapseRow : l10n.expandRow,
             padding: EdgeInsets.zero,
-            constraints: const BoxConstraints.tightFor(width: 32, height: 32),
+            constraints: BoxConstraints.tightFor(
+              width: gridTheme.body.expandExtent,
+              height: gridTheme.body.expandExtent,
+            ),
             icon: Icon(
               expanded ? Icons.expand_more : Icons.chevron_right,
-              size: 20,
+              size: gridTheme.body.expandIconSize,
             ),
             onPressed: () => gridState!.toggleRowExpanded(item),
           ),
@@ -223,7 +211,7 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
     return BootstrapRow(
       textDirection: Directionality.of(context),
       alignment: WrapAlignment.start,
-      runSpacing: grid.rowSpacing,
+      runSpacing: grid.rowSpacingOf(ResponsiveDataGridTheme.of(context)),
       crossAxisAlignment:
           grid.rowCrossAxisAlignment == CrossAxisAlignment.start ||
               grid.rowCrossAxisAlignment == CrossAxisAlignment.stretch
@@ -245,7 +233,9 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
       return BootstrapCol(
         child: Padding(
           padding: EdgeInsetsDirectional.only(
-            start: columns.indexOf(c) == 0 ? 0 : grid.columnSpacing,
+            start: columns.indexOf(c) == 0
+                ? 0
+                : grid.columnSpacingOf(ResponsiveDataGridTheme.of(context)),
           ),
           child: DataGridFieldWidget<TItem, dynamic>(c, item),
         ),

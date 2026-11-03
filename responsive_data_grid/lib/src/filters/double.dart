@@ -76,6 +76,8 @@ class DataGridDoubleColumnFilterState<TItem extends Object>
       children: [
         DropdownButton<Logic?>(
           isExpanded: true,
+          isDense: true,
+          style: gridMenuFilterTextStyle(context),
           items: gridFilterLogicItems(context, gridComparableFilterLogics),
           value: op,
           onChanged: (Logic? value) {
@@ -97,7 +99,10 @@ class DataGridDoubleColumnFilterState<TItem extends Object>
                   op == Logic.equals ||
                   op == Logic.notEqual),
           child: TextField(
-            decoration: InputDecoration(hintText: op?.toString()),
+            decoration: gridMenuFilterDecoration(
+              context,
+              hintText: op?.toString(),
+            ),
             keyboardType: TextInputType.numberWithOptions(decimal: true),
             inputFormatters: [
               DecimalTextInputFormatter(
@@ -123,7 +128,10 @@ class DataGridDoubleColumnFilterState<TItem extends Object>
                   op == Logic.lessThanOrEqualTo ||
                   op == Logic.between),
           child: TextField(
-            decoration: InputDecoration(hintText: op?.toString()),
+            decoration: gridMenuFilterDecoration(
+              context,
+              hintText: op?.toString(),
+            ),
             keyboardType: TextInputType.numberWithOptions(decimal: true),
             inputFormatters: [
               DecimalTextInputFormatter(

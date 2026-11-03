@@ -229,8 +229,7 @@ enum FilterableMode {
 }
 
 extension FilterableModeX on FilterableMode {
-  bool get usesMenu =>
-      this == FilterableMode.menu || this == FilterableMode.menuAndRow;
+  bool get usesMenu => this != FilterableMode.none;
   bool get usesRow =>
       this == FilterableMode.row || this == FilterableMode.menuAndRow;
 }
