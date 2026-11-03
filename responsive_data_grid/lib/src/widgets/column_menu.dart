@@ -197,10 +197,7 @@ class ColumnMenu<T extends Object> extends DropDownViewWidget {
                   close(context);
                   gridState.refreshData();
                 },
-                icon: Icon(
-                  Icons.clear_all,
-                  color: menu.itemIconColor,
-                ),
+                icon: Icon(Icons.clear_all, color: menu.itemIconColor),
                 label: Text(l10n.clear, overflow: TextOverflow.ellipsis),
               ),
             ),
@@ -221,6 +218,7 @@ class ColumnMenu<T extends Object> extends DropDownViewWidget {
     );
 
     return Material(
+      key: const ValueKey('rdg-column-menu'),
       color: panelColor,
       elevation: menu.elevation,
       type: MaterialType.card,

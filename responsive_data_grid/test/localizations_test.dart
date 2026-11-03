@@ -10,8 +10,14 @@ class _Person {
 void main() {
   test('English and Spanish packs differ for user-facing copy', () {
     expect(GridLocalizations.en.noRecords, 'No records available.');
-    expect(GridLocalizations.es.noRecords, isNot(GridLocalizations.en.noRecords));
+    expect(
+      GridLocalizations.es.noRecords,
+      isNot(GridLocalizations.en.noRecords),
+    );
     expect(GridLocalizations.es.apply, 'Aplicar');
+    expect(GridLocalizations.en.filterFrom, 'From');
+    expect(GridLocalizations.es.filterFrom, 'Desde');
+    expect(GridLocalizations.es.filterTo, 'Hasta');
     expect(GridLocalizations.es.groupBy, 'Agrupar por');
     expect(
       GridLocalizations.es.pagerRange(start: 1, end: 10, total: 95),

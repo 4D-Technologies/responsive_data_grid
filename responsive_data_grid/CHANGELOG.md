@@ -1,5 +1,9 @@
 # Change Log
 
+## [2.0.1] - November 3rd, 2026
+
+- DateTime filter-row editors pick a from/to range (`Logic.between`) with a compact in-field clear control (#128). The column-menu date filter uses From/To fields that stay inside the menu.
+
 ## [2.0.0] - November 3rd, 2026
 
 - Nested `ResponsiveDataGridTheme` (`chrome`, `header`, `body`, `filterRow`, `toolbar`, `title`, `pager`, `groupHeader`, `groupFooter`, `groupPanel`, `menu`) with Flutter-style `copyWith` / `lerp`. Defaults are Kendo-like and seed from `ColorScheme` / `TextTheme` / `DividerTheme` / `visualDensity` only.

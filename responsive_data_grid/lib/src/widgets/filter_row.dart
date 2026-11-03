@@ -4,11 +4,7 @@ class GridFilterRow<TItem extends Object> extends StatelessWidget {
   final ResponsiveDataGridState<TItem> grid;
   final List<GridColumn<TItem, dynamic>> columns;
 
-  const GridFilterRow({
-    super.key,
-    required this.grid,
-    required this.columns,
-  });
+  const GridFilterRow({super.key, required this.grid, required this.columns});
 
   @override
   Widget build(BuildContext context) {
@@ -41,10 +37,7 @@ class GridFilterRow<TItem extends Object> extends StatelessWidget {
                       column.smallCols ??
                       column.xsCols ??
                       12,
-                  child: GridFilterRowCell<TItem>(
-                    column: column,
-                    grid: grid,
-                  ),
+                  child: GridFilterRowCell<TItem>(column: column, grid: grid),
                 ),
             ],
             totalSegments:
@@ -166,6 +159,28 @@ class _GridFilterRowCellState<TItem extends Object>
       border: const OutlineInputBorder(),
       contentPadding: theme.filterRow.editorPadding,
       suffixIcon: suffix,
+      suffixIconConstraints: suffix == null
+          ? null
+          : const BoxConstraints(minWidth: 28, minHeight: 28, maxHeight: 28),
+    );
+  }
+
+  Widget _compactIconButton({
+    Key? key,
+    required BuildContext context,
+    required IconData icon,
+    required String tooltip,
+    required VoidCallback onPressed,
+  }) {
+    final theme = ResponsiveDataGridTheme.of(context);
+    return IconButton(
+      key: key,
+      tooltip: tooltip,
+      visualDensity: VisualDensity.compact,
+      padding: EdgeInsets.zero,
+      constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+      icon: Icon(icon, size: theme.filterRow.operatorIconSize),
+      onPressed: onPressed,
     );
   }
 
@@ -183,12 +198,10 @@ class _GridFilterRowCellState<TItem extends Object>
           context,
           suffix: _controller.text.isEmpty
               ? null
-              : IconButton(
+              : _compactIconButton(
+                  context: context,
+                  icon: Icons.clear,
                   tooltip: l10n.clear,
-                  icon: Icon(
-                    Icons.clear,
-                    size: theme.filterRow.operatorIconSize,
-                  ),
                   onPressed: () => _applyText(''),
                 ),
         ),
@@ -245,41 +258,56 @@ class _GridFilterRowCellState<TItem extends Object>
     final theme = ResponsiveDataGridTheme.of(context);
     final l10n = GridLocalizations.of(context);
     final criteria = column.filterRules.criteria;
-    final DateTime? current = criteria == null || criteria.values.isEmpty
-        ? null
-        : criteria.values.first as DateTime?;
-    final label = current == null
-        ? l10n.filter
-        : (column.format(current) ?? current.toString());
+    final values = criteria?.values ?? const [];
+    final DateTime? start = values.isEmpty ? null : values.first as DateTime?;
+    final DateTime? end = values.length > 1 ? values.last as DateTime? : null;
+    final type = _dateFilterType(column);
+    final isTimeOnly = type == DateTimeFilterTypes.TimeOnly;
+    final hasValue = start != null;
+    final label = !hasValue
+        ? ''
+        : isTimeOnly || end == null || _isSameDay(start, end)
+        ? (column.format(start) ?? start.toString())
+        : '${column.format(start) ?? start} – ${column.format(end) ?? end}';
     return SizedBox(
       width: double.infinity,
       height: theme.filterRow.editorHeight,
       child: InkWell(
         key: ValueKey('rdg-filter-row-${column.fieldName}'),
         onTap: () async {
-          final picked = await _pickDateTime(context, column, current);
-          if (!mounted) return;
-          if (picked == null) return;
-          _commitEquals(picked);
+          if (isTimeOnly) {
+            final picked = await _pickDateTime(context, column, start);
+            if (!mounted || picked == null) return;
+            _commitEquals(picked);
+            return;
+          }
+          final range = await _pickDateRange(context, column, start, end);
+          if (!mounted || range == null) return;
+          _commitBetween(_startOfDay(range.start), _endOfDay(range.end));
         },
         child: InputDecorator(
+          isEmpty: !hasValue,
           decoration: _decoration(
             context,
-            suffix: current == null
-                ? Icon(
+            suffix: hasValue
+                ? _compactIconButton(
+                    key: ValueKey('rdg-filter-row-clear-${column.fieldName}'),
+                    context: context,
+                    icon: Icons.clear,
+                    tooltip: l10n.clear,
+                    onPressed: _clear,
+                  )
+                : Icon(
                     Icons.calendar_today,
                     size: theme.filterRow.operatorIconSize,
-                  )
-                : IconButton(
-                    tooltip: l10n.clear,
-                    icon: Icon(
-                      Icons.clear,
-                      size: theme.filterRow.operatorIconSize,
-                    ),
-                    onPressed: _clear,
                   ),
           ),
-          child: Text(label, style: theme.body.textStyle, maxLines: 1),
+          child: Text(
+            label,
+            style: theme.body.textStyle,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
       ),
     );
@@ -313,16 +341,11 @@ class _GridFilterRowCellState<TItem extends Object>
           decoration: _decoration(
             context,
             suffix: current == null
-                ? Icon(
-                    Icons.schedule,
-                    size: theme.filterRow.operatorIconSize,
-                  )
-                : IconButton(
+                ? Icon(Icons.schedule, size: theme.filterRow.operatorIconSize)
+                : _compactIconButton(
+                    context: context,
+                    icon: Icons.clear,
                     tooltip: l10n.clear,
-                    icon: Icon(
-                      Icons.clear,
-                      size: theme.filterRow.operatorIconSize,
-                    ),
                     onPressed: _clear,
                   ),
           ),
@@ -379,6 +402,48 @@ class _GridFilterRowCellState<TItem extends Object>
     return value;
   }
 
+  DateTime _startOfDay(DateTime value) =>
+      DateTime(value.year, value.month, value.day);
+
+  DateTime _endOfDay(DateTime value) =>
+      DateTime(value.year, value.month, value.day, 23, 59, 59, 999);
+
+  bool _isSameDay(DateTime a, DateTime b) =>
+      a.year == b.year && a.month == b.month && a.day == b.day;
+
+  DateTimeFilterTypes _dateFilterType(DateTimeColumn<TItem> column) {
+    final rules = column.filterRules;
+    if (rules is DateTimeFilterRules<TItem>) return rules.filterType;
+    return DateTimeFilterTypes.DateTime;
+  }
+
+  Future<DateTimeRange?> _pickDateRange(
+    BuildContext context,
+    DateTimeColumn<TItem> column,
+    DateTime? start,
+    DateTime? end,
+  ) async {
+    final rules = column.filterRules;
+    final typed = rules is DateTimeFilterRules<TItem> ? rules : null;
+    final first = typed?.firstDate ?? DateTime(1900);
+    final last = typed?.lastDate ?? DateTime(2100);
+    DateTimeRange? initial;
+    if (start != null) {
+      final rangeStart = _clampDateTime(_startOfDay(start), first, last);
+      final rangeEnd = _clampDateTime(_startOfDay(end ?? start), first, last);
+      initial = DateTimeRange(
+        start: rangeStart.isAfter(rangeEnd) ? rangeEnd : rangeStart,
+        end: rangeStart.isAfter(rangeEnd) ? rangeStart : rangeEnd,
+      );
+    }
+    return showDateRangePicker(
+      context: context,
+      firstDate: first,
+      lastDate: last,
+      initialDateRange: initial,
+    );
+  }
+
   Future<DateTime?> _pickDateTime(
     BuildContext context,
     DateTimeColumn<TItem> column,
@@ -388,51 +453,19 @@ class _GridFilterRowCellState<TItem extends Object>
     final typed = rules is DateTimeFilterRules<TItem> ? rules : null;
     final first = typed?.firstDate ?? DateTime(1900);
     final last = typed?.lastDate ?? DateTime(2100);
-    final type = typed?.filterType ?? DateTimeFilterTypes.DateTime;
     final initial = _clampDateTime(current ?? DateTime.now(), first, last);
-    switch (type) {
-      case DateTimeFilterTypes.DateOnly:
-        return showDatePicker(
-          context: context,
-          initialDate: initial,
-          firstDate: first,
-          lastDate: last,
-        );
-      case DateTimeFilterTypes.TimeOnly:
-        final time = await showTimePicker(
-          context: context,
-          initialTime: TimeOfDay.fromDateTime(initial),
-        );
-        if (time == null) return null;
-        return DateTime(
-          initial.year,
-          initial.month,
-          initial.day,
-          time.hour,
-          time.minute,
-        );
-      case DateTimeFilterTypes.DateTime:
-        final date = await showDatePicker(
-          context: context,
-          initialDate: initial,
-          firstDate: first,
-          lastDate: last,
-        );
-        if (date == null) return null;
-        if (!context.mounted) return null;
-        final time = await showTimePicker(
-          context: context,
-          initialTime: TimeOfDay.fromDateTime(current ?? date),
-        );
-        if (time == null) return null;
-        return DateTime(
-          date.year,
-          date.month,
-          date.day,
-          time.hour,
-          time.minute,
-        );
-    }
+    final time = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(initial),
+    );
+    if (time == null) return null;
+    return DateTime(
+      initial.year,
+      initial.month,
+      initial.day,
+      time.hour,
+      time.minute,
+    );
   }
 
   void _applyText(String raw) {
@@ -471,6 +504,14 @@ class _GridFilterRowCellState<TItem extends Object>
     } else {
       column.filterRules.applyEquals(column.fieldName, value as dynamic);
     }
+    setState(() {});
+    widget.grid.refreshData();
+  }
+
+  void _commitBetween(DateTime start, DateTime end) {
+    final column = widget.column;
+    if (column is! DateTimeColumn<TItem>) return;
+    column.filterRules.applyBetween(column.fieldName, start, end);
     setState(() {});
     widget.grid.refreshData();
   }

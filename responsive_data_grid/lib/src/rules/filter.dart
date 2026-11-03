@@ -18,6 +18,16 @@ abstract class FilterRules<
     );
   }
 
+  void applyBetween(String fieldName, TValue start, TValue end) {
+    criteria = FilterCriteria<TValue>.between(
+      fieldName: fieldName,
+      op: Operators.and,
+      logicalOperator: Logic.between,
+      value1: start,
+      value2: end,
+    );
+  }
+
   TColumnFilter showFilter(
     GridColumn<TItem, TValue> definition,
     ResponsiveDataGridState<TItem> grid,

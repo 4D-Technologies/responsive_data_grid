@@ -131,7 +131,7 @@ final demoEntries = <DemoEntry>[
     id: 'filter-row',
     section: 'Columns',
     title: 'Typed filter row',
-    subtitle: 'String, num, bool, and date editors under headers',
+    subtitle: 'String, num, bool, and date-range editors under headers',
     builder: (context) => const FilterRowScreen(),
   ),
   DemoEntry(

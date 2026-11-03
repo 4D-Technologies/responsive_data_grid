@@ -29,6 +29,8 @@ class GridLocalizations {
   final String groupColumn;
   final String aggregates;
   final String filter;
+  final String filterFrom;
+  final String filterTo;
   final String sort;
   final String columnMenu;
   final String showGroupPanel;
@@ -92,6 +94,8 @@ class GridLocalizations {
     required this.groupColumn,
     required this.aggregates,
     required this.filter,
+    this.filterFrom = 'From',
+    this.filterTo = 'To',
     required this.sort,
     required this.columnMenu,
     required this.showGroupPanel,
@@ -210,6 +214,8 @@ class GridLocalizations {
     groupColumn: 'Agrupar columna',
     aggregates: 'Agregados',
     filter: 'Filtro',
+    filterFrom: 'Desde',
+    filterTo: 'Hasta',
     sort: 'Ordenar',
     columnMenu: 'Menú de columna',
     showGroupPanel: 'Mostrar panel de agrupación',
@@ -243,10 +249,7 @@ class GridLocalizations {
     pageLabel: _esPageLabel,
   );
 
-  static const List<Locale> supportedLocales = [
-    Locale('en'),
-    Locale('es'),
-  ];
+  static const List<Locale> supportedLocales = [Locale('en'), Locale('es')];
 
   static const LocalizationsDelegate<GridLocalizations> delegate =
       _GridLocalizationsDelegate();
@@ -315,9 +318,7 @@ class GridLocalizations {
     ClientFilteringLocalizedMessages.and = spanish ? 'Y' : 'And';
     ClientFilteringLocalizedMessages.or = spanish ? 'O' : 'Or';
     ClientFilteringLocalizedMessages.sum = spanish ? 'Suma' : 'Sum';
-    ClientFilteringLocalizedMessages.average = spanish
-        ? 'Promedio'
-        : 'Average';
+    ClientFilteringLocalizedMessages.average = spanish ? 'Promedio' : 'Average';
     ClientFilteringLocalizedMessages.maximum = spanish ? 'Máximo' : 'Maximum';
     ClientFilteringLocalizedMessages.minimum = spanish ? 'Mínimo' : 'Minimum';
     ClientFilteringLocalizedMessages.count = spanish ? 'Recuento' : 'Count';
@@ -326,10 +327,16 @@ class GridLocalizations {
 
 String _enFilterTitle(String column) => 'Filter: $column';
 String _esFilterTitle(String column) => 'Filtro: $column';
-String _enPagerRange({required int start, required int end, required int total}) =>
-    '$start–$end of $total';
-String _esPagerRange({required int start, required int end, required int total}) =>
-    '$start–$end de $total';
+String _enPagerRange({
+  required int start,
+  required int end,
+  required int total,
+}) => '$start–$end of $total';
+String _esPagerRange({
+  required int start,
+  required int end,
+  required int total,
+}) => '$start–$end de $total';
 String _enPageLabel(int page) => 'Page $page';
 String _esPageLabel(int page) => 'Página $page';
 
@@ -338,10 +345,9 @@ class _GridLocalizationsDelegate
   const _GridLocalizationsDelegate();
 
   @override
-  bool isSupported(Locale locale) =>
-      GridLocalizations.supportedLocales.any(
-        (supported) => supported.languageCode == locale.languageCode,
-      );
+  bool isSupported(Locale locale) => GridLocalizations.supportedLocales.any(
+    (supported) => supported.languageCode == locale.languageCode,
+  );
 
   @override
   Future<GridLocalizations> load(Locale locale) {
