@@ -286,6 +286,7 @@ class _GridFilterRowCellState<TItem extends Object>
           _commitBetween(_startOfDay(range.start), _endOfDay(range.end));
         },
         child: InputDecorator(
+          isEmpty: !hasValue,
           decoration: _decoration(
             context,
             suffix: hasValue

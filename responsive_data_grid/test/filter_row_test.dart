@@ -613,6 +613,7 @@ void main() {
       ),
     );
     expect(dobField.decoration.hintText, 'Filter');
+    expect(dobField.isEmpty, isTrue);
     expect((dobField.child as Text).data, isEmpty);
   });
 
