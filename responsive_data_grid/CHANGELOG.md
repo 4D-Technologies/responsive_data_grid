@@ -4,6 +4,7 @@
 
 - DateTime filter-row editors pick a from/to range (`Logic.between`) with a compact in-field clear control (#128). The column-menu date filter uses From/To fields that stay inside the menu.
 - Bool filter-row dropdowns show “Filter” as hint text, not as a selectable item (#129).
+- `GridSizing.fill` + pager leftover space below real rows is empty body background, not fake empty rows that scroll (#130).
 
 ## [2.0.0] - November 3rd, 2026
 

@@ -115,18 +115,12 @@ void main() {
         base,
       ).body.copyWith(separatorThickness: 0),
     );
-    await _pump(
-      tester,
-      theme: _themeWith(grid),
-      separatorThickness: 3,
-    );
+    await _pump(tester, theme: _themeWith(grid), separatorThickness: 3);
     final divider = tester.widget<Divider>(find.byType(Divider).first);
     expect(divider.thickness, 3);
   });
 
-  testWidgets('oddBackground paints odd rows including empty fill rows', (
-    tester,
-  ) async {
+  testWidgets('oddBackground paints odd data rows', (tester) async {
     const odd = Color(0xFFE8EEF4);
     final base = ThemeData(
       useMaterial3: true,
@@ -141,44 +135,56 @@ void main() {
       theme: _themeWith(grid),
       sizing: GridSizing.fill,
       height: null,
-      items: const [_Person('Ada', 36)],
+      items: const [_Person('Ada', 36), _Person('Grace', 30)],
     );
 
-    final empty = find.byWidgetPredicate((widget) {
-      final key = widget.key;
-      return key is ValueKey<String> && key.value == 'rdg-empty-row-0';
-    });
-    expect(empty, findsOneWidget);
-    final box = tester.widget<ColoredBox>(
-      find.descendant(of: empty, matching: find.byType(ColoredBox)).first,
+    expect(
+      find.byWidgetPredicate((widget) {
+        final key = widget.key;
+        return key is ValueKey<String> &&
+            key.value.startsWith('rdg-empty-row-');
+      }),
+      findsNothing,
     );
-    expect(box.color, odd);
+    expect(
+      find.ancestor(
+        of: find.text('Grace'),
+        matching: find.byWidgetPredicate((widget) {
+          if (widget is! DecoratedBox) return false;
+          final decoration = widget.decoration;
+          return decoration is BoxDecoration && decoration.color == odd;
+        }),
+      ),
+      findsWidgets,
+    );
   });
 
-  testWidgets('themed body.contentPadding is used when widget override is null', (
-    tester,
-  ) async {
-    final base = ThemeData(
-      useMaterial3: true,
-      colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
-    );
-    const themedPad = EdgeInsets.fromLTRB(20, 12, 16, 12);
-    final fromBase = ResponsiveDataGridTheme.fromTheme(base);
-    final grid = fromBase.copyWith(
-      body: fromBase.body.copyWith(contentPadding: themedPad),
-    );
-    await _pump(tester, theme: _themeWith(grid));
+  testWidgets(
+    'themed body.contentPadding is used when widget override is null',
+    (tester) async {
+      final base = ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
+      );
+      const themedPad = EdgeInsets.fromLTRB(20, 12, 16, 12);
+      final fromBase = ResponsiveDataGridTheme.fromTheme(base);
+      final grid = fromBase.copyWith(
+        body: fromBase.body.copyWith(contentPadding: themedPad),
+      );
+      await _pump(tester, theme: _themeWith(grid));
 
-    final cell = find.byWidgetPredicate((widget) {
-      final key = widget.key;
-      return key is ValueKey<String> && key.value.startsWith('rdg-cell-name-');
-    });
-    expect(cell, findsWidgets);
-    final pad = tester.widget<Padding>(
-      find.descendant(of: cell.first, matching: find.byType(Padding)).first,
-    );
-    expect(pad.padding, grid.resolvePadding(themedPad));
-  });
+      final cell = find.byWidgetPredicate((widget) {
+        final key = widget.key;
+        return key is ValueKey<String> &&
+            key.value.startsWith('rdg-cell-name-');
+      });
+      expect(cell, findsWidgets);
+      final pad = tester.widget<Padding>(
+        find.descendant(of: cell.first, matching: find.byType(Padding)).first,
+      );
+      expect(pad.padding, grid.resolvePadding(themedPad));
+    },
+  );
 
   testWidgets('oddBackground paints infinite-scroll rows', (tester) async {
     const odd = Color(0xFFE8EEF4);
