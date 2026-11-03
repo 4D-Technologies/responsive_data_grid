@@ -50,33 +50,23 @@ Finder _emptyRows() => find.byWidgetPredicate((widget) {
   return key is ValueKey<String> && key.value.startsWith('rdg-empty-row-');
 });
 
-Finder _emptyRow(int index) => find.byKey(ValueKey('rdg-empty-row-$index'));
-
-void _expectFillChromeToPager(
+void _expectFillBackgroundToPager(
   WidgetTester tester, {
   required double lastDataBottom,
 }) {
   final host = tester.getRect(_heightBox());
   final pager = tester.getRect(_pager());
-  expect(_emptyRow(0), findsOneWidget);
-  expect(pager.bottom, closeTo(host.bottom, 4));
-  expect(
-    tester.getRect(_emptyRow(0)).top,
-    greaterThanOrEqualTo(lastDataBottom - 1),
+  final body = tester.widget<ScrollView>(
+    find.byKey(const ValueKey('rdg-body-scroll')),
   );
-  var lastEmpty = tester.getRect(_emptyRow(0));
-  for (var i = 1; ; i++) {
-    final next = _emptyRow(i);
-    if (next.evaluate().isEmpty) break;
-    final rect = tester.getRect(next);
-    if (rect.top >= pager.top - 1) break;
-    lastEmpty = rect;
-  }
-  expect(lastEmpty.top, lessThan(pager.top + 1));
+  expect(_emptyRows(), findsNothing);
+  expect(body.physics, isA<NeverScrollableScrollPhysics>());
+  expect(pager.bottom, closeTo(host.bottom, 4));
+  expect(lastDataBottom, lessThan(pager.top));
   expect(
-    pager.top - lastEmpty.bottom,
-    lessThan(36),
-    reason: 'empty chrome meets the pager within one row-extent',
+    pager.top - lastDataBottom,
+    greaterThan(8),
+    reason: 'leftover below real rows is empty background, not row chrome',
   );
 }
 
@@ -580,7 +570,7 @@ void main() {
       expect(groupedHeight, greaterThan(plainKey.currentState!.minimumHeight));
     });
 
-    testWidgets('sparse page paints empty row chrome down to the pager', (
+    testWidgets('sparse page paints empty background down to the pager', (
       tester,
     ) async {
       await _pump(
@@ -597,7 +587,7 @@ void main() {
         ),
       );
 
-      _expectFillChromeToPager(
+      _expectFillBackgroundToPager(
         tester,
         lastDataBottom: tester.getRect(find.text('Person 2')).bottom,
       );
@@ -629,7 +619,7 @@ void main() {
       );
     });
 
-    testWidgets('unbounded fill with few rows still has empty chrome', (
+    testWidgets('unbounded fill with few rows has no empty row chrome', (
       tester,
     ) async {
       final key = GlobalKey<ResponsiveDataGridState<_Person>>();
@@ -647,13 +637,17 @@ void main() {
         ),
       );
       expect(tester.takeException(), isNull);
-      expect(_emptyRow(0), findsOneWidget);
+      expect(_emptyRows(), findsNothing);
       expect(
         _widgetHeight(tester),
         closeTo(key.currentState!.minimumHeight, 4),
       );
       expect(find.text('Person 2'), findsOneWidget);
       expect(_pager(), findsOneWidget);
+      expect(
+        tester.getRect(find.text('Person 2')).bottom,
+        lessThan(tester.getRect(_pager()).top),
+      );
     });
 
     testWidgets('short parent inner scroll has no empty rows', (tester) async {
@@ -674,7 +668,7 @@ void main() {
       expect(body.physics, isNot(isA<NeverScrollableScrollPhysics>()));
     });
 
-    testWidgets('grouped fill keeps group chrome and empty rows below', (
+    testWidgets('grouped fill keeps group chrome and empty background below', (
       tester,
     ) async {
       await _pump(
@@ -696,7 +690,7 @@ void main() {
         for (final name in ['Person 1', 'Person 2', 'Person 3', 'Person 4'])
           tester.getRect(find.text(name)).bottom,
       ].reduce((a, b) => a > b ? a : b);
-      _expectFillChromeToPager(tester, lastDataBottom: lastDataBottom);
+      _expectFillBackgroundToPager(tester, lastDataBottom: lastDataBottom);
     });
   });
 

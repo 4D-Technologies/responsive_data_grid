@@ -89,7 +89,7 @@ final demoEntries = <DemoEntry>[
     id: 'paged-fill-sparse',
     section: 'Height',
     title: 'Paged fill, few rows',
-    subtitle: 'Two rows of twenty; empty chrome down to the pager',
+    subtitle: 'Two rows of twenty; empty background down to the pager',
     builder: (context) => const PagedFillSparseScreen(),
   ),
   DemoEntry(

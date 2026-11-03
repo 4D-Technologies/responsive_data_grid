@@ -58,23 +58,24 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('paged fill sparse page paints empty chrome to the pager', (
+  testWidgets('paged fill sparse page paints empty background to the pager', (
     tester,
   ) async {
     await openDemo(tester, 'paged-fill-sparse');
     expect(find.byKey(const ValueKey('rdg-pager')), findsOneWidget);
-    expect(find.byKey(const ValueKey('rdg-empty-row-0')), findsOneWidget);
+    expect(
+      find.byWidgetPredicate((widget) {
+        final key = widget.key;
+        return key is ValueKey<String> &&
+            key.value.startsWith('rdg-empty-row-');
+      }),
+      findsNothing,
+    );
     final lastData = tester.getRect(find.text('Ada Lovelace'));
     final pager = tester.getRect(find.byKey(const ValueKey('rdg-pager')));
-    final firstEmpty = tester.getRect(
-      find.byKey(const ValueKey('rdg-empty-row-0')),
-    );
-    expect(firstEmpty.top, greaterThanOrEqualTo(lastData.bottom - 1));
-    final empties = find.byWidgetPredicate((widget) {
-      final key = widget.key;
-      return key is ValueKey<String> && key.value.startsWith('rdg-empty-row-');
-    });
-    expect(pager.top - tester.getRect(empties.last).bottom, lessThan(40));
+    expect(lastData.bottom, lessThan(pager.top));
+    expect(pager.top - lastData.bottom, greaterThan(8));
+    expect(bodyScroll(tester).physics, isA<NeverScrollableScrollPhysics>());
     expect(tester.takeException(), isNull);
   });
 
