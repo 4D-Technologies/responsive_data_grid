@@ -37,13 +37,6 @@ final demoEntries = <DemoEntry>[
     builder: (context) => const ThemeOverrideScreen(),
   ),
   DemoEntry(
-    id: 'filter-row',
-    section: 'Columns',
-    title: 'Typed filter row',
-    subtitle: 'String, num, bool, and date editors under headers',
-    builder: (context) => const FilterRowScreen(),
-  ),
-  DemoEntry(
     id: 'server-side',
     section: 'Data',
     title: 'Server-side loadData',
@@ -133,6 +126,13 @@ final demoEntries = <DemoEntry>[
     title: 'Shrink-wrap',
     subtitle: 'Grid sizes to the current page; the host scrolls',
     builder: (context) => const ShrinkWrapScreen(),
+  ),
+  DemoEntry(
+    id: 'filter-row',
+    section: 'Columns',
+    title: 'Typed filter row',
+    subtitle: 'String, num, bool, and date editors under headers',
+    builder: (context) => const FilterRowScreen(),
   ),
   DemoEntry(
     id: 'column-types',
