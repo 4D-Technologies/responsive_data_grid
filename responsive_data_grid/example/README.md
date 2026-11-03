@@ -14,6 +14,6 @@ flutter run --dart-define=DEMO_SCREEN=paged-fill-tab
 - Data: `server-side`, `load-error`, `empty`
 - Paging: `paging-none`, `paging-auto`
 - Height: `paged-fill-tab`, `paged-fill-tall`, `paged-fill-unbounded`, `paged-fill-groups`, `infinite-bounds`, `infinite-unbounded`, `shrink-wrap`
-- Columns: `column-types`, `sort-none`, `freeze-visibility`
+- Columns: `filter-row`, `column-types`, `sort-none`, `freeze-visibility`
 
 Kitchen sink: pager, grouping, filters, multi-column sort, and Light / Dark / Branded theme. `flutter-skill` MCP is wired with `cwd` `responsive_data_grid/example` so those screens can be driven as separate apps.

@@ -148,7 +148,7 @@ ThemeData(
 
 Nested types: `chrome`, `header`, `body`, `filterRow`, `toolbar`, `title`, `pager`, `groupHeader`, `groupFooter`, `groupPanel`, `menu`. `fromCupertino` does the same under `CupertinoApp`. Empty grids show themed "No records available." chrome; `noResults` replaces that template.
 
-`FilterableMode.menu` (default) keeps typed editors in the column menu. `row` / `menuAndRow` add a compact filter row for string, num, bool, date, time, duration, and value-map columns.
+`FilterableMode.menu` (default) keeps typed editors in the column menu. `row` / `menuAndRow` add a compact filter row for string, num, bool, date range (`Logic.between`), time, duration, and value-map columns. DateTime row filters use `showDateRangePicker` and a dedicated clear control so they stay usable on narrow columns.
 
 The example app switches Light / Dark / Branded palettes from the kitchen-sink app bar. See the `theme` and `filter-row` catalog screens.
 

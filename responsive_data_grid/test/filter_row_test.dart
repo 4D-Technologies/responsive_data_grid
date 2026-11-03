@@ -9,12 +9,7 @@ class _Person {
   final bool active;
   final DateTime dob;
 
-  const _Person(
-    this.id,
-    this.name, {
-    this.active = true,
-    required this.dob,
-  });
+  const _Person(this.id, this.name, {this.active = true, required this.dob});
 }
 
 Future<void> _pump(
@@ -177,7 +172,9 @@ void main() {
     expect(header.left, lessThan(800));
   });
 
-  testWidgets('typed score column keeps header text and values', (tester) async {
+  testWidgets('typed score column keeps header text and values', (
+    tester,
+  ) async {
     tester.view.physicalSize = const Size(1280, 800);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
@@ -289,7 +286,10 @@ void main() {
                 BoolColumn<_Person>(
                   xsCols: 2,
                   fieldName: 'active',
-                  header: const ColumnHeader(text: 'Accepted', showFilter: true),
+                  header: const ColumnHeader(
+                    text: 'Accepted',
+                    showFilter: true,
+                  ),
                   value: (row) => row.active,
                   trueText: 'Yes',
                   falseText: 'No',
@@ -362,7 +362,7 @@ void main() {
     expect(find.text('Grace'), findsOneWidget);
   });
 
-  testWidgets('date-only row editor opens a date picker', (tester) async {
+  testWidgets('date-only row editor opens a date range picker', (tester) async {
     tester.view.physicalSize = const Size(900, 700);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
@@ -405,27 +405,282 @@ void main() {
     );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
+    expect(
+      find.byKey(const ValueKey('rdg-filter-row-clear-dob')),
+      findsNothing,
+    );
     await tester.tap(find.byKey(const ValueKey('rdg-filter-row-dob')));
     await tester.pumpAndSettle();
-    expect(find.byType(DatePickerDialog), findsOneWidget);
+    expect(find.byType(DateRangePickerDialog), findsOneWidget);
+    expect(find.byType(DatePickerDialog), findsNothing);
     expect(find.byType(TimePickerDialog), findsNothing);
-    await tester.tap(find.text('OK'));
-    await tester.pumpAndSettle();
-    expect(find.byType(TimePickerDialog), findsNothing);
-    expect(find.text('Ada'), findsNothing);
-    expect(find.text('Grace'), findsNothing);
   });
 
-  testWidgets('date-time row editor opens date then time pickers', (
-    tester,
-  ) async {
+  testWidgets('date-time row editor opens a date range picker', (tester) async {
     await _pump(tester);
     await tester.tap(find.byKey(const ValueKey('rdg-filter-row-dob')));
     await tester.pumpAndSettle();
-    expect(find.byType(DatePickerDialog), findsOneWidget);
-    await tester.tap(find.text('OK'));
+    expect(find.byType(DateRangePickerDialog), findsOneWidget);
+    expect(find.byType(DatePickerDialog), findsNothing);
+    expect(find.byType(TimePickerDialog), findsNothing);
+  });
+
+  testWidgets('date-only row editor commits between and clears', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1100, 800);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final calls = <LoadCriteria>[];
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SizedBox(
+            width: 1100,
+            height: 700,
+            child: ResponsiveDataGrid<_Person>.serverSide(
+              height: 600,
+              pagingMode: PagingMode.pager,
+              filterable: FilterableMode.row,
+              loadData: (criteria) async {
+                calls.add(criteria);
+                return ListResponse<_Person>(
+                  totalCount: 2,
+                  items: [
+                    _Person(1, 'Ada', active: true, dob: DateTime(1990, 1, 1)),
+                    _Person(
+                      2,
+                      'Grace',
+                      active: false,
+                      dob: DateTime(1991, 2, 2),
+                    ),
+                  ],
+                  groups: const [],
+                  aggregates: const [],
+                );
+              },
+              columns: [
+                StringColumn<_Person>(
+                  fieldName: 'name',
+                  header: const ColumnHeader(text: 'Name', showFilter: true),
+                  value: (row) => row.name,
+                  xsCols: 6,
+                ),
+                DateTimeColumn<_Person>(
+                  fieldName: 'dob',
+                  header: const ColumnHeader(text: 'DOB', showFilter: true),
+                  value: (row) => row.dob,
+                  xsCols: 6,
+                  filterRules: DateTimeFilterRules(
+                    filterType: DateTimeFilterTypes.DateOnly,
+                    firstDate: DateTime(1990, 1, 1),
+                    lastDate: DateTime(1990, 1, 31),
+                    criteria: FilterCriteria<DateTime>.between(
+                      fieldName: 'dob',
+                      op: Operators.and,
+                      logicalOperator: Logic.between,
+                      value1: DateTime(1990, 1, 1, 12),
+                      value2: DateTime(1990, 1, 15, 12),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 50));
+    expect(calls, hasLength(1));
+    expect(calls.first.filterBy, isNotEmpty);
+
+    await tester.tap(find.byKey(const ValueKey('rdg-filter-row-dob')));
     await tester.pumpAndSettle();
-    expect(find.byType(TimePickerDialog), findsOneWidget);
+    expect(find.byType(DateRangePickerDialog), findsOneWidget);
+    await tester.tap(
+      find.descendant(
+        of: find.byType(DateRangePickerDialog),
+        matching: find.text('Save'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(calls.length, greaterThan(1));
+    final applied = calls.last.filterBy.single;
+    expect(applied.fieldName, 'dob');
+    expect(applied.logicalOperator, Logic.between);
+    expect(applied.values, hasLength(2));
+    expect(applied.values.first, DateTime(1990, 1, 1));
+    expect(applied.values.last, DateTime(1990, 1, 15, 23, 59, 59, 999));
+    expect(
+      find.byKey(const ValueKey('rdg-filter-row-clear-dob')),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.byKey(const ValueKey('rdg-filter-row-clear-dob')));
+    await tester.pumpAndSettle();
+    expect(calls.last.filterBy, isEmpty);
+    expect(
+      find.byKey(const ValueKey('rdg-filter-row-clear-dob')),
+      findsNothing,
+    );
+  });
+
+  testWidgets('date row editor shows hint and a dedicated clear control', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(900, 700);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SizedBox(
+            width: 900,
+            height: 600,
+            child: ResponsiveDataGrid<_Person>.clientSide(
+              height: 500,
+              pagingMode: PagingMode.pager,
+              filterable: FilterableMode.row,
+              items: [
+                _Person(1, 'Ada', active: true, dob: DateTime(1990, 1, 1)),
+              ],
+              columns: [
+                DateTimeColumn<_Person>(
+                  fieldName: 'dob',
+                  header: const ColumnHeader(text: 'DOB', showFilter: true),
+                  value: (row) => row.dob,
+                  xsCols: 12,
+                  width: 140,
+                  filterRules: DateTimeFilterRules(
+                    filterType: DateTimeFilterTypes.DateOnly,
+                    criteria: FilterCriteria<DateTime>.between(
+                      fieldName: 'dob',
+                      op: Operators.and,
+                      logicalOperator: Logic.between,
+                      value1: DateTime(1990, 1, 1),
+                      value2: DateTime(1990, 1, 31, 23, 59, 59, 999),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 50));
+
+    final cell = tester.getRect(
+      find.byKey(const ValueKey('rdg-filter-row-cell-dob')),
+    );
+    final editor = tester.getRect(
+      find.byKey(const ValueKey('rdg-filter-row-dob')),
+    );
+    final clear = tester.getRect(
+      find.byKey(const ValueKey('rdg-filter-row-clear-dob')),
+    );
+    expect(editor.right, lessThanOrEqualTo(cell.right + 0.5));
+    expect(clear.left, greaterThanOrEqualTo(cell.left));
+    expect(clear.right, lessThanOrEqualTo(cell.right + 0.5));
+    expect(clear.top, greaterThanOrEqualTo(cell.top - 0.5));
+    expect(clear.bottom, lessThanOrEqualTo(cell.bottom + 0.5));
+    final filled = tester.widget<InputDecorator>(
+      find.descendant(
+        of: find.byKey(const ValueKey('rdg-filter-row-dob')),
+        matching: find.byType(InputDecorator),
+      ),
+    );
+    expect((filled.child as Text).data, isNotEmpty);
+    expect((filled.child as Text).data, isNot('Filter'));
+
+    await tester.tap(find.byKey(const ValueKey('rdg-filter-row-clear-dob')));
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(const ValueKey('rdg-filter-row-clear-dob')),
+      findsNothing,
+    );
+    final dobField = tester.widget<InputDecorator>(
+      find.descendant(
+        of: find.byKey(const ValueKey('rdg-filter-row-dob')),
+        matching: find.byType(InputDecorator),
+      ),
+    );
+    expect(dobField.decoration.hintText, 'Filter');
+    expect((dobField.child as Text).data, isEmpty);
+  });
+
+  testWidgets('column menu date between fields stay inside the menu', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(900, 700);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SizedBox(
+            width: 900,
+            height: 600,
+            child: ResponsiveDataGrid<_Person>.clientSide(
+              height: 500,
+              pagingMode: PagingMode.pager,
+              filterable: FilterableMode.menu,
+              items: [
+                _Person(1, 'Ada', active: true, dob: DateTime(1990, 1, 1)),
+              ],
+              columns: [
+                DateTimeColumn<_Person>(
+                  fieldName: 'dob',
+                  header: const ColumnHeader(text: 'DOB', showFilter: true),
+                  value: (row) => row.dob,
+                  xsCols: 12,
+                  filterRules: DateTimeFilterRules(
+                    filterType: DateTimeFilterTypes.DateOnly,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 50));
+
+    await tester.tap(find.byKey(const ValueKey('rdg-header-menu-dob')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(DropdownButtonFormField<Logic?>));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(Logic.between.toString()).last);
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const ValueKey('rdg-menu-filter-from')), findsOneWidget);
+    expect(find.byKey(const ValueKey('rdg-menu-filter-to')), findsOneWidget);
+    expect(find.text(GridLocalizations.en.filterFrom), findsWidgets);
+    expect(find.text(GridLocalizations.en.filterTo), findsWidgets);
+
+    final menu = tester.getRect(find.byKey(const ValueKey('rdg-column-menu')));
+    final apply = tester.getRect(find.text(GridLocalizations.en.apply));
+    final fromField = tester.getRect(
+      find.byKey(const ValueKey('rdg-menu-filter-from')),
+    );
+    final toField = tester.getRect(
+      find.byKey(const ValueKey('rdg-menu-filter-to')),
+    );
+    expect(fromField.left, greaterThanOrEqualTo(menu.left));
+    expect(fromField.right, lessThanOrEqualTo(menu.right + 0.5));
+    expect(toField.left, greaterThanOrEqualTo(menu.left));
+    expect(toField.right, lessThanOrEqualTo(menu.right + 0.5));
+    expect(toField.bottom, lessThanOrEqualTo(apply.top + 0.5));
   });
 
   testWidgets('time-only datetime row editor opens a time picker', (
