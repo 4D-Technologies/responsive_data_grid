@@ -142,7 +142,9 @@ double gridToolbarExtent(ResponsiveDataGridTheme theme) {
 
 double gridGroupChooserExtent(ResponsiveDataGridTheme theme) {
   final padding = theme.resolvePadding(theme.groupPanel.padding);
-  return 18 + padding.vertical + theme.chrome.borderWidth;
+  return theme.groupPanel.iconSize +
+      padding.vertical +
+      theme.chrome.borderWidth;
 }
 
 double gridGroupHeaderExtent(ResponsiveDataGridTheme theme) {
@@ -151,8 +153,8 @@ double gridGroupHeaderExtent(ResponsiveDataGridTheme theme) {
 }
 
 double gridGroupFooterExtent(ResponsiveDataGridTheme theme) {
-  final padding = theme.resolvePadding(theme.pager.padding);
-  return _textBlockHeight(theme.pager.textStyle, fallback: 12) +
+  final padding = theme.resolvePadding(theme.groupFooter.padding);
+  return _textBlockHeight(theme.groupFooter.textStyle, fallback: 12) +
       padding.vertical;
 }
 
@@ -250,7 +252,7 @@ double gridMinHeightFromTheme({
         ? gridAggregatesFooterExtent(theme)
         : 0,
     paddingVertical: padding.vertical,
-    resizeHandleExtent: resizable ? 12 : 0,
+    resizeHandleExtent: resizable ? theme.chrome.resizeHandleHeight : 0,
     separatorExtent: separatorExtent,
     minHeight: minHeight,
   );
@@ -447,12 +449,22 @@ class GridTableRow extends StatelessWidget {
     return cells![index];
   }
 
-  Widget _frozenChrome(Widget child) {
+  Widget _frozenChrome(BuildContext context, Widget child) {
     if (frozenDecoration != null) {
       child = DecoratedBox(decoration: frozenDecoration!, child: child);
     }
-    return ColoredBox(
+    child = ColoredBox(
       color: frozenBackground ?? const Color(0x00000000),
+      child: child,
+    );
+    final overlay = ResponsiveDataGridTheme.of(context).chrome.frozenOverlay;
+    if (overlay.a == 0) return child;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        boxShadow: [
+          BoxShadow(color: overlay, blurRadius: 6, offset: const Offset(2, 0)),
+        ],
+      ),
       child: child,
     );
   }
@@ -504,6 +516,7 @@ class GridTableRow extends StatelessWidget {
               bottom: 0,
               child: PinToHorizontalViewport(
                 child: _frozenChrome(
+                  context,
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -530,6 +543,7 @@ class GridTableRow extends StatelessWidget {
                   0,
                 ),
                 child: _frozenChrome(
+                  context,
                   SizedBox(
                     width: sticky[i] < widths.length ? widths[sticky[i]] : 0,
                     child: _cell(sticky[i]),

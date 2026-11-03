@@ -4,7 +4,7 @@
 
 - Nested `ResponsiveDataGridTheme` (`chrome`, `header`, `body`, `filterRow`, `toolbar`, `title`, `pager`, `groupHeader`, `groupFooter`, `groupPanel`, `menu`) with Flutter-style `copyWith` / `lerp`. Defaults are Kendo-like and seed from `ColorScheme` / `TextTheme` / `DividerTheme` / `visualDensity` only.
 - Theme tokens for row separators, body cell padding, and odd/even rows (#126). `separatorThickness`, `contentPadding`, `padding`, `columnSpacing`, `rowSpacing`, and `elevation` are nullable widget overrides.
-- `FilterableMode.menu` keeps typed filters in the column menu with no filter row. `row` / `menuAndRow` add compact typed row editors for string, num, bool, date, time, duration, and value-map columns (#121).
+- `FilterableMode.menu` keeps typed filters in the column menu with no filter row. `row` / `menuAndRow` add compact typed row editors for string, num, bool, date, time, duration, and value-map columns; column-menu filters stay available in `row` too (#121).
 - Column menu Aggregates appears only when `ColumnHeader.showAggregations` is true.
 - Breaking: `copyWith(headerBackground: …)` becomes `copyWith(header: theme.header.copyWith(background: …))`.
 

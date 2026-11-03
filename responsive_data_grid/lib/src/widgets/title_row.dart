@@ -21,14 +21,15 @@ class TitleRowWidget extends StatelessWidget {
     return ColoredBox(
       color: backgroundColor,
       child: Padding(
-        padding: gridTheme.resolvePadding(
-          const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        ),
+        padding: gridTheme.resolvePadding(gridTheme.title.padding),
         child: Row(
           children: [
             if (definition.icon != null) ...[
               IconTheme(
-                data: IconThemeData(color: foregroundColor, size: 20),
+                data: IconThemeData(
+                  color: foregroundColor,
+                  size: gridTheme.title.iconSize,
+                ),
                 child: definition.icon!,
               ),
               const SizedBox(width: 8),
@@ -46,8 +47,8 @@ class TitleRowWidget extends StatelessWidget {
                 tooltip: GridLocalizations.of(context).refresh,
                 icon: const Icon(Icons.refresh),
                 color: foregroundColor,
-                size: 20,
-                extent: 32,
+                size: gridTheme.title.iconSize,
+                extent: gridTheme.title.actionExtent,
                 onPressed: onRefresh,
               ),
           ],

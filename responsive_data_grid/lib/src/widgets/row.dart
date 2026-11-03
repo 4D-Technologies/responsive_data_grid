@@ -50,7 +50,7 @@ class DataGridRowWidget<TItem extends Object> extends StatelessWidget {
       enableFeedback: true,
       excludeFromSemantics: false,
       hoverColor: gridTheme.body.hoverColor,
-      focusColor: gridTheme.header.sortActiveColor.withValues(alpha: 0.25),
+      focusColor: gridTheme.body.focusColor,
       mouseCursor: itemTapped != null
           ? SystemMouseCursors.click
           : SystemMouseCursors.basic,

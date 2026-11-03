@@ -9,6 +9,15 @@ abstract class FilterRules<
 
   FilterRules({this.criteria});
 
+  void applyEquals(String fieldName, TValue value) {
+    criteria = FilterCriteria<TValue>.value(
+      fieldName: fieldName,
+      op: Operators.and,
+      logicalOperator: Logic.equals,
+      value: value,
+    );
+  }
+
   TColumnFilter showFilter(
     GridColumn<TItem, TValue> definition,
     ResponsiveDataGridState<TItem> grid,

@@ -300,7 +300,7 @@ class ResponsiveDataGridState<TItem extends Object>
             child: Semantics(
               label: GridLocalizations.of(context).resizeGrid,
               child: SizedBox(
-                height: 12,
+                height: gridTheme.chrome.resizeHandleHeight,
                 width: double.infinity,
                 child: Center(
                   child: DecoratedBox(
@@ -308,7 +308,10 @@ class ResponsiveDataGridState<TItem extends Object>
                       color: gridTheme.chrome.borderColor,
                       borderRadius: BorderRadius.circular(2),
                     ),
-                    child: const SizedBox(width: 40, height: 4),
+                    child: SizedBox(
+                      width: gridTheme.chrome.resizeHandleBarWidth,
+                      height: gridTheme.chrome.resizeHandleBarHeight,
+                    ),
                   ),
                 ),
               ),
@@ -1096,6 +1099,7 @@ class ResponsiveDataGridState<TItem extends Object>
                             pageFitsHost: parentFitsPage,
                           );
                     if (isLoading || loadError != null) {
+                      final chrome = ResponsiveDataGridTheme.of(context).chrome;
                       final overlay = loadError != null
                           ? Center(
                               child: Padding(
@@ -1118,11 +1122,15 @@ class ResponsiveDataGridState<TItem extends Object>
                               ),
                             )
                           : ColoredBox(
-                              color: ResponsiveDataGridTheme.of(
-                                context,
-                              ).chrome.loadingScrim,
-                              child: const Center(
-                                child: CircularProgressIndicator.adaptive(),
+                              color: chrome.loadingScrim,
+                              child: Center(
+                                child: SizedBox(
+                                  width: chrome.loadingBarWidth,
+                                  height: chrome.loadingBarWidth,
+                                  child: CircularProgressIndicator.adaptive(
+                                    strokeWidth: chrome.loadingBarHeight,
+                                  ),
+                                ),
                               ),
                             );
                       tableBody = expandVertically

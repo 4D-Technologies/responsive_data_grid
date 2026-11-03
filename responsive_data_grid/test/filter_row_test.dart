@@ -344,4 +344,223 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(CheckboxListTile), findsOneWidget);
   });
+
+  testWidgets('bool row editor apply and clear', (tester) async {
+    await _pump(tester);
+    await tester.tap(find.byKey(const ValueKey('rdg-filter-row-active')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Yes').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Ada'), findsWidgets);
+    expect(find.text('Alan'), findsWidgets);
+    expect(find.text('Grace'), findsNothing);
+
+    await tester.tap(find.byKey(const ValueKey('rdg-filter-row-active')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Filter').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Grace'), findsOneWidget);
+  });
+
+  testWidgets('date-only row editor opens a date picker', (tester) async {
+    tester.view.physicalSize = const Size(900, 700);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SizedBox(
+            width: 900,
+            height: 600,
+            child: ResponsiveDataGrid<_Person>.clientSide(
+              height: 500,
+              pagingMode: PagingMode.pager,
+              filterable: FilterableMode.row,
+              items: [
+                _Person(1, 'Ada', active: true, dob: DateTime(1990, 1, 1)),
+                _Person(2, 'Grace', active: false, dob: DateTime(1991, 2, 2)),
+              ],
+              columns: [
+                StringColumn<_Person>(
+                  fieldName: 'name',
+                  header: const ColumnHeader(text: 'Name', showFilter: true),
+                  value: (row) => row.name,
+                  xsCols: 6,
+                ),
+                DateTimeColumn<_Person>(
+                  fieldName: 'dob',
+                  header: const ColumnHeader(text: 'DOB', showFilter: true),
+                  value: (row) => row.dob,
+                  xsCols: 6,
+                  filterRules: DateTimeFilterRules(
+                    filterType: DateTimeFilterTypes.DateOnly,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 50));
+    await tester.tap(find.byKey(const ValueKey('rdg-filter-row-dob')));
+    await tester.pumpAndSettle();
+    expect(find.byType(DatePickerDialog), findsOneWidget);
+    expect(find.byType(TimePickerDialog), findsNothing);
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+    expect(find.byType(TimePickerDialog), findsNothing);
+    expect(find.text('Ada'), findsNothing);
+    expect(find.text('Grace'), findsNothing);
+  });
+
+  testWidgets('date-time row editor opens date then time pickers', (
+    tester,
+  ) async {
+    await _pump(tester);
+    await tester.tap(find.byKey(const ValueKey('rdg-filter-row-dob')));
+    await tester.pumpAndSettle();
+    expect(find.byType(DatePickerDialog), findsOneWidget);
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+    expect(find.byType(TimePickerDialog), findsOneWidget);
+  });
+
+  testWidgets('time-only datetime row editor opens a time picker', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(900, 700);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SizedBox(
+            width: 900,
+            height: 600,
+            child: ResponsiveDataGrid<_Person>.clientSide(
+              height: 500,
+              pagingMode: PagingMode.pager,
+              filterable: FilterableMode.row,
+              items: [
+                _Person(1, 'Ada', active: true, dob: DateTime(1990, 1, 1)),
+              ],
+              columns: [
+                DateTimeColumn<_Person>(
+                  fieldName: 'dob',
+                  header: const ColumnHeader(text: 'DOB', showFilter: true),
+                  value: (row) => row.dob,
+                  xsCols: 12,
+                  filterRules: DateTimeFilterRules(
+                    filterType: DateTimeFilterTypes.TimeOnly,
+                    firstDate: DateTime(1980),
+                    lastDate: DateTime(2000),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 50));
+    await tester.tap(find.byKey(const ValueKey('rdg-filter-row-dob')));
+    await tester.pumpAndSettle();
+    expect(find.byType(TimePickerDialog), findsOneWidget);
+    expect(find.byType(DatePickerDialog), findsNothing);
+  });
+
+  testWidgets('duration and enum row editors apply and clear', (tester) async {
+    tester.view.physicalSize = const Size(1100, 700);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SizedBox(
+            width: 1100,
+            height: 600,
+            child: ResponsiveDataGrid<_Shift>.clientSide(
+              height: 500,
+              pagingMode: PagingMode.pager,
+              filterable: FilterableMode.row,
+              items: const [
+                _Shift('Ada', Duration(minutes: 480), _Team.red),
+                _Shift('Grace', Duration(minutes: 240), _Team.blue),
+              ],
+              columns: [
+                StringColumn<_Shift>(
+                  fieldName: 'name',
+                  header: const ColumnHeader(text: 'Name', showFilter: true),
+                  value: (row) => row.name,
+                  xsCols: 4,
+                ),
+                DurationColumn<_Shift>(
+                  fieldName: 'shift',
+                  header: const ColumnHeader(text: 'Shift', showFilter: true),
+                  value: (row) => row.shift,
+                  xsCols: 4,
+                ),
+                EnumColumn<_Shift, _Team>(
+                  fieldName: 'team',
+                  header: const ColumnHeader(text: 'Team', showFilter: true),
+                  values: _Team.values,
+                  valueText: (e) => e.name,
+                  value: (row) => row.team,
+                  xsCols: 4,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 50));
+
+    final shiftField = tester.widget<TextField>(
+      find.byKey(const ValueKey('rdg-filter-row-shift')),
+    );
+    expect(shiftField.keyboardType, TextInputType.number);
+
+    await tester.enterText(
+      find.byKey(const ValueKey('rdg-filter-row-shift')),
+      '480',
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text('Ada'), findsWidgets);
+    expect(find.text('Grace'), findsNothing);
+
+    await tester.enterText(
+      find.byKey(const ValueKey('rdg-filter-row-shift')),
+      '',
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text('Grace'), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey('rdg-filter-row-team')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('red').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Ada'), findsWidgets);
+    expect(find.text('Grace'), findsNothing);
+  });
+}
+
+enum _Team { red, blue }
+
+class _Shift {
+  final String name;
+  final Duration shift;
+  final _Team team;
+
+  const _Shift(this.name, this.shift, this.team);
 }

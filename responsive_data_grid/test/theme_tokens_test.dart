@@ -94,6 +94,15 @@ void main() {
     expect(find.byType(Divider), findsNothing);
     final card = tester.widget<Card>(find.byType(Card));
     expect(card.elevation, grid.chrome.elevation);
+    expect(
+      tester.widgetList<DecoratedBox>(find.byType(DecoratedBox)).any((box) {
+        final decoration = box.decoration;
+        return decoration is BoxDecoration &&
+            decoration.border != null &&
+            decoration.border!.bottom.width == 2;
+      }),
+      isTrue,
+    );
   });
 
   testWidgets('widget separatorThickness overrides theme', (tester) async {
@@ -144,6 +153,86 @@ void main() {
       find.descendant(of: empty, matching: find.byType(ColoredBox)).first,
     );
     expect(box.color, odd);
+  });
+
+  testWidgets('themed body.contentPadding is used when widget override is null', (
+    tester,
+  ) async {
+    final base = ThemeData(
+      useMaterial3: true,
+      colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
+    );
+    const themedPad = EdgeInsets.fromLTRB(20, 12, 16, 12);
+    final fromBase = ResponsiveDataGridTheme.fromTheme(base);
+    final grid = fromBase.copyWith(
+      body: fromBase.body.copyWith(contentPadding: themedPad),
+    );
+    await _pump(tester, theme: _themeWith(grid));
+
+    final cell = find.byWidgetPredicate((widget) {
+      final key = widget.key;
+      return key is ValueKey<String> && key.value.startsWith('rdg-cell-name-');
+    });
+    expect(cell, findsWidgets);
+    final pad = tester.widget<Padding>(
+      find.descendant(of: cell.first, matching: find.byType(Padding)).first,
+    );
+    expect(pad.padding, grid.resolvePadding(themedPad));
+  });
+
+  testWidgets('oddBackground paints infinite-scroll rows', (tester) async {
+    const odd = Color(0xFFE8EEF4);
+    final base = ThemeData(
+      useMaterial3: true,
+      colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
+    );
+    final fromBase = ResponsiveDataGridTheme.fromTheme(base);
+    final grid = fromBase.copyWith(
+      body: fromBase.body.copyWith(oddBackground: odd),
+    );
+    tester.view.physicalSize = const Size(900, 700);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: _themeWith(grid),
+        home: Scaffold(
+          body: SizedBox(
+            width: 900,
+            height: 600,
+            child: ResponsiveDataGrid<_Person>.clientSide(
+              items: const [
+                _Person('Ada', 36),
+                _Person('Grace', 30),
+                _Person('Alan', 41),
+              ],
+              pageSize: 10,
+              pagingMode: PagingMode.infiniteScroll,
+              height: 500,
+              columns: _columns(),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 50));
+
+    final boxes = tester.widgetList<DecoratedBox>(
+      find.ancestor(
+        of: find.text('Grace'),
+        matching: find.byType(DecoratedBox),
+      ),
+    );
+    expect(
+      boxes.any(
+        (box) =>
+            box.decoration is BoxDecoration &&
+            (box.decoration as BoxDecoration).color == odd,
+      ),
+      isTrue,
+    );
   });
 
   testWidgets('contentPadding widget override is used for cells', (

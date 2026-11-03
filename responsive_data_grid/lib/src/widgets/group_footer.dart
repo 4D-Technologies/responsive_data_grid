@@ -20,7 +20,7 @@ class GridGroupFooter<TItem extends Object> extends StatelessWidget {
   Widget build(BuildContext context) {
     final gridTheme = ResponsiveDataGridTheme.of(context);
     final layout = GridTableLayout.maybeOf(context);
-    final resolved = gridTheme.resolvePadding(gridTheme.pager.padding);
+    final resolved = gridTheme.resolvePadding(gridTheme.groupFooter.padding);
     final padding = layout != null && layout.layoutMode == GridLayoutMode.table
         ? EdgeInsets.only(top: resolved.top, bottom: resolved.bottom)
         : resolved;

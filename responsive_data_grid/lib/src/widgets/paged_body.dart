@@ -119,6 +119,9 @@ class ResponsiveDataGridPagedBodyWidget<TItem extends Object>
           SliverPersistentHeader(
             pinned: true,
             delegate: GridStickyGroupHeaderDelegate(
+              height: gridGroupHeaderExtent(
+                ResponsiveDataGridTheme.of(gridState.context),
+              ),
               child: GridGroupHeader(
                 group: group,
                 theme: theme,

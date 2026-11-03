@@ -4,7 +4,7 @@ class GridStickyGroupHeaderDelegate extends SliverPersistentHeaderDelegate {
   final Widget child;
   final double height;
 
-  GridStickyGroupHeaderDelegate({required this.child, this.height = 40});
+  GridStickyGroupHeaderDelegate({required this.child, required this.height});
 
   @override
   double get minExtent => height;
@@ -136,6 +136,7 @@ Widget gridGroupedRows<TItem extends Object>({
           ResponsiveDataGridTheme.of(gridState.context),
         ),
         gridState: gridState,
+        rowIndex: index,
       );
     },
   );

@@ -257,19 +257,7 @@ class _GridFilterRowCellState<TItem extends Object>
       child: InkWell(
         key: ValueKey('rdg-filter-row-${column.fieldName}'),
         onTap: () async {
-          final rules = column.filterRules;
-          final first = rules is DateTimeFilterRules<TItem>
-              ? rules.firstDate
-              : DateTime(1900);
-          final last = rules is DateTimeFilterRules<TItem>
-              ? rules.lastDate
-              : DateTime(2100);
-          final picked = await showDatePicker(
-            context: context,
-            initialDate: current ?? DateTime.now(),
-            firstDate: first,
-            lastDate: last,
-          );
+          final picked = await _pickDateTime(context, column, current);
           if (!mounted) return;
           if (picked == null) return;
           _commitEquals(picked);
@@ -382,7 +370,70 @@ class _GridFilterRowCellState<TItem extends Object>
   bool get _isNumeric =>
       widget.column is IntColumn<TItem> ||
       widget.column is DoubleColumn<TItem> ||
-      widget.column is NumColumn<TItem>;
+      widget.column is NumColumn<TItem> ||
+      widget.column is DurationColumn<TItem>;
+
+  DateTime _clampDateTime(DateTime value, DateTime first, DateTime last) {
+    if (value.isBefore(first)) return first;
+    if (value.isAfter(last)) return last;
+    return value;
+  }
+
+  Future<DateTime?> _pickDateTime(
+    BuildContext context,
+    DateTimeColumn<TItem> column,
+    DateTime? current,
+  ) async {
+    final rules = column.filterRules;
+    final typed = rules is DateTimeFilterRules<TItem> ? rules : null;
+    final first = typed?.firstDate ?? DateTime(1900);
+    final last = typed?.lastDate ?? DateTime(2100);
+    final type = typed?.filterType ?? DateTimeFilterTypes.DateTime;
+    final initial = _clampDateTime(current ?? DateTime.now(), first, last);
+    switch (type) {
+      case DateTimeFilterTypes.DateOnly:
+        return showDatePicker(
+          context: context,
+          initialDate: initial,
+          firstDate: first,
+          lastDate: last,
+        );
+      case DateTimeFilterTypes.TimeOnly:
+        final time = await showTimePicker(
+          context: context,
+          initialTime: TimeOfDay.fromDateTime(initial),
+        );
+        if (time == null) return null;
+        return DateTime(
+          initial.year,
+          initial.month,
+          initial.day,
+          time.hour,
+          time.minute,
+        );
+      case DateTimeFilterTypes.DateTime:
+        final date = await showDatePicker(
+          context: context,
+          initialDate: initial,
+          firstDate: first,
+          lastDate: last,
+        );
+        if (date == null) return null;
+        if (!context.mounted) return null;
+        final time = await showTimePicker(
+          context: context,
+          initialTime: TimeOfDay.fromDateTime(current ?? date),
+        );
+        if (time == null) return null;
+        return DateTime(
+          date.year,
+          date.month,
+          date.day,
+          time.hour,
+          time.minute,
+        );
+    }
+  }
 
   void _applyText(String raw) {
     _debounce?.cancel();
@@ -410,12 +461,16 @@ class _GridFilterRowCellState<TItem extends Object>
   }
 
   void _commitEquals(Object value) {
-    widget.column.filterRules.criteria = FilterCriteria(
-      fieldName: widget.column.fieldName,
-      op: Operators.and,
-      logicalOperator: Logic.equals,
-      values: [value],
-    );
+    final column = widget.column;
+    if (column is BoolColumn<TItem>) {
+      column.filterRules.applyEquals(column.fieldName, value as bool);
+    } else if (column is DateTimeColumn<TItem>) {
+      column.filterRules.applyEquals(column.fieldName, value as DateTime);
+    } else if (column is TimeOfDayColumn<TItem>) {
+      column.filterRules.applyEquals(column.fieldName, value as TimeOfDay);
+    } else {
+      column.filterRules.applyEquals(column.fieldName, value as dynamic);
+    }
     setState(() {});
     widget.grid.refreshData();
   }

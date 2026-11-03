@@ -255,6 +255,7 @@ class _ResponsiveGridInfiniteScrollBodyWidgetState<TItem extends Object>
                       ResponsiveDataGridTheme.of(widget.gridState.context),
                     ),
                     gridState: widget.gridState,
+                    rowIndex: index,
                   );
                 },
               ),

@@ -72,9 +72,7 @@ class _GridGroupChooserState<TItem extends Object>
         ),
       ),
       child: Padding(
-        padding: gridTheme.resolvePadding(
-          const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-        ),
+        padding: gridTheme.resolvePadding(gridTheme.groupPanel.padding),
         child: _expanded
             ? _expandedPanel(gridTheme, hint)
             : _collapsedBar(gridTheme, hint),
@@ -85,7 +83,11 @@ class _GridGroupChooserState<TItem extends Object>
   Widget _collapsedBar(ResponsiveDataGridTheme gridTheme, String hint) {
     return Row(
       children: [
-        Icon(Icons.account_tree, size: 18, color: gridTheme.groupPanel.foreground),
+        Icon(
+          Icons.account_tree,
+          size: gridTheme.groupPanel.iconSize,
+          color: gridTheme.groupPanel.foreground,
+        ),
         const SizedBox(width: 8),
         Text(
           GridLocalizations.of(context).groupBy,
@@ -137,7 +139,7 @@ class _GridGroupChooserState<TItem extends Object>
           children: [
             Icon(
               Icons.account_tree,
-              size: 18,
+              size: gridTheme.groupPanel.iconSize,
               color: gridTheme.groupPanel.foreground,
             ),
             const SizedBox(width: 8),
@@ -329,7 +331,11 @@ class _GridGroupChooserState<TItem extends Object>
         }
         return TextButton.icon(
           onPressed: toggle,
-          icon: Icon(Icons.add, size: 18, color: gridTheme.groupPanel.foreground),
+          icon: Icon(
+            Icons.add,
+            size: gridTheme.groupPanel.iconSize,
+            color: gridTheme.groupPanel.foreground,
+          ),
           label: Text(
             GridLocalizations.of(context).addGrouping,
             style: gridTheme.groupPanel.textStyle.copyWith(

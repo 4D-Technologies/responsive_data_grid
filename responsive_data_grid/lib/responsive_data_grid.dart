@@ -221,7 +221,7 @@ enum FilterableMode {
   /// Filters only in the column menu (default).
   menu,
 
-  /// Always-visible editors under the header row.
+  /// Always-visible editors under the header row. Column-menu filters stay available.
   row,
 
   /// Column menu and filter row together.

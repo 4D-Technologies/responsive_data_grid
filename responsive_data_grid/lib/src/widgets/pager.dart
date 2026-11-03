@@ -154,7 +154,7 @@ class PagerWidget extends StatelessWidget {
             child: IconTheme(
         data: IconThemeData(
           color: gridTheme.pager.iconColor,
-          size: gridTheme.header.iconSize + 4,
+          size: gridTheme.pager.iconSize,
         ),
         child: DecoratedBox(
           decoration: BoxDecoration(
@@ -172,8 +172,8 @@ class PagerWidget extends StatelessWidget {
             padding: gridTheme.resolvePadding(gridTheme.pager.padding),
             child: LayoutBuilder(
               builder: (context, constraints) {
-                const iconExtent = 36.0;
-                const pageExtent = 36.0;
+                final iconExtent = gridTheme.pager.buttonExtent;
+                final pageExtent = gridTheme.pager.buttonExtent;
                 final rangeLabel = totalCount <= 0 || pageSize <= 0
                     ? l10n.pagerRange(start: 0, end: 0, total: 0)
                     : l10n.pagerRange(
@@ -198,7 +198,7 @@ class PagerWidget extends StatelessWidget {
                       icon: Icon(gridTheme.pager.firstIcon),
                       color: gridTheme.pager.iconColor,
                       disabledColor: gridTheme.pager.disabledIconColor,
-                      size: gridTheme.header.iconSize + 4,
+                      size: gridTheme.pager.iconSize,
                       extent: iconExtent,
                     ),
                     GridChromeIconButton(
@@ -209,7 +209,7 @@ class PagerWidget extends StatelessWidget {
                       icon: Icon(gridTheme.pager.previousIcon),
                       color: gridTheme.pager.iconColor,
                       disabledColor: gridTheme.pager.disabledIconColor,
-                      size: gridTheme.header.iconSize + 4,
+                      size: gridTheme.pager.iconSize,
                       extent: iconExtent,
                     ),
                     Flexible(
@@ -252,7 +252,7 @@ class PagerWidget extends StatelessWidget {
                       icon: Icon(gridTheme.pager.nextIcon),
                       color: gridTheme.pager.iconColor,
                       disabledColor: gridTheme.pager.disabledIconColor,
-                      size: gridTheme.header.iconSize + 4,
+                      size: gridTheme.pager.iconSize,
                       extent: iconExtent,
                     ),
                     GridChromeIconButton(
@@ -261,7 +261,7 @@ class PagerWidget extends StatelessWidget {
                       icon: Icon(gridTheme.pager.lastIcon),
                       color: gridTheme.pager.iconColor,
                       disabledColor: gridTheme.pager.disabledIconColor,
-                      size: gridTheme.header.iconSize + 4,
+                      size: gridTheme.pager.iconSize,
                       extent: iconExtent,
                     ),
                     Flexible(
