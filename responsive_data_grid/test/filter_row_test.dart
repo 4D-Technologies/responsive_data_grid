@@ -355,11 +355,38 @@ void main() {
     expect(find.text('Alan'), findsWidgets);
     expect(find.text('Grace'), findsNothing);
 
-    await tester.tap(find.byKey(const ValueKey('rdg-filter-row-active')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Filter').last);
+    await tester.tap(find.byKey(const ValueKey('rdg-filter-row-clear-active')));
     await tester.pumpAndSettle();
     expect(find.text('Grace'), findsOneWidget);
+  });
+
+  testWidgets('bool row editor uses Filter as hint not an item', (
+    tester,
+  ) async {
+    await _pump(tester);
+    final field = tester.widget<DropdownButtonFormField<bool?>>(
+      find.descendant(
+        of: find.byKey(const ValueKey('rdg-filter-row-active')),
+        matching: find.byType(DropdownButtonFormField<bool?>),
+      ),
+    );
+    expect(field.decoration.hintText, 'Filter');
+    expect(field.initialValue, isNull);
+
+    await tester.tap(find.byKey(const ValueKey('rdg-filter-row-active')));
+    await tester.pumpAndSettle();
+    final items = tester
+        .widgetList<DropdownMenuItem<bool?>>(
+          find.byType(DropdownMenuItem<bool?>),
+        )
+        .toList();
+    expect(items.map((item) => item.value), [true, false]);
+    expect(find.text('Yes'), findsWidgets);
+    expect(find.text('No'), findsWidgets);
+    expect(
+      items.where((item) => (item.child as Text).data == 'Filter'),
+      isEmpty,
+    );
   });
 
   testWidgets('date-only row editor opens a date range picker', (tester) async {

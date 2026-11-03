@@ -3,6 +3,7 @@
 ## [2.0.1] - November 3rd, 2026
 
 - DateTime filter-row editors pick a from/to range (`Logic.between`) with a compact in-field clear control (#128). The column-menu date filter uses From/To fields that stay inside the menu.
+- Bool filter-row dropdowns show “Filter” as hint text, not as a selectable item (#129).
 
 ## [2.0.0] - November 3rd, 2026
 
