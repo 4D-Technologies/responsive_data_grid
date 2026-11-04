@@ -46,6 +46,31 @@ class ResponseCache<TItem extends Object> {
     _onCleared.add(null);
   }
 
+  /// Drops every cached page except [keepPage] after a filter/sort refresh
+  /// replaces that page under a loading scrim (#135). Always fires
+  /// [onCleared] so infinite-scroll controllers rebuild against the kept
+  /// page, even when no other pages were cached. Groups/aggregates are
+  /// rebuilt from the kept page only.
+  void dropPagesExcept(int keepPage) {
+    final removed = pageMap.keys.where((k) => k != keepPage).toList();
+    for (final key in removed) {
+      pageMap.remove(key);
+    }
+    groups.clear();
+    aggregates.clear();
+    final kept = pageMap[keepPage];
+    if (kept != null) {
+      groups.addAll(kept.groups);
+      aggregates.addAll(kept.aggregates);
+      totalCount = kept.totalCount;
+      _items = List<TItem>.of(kept.items);
+    } else {
+      totalCount = 0;
+      _items = [];
+    }
+    _onCleared.add(null);
+  }
+
   void dispose() {
     _onCleared.close();
   }

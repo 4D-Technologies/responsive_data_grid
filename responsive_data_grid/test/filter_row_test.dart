@@ -389,7 +389,7 @@ void main() {
     );
   });
 
-  testWidgets('date-only row editor opens a date range picker', (tester) async {
+  testWidgets('date-only row editor opens a From/To dialog', (tester) async {
     tester.view.physicalSize = const Size(900, 700);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
@@ -438,18 +438,19 @@ void main() {
     );
     await tester.tap(find.byKey(const ValueKey('rdg-filter-row-dob')));
     await tester.pumpAndSettle();
-    expect(find.byType(DateRangePickerDialog), findsOneWidget);
-    expect(find.byType(DatePickerDialog), findsNothing);
+    expect(find.byType(DateRangePickerDialog), findsNothing);
+    expect(find.byKey(const ValueKey('rdg-filter-row-from-dob')), findsOneWidget);
+    expect(find.byKey(const ValueKey('rdg-filter-row-to-dob')), findsOneWidget);
     expect(find.byType(TimePickerDialog), findsNothing);
   });
 
-  testWidgets('date-time row editor opens a date range picker', (tester) async {
+  testWidgets('date-time row editor opens a From/To dialog', (tester) async {
     await _pump(tester);
     await tester.tap(find.byKey(const ValueKey('rdg-filter-row-dob')));
     await tester.pumpAndSettle();
-    expect(find.byType(DateRangePickerDialog), findsOneWidget);
-    expect(find.byType(DatePickerDialog), findsNothing);
-    expect(find.byType(TimePickerDialog), findsNothing);
+    expect(find.byType(DateRangePickerDialog), findsNothing);
+    expect(find.byKey(const ValueKey('rdg-filter-row-from-dob')), findsOneWidget);
+    expect(find.byKey(const ValueKey('rdg-filter-row-to-dob')), findsOneWidget);
   });
 
   testWidgets('date-only row editor commits between and clears', (
@@ -526,13 +527,8 @@ void main() {
 
     await tester.tap(find.byKey(const ValueKey('rdg-filter-row-dob')));
     await tester.pumpAndSettle();
-    expect(find.byType(DateRangePickerDialog), findsOneWidget);
-    await tester.tap(
-      find.descendant(
-        of: find.byType(DateRangePickerDialog),
-        matching: find.text('Save'),
-      ),
-    );
+    expect(find.byKey(const ValueKey('rdg-filter-row-from-dob')), findsOneWidget);
+    await tester.tap(find.text('OK'));
     await tester.pumpAndSettle();
 
     expect(calls.length, greaterThan(1));
@@ -836,6 +832,161 @@ void main() {
     expect(find.text('Ada'), findsWidgets);
     expect(find.text('Grace'), findsNothing);
   });
+
+  testWidgets('bool clear control appears beside dropdown after Yes', (
+    tester,
+  ) async {
+    await _pump(tester);
+
+    expect(
+      find.byKey(const ValueKey('rdg-filter-row-clear-active')),
+      findsNothing,
+    );
+
+    await tester.tap(find.byKey(const ValueKey('rdg-filter-row-active')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Yes').last);
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const ValueKey('rdg-filter-row-clear-active')),
+      findsOneWidget,
+    );
+    expect(find.text('Ada'), findsWidgets);
+    expect(find.text('Grace'), findsNothing);
+
+    await tester.tap(find.byKey(const ValueKey('rdg-filter-row-clear-active')));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const ValueKey('rdg-filter-row-clear-active')),
+      findsNothing,
+    );
+    expect(find.text('Grace'), findsOneWidget);
+  });
+
+  testWidgets('date filter row opens compact From/To dialog', (tester) async {
+    await _pump(tester);
+
+    await tester.tap(find.byKey(const ValueKey('rdg-filter-row-dob')));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const ValueKey('rdg-filter-row-from-dob')),
+      findsOneWidget,
+    );
+    expect(find.byKey(const ValueKey('rdg-filter-row-to-dob')), findsOneWidget);
+    expect(find.text('From'), findsWidgets);
+    expect(find.text('To'), findsWidgets);
+  });
+
+  testWidgets('date-only From-only commits GTE and To-only commits LTE', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1100, 800);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final calls = <LoadCriteria>[];
+    final fromOnly = DateTime(1990, 1, 10);
+    final toOnly = DateTime(1990, 1, 20);
+
+    Future<void> pumpWithCriteria(FilterCriteria<DateTime>? criteria) async {
+      calls.clear();
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SizedBox(
+              width: 1100,
+              height: 700,
+              child: ResponsiveDataGrid<_Person>.serverSide(
+                height: 600,
+                pagingMode: PagingMode.pager,
+                filterable: FilterableMode.row,
+                loadData: (criteria) async {
+                  calls.add(criteria);
+                  return ListResponse<_Person>(
+                    totalCount: 1,
+                    items: [
+                      _Person(1, 'Ada', active: true, dob: DateTime(1990, 1, 1)),
+                    ],
+                    groups: const [],
+                    aggregates: const [],
+                  );
+                },
+                columns: [
+                  DateTimeColumn<_Person>(
+                    fieldName: 'dob',
+                    header: const ColumnHeader(text: 'DOB', showFilter: true),
+                    value: (row) => row.dob,
+                    xsCols: 12,
+                    filterRules: DateTimeFilterRules(
+                      filterType: DateTimeFilterTypes.DateOnly,
+                      firstDate: DateTime(1990, 1, 1),
+                      lastDate: DateTime(1990, 1, 31),
+                      criteria: criteria,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+
+    // Seed From-only via applyGreaterThanOrEqualTo path by opening dialog
+    // with from set and to cleared through the dialog fields.
+    await pumpWithCriteria(
+      FilterCriteria<DateTime>.value(
+        fieldName: 'dob',
+        op: Operators.and,
+        logicalOperator: Logic.greaterThanOrEqualTo,
+        value: fromOnly,
+      ),
+    );
+    expect(calls, hasLength(1));
+    expect(calls.first.filterBy.single.logicalOperator, Logic.greaterThanOrEqualTo);
+
+    await tester.tap(find.byKey(const ValueKey('rdg-filter-row-dob')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('rdg-filter-row-from-dob')), findsOneWidget);
+    expect(find.byKey(const ValueKey('rdg-filter-row-to-dob')), findsOneWidget);
+    // Re-commit From-only (To empty) via OK.
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+    expect(calls.length, greaterThan(1));
+    expect(calls.last.filterBy.single.logicalOperator, Logic.greaterThanOrEqualTo);
+    expect(calls.last.filterBy.single.values.single, DateTime(1990, 1, 10));
+
+    final toOnlyEndOfDay = DateTime(
+      toOnly.year,
+      toOnly.month,
+      toOnly.day,
+      23,
+      59,
+      59,
+      999,
+    );
+    await pumpWithCriteria(
+      FilterCriteria<DateTime>.value(
+        fieldName: 'dob',
+        op: Operators.and,
+        logicalOperator: Logic.lessThanOrEqualTo,
+        value: toOnlyEndOfDay,
+      ),
+    );
+    await tester.tap(find.byKey(const ValueKey('rdg-filter-row-dob')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+    expect(calls.last.filterBy.single.logicalOperator, Logic.lessThanOrEqualTo);
+    expect(calls.last.filterBy.single.values.single, toOnlyEndOfDay);
+  });
+
 }
 
 enum _Team { red, blue }

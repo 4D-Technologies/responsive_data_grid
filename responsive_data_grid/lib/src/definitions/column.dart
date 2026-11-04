@@ -9,8 +9,10 @@ abstract class GridColumn<TItem extends Object, TValue extends dynamic> {
   OrderDirections sortDirection;
   List<AggregateCriteria> aggregations;
   double? width;
-  final double? minWidth;
-  final double? maxWidth;
+  /// Soft bounds for layout distribution. User column resize may raise
+  /// [maxWidth] when dragging past the declared ceiling (#138).
+  double? minWidth;
+  double? maxWidth;
   bool visible;
   bool frozen;
 

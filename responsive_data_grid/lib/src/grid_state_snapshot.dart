@@ -7,12 +7,16 @@ class GridColumnSnapshot {
   final bool sticky;
   final double? width;
 
+  /// Effective max after user resize past the declared ceiling (#138).
+  final double? maxWidth;
+
   const GridColumnSnapshot({
     required this.fieldName,
     this.visible = true,
     this.frozen = false,
     this.sticky = false,
     this.width,
+    this.maxWidth,
   });
 
   Map<String, dynamic> toJson() => {
@@ -21,6 +25,7 @@ class GridColumnSnapshot {
     'frozen': frozen,
     'sticky': sticky,
     'width': width,
+    'maxWidth': maxWidth,
   };
 
   factory GridColumnSnapshot.fromJson(Map<String, dynamic> json) {
@@ -30,6 +35,7 @@ class GridColumnSnapshot {
       frozen: json['frozen'] as bool? ?? false,
       sticky: json['sticky'] as bool? ?? false,
       width: (json['width'] as num?)?.toDouble(),
+      maxWidth: (json['maxWidth'] as num?)?.toDouble(),
     );
   }
 }

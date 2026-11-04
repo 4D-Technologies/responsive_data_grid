@@ -221,44 +221,50 @@ class _GridFilterRowCellState<TItem extends Object>
         ? null
         : criteria.values.first as bool?;
     final l10n = GridLocalizations.of(context);
+    // Clear sits beside the dropdown (not InputDecoration.suffix) so taps
+    // are not swallowed by DropdownButtonFormField (#137).
     return SizedBox(
       key: ValueKey('rdg-filter-row-${column.fieldName}'),
       width: double.infinity,
       height: theme.filterRow.editorHeight,
-      child: DropdownButtonFormField<bool?>(
-        key: ValueKey('rdg-filter-row-value-${column.fieldName}-$current'),
-        isDense: true,
-        isExpanded: true,
-        initialValue: current,
-        decoration: _decoration(
-          context,
-          suffix: current == null
-              ? null
-              : _compactIconButton(
-                  key: ValueKey('rdg-filter-row-clear-${column.fieldName}'),
-                  context: context,
-                  icon: Icons.clear,
-                  tooltip: l10n.clear,
-                  onPressed: _clear,
+      child: Row(
+        children: [
+          Expanded(
+            child: DropdownButtonFormField<bool?>(
+              key: ValueKey('rdg-filter-row-value-${column.fieldName}-$current'),
+              isDense: true,
+              isExpanded: true,
+              initialValue: current,
+              decoration: _decoration(context),
+              hint: Text(l10n.filter),
+              items: [
+                DropdownMenuItem<bool?>(
+                  value: true,
+                  child: Text(column.format(true) ?? 'true'),
                 ),
-        ),
-        items: [
-          DropdownMenuItem<bool?>(
-            value: true,
-            child: Text(column.format(true) ?? 'true'),
+                DropdownMenuItem<bool?>(
+                  value: false,
+                  child: Text(column.format(false) ?? 'false'),
+                ),
+              ],
+              onChanged: (value) {
+                if (value == null) {
+                  _clear();
+                  return;
+                }
+                _commitEquals(value);
+              },
+            ),
           ),
-          DropdownMenuItem<bool?>(
-            value: false,
-            child: Text(column.format(false) ?? 'false'),
-          ),
+          if (current != null)
+            _compactIconButton(
+              key: ValueKey('rdg-filter-row-clear-${column.fieldName}'),
+              context: context,
+              icon: Icons.clear,
+              tooltip: l10n.clear,
+              onPressed: _clear,
+            ),
         ],
-        onChanged: (value) {
-          if (value == null) {
-            _clear();
-            return;
-          }
-          _commitEquals(value);
-        },
       ),
     );
   }
@@ -268,58 +274,95 @@ class _GridFilterRowCellState<TItem extends Object>
     final l10n = GridLocalizations.of(context);
     final criteria = column.filterRules.criteria;
     final values = criteria?.values ?? const [];
-    final DateTime? start = values.isEmpty ? null : values.first as DateTime?;
-    final DateTime? end = values.length > 1 ? values.last as DateTime? : null;
+    final logic = criteria?.logicalOperator;
+    DateTime? start;
+    DateTime? end;
+    if (logic == Logic.between && values.length >= 2) {
+      start = values.first as DateTime?;
+      end = values.last as DateTime?;
+    } else if (logic == Logic.greaterThanOrEqualTo ||
+        logic == Logic.greaterThan) {
+      start = values.isEmpty ? null : values.first as DateTime?;
+    } else if (logic == Logic.lessThanOrEqualTo || logic == Logic.lessThan) {
+      end = values.isEmpty ? null : values.first as DateTime?;
+    } else if (values.isNotEmpty) {
+      start = values.first as DateTime?;
+      if (values.length > 1) end = values.last as DateTime?;
+    }
     final type = _dateFilterType(column);
     final isTimeOnly = type == DateTimeFilterTypes.TimeOnly;
-    final hasValue = start != null;
-    final label = !hasValue
-        ? ''
-        : isTimeOnly || end == null || _isSameDay(start, end)
-        ? (column.format(start) ?? start.toString())
-        : '${column.format(start) ?? start} – ${column.format(end) ?? end}';
+    final hasValue = start != null || end != null;
+    final label = _dateRangeLabel(column, start, end, isTimeOnly);
     return SizedBox(
       width: double.infinity,
       height: theme.filterRow.editorHeight,
-      child: InkWell(
-        key: ValueKey('rdg-filter-row-${column.fieldName}'),
-        onTap: () async {
-          if (isTimeOnly) {
-            final picked = await _pickDateTime(context, column, start);
-            if (!mounted || picked == null) return;
-            _commitEquals(picked);
-            return;
-          }
-          final range = await _pickDateRange(context, column, start, end);
-          if (!mounted || range == null) return;
-          _commitBetween(_startOfDay(range.start), _endOfDay(range.end));
-        },
-        child: InputDecorator(
-          isEmpty: !hasValue,
-          decoration: _decoration(
-            context,
-            suffix: hasValue
-                ? _compactIconButton(
-                    key: ValueKey('rdg-filter-row-clear-${column.fieldName}'),
-                    context: context,
-                    icon: Icons.clear,
-                    tooltip: l10n.clear,
-                    onPressed: _clear,
-                  )
-                : Icon(
+      child: Row(
+        children: [
+          Expanded(
+            child: InkWell(
+              key: ValueKey('rdg-filter-row-${column.fieldName}'),
+              onTap: () async {
+                if (isTimeOnly) {
+                  final picked = await _pickDateTime(context, column, start);
+                  if (!mounted || picked == null) return;
+                  _commitEquals(picked);
+                  return;
+                }
+                final choice = await _pickDateBounds(context, column, start, end);
+                if (!mounted || choice == null) return;
+                _commitDateBounds(choice.$1, choice.$2);
+              },
+              child: InputDecorator(
+                isEmpty: !hasValue,
+                decoration: _decoration(
+                  context,
+                  suffix: Icon(
                     Icons.calendar_today,
                     size: theme.filterRow.operatorIconSize,
                   ),
+                ),
+                child: Text(
+                  label,
+                  style: theme.body.textStyle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ),
           ),
-          child: Text(
-            label,
-            style: theme.body.textStyle,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
+          if (hasValue)
+            _compactIconButton(
+              key: ValueKey('rdg-filter-row-clear-${column.fieldName}'),
+              context: context,
+              icon: Icons.clear,
+              tooltip: l10n.clear,
+              onPressed: _clear,
+            ),
+        ],
       ),
     );
+  }
+
+  String _dateRangeLabel(
+    DateTimeColumn<TItem> column,
+    DateTime? start,
+    DateTime? end,
+    bool isTimeOnly,
+  ) {
+    if (start == null && end == null) return '';
+    if (isTimeOnly && start != null) {
+      return column.format(start) ?? start.toString();
+    }
+    final startText = start == null ? null : (column.format(start) ?? '$start');
+    final endText = end == null ? null : (column.format(end) ?? '$end');
+    if (startText != null && endText != null) {
+      // Collapse same-day only when the formatted endpoints match (date-only).
+      // Time-inclusive formats must keep both bounds (e.g. 09:00 – 17:00).
+      if (startText == endText) return startText;
+      return '$startText – $endText';
+    }
+    if (startText != null) return startText;
+    return endText ?? '';
   }
 
   Widget _timeEditor(BuildContext context, TimeOfDayColumn<TItem> column) {
@@ -417,16 +460,15 @@ class _GridFilterRowCellState<TItem extends Object>
   DateTime _endOfDay(DateTime value) =>
       DateTime(value.year, value.month, value.day, 23, 59, 59, 999);
 
-  bool _isSameDay(DateTime a, DateTime b) =>
-      a.year == b.year && a.month == b.month && a.day == b.day;
-
   DateTimeFilterTypes _dateFilterType(DateTimeColumn<TItem> column) {
     final rules = column.filterRules;
     if (rules is DateTimeFilterRules<TItem>) return rules.filterType;
     return DateTimeFilterTypes.DateTime;
   }
 
-  Future<DateTimeRange?> _pickDateRange(
+  /// Compact From/To dialog (not fullscreen [showDateRangePicker]). Supports
+  /// from-only, to-only, and both (#136).
+  Future<(DateTime?, DateTime?)?> _pickDateBounds(
     BuildContext context,
     DateTimeColumn<TItem> column,
     DateTime? start,
@@ -436,21 +478,133 @@ class _GridFilterRowCellState<TItem extends Object>
     final typed = rules is DateTimeFilterRules<TItem> ? rules : null;
     final first = typed?.firstDate ?? DateTime(1900);
     final last = typed?.lastDate ?? DateTime(2100);
-    DateTimeRange? initial;
-    if (start != null) {
-      final rangeStart = _clampDateTime(_startOfDay(start), first, last);
-      final rangeEnd = _clampDateTime(_startOfDay(end ?? start), first, last);
-      initial = DateTimeRange(
-        start: rangeStart.isAfter(rangeEnd) ? rangeEnd : rangeStart,
-        end: rangeStart.isAfter(rangeEnd) ? rangeStart : rangeEnd,
-      );
-    }
-    return showDateRangePicker(
+    final type = _dateFilterType(column);
+    final l10n = GridLocalizations.of(context);
+    var draftStart = start;
+    var draftEnd = end;
+
+    return showDialog<(DateTime?, DateTime?)>(
       context: context,
-      firstDate: first,
-      lastDate: last,
-      initialDateRange: initial,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: Text(l10n.filter),
+              content: SizedBox(
+                width: 320,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    DateTimeField(
+                      key: ValueKey(
+                        'rdg-filter-row-from-${column.fieldName}',
+                      ),
+                      hideDefaultSuffixIcon: true,
+                      decoration: InputDecoration(
+                        isDense: true,
+                        hintText: l10n.filterFrom,
+                        border: const OutlineInputBorder(),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 8,
+                        ),
+                        suffixIcon: Icon(
+                          Icons.calendar_today,
+                          size: 16,
+                        ),
+                        suffixIconConstraints: const BoxConstraints(
+                          minWidth: 28,
+                          minHeight: 28,
+                          maxHeight: 28,
+                        ),
+                      ),
+                      value: draftStart,
+                      firstDate: first,
+                      lastDate: draftEnd ?? last,
+                      initialPickerDateTime: draftStart,
+                      mode: _mapDateFilterType(type),
+                      dateFormat: _dateFormatFor(type),
+                      pickerPlatform: DateTimeFieldPickerPlatform.material,
+                      onChanged: (value) {
+                        setDialogState(() => draftStart = value);
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    DateTimeField(
+                      key: ValueKey('rdg-filter-row-to-${column.fieldName}'),
+                      hideDefaultSuffixIcon: true,
+                      decoration: InputDecoration(
+                        isDense: true,
+                        hintText: l10n.filterTo,
+                        border: const OutlineInputBorder(),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 8,
+                        ),
+                        suffixIcon: Icon(
+                          Icons.calendar_today,
+                          size: 16,
+                        ),
+                        suffixIconConstraints: const BoxConstraints(
+                          minWidth: 28,
+                          minHeight: 28,
+                          maxHeight: 28,
+                        ),
+                      ),
+                      value: draftEnd,
+                      firstDate: draftStart ?? first,
+                      lastDate: last,
+                      initialPickerDateTime: draftEnd,
+                      mode: _mapDateFilterType(type),
+                      dateFormat: _dateFormatFor(type),
+                      pickerPlatform: DateTimeFieldPickerPlatform.material,
+                      onChanged: (value) {
+                        setDialogState(() => draftEnd = value);
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(dialogContext).pop(),
+                  child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(dialogContext).pop((draftStart, draftEnd));
+                  },
+                  child: Text(MaterialLocalizations.of(context).okButtonLabel),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
+  }
+
+  intl.DateFormat _dateFormatFor(DateTimeFilterTypes filterType) {
+    switch (filterType) {
+      case DateTimeFilterTypes.DateOnly:
+        return intl.DateFormat.yMd();
+      case DateTimeFilterTypes.TimeOnly:
+        return intl.DateFormat.jm();
+      case DateTimeFilterTypes.DateTime:
+        return intl.DateFormat.yMd().add_jm();
+    }
+  }
+
+  DateTimeFieldPickerMode _mapDateFilterType(DateTimeFilterTypes filterType) {
+    switch (filterType) {
+      case DateTimeFilterTypes.DateOnly:
+        return DateTimeFieldPickerMode.date;
+      case DateTimeFilterTypes.TimeOnly:
+        return DateTimeFieldPickerMode.time;
+      case DateTimeFilterTypes.DateTime:
+        return DateTimeFieldPickerMode.dateAndTime;
+    }
   }
 
   Future<DateTime?> _pickDateTime(
@@ -521,6 +675,46 @@ class _GridFilterRowCellState<TItem extends Object>
     final column = widget.column;
     if (column is! DateTimeColumn<TItem>) return;
     column.filterRules.applyBetween(column.fieldName, start, end);
+    setState(() {});
+    widget.grid.refreshData();
+  }
+
+  void _commitDateBounds(DateTime? start, DateTime? end) {
+    final column = widget.column;
+    if (column is! DateTimeColumn<TItem>) return;
+    final type = _dateFilterType(column);
+    final normalizeStart = start == null
+        ? null
+        : (type == DateTimeFilterTypes.DateOnly ? _startOfDay(start) : start);
+    final normalizeEnd = end == null
+        ? null
+        : (type == DateTimeFilterTypes.DateOnly ? _endOfDay(end) : end);
+
+    if (normalizeStart == null && normalizeEnd == null) {
+      _clear();
+      return;
+    }
+    if (normalizeStart != null && normalizeEnd != null) {
+      final lo = normalizeStart.isAfter(normalizeEnd)
+          ? normalizeEnd
+          : normalizeStart;
+      final hi = normalizeStart.isAfter(normalizeEnd)
+          ? normalizeStart
+          : normalizeEnd;
+      _commitBetween(lo, hi);
+      return;
+    }
+    if (normalizeStart != null) {
+      column.filterRules.applyGreaterThanOrEqualTo(
+        column.fieldName,
+        normalizeStart,
+      );
+    } else {
+      column.filterRules.applyLessThanOrEqualTo(
+        column.fieldName,
+        normalizeEnd as DateTime,
+      );
+    }
     setState(() {});
     widget.grid.refreshData();
   }

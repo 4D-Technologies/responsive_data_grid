@@ -205,7 +205,7 @@ class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
               end: 0,
               top: 0,
               bottom: 0,
-              width: 8,
+              width: 10,
               child: MouseRegion(
                 cursor: SystemMouseCursors.resizeColumn,
                 child: GestureDetector(
@@ -219,7 +219,11 @@ class ResponsiveDataGridHeaderRowWidget<TItem extends Object>
                         Directionality.of(context) == TextDirection.rtl
                         ? -details.delta.dx
                         : details.delta.dx;
-                    grid.setColumnWidth(column.fieldName, start + delta);
+                    grid.setColumnWidth(
+                      column.fieldName,
+                      start + delta,
+                      userResize: true,
+                    );
                   },
                 ),
               ),

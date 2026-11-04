@@ -139,6 +139,100 @@ void main() {
     expect(after.width, isNot(closeTo(before.width, 1)));
   });
 
+  testWidgets('userResize may grow past declared maxWidth', (tester) async {
+    final idColumn = IntColumn<_Person>(
+      fieldName: 'id',
+      header: const ColumnHeader(text: 'Id'),
+      value: (row) => row.id,
+      width: 80,
+      minWidth: 60,
+      maxWidth: 80,
+      xsCols: 2,
+    );
+    final columns = <GridColumn<_Person, dynamic>>[
+      idColumn,
+      StringColumn<_Person>(
+        fieldName: 'name',
+        header: const ColumnHeader(text: 'Name'),
+        value: (row) => row.name,
+        xsCols: 5,
+      ),
+    ];
+    final state = await _pump(tester, columns: columns);
+
+    state.setColumnWidth('id', 140, userResize: true);
+    await tester.pump();
+
+    expect(idColumn.width, closeTo(140, 0.1));
+    expect(idColumn.maxWidth, closeTo(140, 0.1));
+    final after = tester.getSize(
+      find.byKey(const ValueKey('rdg-header-cell-id')),
+    );
+    expect(after.width, closeTo(140, 1));
+  });
+
+  testWidgets('snapshot round-trip keeps soft maxWidth after userResize', (
+    tester,
+  ) async {
+    final idColumn = IntColumn<_Person>(
+      fieldName: 'id',
+      header: const ColumnHeader(text: 'Id'),
+      value: (row) => row.id,
+      width: 80,
+      minWidth: 60,
+      maxWidth: 80,
+      xsCols: 2,
+    );
+    final columns = <GridColumn<_Person, dynamic>>[
+      idColumn,
+      StringColumn<_Person>(
+        fieldName: 'name',
+        header: const ColumnHeader(text: 'Name'),
+        value: (row) => row.name,
+        xsCols: 5,
+      ),
+    ];
+    final state = await _pump(tester, columns: columns);
+
+    state.setColumnWidth('id', 140, userResize: true);
+    await tester.pump();
+    final snap = state.captureState();
+    expect(snap.columns.singleWhere((c) => c.fieldName == 'id').maxWidth, 140);
+
+    // Fresh columns with the original declared max (80).
+    final restoredId = IntColumn<_Person>(
+      fieldName: 'id',
+      header: const ColumnHeader(text: 'Id'),
+      value: (row) => row.id,
+      width: 80,
+      minWidth: 60,
+      maxWidth: 80,
+      xsCols: 2,
+    );
+    final restored = await _pump(
+      tester,
+      columns: [
+        restoredId,
+        StringColumn<_Person>(
+          fieldName: 'name',
+          header: const ColumnHeader(text: 'Name'),
+          value: (row) => row.name,
+          xsCols: 5,
+        ),
+      ],
+    );
+    restored.restoreState(snap);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 50));
+
+    expect(restoredId.maxWidth, closeTo(140, 0.1));
+    expect(restoredId.width, closeTo(140, 0.1));
+    final size = tester.getSize(
+      find.byKey(const ValueKey('rdg-header-cell-id')),
+    );
+    expect(size.width, closeTo(140, 1));
+  });
+
   testWidgets('reorderColumn swaps header order', (tester) async {
     final state = await _pump(tester);
     expect(
