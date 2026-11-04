@@ -962,12 +962,21 @@ void main() {
     expect(calls.last.filterBy.single.logicalOperator, Logic.greaterThanOrEqualTo);
     expect(calls.last.filterBy.single.values.single, DateTime(1990, 1, 10));
 
+    final toOnlyEndOfDay = DateTime(
+      toOnly.year,
+      toOnly.month,
+      toOnly.day,
+      23,
+      59,
+      59,
+      999,
+    );
     await pumpWithCriteria(
       FilterCriteria<DateTime>.value(
         fieldName: 'dob',
         op: Operators.and,
         logicalOperator: Logic.lessThanOrEqualTo,
-        value: DateTime(1990, 1, 20, 23, 59, 59, 999),
+        value: toOnlyEndOfDay,
       ),
     );
     await tester.tap(find.byKey(const ValueKey('rdg-filter-row-dob')));
@@ -975,10 +984,7 @@ void main() {
     await tester.tap(find.text('OK'));
     await tester.pumpAndSettle();
     expect(calls.last.filterBy.single.logicalOperator, Logic.lessThanOrEqualTo);
-    expect(
-      calls.last.filterBy.single.values.single,
-      DateTime(1990, 1, 20, 23, 59, 59, 999),
-    );
+    expect(calls.last.filterBy.single.values.single, toOnlyEndOfDay);
   });
 
 }

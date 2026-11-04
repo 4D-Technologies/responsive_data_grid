@@ -2,10 +2,10 @@
 
 ## [2.0.2] - November 4th, 2026
 
-- Filter/sort refresh keeps the previous page painted under the loading scrim until the new page arrives (#135).
-- DateTime filter-row opens a compact From/To dialog (not fullscreen `showDateRangePicker`), formats the cell with the column/local date style, and supports from-only, to-only, and both bounds (#136).
+- Filter/sort refresh keeps the previous page painted under the loading scrim until the new page arrives, then drops other cached pages and resets infinite-scroll controllers (#135).
+- DateTime filter-row opens a compact From/To dialog (not fullscreen `showDateRangePicker`), formats the cell with the column/local date style, and supports from-only, to-only, and both bounds (#136). Same-day ranges with distinct times show both endpoints.
 - Bool filter-row clear is a sibling IconButton beside the dropdown so taps are not swallowed (#137).
-- User column resize may grow past the declared `maxWidth` (soft preference); resize handle hit target widened (#138).
+- User column resize may grow past the declared `maxWidth` (soft preference); the raised max survives snapshot restore; resize handle hit target widened (#138).
 
 ## [2.0.1] - November 3rd, 2026
 

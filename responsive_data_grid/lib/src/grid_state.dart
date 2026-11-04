@@ -497,6 +497,7 @@ class ResponsiveDataGridState<TItem extends Object>
                 frozen: column.frozen,
                 sticky: column.sticky,
                 width: column.width,
+                maxWidth: column.maxWidth,
               ),
       ],
       height: _effectiveHeight,
@@ -533,6 +534,11 @@ class ResponsiveDataGridState<TItem extends Object>
             column.visible = snap.visible;
             column.frozen = snap.frozen;
             column.sticky = snap.sticky;
+            // Restore max before width so soft-max user overrides survive
+            // a round trip with fresh column definitions (#138).
+            if (snap.maxWidth != null) {
+              column.maxWidth = snap.maxWidth;
+            }
             column.width = snap.width;
             break;
           }

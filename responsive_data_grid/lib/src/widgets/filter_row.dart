@@ -356,7 +356,9 @@ class _GridFilterRowCellState<TItem extends Object>
     final startText = start == null ? null : (column.format(start) ?? '$start');
     final endText = end == null ? null : (column.format(end) ?? '$end');
     if (startText != null && endText != null) {
-      if (_isSameDay(start!, end!)) return startText;
+      // Collapse same-day only when the formatted endpoints match (date-only).
+      // Time-inclusive formats must keep both bounds (e.g. 09:00 – 17:00).
+      if (startText == endText) return startText;
       return '$startText – $endText';
     }
     if (startText != null) return startText;
@@ -457,9 +459,6 @@ class _GridFilterRowCellState<TItem extends Object>
 
   DateTime _endOfDay(DateTime value) =>
       DateTime(value.year, value.month, value.day, 23, 59, 59, 999);
-
-  bool _isSameDay(DateTime a, DateTime b) =>
-      a.year == b.year && a.month == b.month && a.day == b.day;
 
   DateTimeFilterTypes _dateFilterType(DateTimeColumn<TItem> column) {
     final rules = column.filterRules;
