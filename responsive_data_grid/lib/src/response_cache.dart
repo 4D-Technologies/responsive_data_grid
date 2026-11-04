@@ -46,6 +46,21 @@ class ResponseCache<TItem extends Object> {
     _onCleared.add(null);
   }
 
+  /// Drops every cached page except [keepPage] after a filter/sort refresh
+  /// replaces that page under a loading scrim (#135). Fires [onCleared] when
+  /// any other page was removed so infinite-scroll controllers reset.
+  void dropPagesExcept(int keepPage) {
+    final removed = pageMap.keys.where((k) => k != keepPage).toList();
+    if (removed.isEmpty) {
+      return;
+    }
+    for (final key in removed) {
+      pageMap.remove(key);
+    }
+    _items = pageMap.values.expand<TItem>((e) => e.items).toList();
+    _onCleared.add(null);
+  }
+
   void dispose() {
     _onCleared.close();
   }

@@ -770,6 +770,9 @@ class ResponsiveDataGridState<TItem extends Object>
 
     try {
       await setPage(1);
+      // Page 1 was replaced under the scrim; drop stale pages from the
+      // prior criteria so pager/infinite scroll cannot serve them (#135).
+      _dataCache.dropPagesExcept(1);
     } finally {
       _bypassPageCache = false;
       if (mounted) {
@@ -791,6 +794,7 @@ class ResponsiveDataGridState<TItem extends Object>
     });
     try {
       await fetchPage(1, false);
+      _dataCache.dropPagesExcept(1);
     } finally {
       _bypassPageCache = false;
     }
