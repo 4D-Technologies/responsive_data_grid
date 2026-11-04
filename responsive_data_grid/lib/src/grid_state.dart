@@ -431,7 +431,11 @@ class ResponsiveDataGridState<TItem extends Object>
     _notifyState();
   }
 
-  void setColumnWidth(String fieldName, double width) {
+  void setColumnWidth(
+    String fieldName,
+    double width, {
+    bool userResize = false,
+  }) {
     for (final column in widget.columns) {
       if (column.fieldName == fieldName) {
         var next = width;
@@ -439,7 +443,12 @@ class ResponsiveDataGridState<TItem extends Object>
           next = column.minWidth!;
         }
         if (column.maxWidth != null && next > column.maxWidth!) {
-          next = column.maxWidth!;
+          if (userResize) {
+            // Drag past the declared max: treat max as a soft preference (#138).
+            column.maxWidth = next;
+          } else {
+            next = column.maxWidth!;
+          }
         }
         column.width = next;
         break;
@@ -713,6 +722,10 @@ class ResponsiveDataGridState<TItem extends Object>
     await refreshData();
   }
 
+  /// When true, [fetchPage] skips the pageMap short-circuit so filter/sort
+  /// refresh reloads while the previous page stays painted (#135).
+  bool _bypassPageCache = false;
+
   FutureOr<void> refreshData() async {
     setState(() {
       isLoading = true;
@@ -749,13 +762,16 @@ class ResponsiveDataGridState<TItem extends Object>
             .toList(),
       );
 
-      _dataCache.clear();
+      // Keep prior pageMap painted under the loading scrim until the new
+      // response arrives (#135). Bypass cache so setPage(1) actually loads.
+      _bypassPageCache = true;
       _loadId++;
     });
 
     try {
       await setPage(1);
     } finally {
+      _bypassPageCache = false;
       if (mounted) {
         setState(() {
           isLoading = false;
@@ -770,10 +786,14 @@ class ResponsiveDataGridState<TItem extends Object>
     setState(() {
       isLoading = true;
       loadError = null;
-      _dataCache.clear();
+      _bypassPageCache = true;
       _loadId++;
     });
-    await fetchPage(1, false);
+    try {
+      await fetchPage(1, false);
+    } finally {
+      _bypassPageCache = false;
+    }
     final pageCount = pagerPageCount(
       totalCount: _dataCache.totalCount,
       pageSize: _pageSize,
@@ -878,7 +898,7 @@ class ResponsiveDataGridState<TItem extends Object>
   ) async {
     ListResponse<TItem> response;
 
-    if (_dataCache.pageMap.containsKey(pageNumber)) {
+    if (!_bypassPageCache && _dataCache.pageMap.containsKey(pageNumber)) {
       return _dataCache.pageMap[pageNumber]!;
     }
 

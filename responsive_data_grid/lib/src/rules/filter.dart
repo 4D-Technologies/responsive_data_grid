@@ -28,6 +28,24 @@ abstract class FilterRules<
     );
   }
 
+  void applyGreaterThanOrEqualTo(String fieldName, TValue value) {
+    criteria = FilterCriteria<TValue>.value(
+      fieldName: fieldName,
+      op: Operators.and,
+      logicalOperator: Logic.greaterThanOrEqualTo,
+      value: value,
+    );
+  }
+
+  void applyLessThanOrEqualTo(String fieldName, TValue value) {
+    criteria = FilterCriteria<TValue>.value(
+      fieldName: fieldName,
+      op: Operators.and,
+      logicalOperator: Logic.lessThanOrEqualTo,
+      value: value,
+    );
+  }
+
   TColumnFilter showFilter(
     GridColumn<TItem, TValue> definition,
     ResponsiveDataGridState<TItem> grid,

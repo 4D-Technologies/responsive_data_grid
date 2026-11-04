@@ -139,6 +139,38 @@ void main() {
     expect(after.width, isNot(closeTo(before.width, 1)));
   });
 
+  testWidgets('userResize may grow past declared maxWidth', (tester) async {
+    final idColumn = IntColumn<_Person>(
+      fieldName: 'id',
+      header: const ColumnHeader(text: 'Id'),
+      value: (row) => row.id,
+      width: 80,
+      minWidth: 60,
+      maxWidth: 80,
+      xsCols: 2,
+    );
+    final columns = <GridColumn<_Person, dynamic>>[
+      idColumn,
+      StringColumn<_Person>(
+        fieldName: 'name',
+        header: const ColumnHeader(text: 'Name'),
+        value: (row) => row.name,
+        xsCols: 5,
+      ),
+    ];
+    final state = await _pump(tester, columns: columns);
+
+    state.setColumnWidth('id', 140, userResize: true);
+    await tester.pump();
+
+    expect(idColumn.width, closeTo(140, 0.1));
+    expect(idColumn.maxWidth, closeTo(140, 0.1));
+    final after = tester.getSize(
+      find.byKey(const ValueKey('rdg-header-cell-id')),
+    );
+    expect(after.width, closeTo(140, 1));
+  });
+
   testWidgets('reorderColumn swaps header order', (tester) async {
     final state = await _pump(tester);
     expect(

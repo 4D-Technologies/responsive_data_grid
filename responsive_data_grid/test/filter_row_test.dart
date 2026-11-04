@@ -389,7 +389,7 @@ void main() {
     );
   });
 
-  testWidgets('date-only row editor opens a date range picker', (tester) async {
+  testWidgets('date-only row editor opens a From/To dialog', (tester) async {
     tester.view.physicalSize = const Size(900, 700);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
@@ -438,18 +438,19 @@ void main() {
     );
     await tester.tap(find.byKey(const ValueKey('rdg-filter-row-dob')));
     await tester.pumpAndSettle();
-    expect(find.byType(DateRangePickerDialog), findsOneWidget);
-    expect(find.byType(DatePickerDialog), findsNothing);
+    expect(find.byType(DateRangePickerDialog), findsNothing);
+    expect(find.byKey(const ValueKey('rdg-filter-row-from-dob')), findsOneWidget);
+    expect(find.byKey(const ValueKey('rdg-filter-row-to-dob')), findsOneWidget);
     expect(find.byType(TimePickerDialog), findsNothing);
   });
 
-  testWidgets('date-time row editor opens a date range picker', (tester) async {
+  testWidgets('date-time row editor opens a From/To dialog', (tester) async {
     await _pump(tester);
     await tester.tap(find.byKey(const ValueKey('rdg-filter-row-dob')));
     await tester.pumpAndSettle();
-    expect(find.byType(DateRangePickerDialog), findsOneWidget);
-    expect(find.byType(DatePickerDialog), findsNothing);
-    expect(find.byType(TimePickerDialog), findsNothing);
+    expect(find.byType(DateRangePickerDialog), findsNothing);
+    expect(find.byKey(const ValueKey('rdg-filter-row-from-dob')), findsOneWidget);
+    expect(find.byKey(const ValueKey('rdg-filter-row-to-dob')), findsOneWidget);
   });
 
   testWidgets('date-only row editor commits between and clears', (
@@ -526,13 +527,8 @@ void main() {
 
     await tester.tap(find.byKey(const ValueKey('rdg-filter-row-dob')));
     await tester.pumpAndSettle();
-    expect(find.byType(DateRangePickerDialog), findsOneWidget);
-    await tester.tap(
-      find.descendant(
-        of: find.byType(DateRangePickerDialog),
-        matching: find.text('Save'),
-      ),
-    );
+    expect(find.byKey(const ValueKey('rdg-filter-row-from-dob')), findsOneWidget);
+    await tester.tap(find.text('OK'));
     await tester.pumpAndSettle();
 
     expect(calls.length, greaterThan(1));
@@ -835,6 +831,53 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Ada'), findsWidgets);
     expect(find.text('Grace'), findsNothing);
+  });
+
+  testWidgets('bool clear control appears beside dropdown after Yes', (
+    tester,
+  ) async {
+    await _pump(tester);
+
+    expect(
+      find.byKey(const ValueKey('rdg-filter-row-clear-active')),
+      findsNothing,
+    );
+
+    await tester.tap(find.byKey(const ValueKey('rdg-filter-row-active')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Yes').last);
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const ValueKey('rdg-filter-row-clear-active')),
+      findsOneWidget,
+    );
+    expect(find.text('Ada'), findsWidgets);
+    expect(find.text('Grace'), findsNothing);
+
+    await tester.tap(find.byKey(const ValueKey('rdg-filter-row-clear-active')));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const ValueKey('rdg-filter-row-clear-active')),
+      findsNothing,
+    );
+    expect(find.text('Grace'), findsOneWidget);
+  });
+
+  testWidgets('date filter row opens compact From/To dialog', (tester) async {
+    await _pump(tester);
+
+    await tester.tap(find.byKey(const ValueKey('rdg-filter-row-dob')));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const ValueKey('rdg-filter-row-from-dob')),
+      findsOneWidget,
+    );
+    expect(find.byKey(const ValueKey('rdg-filter-row-to-dob')), findsOneWidget);
+    expect(find.text('From'), findsWidgets);
+    expect(find.text('To'), findsWidgets);
   });
 }
 
